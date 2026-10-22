@@ -3,7 +3,7 @@ title: Changelog — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -190,3 +190,76 @@ fechados por `DOMAIN.md`.
 - Critério separado para "o kart continua pilotável depois do fim da volta": não criado; o fato entrou na
   definição de "Em corrida", e os critérios de US-0002 (reação aos comandos) já valem em corrida; um
   critério próprio seria superfície além da ordem do dono do produto ("incorpore a decisão em US-0003").
+
+## 2026-10-22 — rodada 4, Mode B (relatório `req-validation-20261022-1905.md`, 3 erros)
+
+**O que mudou**
+
+- Origem dos três erros: a entrada "Correção da decisão da câmera" entrou em `DOMAIN.md` em 2026-10-22,
+  depois de um feedback do D-Spec desta feature, e o conjunto ainda reproduzia a redação original de
+  `DOMAIN/DEC-06` ("o kart continua pilotável"). O dono do produto fixou que essa frase não vale: quando a
+  volta termina (`ENDED`) e o painel de resultado aparece, a simulação para e o kart congela, como hoje
+  (invariante INV-1 de `race-lap-validation`); a decisão descreve só a câmera (atrás do piloto, na pose de
+  corrida, com o kart parado, até a próxima visão geral); nenhum requisito de pilotagem depois de `ENDED`
+  existe nesta feature, e nada muda em `race-lap-validation`. O rótulo `DOMAIN/DEC-06` foi mantido e passou
+  a carregar a decisão corrigida, como o dono do produto ordenou ("ajuste o rótulo da decisão, DEC-06");
+  nenhum rótulo novo (`DEC-07`) foi criado, e o `sources:` de US-0003 não muda.
+- ISSUE-01 (R4, `01-context.md`): o texto de `DOMAIN/DEC-06` na chave de rastreabilidade diz que ao fim da
+  volta a simulação para e o kart congela como hoje (INV-1 de `race-lap-validation`), que a decisão
+  descreve só a câmera, que a frase "o kart continua pilotável" não vale e que nada muda em
+  `race-lap-validation`; o parágrafo sobre `DOMAIN.md` conta a correção; a tabela "Decisões de domínio
+  aplicadas" lista `DOMAIN/DEC-06` com US-0003 (pose em relação ao kart parado) e os termos "Em corrida",
+  "Fim da volta (`ENDED`)" e "Painel de resultado" do glossário. Mesmo fato levado ao item
+  `race-lap-validation` de Relação com outras features (simulação parada e kart congelado como hoje; nada
+  muda lá). Fechada por edição.
+- ISSUE-02 (R4, `02-glossary.md`): "Em corrida" vai do sinal verde até a próxima visão geral da pista e não
+  termina em `ENDED` nem com o painel; depois do fim da volta a simulação está parada e o kart congelado como
+  hoje, e só a câmera continua na pose de corrida em relação ao kart parado, citando `DOMAIN/DEC-06`
+  corrigida; saiu "enquanto o Jogador pilota" e "o kart continua pilotável". "Fim da volta (`ENDED`)" diz
+  que a simulação para e o kart congela (INV-1 de `race-lap-validation`), sem mudança nesta feature. Mesmo
+  fato levado a "Painel de resultado" (exibido sobre a cena com a simulação parada e o kart congelado).
+  Fechada por edição.
+- ISSUE-03 (R4, US-0003): o caso anormal "Fim da volta, válida ou invalidada, com o painel de resultado
+  exibido" diz que, no quadro em que a volta termina e nos seguintes, a simulação está parada e o kart
+  congelado como hoje, o painel aparece sobre a cena sem mover a câmera, e a câmera fica na pose de corrida
+  em relação ao kart parado (critério 13), com a regra de campo de visão da forma da área de jogo
+  (critérios 04 a 06) e visada que não muda porque o rumo do kart parado não muda (critério 07, com mudança
+  de rumo nula), até a próxima visão geral; saiu "o kart continua pilotável". A seção Fontes cita
+  `DOMAIN/DEC-06` na redação corrigida. Mesmo fato levado aos outros pontos onde aparece: seção Canais
+  (permanência na pose em relação ao kart parado, com a simulação parada), pré-condições (critérios de
+  corrida e critério 13), caso anormal "Reposicionamento do kart em corrida" (quando invalida a volta, a
+  simulação para e o kart congela) e Pontos em aberto. Fechada por edição.
+- Versões: `01-context.md` e `02-glossary.md` em 1.2.0 (texto de um rótulo e de três termos corrigido);
+  US-0003 em 1.2.1 (nenhum critério mudou; caso anormal, canais, pré-condições e fontes corrigidos). Os
+  arquivos editados voltaram a `status: draft`; o gate e o validador decidem a validação. `00-index.md` e
+  `99-traceability.md` não foram tocados: o gate os regenera.
+- Superfície e §16: nenhum requisito, história, critério, NFR, campo ou limite foi acrescentado, removido ou
+  enfraquecido. AC-US-0003-13 não mudou: o validador o reverificou e, com o kart congelado, a pose lida em
+  cada quadro é fixa em relação ao kart parado. Os critérios de US-0002, US-0004, US-0005 e NFR-0001, que
+  usam o termo "Em corrida", continuam valendo sem edição: depois de `ENDED` o modelo exibe o estado
+  congelado que a simulação informa, e a taxa de quadros é medida ao longo de uma volta completa.
+
+**Itens fechados**: ISSUE-01 a ISSUE-03, todos por edição. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Rótulo próprio `DOMAIN/DEC-07` para a correção (segunda forma oferecida pelo relatório): não criado; o
+  dono do produto ordenou ajustar o rótulo `DEC-06`, a correção substitui uma frase da mesma decisão e um
+  rótulo novo faria o `sources:` de US-0003 e a matriz gerada citar duas vezes a mesma decisão.
+- Artefatos das etapas seguintes que herdaram a frase "pilotável" (01-overview, RULE-0002, FLOW-0001 passo
+  1, FLOW-0002 passo 9, SCR-0001 do F-Spec e o que o D-Spec herdou): fora da cerca de escrita desta etapa
+  (§14); são corrigidos pelas rodadas de F-Spec e D-Spec, que leem este conjunto corrigido.
+- Linha de `SCOPE-BACKLOG.md` (registro da recusa do FB-01 no changelog de D-Spec de `race-lap-validation`):
+  não é item de requisito desta feature e não gera feedback (§14) desta etapa; nenhum requisito de
+  `race-lap-validation` muda.
+- Decisões passadas a esta execução que não mudaram o conjunto: "só camada de aplicação" já está em
+  NFR-0005 e NFR-0006 (`SEED/RE-01`, `SEED/IM-I2`); "fonte do modelo: `docs/kart-01/kart.js`" já está em
+  `DOMAIN/DEC-00` e US-0001; "código na raiz do repositório" e "o código entra depois da `dirigibilidade`"
+  continuam fora dos requisitos, pelo motivo das rodadas 1 a 3: são decisões de design, registradas aqui
+  como contexto para `300 Specs/330 D-Specs`.
+- Critério novo sobre o congelamento do kart depois de `ENDED` (por exemplo, "o kart exibido não se move
+  depois do fim da volta"): não criado; o congelamento é da `race-lap-validation` (INV-1) e já está coberto
+  por NFR-0006 (simulação e validação inalteradas); um critério próprio seria superfície nova numa rodada
+  Mode B (§16) e um requisito que a correção do dono do produto diz não existir nesta feature.
+- Entradas das rodadas 1 a 3 deste changelog que citam "o kart continua pilotável": não reescritas; são
+  o registro histórico do que cada rodada fez com a redação de `DOMAIN.md` então vigente.

@@ -1,7 +1,7 @@
 ---
 stage: req
 feature: modelo-kart-01
-generated: 2026-10-22T17:06:57Z
+generated: 2026-10-22T19:14:03Z
 rows: 48
 ---
 

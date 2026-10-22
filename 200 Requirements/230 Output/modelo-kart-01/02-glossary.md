@@ -3,7 +3,7 @@ title: Glossário — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -32,7 +32,7 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Rumo | Direção para onde aponta a frente do kart, tal como a simulação informa; o sentido de marcha para a frente | ambos |
 | Ângulo de esterço | Ângulo das rodas dianteiras em relação ao chassi que a simulação informa para cada quadro | ambos |
 | Quadro | Uma imagem exibida na tela | ambos |
-| Em corrida | Do sinal verde até a próxima visão geral da pista, enquanto o Jogador pilota. Não termina quando a volta acaba (fim da volta, `ENDED`), válida ou invalidada, inclusive por reposicionamento, nem quando o painel de resultado aparece: o kart continua pilotável e, para a câmera, a pose de corrida continua até a próxima visão geral (`DOMAIN/DEC-06`) | ambos |
+| Em corrida | Do sinal verde até a próxima visão geral da pista. Não termina quando a volta acaba (fim da volta, `ENDED`), válida ou invalidada, inclusive por reposicionamento, nem quando o painel de resultado aparece; depois do fim da volta, com o painel de resultado exibido, a simulação está parada e o kart congelado, como hoje, e só a câmera continua na pose de corrida em relação ao kart parado, até a próxima visão geral (`DOMAIN/DEC-06`, decisão corrigida em 2026-10-22). Nenhum requisito de pilotagem depois do fim da volta existe nesta feature | ambos |
 | Câmera de corrida | Câmera de jogo da ficha, usada em corrida: 1,38 m acima do chão, 3,05 m atrás do kart, mirando um ponto 3,2 m à frente do kart e 0,30 m acima do chão (`SEED/US-3`) | ambos |
 | Pose de corrida | Posição e ponto de mira da câmera de corrida em relação ao kart exibido | ambos |
 | Chão | O plano da pista, sem elevação (I10) | ambos |
@@ -43,8 +43,8 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Visão geral da pista | Vista do alto em que a pista aparece inteira no quadro; é a vista antes da contagem regressiva, e existe só antes dela: não volta no fim da volta nem com o painel de resultado exibido (`SEED.md`, ponto aberto 04; `DOMAIN/DEC-04`; `DOMAIN/DEC-06`) | ambos |
 | Contagem regressiva | Contagem exibida antes da largada, que termina no sinal verde; já existe no jogo | ambos |
 | Sinal verde | Fim da contagem regressiva e início da corrida | ambos |
-| Fim da volta (`ENDED`) | Momento em que a volta termina, válida ou invalidada, inclusive por reposicionamento; já existe no jogo, e esta feature não o muda (`SEED/RE-01`; `DOMAIN/DEC-06`) | ambos |
-| Painel de resultado | Painel exibido na tela quando a volta termina; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele (`DOMAIN/DEC-06`) | ambos |
+| Fim da volta (`ENDED`) | Momento em que a volta termina, válida ou invalidada, inclusive por reposicionamento; a partir dele a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); já existe no jogo, e esta feature não o muda (`SEED/RE-01`; `DOMAIN/DEC-06`) | ambos |
+| Painel de resultado | Painel exibido na tela quando a volta termina, sobre a cena com a simulação parada e o kart congelado; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele (`DOMAIN/DEC-06`) | ambos |
 | Efeito de turbo no campo de visão | Variação do campo de visão vertical aplicada enquanto o turbo está ativo; já existe no jogo e continua a partir da nova base de campo de visão vertical (`SEED/US-3`) | ambos |
 | Marcas de pneu | Rastros deixados no chão pelas rodas traseiras | ambos |
 | Fumaça do escapamento | Fumaça exibida saindo do escapamento do kart | ambos |

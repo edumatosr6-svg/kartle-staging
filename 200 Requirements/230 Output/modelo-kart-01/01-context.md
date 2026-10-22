@@ -3,7 +3,7 @@ title: Contexto — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -28,7 +28,11 @@ Seed: `200 Requirements/220 Input/modelo-kart-01/SEED.md`, `revision: 1`, `date:
 `eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de 2026-10-22
 fecham todos os pontos em aberto do seed (01 a 05) e prevalecem sobre eles; uma sexta decisão da mesma
 data, tomada depois da parada do F-Spec, fixa o que a câmera faz depois do fim da volta
-(`DOMAIN/DEC-06`). Este conjunto usa só os valores dessas decisões.
+(`DOMAIN/DEC-06`). Essa decisão foi corrigida pelo dono do produto na mesma data, depois de um feedback
+do D-Spec: a frase "o kart continua pilotável" não vale; quando a volta termina (`ENDED`) e o painel de
+resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de
+`race-lap-validation`), e a decisão descreve só a câmera. O rótulo `DOMAIN/DEC-06` carrega a decisão já
+corrigida. Este conjunto usa só os valores dessas decisões.
 
 ## Atores e canais
 
@@ -82,7 +86,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-03` | Ponto aberto 03 fechado: em retrato, o campo de visão horizontal é de pelo menos 60°, então o vertical cresce em retrato; em paisagem, o vertical é de 62° |
 | `DOMAIN/DEC-04` | Ponto aberto 04 fechado: antes da largada, a câmera mostra a pista do alto e desce para trás do piloto durante a contagem regressiva; no sinal verde, ela já está na posição de corrida |
 | `DOMAIN/DEC-05` | Ponto aberto 05 fechado: o kart projeta sombra no chão |
-| `DOMAIN/DEC-06` | Câmera depois do fim da volta (decisão de 2026-10-22, após parada do F-Spec): quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel de resultado aparece, a câmera continua atrás do piloto, na pose de corrida, e o kart continua pilotável; a visão geral do alto existe só antes da contagem regressiva; "em corrida", para a câmera, vai do sinal verde até a próxima visão geral, sem terminar em `ENDED` |
+| `DOMAIN/DEC-06` | Câmera depois do fim da volta (decisão de 2026-10-22, após parada do F-Spec, corrigida na mesma data após feedback do D-Spec): quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel de resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); a decisão descreve só a câmera: ela continua atrás do piloto, na pose de corrida, com o kart parado, até a próxima visão geral (antes da contagem da volta seguinte); a visão geral do alto existe só antes da contagem regressiva; "em corrida", para a câmera, vai do sinal verde até a próxima visão geral, sem terminar em `ENDED`; a frase "o kart continua pilotável" da redação original não vale, nenhum requisito de pilotagem depois de `ENDED` existe nesta feature e nada muda em `race-lap-validation` |
 
 ## Decisões de domínio aplicadas
 
@@ -94,7 +98,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-03` | US-0003 (campo de visão em paisagem e em retrato) |
 | `DOMAIN/DEC-04` | US-0003 (visão geral antes da contagem, descida durante a contagem, pose de corrida no sinal verde) |
 | `DOMAIN/DEC-05` | US-0001 (sombra do kart), US-0004 e NFR-0001 (taxa de quadros medida com a sombra) |
-| `DOMAIN/DEC-06` | US-0003 (pose de corrida mantida depois do fim da volta, com o painel de resultado exibido, até a próxima visão geral); o termo "Em corrida" do glossário, que os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam |
+| `DOMAIN/DEC-06` | US-0003 (pose de corrida mantida depois do fim da volta, em relação ao kart parado, com a simulação parada e o painel de resultado exibido, até a próxima visão geral); os termos "Em corrida", "Fim da volta (`ENDED`)" e "Painel de resultado" do glossário — "Em corrida" é o termo que os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam |
 
 Não resta ponto em aberto neste conjunto.
 
@@ -139,8 +143,9 @@ abandono muda estado de domínio por causa desta feature.
   enviado: nenhum requisito daquela feature precisa mudar.
 - **`race-lap-validation`.** Esta feature usa a contagem regressiva e o sinal verde que já existem, só para
   posicionar a câmera (`DOMAIN/DEC-04`), e o fim da volta (`ENDED`) e o painel de resultado que já existem,
-  só para manter a câmera na pose de corrida (`DOMAIN/DEC-06`); não muda a validação de volta
-  (`SEED/RE-01`). Nenhum feedback é enviado.
+  só para manter a câmera na pose de corrida em relação ao kart parado (`DOMAIN/DEC-06`); ao fim da volta a
+  simulação para e o kart congela, como hoje (invariante INV-1 daquela feature), e nada muda nela: nem a
+  validação de volta (`SEED/RE-01`) nem o congelamento. Nenhum feedback é enviado.
 - **`pista-kart-park`.** Novas pistas e cenário estão fora do escopo (`SEED/FE-04`); o Kart 01 e a câmera
   valem em qualquer pista em jogo.
 

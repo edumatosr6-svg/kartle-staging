@@ -19,3 +19,8 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   câmera **continua atrás do piloto**, na pose de corrida, e o kart continua pilotável. A visão geral do
   alto existe **só antes da contagem regressiva**. "Em corrida", para a câmera, vai do sinal verde até a
   próxima visão geral, sem terminar em `ENDED`.
+- 2026-10-22 — **Correção da decisão da câmera (Eduardo Matos),** após feedback do D-Spec: a frase "o
+  kart continua pilotável" **não vale**. Quando a volta termina (`ENDED`) e o painel de resultado aparece,
+  a simulação para e o kart **congela, como hoje** (invariante INV-1 de `race-lap-validation`). A decisão
+  descreve **só a câmera**: ela continua atrás do piloto, na pose de corrida, com o kart parado, até a
+  próxima visão geral (antes da contagem da volta seguinte). Nada muda em `race-lap-validation`.

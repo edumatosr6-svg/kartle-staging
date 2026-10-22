@@ -2,7 +2,7 @@
 stage: req
 feature: modelo-kart-01
 status: validated
-generated: 2026-10-22T17:06:57Z
+generated: 2026-10-22T19:14:03Z
 files: 16
 ---
 
@@ -12,9 +12,9 @@ files: 16
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-context.md` | - | Contexto — modelo Kart 01 e câmera de jogo | validated | 1.1.0 |
-| `02-glossary.md` | - | Glossário — modelo Kart 01 e câmera de jogo | validated | 1.1.0 |
-| `97-changelog.md` | - | Changelog — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
+| `01-context.md` | - | Contexto — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
+| `02-glossary.md` | - | Glossário — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
+| `97-changelog.md` | - | Changelog — modelo Kart 01 e câmera de jogo | validated | 1.3.0 |
 | `98-divergences.md` | - | Divergências — modelo Kart 01 e câmera de jogo | validated | 1.0.0 |
 | `nfr/NFR-0001-taxa-de-quadros-com-o-kart-01.md` | NFR-0001 | Taxa de quadros com o Kart 01 | validated | 1.0.0 |
 | `nfr/NFR-0002-download-inicial.md` | NFR-0002 | Download inicial abaixo de 3 MB | validated | 1.0.0 |
@@ -25,6 +25,6 @@ files: 16
 | `nfr/NFR-0007-posicoes-das-rodas-da-simulacao.md` | NFR-0007 | Posições das rodas da simulação preservadas | validated | 1.0.0 |
 | `stories/US-0001-kart-de-verdade-na-pista.md` | US-0001 | Kart de verdade na pista | validated | 1.1.0 |
 | `stories/US-0002-kart-reage-aos-comandos.md` | US-0002 | Kart reage aos comandos | validated | 1.1.0 |
-| `stories/US-0003-camera-atras-e-perto-do-kart.md` | US-0003 | Câmera atrás e perto do kart | validated | 1.2.0 |
+| `stories/US-0003-camera-atras-e-perto-do-kart.md` | US-0003 | Câmera atrás e perto do kart | validated | 1.2.1 |
 | `stories/US-0004-jogo-nao-fica-mais-lento.md` | US-0004 | Jogo não fica mais lento com o Kart 01 | validated | 1.0.1 |
 | `stories/US-0005-efeitos-presos-ao-kart.md` | US-0005 | Efeitos continuam presos ao kart | validated | 1.0.1 |
