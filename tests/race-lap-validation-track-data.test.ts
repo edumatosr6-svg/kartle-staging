@@ -16,17 +16,20 @@ test('CHK-TEST-0009-01 a track file in the previous schema version is read witho
 });
 
 test('CHK-TEST-0009-02 the declared schema version is greater than the previous one and the synthetic file carries it', () => {
-  // NFR-0012
-  assert.equal(TRACK_SCHEMA_VERSION, 2, 'NFR-0012: the schema version must be 2, greater than the previous 1');
+  // NFR-0012 — no schema-version literal: the previous version is read from the previous-form fixture and the
+  // current one from the export, so raising the schema in another feature does not fail this check (FB-01 of pista-kart-park)
+  const previous = (JSON.parse(trackV1Text()) as { schemaVersion: number }).schemaVersion;
+  assert.ok(Number.isInteger(TRACK_SCHEMA_VERSION) && TRACK_SCHEMA_VERSION > previous, `NFR-0012: the schema version (${TRACK_SCHEMA_VERSION}) must be greater than the previous (${previous})`);
   assert.equal(SYNTHETIC_TRACK_FILE.schemaVersion, TRACK_SCHEMA_VERSION, 'NFR-0012: the published synthetic file must declare the current schema version');
 });
 
 test('CHK-TEST-0009-03 a file with a later schema version is reported as UNSUPPORTED_SCHEMA and left untouched', () => {
-  // NFR-0012
-  const file = { ...syntheticFile(), schemaVersion: 3 };
+  // NFR-0012 — the later version is derived from the export (TRACK_SCHEMA_VERSION + 1), never a literal (FB-01 of pista-kart-park)
+  const later = TRACK_SCHEMA_VERSION + 1;
+  const file = { ...syntheticFile(), schemaVersion: later };
   const snapshot = JSON.stringify(file);
   const reading = readTrackData(file);
-  assert.deepEqual(reading, { trackDataStatus: 'UNSUPPORTED_SCHEMA', schemaVersion: 3 }, 'NFR-0012: schema 3 must be reported as UNSUPPORTED_SCHEMA with its version');
+  assert.deepEqual(reading, { trackDataStatus: 'UNSUPPORTED_SCHEMA', schemaVersion: later }, `NFR-0012: schema ${later} must be reported as UNSUPPORTED_SCHEMA with its version`);
   assert.equal(JSON.stringify(file), snapshot, 'NFR-0012: the unsupported file must not be altered');
 });
 

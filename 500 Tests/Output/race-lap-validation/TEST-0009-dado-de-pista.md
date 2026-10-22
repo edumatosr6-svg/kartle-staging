@@ -3,8 +3,8 @@ id: TEST-0009
 title: Leitura e classificação do dado de pista versionado
 feature: race-lap-validation
 stage: test
-status: validated
-version: 1.0.0
+status: draft
+version: 1.1.0
 sources: [NFR-0012, AC-US-0008-03, AC-US-0005-03, AC-US-0005-04, AC-US-0001-06, AC-US-0004-02, AC-US-0004-05, AC-US-0002-10, AC-US-0002-13, AC-US-0006-04]
 ---
 
@@ -15,15 +15,15 @@ sources: [NFR-0012, AC-US-0008-03, AC-US-0005-03, AC-US-0005-04, AC-US-0001-06, 
 | Arquivo | `tests/race-lap-validation-track-data.test.ts` (estratégia: `track-data`) |
 | Nível | unitário |
 | Interface exercitada | `readTrackData`, `checkConsistency`, `TRACK_SCHEMA_VERSION`, `DEFAULT_CUT_DISTANCE_M`, `DEFAULT_CUT_DURATION_MS` de `src/trackData.ts` |
-| Fixtures | `tests/fixtures/track-v1.json`; `tests/fixtures/trackFiles.ts`: cópia sem `markers`, `withCutLimits`, `failingC1` a `failingC7` (uma inconsistência cada), `schemaVersion` 3 e texto corrompido como literais |
+| Fixtures | `tests/fixtures/track-v1.json` (forma anterior; a sua `schemaVersion` é a "versão anterior" da prova de versão declarada); `tests/fixtures/trackFiles.ts`: cópia sem `markers`, `withCutLimits`, `failingC1` a `failingC7` (uma inconsistência cada); cópia do sintético com `schemaVersion` igual a `TRACK_SCHEMA_VERSION + 1`, derivada da constante exportada por `src/trackData.ts` (nenhum literal de versão de esquema nas provas do NFR-0012, FB-01 de `pista-kart-park`); texto corrompido como literal |
 
 ## Verificações
 
 | Check | Decide | Teste | O que a faria falhar |
 |---|---|---|---|
 | CHK-TEST-0009-01 | NFR-0012 | a track file in the previous schema version is read without error as INCOMPLETE, keeping its identity | erro ou descarte da forma anterior |
-| CHK-TEST-0009-02 | NFR-0012 | the declared schema version is greater than the previous one and the synthetic file carries it | versão de esquema não incrementada |
-| CHK-TEST-0009-03 | NFR-0012 | a file with a later schema version is reported as UNSUPPORTED_SCHEMA and left untouched | versão desconhecida lida como válida ou alterada |
+| CHK-TEST-0009-02 | NFR-0012 | the declared schema version is greater than the previous one and the synthetic file carries it | `TRACK_SCHEMA_VERSION` não maior que a `schemaVersion` da forma anterior (`track-v1.json`), ou arquivo sintético declarando versão diferente da constante |
+| CHK-TEST-0009-03 | NFR-0012 | a file with a later schema version is reported as UNSUPPORTED_SCHEMA and left untouched | versão `TRACK_SCHEMA_VERSION + 1` lida como válida, devolvida com outra versão, ou objeto de entrada alterado |
 | CHK-TEST-0009-04 | NFR-0012 | corrupted or absent data is reported as UNREADABLE with no other field | exceção lançada ou campo extra |
 | CHK-TEST-0009-05 | AC-US-0008-03 | a file without markers is INCOMPLETE and keeps what it declares | dado sem marcadores lido como `COMPLETE` |
 | CHK-TEST-0009-06 | AC-US-0005-03 | a direction opposite to the winding of the centerline fails C1 and makes the data INCOMPLETE | sentido declarado não verificado |
