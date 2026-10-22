@@ -1,47 +1,61 @@
-// Offline control usability benchmark, NOT part of the playable client.
-// Coarse binary inputs at 10 Hz simulate tapping keys with a simple look-ahead.
-import { ARCADE_KART, initialState, LapTracker, nearest, STEP, step, track, WIDTH, type Input } from '../src/physics';
+// bench:handling — the handling bench program (DES-0004, ADR-0003, ADR-0004), NOT part of the playable client.
+// Application layer: it only advances the simulation through the bench library and startLap/stepLap, and it is
+// the one module of the feature that reads the wall clock (measuredAtUtc, meanStepCostUs) and node:os (runtimeId).
+// Arguments: --previous (the previous Arcade version, to produce its baseline) and --realista (RENTAL_KART, idem).
+import { performance } from 'node:perf_hooks';
+import { cpus } from 'node:os';
+import { PUBLISHED_SETUPS, type PublishedSetup } from '../src/physics';
+import { startLap, stepLap } from '../src/lap';
+import { COUNTDOWN_STEPS } from '../src/lapTiming';
+import {
+  BENCH_PARAMETERS, handlingBenchReport, loadBaselineText, MAX_LAP_STEPS, readBaseline, serialize, syntheticReading, testPilot,
+  type BenchOptions, type BenchRecord, type InputMode,
+} from './handlingBench';
 
-export function keyboardLap(assisted: boolean) {
-  const config = { ...ARCADE_KART, drivingAssists: assisted };
-  let state = initialState();
-  const laps = new LapTracker();
-  let input: Input = { throttle: 1, brake: 0, steer: 0 };
-  let maxDistance = 0, offRoadTicks = 0, peakSlip = 0;
-  for (let tick = 0; tick < 120 * 90; tick++) {
-    const location = nearest(state);
-    if (tick % 12 === 0) {
-      const ahead = Math.max(3, Math.round(state.speed * 0.5));
-      const target = track[(location.index + ahead) % track.length];
-      const a = track[(location.index + 3) % track.length];
-      const b = track[(location.index + 7) % track.length];
-      const c = track[(location.index + 11) % track.length];
-      const curvature = 2 * Math.abs((b.x - a.x) * (c.z - b.z) - (b.z - a.z) * (c.x - b.x))
-        / (Math.hypot(b.x - a.x, b.z - a.z) * Math.hypot(c.x - b.x, c.z - b.z) * Math.hypot(c.x - a.x, c.z - a.z));
-      const targetSpeed = Math.min(13, Math.sqrt(6 / Math.max(curvature, 0.001)));
-      const desired = Math.atan2(target.x - state.x, target.z - state.z);
-      const error = Math.atan2(Math.sin(desired - state.heading), Math.cos(desired - state.heading));
-      input = {
-        throttle: state.speed < targetSpeed ? 1 : 0,
-        brake: state.speed > targetSpeed + 1 ? 1 : 0,
-        steer: Math.abs(error) > 0.07 ? -Math.sign(error) : 0,
-      };
-    }
-    state = step(state, input, STEP, config);
-    const distance = nearest(state).distance;
-    maxDistance = Math.max(maxDistance, distance);
-    peakSlip = Math.max(peakSlip, Math.abs(state.telemetry.sideslip));
-    if (distance > WIDTH / 2) offRoadTicks++;
-    if (laps.update(nearest(state).index)) return {
-      completed: true, seconds: (tick + 1) * STEP, maxDistance, peakSlip,
-      offRoadFraction: offRoadTicks / (tick + 1),
-    };
+// Machine and runtime identity for STEP_COST (ADR-0003, decision 4): never a host name or a user name.
+function runtimeId(): string {
+  return `${process.platform}-${process.arch}-node${process.versions.node}-${cpus()[0]?.model ?? 'cpu'}`;
+}
+
+// Mean wall-clock cost of one stepLap over the test-pilot lap, in microseconds; never a domain measure (I9).
+function measureStepCost(setup: PublishedSetup, version: 'current' | 'previous'): { meanStepCostUs: number } {
+  const config = { ...(version === 'previous' && setup.previousConfig ? setup.previousConfig : setup.config), driverMass: BENCH_PARAMETERS.driverMassKg };
+  const reading = syntheticReading();
+  if (reading.trackDataStatus !== 'COMPLETE') throw new Error(`synthetic track is ${reading.trackDataStatus}`);
+  const started = startLap(undefined, { lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion }, reading, config);
+  if (!started.ok) throw new Error(`startLap rejected the synthetic track: ${started.code}`);
+  let lap = started.lap;
+  for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, { throttle: 0, brake: 0, steer: 0 });
+  const pilot = testPilot(config);
+  let total = 0, steps = 0;
+  for (let i = 0; i < MAX_LAP_STEPS && lap.phase !== 'ENDED'; i++) {
+    const input = pilot(lap);
+    const before = performance.now();
+    lap = stepLap(lap, input);
+    total += performance.now() - before;
+    steps++;
   }
-  return { completed: false, seconds: 90, maxDistance, peakSlip, offRoadFraction: offRoadTicks / (120 * 90) };
+  return { meanStepCostUs: steps > 0 ? total * 1000 / steps : 0 };
 }
 
-const assisted = keyboardLap(true);
-console.log({ assisted, previousArcade: keyboardLap(false) });
-if (!assisted.completed || assisted.offRoadFraction > 0 || assisted.maxDistance > WIDTH / 2) {
-  throw new Error('Assisted keyboard benchmark failed to complete a clean lap.');
+const args = process.argv.slice(2);
+const previous = args.includes('--previous'), realista = args.includes('--realista');
+const setup = realista ? PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T : PUBLISHED_SETUPS.ARCADE_ASSISTIDO;
+const version = previous ? 'previous' : 'current';
+const id = runtimeId();
+const measuredAtUtc = new Date().toISOString();
+const stepCost = { ...measureStepCost(setup, version), runtimeId: id };
+// A run that produces a baseline (--previous, --realista) is never judged against another baseline (ADR-0003).
+const text = previous || realista ? '' : loadBaselineText();
+const arcade = PUBLISHED_SETUPS.ARCADE_ASSISTIDO;
+const baseline = text && arcade.previousSetupVersion ? readBaseline(text, 'ARCADE_ASSISTIDO', arcade.previousSetupVersion) : undefined;
+const realistaBaseline = text ? readBaseline(text, 'REALISTA_ALUGUEL_4T', PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T.setupVersion) : undefined;
+const records: BenchRecord[] = [];
+for (const inputMode of ['BINARY', 'PROPORTIONAL'] as const satisfies readonly InputMode[]) {
+  const options: BenchOptions = {
+    setup, version, inputMode, measuredAtUtc, stepCost,
+    ...(baseline ? { baseline } : {}), ...(realistaBaseline ? { realistaBaseline } : {}),
+  };
+  records.push(...handlingBenchReport(options));
 }
+console.log(serialize(records, { ...BENCH_PARAMETERS, runtimeId: id }));

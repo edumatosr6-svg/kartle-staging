@@ -1,4 +1,5 @@
-import { initialState, step, STEP, RENTAL_KART, KART_PRESETS, TEST_PAD, type Input, type State } from '../src/physics';
+import { initialState, step, STEP, RENTAL_KART, KART_PRESETS, PUBLISHED_SETUPS, TEST_PAD, type Input, type State } from '../src/physics';
+import { BENCH_PARAMETERS, runBench, serialize, type BenchOptions, type BenchRecord } from './handlingBench';
 const moving = (speed: number): State => ({ ...initialState(), x: 0, z: 0, heading: 0, vx: 0, vz: speed, speed });
 function run(s: State, input: Input, seconds: number, mass = 75) {
   for (let i = 0; i < seconds / STEP; i++) s = step(s, input, STEP, { ...RENTAL_KART, driverMass: mass }, TEST_PAD);
@@ -36,3 +37,11 @@ for (const [preset, config] of Object.entries(KART_PRESETS)) {
     after5SecondsKmh: round(after5), terminalKmh: round(state.speed * 3.6),
     retakeFrom28_8KmhAfter2Seconds: round(retake.speed * 3.6) });
 }
+// Records of API-0003 for the current Arcade setup (DES-0004): the wall clock is read here, never in the library.
+const measuredAtUtc = new Date().toISOString();
+const records: BenchRecord[] = [];
+for (const inputMode of ['BINARY', 'PROPORTIONAL'] as const) {
+  const options: BenchOptions = { setup: PUBLISHED_SETUPS.ARCADE_ASSISTIDO, version: 'current', inputMode, measuredAtUtc };
+  for (const benchId of ['ACCELERATION', 'TOP_SPEED', 'GRASS_LOSS', 'WALL_CONTACT'] as const) records.push(...runBench(benchId, options));
+}
+console.log(serialize(records, BENCH_PARAMETERS));

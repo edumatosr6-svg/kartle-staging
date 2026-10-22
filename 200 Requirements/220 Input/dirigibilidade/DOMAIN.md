@@ -56,3 +56,13 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   `understeer` consecutivo dentro dele**, e não um máximo acumulado ao longo da varredura. O tamanho do
   patamar em km/h e a duração de cada um são parâmetros do ensaio, registrados em `docs/physics.md`
   (NFR-0004), não limiares de domínio.
+- 2026-10-22 — **Início do subesterço num acerto que não sai de frente (Eduardo Matos), após FAIL SPEC do
+  código:** quando a varredura em patamares no arco de 18 m termina pela saída da faixa acima de 50 km/h
+  sem a telemetria ter reportado `understeer` em nenhum patamar, **a velocidade de início do subesterço
+  (V1) é a velocidade mantida do patamar interrompido pela saída** e o critério "V1 ≥ 1,15 × V0" é
+  avaliado com esse valor. Nunca sair de frente até sair da faixa **cumpre** o critério. O rótulo
+  `understeer` da telemetria não muda.
+- 2026-10-22 — **Curva de referência com acelerador zero (Eduardo Matos):** no ensaio do arco de 18 m
+  entrando a 50 km/h **com acelerador zero**, o único critério é "sem `understeer` por mais de 200 ms
+  consecutivos"; **permanecer na faixa enquanto desacelera não é exigido**. A variante com acelerador
+  cheio continua exigindo permanência na faixa e ausência de `understeer`/`oversteer`.

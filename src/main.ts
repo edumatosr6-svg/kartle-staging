@@ -1,5 +1,7 @@
 import * as THREE from 'three';
-import { initialState, KART_PRESETS, nearest, ARCADE_KART, track, WIDTH, wheelPositions } from './physics';
+import { initialState, nearest, track, WIDTH, wheelPositions, PUBLISHED_SETUPS, getHandlingTelemetry, type PublishedSetup, type SetupRef } from './physics';
+import { buildLapRecord, compareLapRecords, type LapRecord } from './setupRecords';
+import { formatSharedText, shareLabel } from './handlingMessages';
 import { chargeTier } from './maneuvers';
 import { RaceAudio } from './audio';
 import { SYNTHETIC_TRACK_FILE } from './track';
@@ -116,8 +118,10 @@ const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.36, 12, 8), material('#
 helmet.position.set(0, 1.2, -0.1);
 kart.add(helmet);
 box(kart, [0.53, 0.14, 0.15], [0, 1.22, 0.2], '#263d36');
+// The current setup comes from the published data (DES-0007, ADR-0001); there is no path to the previous version.
+let setup: PublishedSetup = PUBLISHED_SETUPS.ARCADE_ASSISTIDO;
 const wheels: { pivot: THREE.Group; mesh: THREE.Mesh }[] = [];
-for (const position of wheelPositions(ARCADE_KART)) {
+for (const position of wheelPositions(setup.config)) {
   const pivot = new THREE.Group();
   pivot.position.set(position.left, 0.31, position.forward);
   const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.28, 12), material('#202b28'));
@@ -151,12 +155,16 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 // Lap state: the simulation (src/lap.ts) is the single source; this layer only forwards commands and reads views.
 const idleKart = initialState();
 let lap: LapSession | undefined;
-let config = { ...ARCADE_KART };
+let config = { ...setup.config, driverMass: 75 };
+// The setup identity of the lap, fixed with its config in beginLap and read by the HUD and the lap record (DES-0002).
+let setupRef: SetupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
 const reading: TrackReading = readTrackData(SYNTHETIC_TRACK_FILE);
 if (reading.trackDataStatus === 'UNREADABLE') console.warn('track-data', 'UNREADABLE');
 else if (reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'UNSUPPORTED_SCHEMA', reading.schemaVersion);
 else if (reading.trackDataStatus === 'INCOMPLETE') console.warn('track-data', 'INCOMPLETE', reading.trackId, reading.trackVersion);
-let started = false, best = Infinity, accumulatorS = 0, last = performance.now();
+let started = false, accumulatorS = 0, last = performance.now();
+// Lap records of the page (DES-0006, DM-0001 section 2): the last ended lap and the best comparable one; nothing persisted.
+let lastRecord: LapRecord | undefined, bestRecord: LapRecord | undefined;
 const keys = new Set<string>();
 const touch = new Set<string>();
 let tilt = false, neutral: number | null = null, tiltSteer = 0;
@@ -205,10 +213,19 @@ function renderOffer() {
     offer.appendChild(button);
   }
 }
+// The best time is shown only when it is COMPARABLE with the current setup on the current track (RULE-0003, SCR-0002).
+function renderBest() {
+  const el = $('best');
+  if (!bestRecord || bestRecord.lapMs === undefined || (reading.trackDataStatus !== 'COMPLETE' && reading.trackDataStatus !== 'INCOMPLETE')) { el.textContent = '—'; return; }
+  const compared = compareLapRecords(bestRecord, { trackId: reading.trackId, trackVersion: reading.trackVersion, setupId: setup.setupId, setupVersion: setup.setupVersion });
+  if ('code' in compared) { console.warn('lap-record', compared.code); el.textContent = '—'; return; }
+  el.textContent = compared.comparability === 'COMPARABLE' ? formatLapTime(bestRecord.lapMs) : '—';
+}
 function beginLap(kind: LapKind) {
   if (reading.trackDataStatus !== 'COMPLETE' && reading.trackDataStatus !== 'INCOMPLETE') return;
   const r = startLap(lap, { lapKind: kind, trackId: reading.trackId, trackVersion: reading.trackVersion }, reading, config);
   if (!r.ok) return;
+  setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
   lap = r.lap; started = true; accumulatorS = 0; keys.clear(); touch.clear();
   touchFallback = coarsePointer.matches && !tilt;
   skidMarks.count = 0; skidIndex = 0; previousSkids = []; skidClock = 0;
@@ -223,14 +240,18 @@ $('driver-mass').oninput = e => {
 };
 $('driver-mass').onchange = e => {
   config = { ...config, driverMass: Number((e.target as HTMLInputElement).value) };
-  best = Infinity; $('best').textContent = '—';
+  bestRecord = undefined; renderBest();
   notify('Peso atualizado. Vale na próxima volta.');
 };
+// The two values of the <select> map to the published setups; no option for the previous version (DES-0007).
+const SETUP_BY_PRESET = { arcade: 'ARCADE_ASSISTIDO', rental: 'REALISTA_ALUGUEL_4T' } as const;
 $('handling-preset').onchange = e => {
-  const preset = (e.target as HTMLSelectElement).value as keyof typeof KART_PRESETS;
-  if (!(preset in KART_PRESETS)) return;
-  config = { ...KART_PRESETS[preset], driverMass: config.driverMass };
-  best = Infinity; $('best').textContent = '—';
+  const preset = (e.target as HTMLSelectElement).value as keyof typeof SETUP_BY_PRESET;
+  if (!(preset in SETUP_BY_PRESET)) return;
+  setup = PUBLISHED_SETUPS[SETUP_BY_PRESET[preset]];
+  config = { ...setup.config, driverMass: config.driverMass };
+  setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
+  bestRecord = undefined; renderBest();
   $('preset-label').textContent = preset === 'arcade' ? 'ARCADE ASSISTIDO · TREINO LIVRE' : 'ALUGUEL 4T · TREINO LIVRE';
   $('assist-description').textContent = preset === 'arcade'
     ? 'Direção progressiva, freio equilibrado e ajuda para conter rodadas. Você escolhe a trajetória.'
@@ -247,6 +268,15 @@ $('sound').onclick = async () => {
 $('reset').onclick = emitReposition;
 $('pause').onclick = emitResume;
 $('lap-new-lap').onclick = () => { $('lap-result').classList.add('hidden'); $('welcome').classList.remove('hidden'); };
+// Share the last record through the Web Share API, or the clipboard; a failure only notifies and changes no record.
+$('lap-share').onclick = async () => {
+  if (!lastRecord) return;
+  const text = formatSharedText(lastRecord, lang);
+  try {
+    if (navigator.share) await navigator.share({ text });
+    else await navigator.clipboard.writeText(text);
+  } catch { notify(lang === 'pt' ? 'Não foi possível compartilhar.' : 'Could not share.'); }
+};
 document.addEventListener('keydown', e => {
   if (e.target instanceof HTMLInputElement || e.target instanceof HTMLSelectElement || e.target instanceof HTMLTextAreaElement || (e.target instanceof HTMLElement && e.target.isContentEditable)) return;
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) e.preventDefault();
@@ -354,6 +384,8 @@ function renderResult() {
     list.replaceChildren();
   }
   $('lap-new-lap').textContent = message('newLap', lang);
+  $('lap-result-setup').textContent = lastRecord?.setupVersion ?? '';
+  $('lap-share').textContent = shareLabel(lang);
   panel.classList.remove('hidden');
 }
 new ResizeObserver(() => {
@@ -393,7 +425,18 @@ function frame(now: number) {
   const running = lap?.phase === 'RUNNING';
   if (lap?.phase === 'ENDED' && lastPhase !== 'ENDED') {
     const result = getLapResult(lap);
-    if (!('code' in result) && result.lapMs !== undefined) { best = Math.min(best, result.lapMs); $('best').textContent = formatLapTime(best); }
+    if (!('code' in result)) {
+      lastRecord = buildLapRecord(result, setupRef);
+      if (lastRecord.lapValidity === 'VALID' && lastRecord.lapMs !== undefined) {
+        if (!bestRecord || bestRecord.lapMs === undefined) bestRecord = lastRecord;
+        else {
+          const compared = compareLapRecords(bestRecord, lastRecord);
+          if ('code' in compared) console.warn('lap-record', compared.code);
+          else if (compared.comparability === 'COMPARABLE' && lastRecord.lapMs < bestRecord.lapMs) bestRecord = lastRecord;
+        }
+      }
+      renderBest();
+    }
   }
   lastPhase = lap?.phase;
   kart.position.set(state.x, 0, state.z); kart.rotation.y = state.heading;
@@ -455,7 +498,15 @@ function frame(now: number) {
   const showFallback = active ? touchFallback : coarsePointer.matches && !tilt;
   fallback.classList.toggle('hidden', !showFallback);
   if (showFallback) fallback.textContent = message('controlFallbackTouch', lang);
-  $('speed').textContent = Math.round(state.speed * 3.6).toString();
+  // Speed and handling state come from the telemetry contract (DES-0005, API-0001); NO_STATE leaves both empty.
+  const telemetry = getHandlingTelemetry(state, setupRef);
+  const labels = { grip: 'Aderência', understeer: 'Saindo de frente', oversteer: 'Saindo de traseira', sliding: 'Derrapando' };
+  if ('code' in telemetry) { $('speed').textContent = ''; $('handling').textContent = ''; }
+  else {
+    $('speed').textContent = Math.round(telemetry.speedMps * 3.6).toString();
+    $('handling').textContent = labels[telemetry.handling];
+    $('handling').dataset.state = telemetry.handling;
+  }
   $('style-score').textContent = tricks.score.toLocaleString('pt-BR');
   $('combo').textContent = tricks.chain > 1 && tricks.chainWindow > 0 ? `×${tricks.chain}` : '';
   const tier = chargeTier(tricks.charge);
@@ -471,9 +522,6 @@ function frame(now: number) {
   const driftButton = document.querySelector<HTMLButtonElement>('[data-control="drift"]')!;
   driftButton.disabled = !config.drivingAssists;
   const t = state.telemetry;
-  const labels = { grip: 'Aderência', understeer: 'Saindo de frente', oversteer: 'Saindo de traseira', sliding: 'Derrapando' };
-  $('handling').textContent = labels[t.handling];
-  $('handling').dataset.state = t.handling;
   $('lateral-g').textContent = `${Math.abs(t.lateralG).toFixed(2)} g`;
   $('longitudinal-g').textContent = `${t.longitudinalG >= 0 ? '+' : ''}${t.longitudinalG.toFixed(2)} g`;
   $('front-slip').textContent = `${(t.frontSlip * 180 / Math.PI).toFixed(1)}°`;
