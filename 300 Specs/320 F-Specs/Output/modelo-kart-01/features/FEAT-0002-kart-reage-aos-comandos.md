@@ -3,7 +3,7 @@ id: FEAT-0002
 title: Kart reage aos comandos — rodas, volante, braços, posição e rumo
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: [US-0002, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06]
 ---

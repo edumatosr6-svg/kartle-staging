@@ -4,8 +4,8 @@ title: Câmera atrás e perto do kart
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.1.0
-sources: [SEED/US-3, SEED/RD-01, SEED/RD-04, SEED/IM-I9, DOMAIN/DEC-03, DOMAIN/DEC-04]
+version: 1.2.0
+sources: [SEED/US-3, SEED/RD-01, SEED/RD-04, SEED/IM-I9, DOMAIN/DEC-03, DOMAIN/DEC-04, DOMAIN/DEC-06]
 ---
 
 # US-0003 — Câmera atrás e perto do kart
@@ -16,8 +16,9 @@ Como Jogador, quero a câmera atrás e perto do kart, para sentir velocidade e p
 
 ## Canais
 
-- `web-desktop` e `web-mobile`: a mesma pose de corrida, a mesma visão geral antes da contagem e a mesma
-  descida durante a contagem.
+- `web-desktop` e `web-mobile`: a mesma pose de corrida, a mesma visão geral antes da contagem, a mesma
+  descida durante a contagem e a mesma permanência na pose de corrida depois do fim da volta, com o painel
+  de resultado exibido.
 - Diferença por forma da área de jogo (`DOMAIN/DEC-03`): em paisagem, o campo de visão vertical é de 62°;
   em retrato, o campo de visão horizontal é de pelo menos 60° e o vertical não fica abaixo de 62°.
   `web-mobile` usa as duas formas, conforme o Jogador segura o celular; `web-desktop` usa a regra de
@@ -28,8 +29,11 @@ Como Jogador, quero a câmera atrás e perto do kart, para sentir velocidade e p
 ## Pré-condições
 
 - Kart 01 em cena (US-0001).
-- Para os critérios de corrida: o Jogador em corrida, do sinal verde em diante.
+- Para os critérios de corrida: o Jogador em corrida, do sinal verde até a próxima visão geral da pista,
+  inclusive depois do fim da volta, válida ou invalidada, com o painel de resultado exibido
+  (`DOMAIN/DEC-06`).
 - Para os critérios de largada: a contagem regressiva e o sinal verde que o jogo já tem.
+- Para o critério 13: o fim da volta (`ENDED`) e o painel de resultado que o jogo já tem.
 
 ## Critérios de aceite
 
@@ -64,12 +68,25 @@ Como Jogador, quero a câmera atrás e perto do kart, para sentir velocidade e p
 - AC-US-0003-12: No quadro do sinal verde, a câmera já está na pose de corrida: 1,38 m acima do chão,
   3,05 m atrás da posição do kart e mirando o ponto 3,2 m à frente e 0,30 m acima do chão
   (`DOMAIN/DEC-04`).
+- AC-US-0003-13: Do quadro em que a volta termina (`ENDED`), válida ou invalidada, inclusive por
+  reposicionamento, com o painel de resultado exibido na tela, até o quadro anterior à próxima visão geral
+  da pista, a câmera da cena exibida está, em todos os quadros, na pose de corrida em relação ao kart
+  exibido (1,38 m acima do chão, 3,05 m atrás da posição do kart e mirando o ponto 3,2 m à frente e 0,30 m
+  acima do chão, critérios 01 a 03), sem voltar à visão geral: a visão geral existe só antes da contagem
+  regressiva (`DOMAIN/DEC-06`).
 
 ## Casos anormais
 
 - **Reposicionamento do kart em corrida**: no primeiro quadro depois do reposicionamento, a câmera está na
   pose de corrida em relação à nova posição e ao novo rumo do kart; a mudança de visada é igual à mudança
-  de rumo do kart (critério 07), por isso não é corte.
+  de rumo do kart (critério 07), por isso não é corte. Vale igual quando o reposicionamento invalida a
+  volta: a volta termina e a câmera continua na pose de corrida (critério 13).
+- **Fim da volta, válida ou invalidada, com o painel de resultado exibido**: no quadro em que a volta termina
+  e em todos os seguintes, a câmera continua na pose de corrida em relação ao kart exibido (critério 13); o
+  painel de resultado aparece sobre a cena sem mover a câmera; o kart continua pilotável, e a câmera
+  continua acompanhando o rumo sem corte (critério 07) e com a regra de campo de visão da forma da área de
+  jogo (critérios 04 a 06). A próxima visão geral da pista é a de antes de uma nova contagem regressiva
+  (critério 10); até lá, nenhum quadro mostra a visão geral (`DOMAIN/DEC-06`).
 - **Rodada ou derrapagem forte**: a câmera acompanha o rumo do kart, não a direção do movimento; numa rodada
   de 180°, a câmera gira junto com o kart.
 - **Marcha à ré**, se a simulação a informar: a câmera continua atrás do kart em relação ao rumo; o kart se
@@ -98,7 +115,12 @@ Como Jogador, quero a câmera atrás e perto do kart, para sentir velocidade e p
 - `DOMAIN/DEC-03` — campo de visão em retrato e em paisagem.
 - `DOMAIN/DEC-04` — visão geral antes da contagem, descida durante a contagem, pose de corrida no sinal
   verde.
+- `DOMAIN/DEC-06` — câmera depois do fim da volta: pose de corrida mantida, válida ou invalidada a volta,
+  inclusive por reposicionamento, com o painel de resultado exibido, até a próxima visão geral; a visão
+  geral existe só antes da contagem regressiva; "em corrida", para a câmera, não termina em `ENDED`
+  (critério 13; pré-condições; casos anormais "Reposicionamento do kart em corrida" e "Fim da volta").
 
 ## Pontos em aberto
 
-Nenhum — `DOMAIN/DEC-03` e `DOMAIN/DEC-04` fecham os pontos abertos 03 e 04 do seed.
+Nenhum — `DOMAIN/DEC-03` e `DOMAIN/DEC-04` fecham os pontos abertos 03 e 04 do seed; `DOMAIN/DEC-06`
+fecha a pergunta do F-Spec sobre a câmera depois do fim da volta.

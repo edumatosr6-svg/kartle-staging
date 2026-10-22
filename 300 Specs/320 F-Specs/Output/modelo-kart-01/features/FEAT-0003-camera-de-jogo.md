@@ -3,9 +3,9 @@ id: FEAT-0003
 title: Câmera de jogo — visão geral, descida na contagem, pose de corrida e campo de visão
 feature: modelo-kart-01
 stage: fspec
-status: draft
-version: 1.0.0
-sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12]
+status: validated
+version: 1.1.0
+sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13]
 ---
 
 # FEAT-0003 — Câmera de jogo
@@ -17,11 +17,15 @@ como a ficha define: 1,38 m acima do chão, 3,05 m atrás do kart, mirando um po
 acima do chão, presa ao rumo do kart, sem corte, com campo de visão vertical de 62° em paisagem e, em
 retrato, horizontal de pelo menos 60° (`DOMAIN/DEC-03`). O efeito de turbo continua, a partir da nova base.
 Antes da contagem regressiva a tela mostra a pista inteira do alto; durante a contagem a câmera desce até
-trás do piloto e, no sinal verde, já está na pose de corrida (`DOMAIN/DEC-04`).
+trás do piloto e, no sinal verde, já está na pose de corrida (`DOMAIN/DEC-04`). "Em corrida" vai do sinal
+verde até a próxima visão geral da pista: quando a volta termina (`ENDED`), válida ou invalidada, inclusive
+por reposicionamento, e o painel de resultado aparece, a câmera continua na pose de corrida e o kart continua
+pilotável; a visão geral existe só antes da contagem regressiva (`DOMAIN/DEC-06`).
 
 ## Canais
 
-`web-desktop` e `web-mobile`: a mesma pose de corrida, a mesma visão geral e a mesma descida. A regra de
+`web-desktop` e `web-mobile`: a mesma pose de corrida, a mesma visão geral, a mesma descida e a mesma
+permanência na pose de corrida depois do fim da volta, com o painel de resultado exibido. A regra de
 campo de visão depende da forma da área de jogo, não do canal: `web-mobile` usa paisagem ou retrato conforme
 o Jogador segura o celular; `web-desktop` usa paisagem, e retrato só quando a janela é mais alta que larga.
 Em `web-mobile` com sensor ausente ou permissão negada, o controle recai para toque com estado visível
@@ -31,13 +35,16 @@ Em `web-mobile` com sensor ausente ou permissão negada, o controle recai para t
 
 ## Requisitos
 
-- REQ-FEAT-0003-01: O sistema SHALL posicionar a câmera da cena exibida, em corrida e em cada quadro, 1,38 m
-  acima do chão (AC-US-0003-01).
-- REQ-FEAT-0003-02: O sistema SHALL posicionar a câmera da cena exibida, em corrida e em cada quadro, 3,05 m
-  atrás da posição do kart, medidos no chão ao longo do rumo do kart, no sentido oposto a ele
-  (AC-US-0003-02).
-- REQ-FEAT-0003-03: O sistema SHALL apontar a câmera da cena exibida, em corrida e em cada quadro, para um
-  ponto 3,2 m à frente da posição do kart, ao longo do rumo, e 0,30 m acima do chão (AC-US-0003-03).
+- REQ-FEAT-0003-01: O sistema SHALL posicionar a câmera da cena exibida, em corrida — do quadro do sinal
+  verde até o quadro anterior à próxima visão geral da pista, inclusive do quadro em que a volta termina
+  (`ENDED`), válida ou invalidada, inclusive por reposicionamento, em diante, com o painel de resultado
+  exibido — e em cada quadro, 1,38 m acima do chão (AC-US-0003-01, AC-US-0003-13).
+- REQ-FEAT-0003-02: O sistema SHALL posicionar a câmera da cena exibida, em corrida — na mesma janela de
+  quadros do requisito 01 — e em cada quadro, 3,05 m atrás da posição do kart, medidos no chão ao longo do
+  rumo do kart, no sentido oposto a ele (AC-US-0003-02, AC-US-0003-13).
+- REQ-FEAT-0003-03: O sistema SHALL apontar a câmera da cena exibida, em corrida — na mesma janela de quadros
+  do requisito 01 — e em cada quadro, para um ponto 3,2 m à frente da posição do kart, ao longo do rumo, e
+  0,30 m acima do chão (AC-US-0003-03, AC-US-0003-13).
 - REQ-FEAT-0003-04: O sistema SHALL classificar a área de jogo, em cada quadro e nos dois canais, como
   paisagem quando a sua largura é maior ou igual à sua altura e como retrato quando a sua altura é maior que
   a sua largura (AC-US-0003-04, AC-US-0003-05).
@@ -57,8 +64,9 @@ Em `web-mobile` com sensor ausente ou permissão negada, o controle recai para t
   somado à diferença de campo de visão vertical que o efeito de turbo já existente produz, antes desta
   feature, para o mesmo estado de turbo (AC-US-0003-09).
 - REQ-FEAT-0003-11: O sistema SHALL mostrar a visão geral da pista — a pista vista do alto, inteira no quadro,
-  em paisagem e em retrato — em todo quadro anterior ao início da contagem regressiva: sem volta ativa ou
-  com a volta encerrada (AC-US-0003-10).
+  em paisagem e em retrato — em todo quadro anterior ao início da contagem regressiva, isto é, com a pista
+  carregada e sem volta ativa (`NO_ACTIVE_LAP`), e em nenhum quadro com a volta encerrada (`ENDED`): a visão
+  geral existe só antes da contagem regressiva (AC-US-0003-10, AC-US-0003-13).
 - REQ-FEAT-0003-12: O sistema SHALL, durante a contagem regressiva, mover a câmera da visão geral para trás
   do piloto, partindo da pose da visão geral no primeiro quadro da contagem, com a altura da câmera acima do
   chão menor no fim da contagem do que no início e nunca maior num quadro da contagem do que no quadro
@@ -89,7 +97,7 @@ Modos, pose e campo de visão: [RULE-0002](../rules/RULE-0002-camera-de-jogo.md)
 | Pista carregada, sem volta ativa | Visão geral da pista (`TRACK_OVERVIEW`) |
 | Volta iniciada (`lapPhase` `COUNTDOWN`) | Descida (`COUNTDOWN_DESCENT`) a partir da pose da visão geral, função de `countdownRemainingMs` |
 | Sinal verde (`countdownRemainingMs` chega a 0, `lapPhase` `RUNNING`) | Pose de corrida (`RACE_CHASE`) já no quadro do sinal verde |
-| Reposicionamento do kart em corrida | No primeiro quadro depois dele, pose de corrida em relação à nova posição e ao novo rumo; a mudança de visada é igual à mudança de rumo, por isso não é corte |
+| Reposicionamento do kart em corrida | No primeiro quadro depois dele, pose de corrida em relação à nova posição e ao novo rumo; a mudança de visada é igual à mudança de rumo, por isso não é corte. Vale igual quando o reposicionamento invalida a volta: a volta passa a `ENDED` e a câmera continua na pose de corrida |
 | Rodada ou derrapagem forte | A câmera acompanha o rumo do kart, não a direção do movimento; numa rodada de 180°, gira junto com o kart |
 | Marcha à ré, se a simulação a informar | A câmera continua atrás do kart em relação ao rumo; o kart se move em direção à câmera |
 | Troca de orientação ou redimensionamento em corrida | No quadro seguinte, a regra de campo de visão da nova forma; a pose de corrida não muda |
@@ -97,8 +105,9 @@ Modos, pose e campo de visão: [RULE-0002](../rules/RULE-0002-camera-de-jogo.md)
 | Kart junto a uma parede ou a uma borda | A pose de corrida não muda; não há desvio da câmera por obstáculo |
 | Pausa em corrida | A simulação não avança; a câmera fica na pose de corrida em relação ao kart parado |
 | Pausa ou suspensão durante a contagem | A contagem não avança; a câmera não desce; ao continuar, a descida retoma do ponto em que parou; no sinal verde vale o requisito 13 |
-| Volta encerrada (`lapPhase` `ENDED`) | Visão geral da pista: o quadro deixa de ser "em corrida" e passa a ser anterior à contagem da volta seguinte ([RULE-0002](../rules/RULE-0002-camera-de-jogo.md)) |
-| Recarga da página antes da largada ou durante a volta | Sem volta ativa: visão geral; a descida recomeça com a nova contagem |
+| Volta encerrada (`lapPhase` `ENDED`), válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido | O quadro continua "em corrida": a câmera continua na pose de corrida em relação ao kart exibido (`RACE_CHASE`), do quadro em que a volta termina até o quadro anterior à próxima visão geral; o painel de resultado aparece sobre a cena sem mover a câmera; o kart continua pilotável, a câmera continua presa ao rumo sem corte (requisito 08) e com a regra de campo de visão da forma (requisitos 05 a 07, 10 e 15); nenhum quadro mostra a visão geral até a contagem de uma nova volta ([RULE-0002](../rules/RULE-0002-camera-de-jogo.md)) |
+| Nova volta a partir da volta encerrada (`startLap` aceito com a volta em `ENDED`) | O primeiro quadro da nova contagem está na pose da visão geral — a próxima visão geral — e a descida recomeça; o quadro anterior ainda está na pose de corrida |
+| Recarga da página antes da largada, durante a volta ou depois do fim dela | Sem volta ativa: visão geral; a descida recomeça com a nova contagem |
 | Sensor ausente ou permissão negada (`web-mobile`) | Toque com estado visível (I4); a câmera não muda |
 | Rede indisponível | Sem efeito (D-FS-08) |
 
@@ -110,9 +119,9 @@ Lê `lapPhase`, `resumePhase` e `countdownRemainingMs` do contrato de estado da 
 
 | `cameraMode` | Quando | O que o dirige |
 |---|---|---|
-| `TRACK_OVERVIEW` | Sem volta ativa (`NO_ACTIVE_LAP`) ou `lapPhase` `ENDED` | Pista carregada; fim da volta |
-| `COUNTDOWN_DESCENT` | `lapPhase` `COUNTDOWN`, ou `PAUSED` com `resumePhase` `COUNTDOWN` | `startLap` aceito; `countdownRemainingMs` |
-| `RACE_CHASE` | `lapPhase` `RUNNING`, ou `PAUSED` com `resumePhase` `RUNNING` | Sinal verde; pose do kart por `simStepCount` |
+| `TRACK_OVERVIEW` | Sem volta ativa (`NO_ACTIVE_LAP`); nunca com `lapPhase` `ENDED` | Pista carregada; recarga da página sem volta ativa |
+| `COUNTDOWN_DESCENT` | `lapPhase` `COUNTDOWN`, ou `PAUSED` com `resumePhase` `COUNTDOWN` | `startLap` aceito, sem volta ativa ou com a volta em `ENDED`; `countdownRemainingMs` |
+| `RACE_CHASE` | `lapPhase` `RUNNING`, `PAUSED` com `resumePhase` `RUNNING`, ou `ENDED` (volta encerrada, válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido) | Sinal verde; pose do kart por `simStepCount`; o fim da volta não muda o modo |
 
 As transições, a sua idempotência e os contadores de sequência estão em
 [RULE-0002](../rules/RULE-0002-camera-de-jogo.md).
@@ -125,9 +134,12 @@ um evento, injetar um estado ou habilitar um caminho de depuração.
 
 ## Critérios de aceite
 
-- Em corrida, em cada quadro, `cameraHeightM` igual a 1,38; a câmera a 3,05 m atrás da posição do kart, no
-  chão, ao longo do rumo; o ponto de mira a 3,2 m à frente e `aimHeightM` igual a 0,30 (satisfaz
-  AC-US-0003-01, AC-US-0003-02, AC-US-0003-03; cobre os requisitos 01, 02 e 03).
+- Em corrida — do quadro do sinal verde até o quadro anterior à próxima visão geral, inclusive do quadro em
+  que `lapPhase` passa a `ENDED`, válida ou invalidada a volta, inclusive por reposicionamento, em diante,
+  com o painel de resultado exibido —, em cada quadro, `cameraMode` `RACE_CHASE`, `cameraHeightM` igual a
+  1,38; a câmera a 3,05 m atrás da posição do kart, no chão, ao longo do rumo; o ponto de mira a 3,2 m à
+  frente e `aimHeightM` igual a 0,30; nenhum quadro da janela em `TRACK_OVERVIEW` (satisfaz AC-US-0003-01,
+  AC-US-0003-02, AC-US-0003-03, AC-US-0003-13; cobre os requisitos 01, 02, 03 e 11).
 - Em corrida, sem turbo: `viewShape` `LANDSCAPE` para largura ≥ altura e `PORTRAIT` para altura > largura;
   em `LANDSCAPE`, `verticalFovDeg` igual a 62 a qualquer velocidade; em `PORTRAIT`, `horizontalFovDeg` ≥ 60
   e `verticalFovDeg` ≥ 62; depois de uma troca de orientação ou redimensionamento, a regra da nova forma no
@@ -140,8 +152,9 @@ um evento, injetar um estado ou habilitar um caminho de depuração.
 - Com o turbo ativo, em paisagem e em retrato, `verticalFovDeg` − `baseVerticalFovDeg` igual a
   `turboFovDeltaDeg`, a diferença do efeito de turbo existente para o mesmo estado de turbo, também depois
   de uma troca de orientação (satisfaz AC-US-0003-09; cobre os requisitos 10 e 15).
-- Sem volta ativa e com a volta encerrada, `cameraMode` `TRACK_OVERVIEW`, com a pista inteira no quadro,
-  vista do alto (satisfaz AC-US-0003-10; cobre o requisito 11).
+- Sem volta ativa (`NO_ACTIVE_LAP`), `cameraMode` `TRACK_OVERVIEW`, com a pista inteira no quadro, vista do
+  alto; com a volta encerrada (`ENDED`), nunca `TRACK_OVERVIEW` (satisfaz AC-US-0003-10, AC-US-0003-13;
+  cobre o requisito 11).
 - Durante a contagem, `cameraMode` `COUNTDOWN_DESCENT`, pose da visão geral no primeiro quadro,
   `cameraHeightM` nunca maior que no quadro anterior e menor no fim que no início; parada enquanto a
   contagem não avança (satisfaz AC-US-0003-11; cobre os requisitos 12 e 14).

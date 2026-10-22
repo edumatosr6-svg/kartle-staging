@@ -1,8 +1,8 @@
 ---
 stage: fspec
 feature: modelo-kart-01
-generated: 2026-10-22T14:58:23Z
-rows: 217
+generated: 2026-10-22T18:04:34Z
+rows: 223
 ---
 
 # Traceability
@@ -162,6 +162,12 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | AC-US-0003-12 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
 | AC-US-0003-12 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-12 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
+| AC-US-0003-13 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
+| AC-US-0003-13 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-13 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
+| AC-US-0003-13 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
+| AC-US-0003-13 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
+| AC-US-0003-13 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0004-01 | FEAT-0004 | REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05 | `features/FEAT-0004-desempenho-do-kart-01.md` |
 | AC-US-0004-01 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0004-01 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |

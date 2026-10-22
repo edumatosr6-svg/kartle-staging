@@ -3,7 +3,7 @@ id: FEAT-0005
 title: Efeitos presos ao kart e posições das rodas da simulação
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: [US-0005, NFR-0007, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03]
 ---

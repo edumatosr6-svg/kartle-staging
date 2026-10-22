@@ -3,7 +3,7 @@ id: RULE-0003
 title: Posição, animação e ancoragem dos efeitos do Kart 01
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: [US-0002, US-0005, NFR-0007, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03]
 ---

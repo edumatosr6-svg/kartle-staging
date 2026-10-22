@@ -2,7 +2,7 @@
 title: Divergências — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: []
 ---

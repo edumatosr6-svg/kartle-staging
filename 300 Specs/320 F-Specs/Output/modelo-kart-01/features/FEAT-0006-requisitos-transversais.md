@@ -3,7 +3,7 @@ id: FEAT-0006
 title: Requisitos transversais — download, dependências, camada de aplicação e simulação inalterada
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: [NFR-0002, NFR-0003, NFR-0005, NFR-0006]
 ---

@@ -3,9 +3,9 @@ id: API-0003
 title: Contrato da câmera da cena exibida
 feature: modelo-kart-01
 stage: fspec
-status: draft
-version: 1.0.0
-sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12]
+status: validated
+version: 1.1.0
+sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13]
 ---
 
 # API-0003 — Contrato da câmera da cena exibida
@@ -37,12 +37,12 @@ Nenhum parâmetro de caminho ou de consulta. A operação lê a câmera do quadr
 
 | Campo | Tipo | Unidade | Obrigatório | Padrão e restrições |
 |---|---|---|---|---|
-| `cameraMode` | enum `TRACK_OVERVIEW`, `COUNTDOWN_DESCENT`, `RACE_CHASE` | — | sim | decidido pela fase da volta ([RULE-0002](../rules/RULE-0002-camera-de-jogo.md)); `TRACK_OVERVIEW` com a pista carregada, sem volta ativa ou com a volta encerrada |
+| `cameraMode` | enum `TRACK_OVERVIEW`, `COUNTDOWN_DESCENT`, `RACE_CHASE` | — | sim | decidido pela fase da volta ([RULE-0002](../rules/RULE-0002-camera-de-jogo.md)); `TRACK_OVERVIEW` só com a pista carregada e sem volta ativa (`NO_ACTIVE_LAP`); `RACE_CHASE` em `RUNNING` e em `ENDED` (volta encerrada, válida ou invalidada, com o painel de resultado exibido), nunca `TRACK_OVERVIEW` em `ENDED` (AC-US-0003-10, AC-US-0003-13) |
 | `simStepCount` | inteiro | passos | só com estado de simulação | passo da simulação mostrado no quadro ([API-0001](API-0001-estado-do-kart-para-exibicao.md)); ausente sem estado de simulação |
 | `viewShape` | enum `LANDSCAPE`, `PORTRAIT` | — | sim | `LANDSCAPE` com `viewWidthPx` ≥ `viewHeightPx`; `PORTRAIT` com `viewHeightPx` > `viewWidthPx` |
 | `viewWidthPx`, `viewHeightPx` | inteiro | px | sim | largura e altura da área de jogo no quadro; maiores que 0 |
 | `cameraXM`, `cameraZM` | número | m | sim | posição da câmera no chão, no referencial da pista de `xM`, `zM` |
-| `cameraHeightM` | número | m | sim | altura da câmera acima do chão; 1,38 em `RACE_CHASE` (AC-US-0003-01, AC-US-0003-12); nunca maior que no quadro anterior em `COUNTDOWN_DESCENT` (AC-US-0003-11) |
+| `cameraHeightM` | número | m | sim | altura da câmera acima do chão; 1,38 em `RACE_CHASE`, inclusive com a volta encerrada (AC-US-0003-01, AC-US-0003-12, AC-US-0003-13); nunca maior que no quadro anterior em `COUNTDOWN_DESCENT` (AC-US-0003-11) |
 | `aimXM`, `aimZM` | número | m | sim | ponto de mira no chão; em `RACE_CHASE`, 3,2 m à frente da posição do kart ao longo do rumo (AC-US-0003-03) |
 | `aimHeightM` | número | m | sim | altura do ponto de mira acima do chão; 0,30 em `RACE_CHASE` (AC-US-0003-03) |
 | `verticalFovDeg` | número | graus | sim | campo de visão vertical exibido; em `RACE_CHASE`, igual a `baseVerticalFovDeg` + `turboFovDeltaDeg` |
@@ -80,7 +80,8 @@ Sem paginação. A apresentação lê uma vez por quadro desenhado. Não há int
 Contrato novo de leitura: nenhum campo, caminho ou parâmetro publicado é renomeado ou removido. A câmera de
 perseguição alta e distante é retirada em corrida e substituída pela câmera de corrida (`RACE_CHASE`); a
 câmera alta inicial continua só como visão geral antes da contagem (`TRACK_OVERVIEW`), com a descida
-(`COUNTDOWN_DESCENT`) acrescentada (requisitos, `01-context.md`, Retiradas e substituições). Nenhum campo
+(`COUNTDOWN_DESCENT`) acrescentada, e não volta no fim da volta nem com o painel de resultado exibido
+(requisitos, `01-context.md`, Retiradas e substituições; `DOMAIN/DEC-06`). Nenhum campo
 publicado descrevia essas câmeras, então não há campo a rejeitar. O efeito de turbo no campo de visão é
 mantido, com a mesma diferença, a partir da nova base. Um campo deste contrato nunca muda de unidade ou de
 significado sob o mesmo nome (I3).

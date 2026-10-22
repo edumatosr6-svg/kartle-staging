@@ -1,8 +1,8 @@
 ---
 stage: req
 feature: modelo-kart-01
-generated: 2026-10-22T14:35:17Z
-rows: 47
+generated: 2026-10-22T17:06:57Z
+rows: 48
 ---
 
 # Traceability
@@ -20,11 +20,12 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | DOMAIN/DEC-02 | NFR-0006 | - | `nfr/NFR-0006-simulacao-e-validacao-inalteradas.md` |
 | DOMAIN/DEC-02 | NFR-0007 | - | `nfr/NFR-0007-posicoes-das-rodas-da-simulacao.md` |
 | DOMAIN/DEC-02 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03 | `stories/US-0005-efeitos-presos-ao-kart.md` |
-| DOMAIN/DEC-03 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
-| DOMAIN/DEC-04 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
+| DOMAIN/DEC-03 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
+| DOMAIN/DEC-04 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
 | DOMAIN/DEC-05 | NFR-0001 | - | `nfr/NFR-0001-taxa-de-quadros-com-o-kart-01.md` |
 | DOMAIN/DEC-05 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
 | DOMAIN/DEC-05 | US-0004 | AC-US-0004-01, AC-US-0004-02 | `stories/US-0004-jogo-nao-fica-mais-lento.md` |
+| DOMAIN/DEC-06 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
 | SEED/FE-02 | NFR-0006 | - | `nfr/NFR-0006-simulacao-e-validacao-inalteradas.md` |
 | SEED/FE-03 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
 | SEED/IM-I10 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
@@ -34,7 +35,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | SEED/IM-I9 | NFR-0001 | - | `nfr/NFR-0001-taxa-de-quadros-com-o-kart-01.md` |
 | SEED/IM-I9 | NFR-0004 | - | `nfr/NFR-0004-custo-de-desenho-do-kart.md` |
 | SEED/IM-I9 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
-| SEED/IM-I9 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
+| SEED/IM-I9 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
 | SEED/IM-I9 | US-0004 | AC-US-0004-01, AC-US-0004-02 | `stories/US-0004-jogo-nao-fica-mais-lento.md` |
 | SEED/NF-01 | NFR-0001 | - | `nfr/NFR-0001-taxa-de-quadros-com-o-kart-01.md` |
 | SEED/NF-01 | US-0004 | AC-US-0004-01, AC-US-0004-02 | `stories/US-0004-jogo-nao-fica-mais-lento.md` |
@@ -43,12 +44,12 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | SEED/NF-04 | NFR-0004 | - | `nfr/NFR-0004-custo-de-desenho-do-kart.md` |
 | SEED/RD-01 | NFR-0005 | - | `nfr/NFR-0005-renderizacao-na-camada-de-aplicacao.md` |
 | SEED/RD-01 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-kart-reage-aos-comandos.md` |
-| SEED/RD-01 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
+| SEED/RD-01 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
 | SEED/RD-01 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03 | `stories/US-0005-efeitos-presos-ao-kart.md` |
 | SEED/RD-02 | NFR-0006 | - | `nfr/NFR-0006-simulacao-e-validacao-inalteradas.md` |
 | SEED/RD-03 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
 | SEED/RD-04 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
-| SEED/RD-04 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
+| SEED/RD-04 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
 | SEED/RD-05 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
 | SEED/RE-01 | NFR-0006 | - | `nfr/NFR-0006-simulacao-e-validacao-inalteradas.md` |
 | SEED/RE-02 | NFR-0003 | - | `nfr/NFR-0003-dependencias-de-execucao.md` |
@@ -56,7 +57,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | SEED/RE-03 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03 | `stories/US-0005-efeitos-presos-ao-kart.md` |
 | SEED/US-1 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16 | `stories/US-0001-kart-de-verdade-na-pista.md` |
 | SEED/US-2 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-kart-reage-aos-comandos.md` |
-| SEED/US-3 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
+| SEED/US-3 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13 | `stories/US-0003-camera-atras-e-perto-do-kart.md` |
 | SEED/US-4 | NFR-0001 | - | `nfr/NFR-0001-taxa-de-quadros-com-o-kart-01.md` |
 | SEED/US-4 | US-0004 | AC-US-0004-01, AC-US-0004-02 | `stories/US-0004-jogo-nao-fica-mais-lento.md` |
 | SEED/US-5 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03 | `stories/US-0005-efeitos-presos-ao-kart.md` |

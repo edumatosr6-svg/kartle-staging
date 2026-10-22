@@ -3,7 +3,7 @@ id: FEAT-0004
 title: Desempenho do Kart 01 — taxa de quadros e custo de desenho
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: [US-0004, NFR-0001, NFR-0004, AC-US-0004-01, AC-US-0004-02]
 ---

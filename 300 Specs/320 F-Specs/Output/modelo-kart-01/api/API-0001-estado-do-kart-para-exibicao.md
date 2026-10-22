@@ -3,7 +3,7 @@ id: API-0001
 title: Contrato do estado do kart para exibição
 feature: modelo-kart-01
 stage: fspec
-status: draft
+status: validated
 version: 1.0.0
 sources: [US-0002, US-0003, US-0005, NFR-0005, NFR-0006, AC-US-0002-01, AC-US-0002-02, AC-US-0002-05, AC-US-0002-06, AC-US-0003-02, AC-US-0003-03, AC-US-0003-07, AC-US-0005-01]
 ---

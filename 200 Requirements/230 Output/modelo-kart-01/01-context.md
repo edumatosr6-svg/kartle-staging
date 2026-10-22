@@ -3,7 +3,7 @@ title: Contexto — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -26,8 +26,9 @@ enquanto a ficha é a referência para conferir o resultado (`SEED/RD-05`, `DOMA
 
 Seed: `200 Requirements/220 Input/modelo-kart-01/SEED.md`, `revision: 1`, `date: 2026-10-22`, autor
 `eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de 2026-10-22
-fecham todos os pontos em aberto do seed (01 a 05) e prevalecem sobre eles. Este conjunto usa só os
-valores dessas decisões.
+fecham todos os pontos em aberto do seed (01 a 05) e prevalecem sobre eles; uma sexta decisão da mesma
+data, tomada depois da parada do F-Spec, fixa o que a câmera faz depois do fim da volta
+(`DOMAIN/DEC-06`). Este conjunto usa só os valores dessas decisões.
 
 ## Atores e canais
 
@@ -81,6 +82,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-03` | Ponto aberto 03 fechado: em retrato, o campo de visão horizontal é de pelo menos 60°, então o vertical cresce em retrato; em paisagem, o vertical é de 62° |
 | `DOMAIN/DEC-04` | Ponto aberto 04 fechado: antes da largada, a câmera mostra a pista do alto e desce para trás do piloto durante a contagem regressiva; no sinal verde, ela já está na posição de corrida |
 | `DOMAIN/DEC-05` | Ponto aberto 05 fechado: o kart projeta sombra no chão |
+| `DOMAIN/DEC-06` | Câmera depois do fim da volta (decisão de 2026-10-22, após parada do F-Spec): quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel de resultado aparece, a câmera continua atrás do piloto, na pose de corrida, e o kart continua pilotável; a visão geral do alto existe só antes da contagem regressiva; "em corrida", para a câmera, vai do sinal verde até a próxima visão geral, sem terminar em `ENDED` |
 
 ## Decisões de domínio aplicadas
 
@@ -92,6 +94,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-03` | US-0003 (campo de visão em paisagem e em retrato) |
 | `DOMAIN/DEC-04` | US-0003 (visão geral antes da contagem, descida durante a contagem, pose de corrida no sinal verde) |
 | `DOMAIN/DEC-05` | US-0001 (sombra do kart), US-0004 e NFR-0001 (taxa de quadros medida com a sombra) |
+| `DOMAIN/DEC-06` | US-0003 (pose de corrida mantida depois do fim da volta, com o painel de resultado exibido, até a próxima visão geral); o termo "Em corrida" do glossário, que os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam |
 
 Não resta ponto em aberto neste conjunto.
 
@@ -103,7 +106,7 @@ Esta feature redefine dois comportamentos que o Jogador vê hoje e mantém um te
 |---|---|---|
 | Kart provisório: volume de caixas, maior que um kart real | Retirado. Todo kart exibido é o Kart 01 | US-0001 |
 | Câmera de perseguição alta e distante durante a corrida | Retirada em corrida. Substituída pela câmera de jogo da ficha, atrás e perto do piloto | US-0003 |
-| Câmera inicial alta, vendo a pista toda | Mantida só antes da contagem regressiva; durante a contagem, desce até a posição de corrida (`DOMAIN/DEC-04`) | US-0003 |
+| Câmera inicial alta, vendo a pista toda | Mantida só antes da contagem regressiva; durante a contagem, desce até a posição de corrida (`DOMAIN/DEC-04`); não volta no fim da volta nem com o painel de resultado exibido (`DOMAIN/DEC-06`) | US-0003 |
 | Efeito de campo de visão do turbo | Mantido, aplicado a partir da nova base de campo de visão vertical | US-0003 |
 | Marcas de pneu, fumaça do escapamento e indicação de drift | Mantidos, nas posições das rodas traseiras e do escapamento do Kart 01 | US-0005 |
 
@@ -135,8 +138,9 @@ abandono muda estado de domínio por causa desta feature.
   (`DOMAIN/DEC-02`): o alinhamento, se vier, é decisão da `dirigibilidade`, depois dela. Nenhum feedback é
   enviado: nenhum requisito daquela feature precisa mudar.
 - **`race-lap-validation`.** Esta feature usa a contagem regressiva e o sinal verde que já existem, só para
-  posicionar a câmera (`DOMAIN/DEC-04`), e não muda a validação de volta (`SEED/RE-01`). Nenhum feedback é
-  enviado.
+  posicionar a câmera (`DOMAIN/DEC-04`), e o fim da volta (`ENDED`) e o painel de resultado que já existem,
+  só para manter a câmera na pose de corrida (`DOMAIN/DEC-06`); não muda a validação de volta
+  (`SEED/RE-01`). Nenhum feedback é enviado.
 - **`pista-kart-park`.** Novas pistas e cenário estão fora do escopo (`SEED/FE-04`); o Kart 01 e a câmera
   valem em qualquer pista em jogo.
 

@@ -3,7 +3,7 @@ title: Changelog — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -130,3 +130,63 @@ fechados por `DOMAIN.md`.
   tolerância seria um limite que o seed não dá.
 - ISSUE-01, condição de câmera para ver o número 01 (por exemplo, "pela câmera de corrida"): não fixada,
   porque o seed não diz de que lado do kart a placa fica visível em corrida.
+
+## 2026-10-22 — rodada 3, Mode B (relatório `req-validation-20261022-1657.md`, 2 erros)
+
+**O que mudou**
+
+- Origem dos dois erros: a decisão "Câmera depois do fim da volta" entrou em `DOMAIN.md` em 2026-10-22,
+  depois da parada do F-Spec e depois da validação da rodada 2, e o conjunto não a cobria. A decisão
+  recebeu o rótulo `DOMAIN/DEC-06` na chave de rastreabilidade de `01-context.md`; o dono do produto
+  passou a esta execução a ordem de incorporá-la em US-0003, com critério e caso anormal sobre o fim da
+  volta, e de não mudar mais nada nos requisitos.
+- ISSUE-01 (R4, `01-context.md`): a chave ganhou o rótulo `DOMAIN/DEC-06` com o texto da decisão; a frase
+  sobre `DOMAIN.md` diz que há uma sexta decisão, tomada depois da parada do F-Spec; a tabela "Decisões de
+  domínio aplicadas" lista o rótulo (US-0003 e o termo "Em corrida" do glossário). US-0003 cita
+  `DOMAIN/DEC-06` em `sources:` e ganhou AC-US-0003-13: do quadro em que a volta termina (`ENDED`),
+  válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido na tela, até o
+  quadro anterior à próxima visão geral, a câmera está em todos os quadros na pose de corrida (critérios 01
+  a 03), sem voltar à visão geral, que existe só antes da contagem regressiva. Mesmo fato levado aos outros
+  pontos onde aparece: seção Canais e pré-condições de US-0003 (a janela de corrida vai do sinal verde até a
+  próxima visão geral); caso anormal "Reposicionamento do kart em corrida" (vale igual quando o
+  reposicionamento invalida a volta) e caso anormal novo "Fim da volta, válida ou invalidada, com o painel
+  de resultado exibido" (painel sobre a cena sem mover a câmera; kart pilotável; rumo e campo de visão
+  continuam valendo; a próxima visão geral é a de antes de uma nova contagem); seções Fontes e Pontos em
+  aberto de US-0003; linha "Câmera inicial alta" da tabela Retiradas e substituições e item
+  `race-lap-validation` de Relação com outras features, em `01-context.md`. Fechada por edição.
+- ISSUE-02 (R4, `02-glossary.md`, "Em corrida"): o termo diz que "em corrida" vai do sinal verde até a
+  próxima visão geral da pista e não termina quando a volta acaba (`ENDED`), válida ou invalidada, inclusive
+  por reposicionamento, nem quando o painel de resultado aparece, citando `DOMAIN/DEC-06`. Mesmo fato
+  levado ao termo "Visão geral da pista" (existe só antes da contagem; não volta no fim da volta). Os
+  termos "Fim da volta (`ENDED`)" e "Painel de resultado" entraram no glossário como definições de coisas
+  que já existem no jogo e que `DOMAIN/DEC-06` nomeia, para que o critério 13 seja decidível; não são
+  requisitos. Como os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam o termo "Em corrida", a nova
+  definição vale para eles sem edição: o kart continua pilotável depois do fim da volta
+  (`DOMAIN/DEC-06`), e o modelo, os efeitos e a taxa de quadros continuam valendo até a próxima visão
+  geral. Fechada por edição.
+- Superfície e §16: AC-US-0003-13 e o caso anormal novo são a única superfície acrescentada nesta rodada, e
+  são autorizados por um item do upstream (`DOMAIN/DEC-06`, escrito pelo dono do produto na camada de
+  domínio durável) e pela ordem explícita dele passada a esta execução; não vêm da rubrica do validador.
+  Um item do upstream sem cobertura é uma lacuna de fechamento (política estrita, regra 7), e cobri-la não
+  alarga o conjunto além do que o autor pediu. Nenhum requisito, história, NFR, campo ou limite foi
+  acrescentado além disso; nenhum foi removido ou enfraquecido.
+- Versões: US-0003 em 1.2.0 (critério acrescentado); `01-context.md` e `02-glossary.md` em 1.1.0 (rótulo e
+  termos acrescentados). Os arquivos editados voltaram a `status: draft`; o gate e o validador decidem a
+  validação. `00-index.md` e `99-traceability.md` não foram tocados: o gate os regenera.
+
+**Itens fechados**: ISSUE-01 e ISSUE-02, ambos por edição. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Decisões passadas a esta execução que não mudaram o conjunto: "só camada de aplicação, sem mudar
+  `src/physics.ts`, `src/lap.ts`, `src/track.ts` nem presets" já está em NFR-0005 e NFR-0006
+  (`SEED/RE-01`, `SEED/IM-I2`); "fonte do modelo: `docs/kart-01/kart.js`" já está em `DOMAIN/DEC-00` e
+  US-0001; "código fica na raiz do repositório" e "o código desta feature entra depois da `dirigibilidade`"
+  continuam fora dos requisitos, pelo motivo das rodadas 1 e 2: são decisões de design, registradas aqui
+  como contexto para `300 Specs/330 D-Specs`.
+- Valor e duração do painel de resultado, e o que o Jogador faz para chegar à próxima visão geral (nova
+  tentativa, reinício): não fixados; `DOMAIN/DEC-06` diz só que a câmera continua na pose de corrida até a
+  próxima visão geral, e o painel já existe no jogo, fora do escopo desta feature.
+- Critério separado para "o kart continua pilotável depois do fim da volta": não criado; o fato entrou na
+  definição de "Em corrida", e os critérios de US-0002 (reação aos comandos) já valem em corrida; um
+  critério próprio seria superfície além da ordem do dono do produto ("incorpore a decisão em US-0003").

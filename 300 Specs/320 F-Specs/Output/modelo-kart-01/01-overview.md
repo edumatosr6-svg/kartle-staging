@@ -2,8 +2,8 @@
 title: Visão geral — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: []
 ---
 
@@ -17,12 +17,15 @@ peças e cores, a sombra, a animação que mostra o estado da simulação, a câ
 visão geral antes da largada e a descida durante a contagem, os efeitos presos ao kart e o custo de desenho
 e de taxa de quadros. A base é o conjunto de requisitos validado em
 `200 Requirements/230 Output/modelo-kart-01/` (US-0001 a US-0005, NFR-0001 a NFR-0007), que já carrega as
-decisões do dono do produto de 2026-10-22 (`DOMAIN/DEC-00` a `DOMAIN/DEC-05`, rótulos definidos em
+decisões do dono do produto de 2026-10-22 (`DOMAIN/DEC-00` a `DOMAIN/DEC-06`, rótulos definidos em
 `01-context.md` daquele conjunto): o código do Cowork é a fonte do modelo e a ficha é a referência para
 conferir; no máximo 30 chamadas de desenho do kart com o piloto, agrupando por material sem mudar a forma;
 as medidas da física não são alinhadas ao modelo nesta feature; em retrato, campo de visão horizontal de
 pelo menos 60°; antes da largada a câmera mostra a pista do alto e desce para trás do piloto durante a
-contagem regressiva; o kart projeta sombra.
+contagem regressiva; o kart projeta sombra; quando a volta termina (`ENDED`), válida ou invalidada,
+inclusive por reposicionamento, e o painel de resultado aparece, a câmera continua na pose de corrida e o
+kart continua pilotável, até a próxima visão geral, que existe só antes da contagem regressiva
+(`DOMAIN/DEC-06`, via AC-US-0003-13).
 
 A feature é só de apresentação (I2): a simulação, o passo, os presets, a validação de volta e
 `wheelPositions` não mudam (NFR-0005, NFR-0006, NFR-0007). Nenhuma tentativa, volta, resultado, replay ou
@@ -84,11 +87,13 @@ contrato de estado da volta da feature `race-lap-validation` (`getLapState`, cam
 - **Modo da câmera derivado do estado da volta.** A câmera tem três modos (`TRACK_OVERVIEW`,
   `COUNTDOWN_DESCENT`, `RACE_CHASE`), decididos pela fase da volta
   ([RULE-0002](rules/RULE-0002-camera-de-jogo.md)). "Antes do início da contagem regressiva" (critério 10 de
-  US-0003) é lido como todo quadro sem volta em contagem nem em corrida: sem volta ativa ou com a volta
-  encerrada (`ENDED`), porque `race-lap-validation` leva uma volta encerrada direto à contagem da volta
-  seguinte (`startLap` de `ENDED` para `COUNTDOWN`), e o período em `ENDED` é o que antecede essa contagem.
-  "Em corrida" (do sinal verde em diante, enquanto o Jogador pilota) termina no fim da volta, quando a volta
-  encerrada deixa de aceitar eventos. A pausa não muda o modo: congela a câmera.
+  US-0003) é todo quadro com a pista carregada e sem volta ativa (`NO_ACTIVE_LAP`). A volta encerrada
+  (`ENDED`) não é visão geral: a câmera continua em `RACE_CHASE`, na pose de corrida, com o painel de
+  resultado sobre a cena e o kart pilotável (critério 13 de US-0003, `DOMAIN/DEC-06`); a próxima visão
+  geral é a do primeiro quadro da contagem de uma nova volta — que `race-lap-validation` inicia direto de
+  `ENDED` (`startLap` de `ENDED` para `COUNTDOWN`) — ou a de uma recarga da página sem volta ativa. "Em
+  corrida" é a definição dos requisitos: do sinal verde até a próxima visão geral, sem terminar em `ENDED`.
+  A pausa não muda o modo: congela a câmera.
 - **Velocidade de rolamento com sinal.** O giro das rodas usa `rollingSpeedMps`, a velocidade do kart em
   módulo com sinal negativo quando o movimento é para trás em relação ao rumo; o nome é novo para não dar a
   `speedMps` da telemetria de dirigibilidade (sempre 0 ou maior) outro significado (I3).
@@ -103,22 +108,28 @@ contrato de estado da volta da feature `race-lap-validation` (`getLapState`, cam
 
 ## Lacunas deliberadas
 
-Os requisitos recusaram, com motivo registrado no seu changelog, fixar os pontos abaixo; nenhum critério os
-pede, e esta especificação não os decide nem os inventa:
+Esta especificação não decide nem inventa os pontos abaixo. Eles são de dois tipos, ditos linha a linha na
+coluna Origem: **recusa registrada** — os requisitos recusaram fixar o ponto, com o motivo no seu changelog
+(`97-changelog.md` daquele conjunto, rodada indicada) — ou **ponto não fixado** — nenhum critério dos
+requisitos o fixa e o changelog deles não registra recusa; esta especificação só o nomeia como lacuna, para
+que a etapa de design não o leia como decidido. Nos dois casos, a coluna Situação diz o que os critérios
+exigem apesar da lacuna.
 
-| Ponto | Situação |
-|---|---|
-| Duração e curva da descida, trajetória horizontal da câmera durante a contagem | Não fixadas; exige-se partir da visão geral, altura que nunca aumenta de um quadro para o seguinte e pose de corrida no sinal verde |
-| Altura, ponto de mira e campo de visão da visão geral; campo de visão durante a descida | Não fixados; exige-se a pista vista do alto e inteira no quadro, em paisagem e em retrato |
-| Campo de visão vertical em retrato acima dos pisos | Não fixado; exige-se horizontal de pelo menos 60° e vertical de pelo menos 62°, e o kart inteiro no quadro na curva de 90° a 50 km/h |
-| Magnitude do efeito de turbo no campo de visão | A do efeito que já existe, aplicada a partir da nova base de campo de visão vertical |
-| Razão entre o ângulo do volante e o ângulo de esterço | Não fixada; exige-se sinal igual, zero com esterço 0 e módulo crescente com o módulo do esterço |
-| Direção da luz e aparência da sombra; sombra do fantasma e de outros objetos | Não fixadas; exige-se a sombra do kart no chão, visível junto ao kart pela câmera de corrida |
-| Tolerância do giro das rodas | Nenhuma: o critério diz "igual" |
-| Tolerância de diâmetros e bitolas | Nenhuma além da medida ao centímetro, a precisão em que os requisitos dão os valores |
-| Cores do capacete e das demais peças | Só as quatro cores com código nos requisitos são critério |
-| Condição de câmera para ver o número 01 | Não fixada; exige-se o número 01 na placa do para-choque do kart exibido |
-| Aparência do fantasma além de ser o Kart 01 | Não fixada |
+| Ponto | Origem | Situação |
+|---|---|---|
+| Duração e curva da descida da câmera durante a contagem | Recusa registrada (changelog dos requisitos, rodada 1) | Não fixadas; exige-se partir da visão geral, altura que nunca aumenta de um quadro para o seguinte e pose de corrida no sinal verde |
+| Trajetória horizontal da câmera durante a contagem | Ponto não fixado por nenhum critério | Não fixada; valem as mesmas exigências da linha anterior |
+| Altura, ponto de mira e campo de visão da visão geral; campo de visão durante a descida | Ponto não fixado por nenhum critério | Não fixados; exige-se a pista vista do alto e inteira no quadro, em paisagem e em retrato |
+| Campo de visão vertical em retrato acima dos pisos | Recusa registrada (changelog dos requisitos, rodada 1) | Não fixado; exige-se horizontal de pelo menos 60° e vertical de pelo menos 62°, e o kart inteiro no quadro na curva de 90° a 50 km/h |
+| Magnitude do efeito de turbo no campo de visão | Recusa registrada (changelog dos requisitos, rodada 1) | A do efeito que já existe, aplicada a partir da nova base de campo de visão vertical |
+| Razão entre o ângulo do volante e o ângulo de esterço | Ponto não fixado por nenhum critério | Não fixada; exige-se sinal igual, zero com esterço 0 e módulo crescente com o módulo do esterço |
+| Direção da luz e aparência da sombra; sombra do fantasma e de outros objetos | Ponto não fixado por nenhum critério | Não fixadas; exige-se a sombra do kart no chão, visível junto ao kart pela câmera de corrida |
+| Tolerância do giro das rodas | Recusa registrada (changelog dos requisitos, rodada 2) | Nenhuma: o critério diz "igual" |
+| Tolerância de diâmetros e bitolas | Recusa registrada (changelog dos requisitos, rodada 1) | Nenhuma além da medida ao centímetro, a precisão em que os requisitos dão os valores |
+| Cores do capacete e das demais peças | Recusa registrada (changelog dos requisitos, rodada 1) | Só as quatro cores com código nos requisitos são critério |
+| Condição de câmera para ver o número 01 | Recusa registrada (changelog dos requisitos, rodada 2) | Não fixada; exige-se o número 01 na placa do para-choque do kart exibido |
+| Aparência do fantasma além de ser o Kart 01 | Ponto não fixado por nenhum critério | Não fixada |
+| Valor e duração do painel de resultado, e o que o Jogador faz para chegar à próxima visão geral depois do fim da volta (nova tentativa, reinício) | Recusa registrada (changelog dos requisitos, rodada 3) | Não fixados; exige-se a pose de corrida em todos os quadros do fim da volta até o quadro anterior à próxima visão geral, e a visão geral só antes da contagem regressiva |
 
 ## Fora do escopo
 
@@ -152,8 +163,9 @@ Idêntico ao dos requisitos:
   continuam diferentes das do modelo (`DOMAIN/DEC-02`). A ordem de entrega entre as duas é assunto da etapa
   de design.
 - **`race-lap-validation`.** Esta feature usa a contagem regressiva (3000 ms de tempo de simulação) e o sinal
-  verde que já existem, pelo contrato `getLapState`, só para decidir o modo da câmera; não muda a validação
-  de volta nem as telas daquela feature.
+  verde que já existem, pelo contrato `getLapState`, só para decidir o modo da câmera, e o fim da volta
+  (`ENDED`) e o painel de resultado que já existem, só para manter a câmera na pose de corrida
+  (`DOMAIN/DEC-06`); não muda a validação de volta nem as telas daquela feature.
 - **`pista-kart-park`.** O Kart 01 e a câmera valem em qualquer pista em jogo.
 
 Nenhum feedback foi enviado a outra feature: nenhum requisito delas precisa mudar.
