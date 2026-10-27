@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: []
 ---
 
@@ -274,4 +274,59 @@ produto (rodada 2).
   faixas") pede; o resíduo abaixo de 0,01 fica declarado no item, coberto pela diferença de 0 linhas.
 - Mover a cadência das marcas, `wheelPositions`, `setup` ou qualquer preset: nada; REQ-FEAT-0006-06 e a
   `dirigibilidade` (dona de `setup`) não autorizam, e a ISSUE-11 pedia só a precisão do intervalo.
+- Nenhum requisito foi enfraquecido, removido ou dividido; nenhuma superfície acrescentada.
+
+## 2026-10-27 — rodada 4, Mode C (feedback da etapa de código `reports/feedback/feedback-20261027-1928.md`, SPEC-ISSUE-01)
+
+**O que mudou**
+
+- SPEC-ISSUE-01 (FAIL SPEC da etapa de código): a regra de medida de `frontWheelDiametersM` e
+  `rearWheelDiametersM` em DES-0001 ("Como as medidas de RULE-0001 saem do modelo montado") e em DES-0006
+  (`measureKart01Model`) dizia "extensão em Y da geometria mesclada de cada roda". Sobre a forma inalterada
+  do Cowork (`docs/kart-01/kart.js`, `criarRoda`: `LatheGeometry` de 14 segmentos girada em Z) nenhum dos 14
+  vértices da revolução cai em ±Y, e a extensão em Y mede 0,975 × 2 × `raio` — 0,2535 m e 0,273 m, que ao
+  centímetro dão 0,25 e 0,27 e reprovariam `WHEELS_AND_TRACKS`. A regra passa a ser a **extensão em Z da
+  caixa envolvente da geometria mesclada de cada roda, no referencial local do nó `spin`** — o eixo de
+  rolamento, onde a revolução põe um vértice em φ = 0 e outro em φ = π, a ±`raio`; na pose de repouso coincide
+  com o Z do modelo —, que mede exatamente 0,26 m e 0,28 m. Escolha e motivo: entre as duas saídas que a
+  invocação admitia (extensão em Z, ou o `diameterM` declarado), a extensão em Z é a única que continua sendo
+  uma **medida sobre o modelo montado** (`SEED/IM-I9`; AC-US-0001-04 e -05: "reporta, para o modelo montado,
+  diâmetro de ..."), enquanto `wheels[nome].diameterM` é 2 × `raio` declarado — o valor que o giro usa
+  (RULE-0003) — e reportá-lo seria medir a constante, não a geometria. Os dois itens dizem que o valor medido
+  é igual a `diameterM`, sem que `diameterM` seja a medida. Dito em DES-0001 (tabela das medidas), DES-0006
+  (linha `measureKart01Model`) e `test-strategy.md` (linha AC-US-0001-04, que as linhas -05 a -07 seguem por
+  "idem"). Fechada por edição.
+- A tolerância não muda: "ao centímetro" (RULE-0001; API-0002, `OUT_OF_TOLERANCE` "diferente ao centímetro";
+  requisitos: "medida ao centímetro", sem outra tolerância — `01-overview.md`, lacunas deliberadas). A linha
+  `judgeModelCheck` de DES-0006 continua igual (cada valor arredondado ao centímetro igual a 0,26; 0,28; 1,00;
+  1,14). O valor esperado passa de "0,26 m; 0,28 m" a "0,26 m; 0,28 m (exatos)".
+- Nenhuma geometria muda (decisão do dono do produto, `DOMAIN/DEC-01` e seed: a forma do Cowork não é alterada;
+  REQ-FEAT-0004-04): nem segmentos, nem rotação da revolução, nem posição de vértice; os 5.128 triângulos e as
+  27 chamadas ficam. Nenhum campo novo no modelo (`Kart01Model` inalterado), nenhum símbolo novo, nenhum
+  registro ou campo novo em API-0002: a rodada de código seguinte toca só a medida em
+  `tests/helpers/kart01Report.ts` (o eixo lido da caixa envolvente), não `src/kart01Model.ts`.
+- Versões: `web/DES-0001` em 1.1.0, `web/DES-0006` em 1.3.0, `test-strategy.md` em 1.3.0 e este changelog em
+  1.3.0, todos com `status: draft`; o gate e o validador decidem. Os demais arquivos sem mudança.
+  `00-index.md` e `99-traceability.md` não foram tocados: o gate os regenera.
+
+**Itens fechados**: SPEC-ISSUE-01, por edição. Divergências registradas: nenhuma nova. Feedback: nenhum
+novo escrito; nenhuma outra feature precisa mudar.
+
+**Itens recusados, com motivo**
+
+- Reportar `wheels[nome].diameterM` (2 × `raio`) como `frontWheelDiametersM`/`rearWheelDiametersM` (segunda
+  saída oferecida pelo feedback): recusado; é o valor declarado, não uma medida da geometria montada, e
+  AC-US-0001-04/-05 e `SEED/IM-I9` pedem a medida sobre o modelo montado. O item diz que a medida é igual a
+  ele, o que a etapa de código pode afirmar num teste sem que a constante substitua a medida.
+- "Maior extensão da geometria mesclada entre os eixos Y e Z" (primeira saída oferecida pelo feedback):
+  recusada em favor da extensão em Z só; dá o mesmo valor (o máximo é o Z), mas é uma regra com dois eixos para
+  explicar um, e a extensão em Z é o diâmetro no eixo de rolamento, o "diâmetro externo da roda com o pneu"
+  de RULE-0001 na direção em que a roda toca o chão.
+- Admitir 0,25/0,27 ao centímetro em RULE-0001/REQ-FEAT-0001-04 (terceira saída): recusada; seria afrouxar o
+  requisito ("o modelo é corrigido, nunca a tolerância", US-0001, caso anormal), e a forma inalterada
+  satisfaz 0,26/0,28 com a medida correta.
+- Mudar a geometria da roda (mais segmentos, ou girar a revolução para pôr um vértice em ±Y): recusado; o
+  dono do produto decidiu que a forma não muda (`DOMAIN/DEC-01`; REQ-FEAT-0004-04: "sem mudar a forma").
+- Campo novo no modelo (por exemplo `measuredDiameterM`) ou registro novo em API-0002: recusado; nenhum é
+  necessário e a invocação pediu nenhum campo novo salvo se inevitável.
 - Nenhum requisito foi enfraquecido, removido ou dividido; nenhuma superfície acrescentada.

@@ -4,7 +4,7 @@ title: Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento po
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0004, FEAT-0006, RULE-0001, RULE-0003, FLOW-0003, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-17, REQ-FEAT-0002-01, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-10, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0006-02, REQ-FEAT-0006-03, NFR-0003, NFR-0004]
 ---
 
@@ -118,7 +118,7 @@ material; nenhuma cor muda.
 |---|---|---|
 | `bboxLengthM`, `bboxWidthM` | caixa envolvente, no referencial do modelo, da união das geometrias dos 15 grupos (sem `piloto`), na pose de repouso (`steerAngleRad` 0, giro 0): comprimento no eixo Z, largura no eixo X | 1,925 m (do nariz em z = −0,99 ao para-choque em z = 0,935); 1,45 m (para-choque traseiro em x = ±0,725) |
 | `wheelbaseM` | distância em Z entre os centros dos nós `steer` dianteiros (z = −0,525) e traseiros (z = 0,525) | 1,05 m |
-| `frontWheelDiametersM`, `rearWheelDiametersM` | extensão em Y da caixa envolvente da geometria mesclada de cada roda (o perfil do `LatheGeometry` chega a `raio`) | 0,26 m; 0,28 m |
+| `frontWheelDiametersM`, `rearWheelDiametersM` | extensão em **Z** da caixa envolvente da geometria mesclada de cada roda, no referencial local do nó `spin` — o eixo de rolamento da roda, no qual a revolução do `LatheGeometry` de 14 segmentos (`criarRoda`, girada em Z) põe um vértice em φ = 0 e outro em φ = π, a +`raio` e −`raio`; na pose de repouso (esterço 0, giro 0) esse eixo coincide com o Z do modelo. A extensão em Y **não** é a medida: nenhum dos 14 vértices cai em ±Y e ela vale 0,975 × 2 × `raio` (0,2535 m; 0,273 m), de modo que a forma inalterada do Cowork reprovaria ao centímetro. O valor medido é igual a 2 × `raio` = `wheels[nome].diameterM`, mas `diameterM` é o valor declarado que o giro usa (RULE-0003), não a medida: a verificação mede a geometria montada (`SEED/IM-I9`) | 0,26 m; 0,28 m (exatos) |
 | `frontTrackM`, `rearTrackM` | distância em X entre os centros dos nós `steer` de um mesmo eixo (±0,5; ±0,57) | 1,00 m; 1,14 m |
 | `kartColorHexes`, `chassisColorHexes` | cores distintas do atributo `color` das malhas dos 15 grupos (linear → sRGB, arredondado a 8 bits) mais as `color` dos materiais de decalque; idem só no grupo `chassi` | contêm `#FF6A13`; contêm `#2B2E34` |
 | `bumperPlateColorHex` | `materials.plate.color` (a `color` da malha `placaTraseira`) | `#F4F3EF` |

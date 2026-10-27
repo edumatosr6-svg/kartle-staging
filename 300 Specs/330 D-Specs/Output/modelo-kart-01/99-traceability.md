@@ -1,7 +1,7 @@
 ---
 stage: dspec
 feature: modelo-kart-01
-generated: 2026-10-27T16:25:46Z
+generated: 2026-10-27T19:41:07Z
 rows: 208
 ---
 

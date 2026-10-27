@@ -3,7 +3,7 @@ title: Estratégia de testes — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: []
 ---
 
@@ -85,7 +85,7 @@ helpers e fixtures existentes de `tests/`. A linha de base é dado gravado antes
 | AC-US-0001-01 | `model` (I): `KART_DIMENSIONS` de `measureKart01Model(buildKart01Model())`: `bboxLengthM` em 1,93 ± 0,02 (esperado 1,925) e `verdict` `PASS`; `model` (U): medida sintética com 1,96 m dá `FAIL` `OUT_OF_TOLERANCE` |
 | AC-US-0001-02 | idem: `bboxWidthM` em 1,45 ± 0,02 |
 | AC-US-0001-03 | idem: `wheelbaseM` em 1,05 ± 0,02 |
-| AC-US-0001-04 | `model` (I): `WHEELS_AND_TRACKS`: os dois `frontWheelDiametersM` arredondados ao centímetro iguais a 0,26; (U): 0,27 dá `OUT_OF_TOLERANCE` |
+| AC-US-0001-04 | `model` (I): `WHEELS_AND_TRACKS`: os dois `frontWheelDiametersM` (extensão em Z da geometria mesclada de cada roda no referencial do nó `spin`, DES-0001; esperado 0,26 exato) arredondados ao centímetro iguais a 0,26; (U): 0,27 dá `OUT_OF_TOLERANCE` |
 | AC-US-0001-05 | idem: `rearWheelDiametersM` 0,28 |
 | AC-US-0001-06 | idem: `frontTrackM` 1,00 |
 | AC-US-0001-07 | idem: `rearTrackM` 1,14 |

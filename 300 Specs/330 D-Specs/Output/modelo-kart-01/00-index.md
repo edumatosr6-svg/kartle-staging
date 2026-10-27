@@ -2,7 +2,7 @@
 stage: dspec
 feature: modelo-kart-01
 status: validated
-generated: 2026-10-27T16:25:46Z
+generated: 2026-10-27T19:41:07Z
 files: 16
 ---
 
@@ -13,7 +13,7 @@ files: 16
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
 | `01-architecture.md` | - | Arquitetura — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
-| `97-changelog.md` | - | Registro de mudanças — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
+| `97-changelog.md` | - | Registro de mudanças — modelo Kart 01 e câmera de jogo | validated | 1.3.0 |
 | `98-divergences.md` | - | Divergências — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
 | `adr/ADR-0001-material-unico-com-cores-por-vertice-e-malhas-por-grupo.md` | ADR-0001 | Um material opaco com cores por vértice e as malhas de cada grupo mescladas — 27 chamadas de desenho sem mudar a forma | validated | 1.0.0 |
 | `adr/ADR-0002-camera-como-funcao-pura-do-quadro.md` | ADR-0002 | A câmera é função pura do estado da volta, da pose do kart, da forma da área de jogo e do turbo — suavização, atraso e termo de velocidade retirados; visão geral ajustada aos limites da pista; descida com retenção de 100 ms | validated | 1.1.0 |
@@ -21,10 +21,10 @@ files: 16
 | `adr/ADR-0004-linha-de-base-da-simulacao-como-fixture-versionado.md` | ADR-0004 | A linha de base anterior à feature é um fixture JSON versionado em tests/fixtures, gravado antes da primeira mudança de código e amarrado ao acerto e à pista | validated | 1.0.0 |
 | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` | DM-0001 | Linha de base da simulação anterior à feature (fixture versionado) e registro dos testes em tela | validated | 1.2.0 |
 | `security/DES-0007-privacidade-sem-rede-e-sem-persistencia.md` | DES-0007 | Privacidade — sem rede, sem persistência, sem dado pessoal no modelo, nos registros de teste e na linha de base | validated | 1.0.0 |
-| `test-strategy.md` | - | Estratégia de testes — modelo Kart 01 e câmera de jogo | validated | 1.2.0 |
-| `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` | DES-0001 | Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento por material, decalques e pose das peças | validated | 1.0.0 |
+| `test-strategy.md` | - | Estratégia de testes — modelo Kart 01 e câmera de jogo | validated | 1.3.0 |
+| `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` | DES-0001 | Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento por material, decalques e pose das peças | validated | 1.1.0 |
 | `web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md` | DES-0002 | Estado do kart para exibição (API-0001), velocidade de rolamento, giro das rodas e ponto de referência | validated | 1.0.0 |
 | `web/DES-0003-camera-de-jogo.md` | DES-0003 | Câmera de jogo (API-0003) — modos, pose de corrida, visão geral, descida, forma da área de jogo e campo de visão | validated | 1.1.0 |
 | `web/DES-0004-integracao-da-cena-em-main-ts.md` | DES-0004 | Integração da cena em src/main.ts — Kart 01 na cena, sombra que acompanha o kart, câmera aplicada por quadro e taxa de quadros | validated | 1.2.0 |
 | `web/DES-0005-efeitos-presos-ao-kart.md` | DES-0005 | Efeitos presos ao kart — marcas de pneu em wheelPositions por passo, fumaça no escapamento do Kart 01 e indicação de drift | validated | 1.1.0 |
-| `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` | DES-0006 | Verificações de npm test e relatório do modelo montado (API-0002) — medidas, custo, giro, camadas, neutralidade, contrato de passo, determinismo e wheelPositions | validated | 1.2.0 |
+| `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` | DES-0006 | Verificações de npm test e relatório do modelo montado (API-0002) — medidas, custo, giro, camadas, neutralidade, contrato de passo, determinismo e wheelPositions | validated | 1.3.0 |
