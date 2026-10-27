@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park (estágio de código)
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -149,3 +149,27 @@ dois sentidos); uma simplificação da poligonal seria outra versão do preparo.
 **Migração de verificações existentes**: nenhuma verificação removida ou alterada por esta feature; `npx tsc --noEmit -p .` 0;
 `npx vite build` 0 (705 946 bytes); `npx tsx --test tests/*.test.ts` 296/296; `bench:handling` 46/46;
 `npm run track -- verify kart-park 1` V01–V18 `PASS`.
+
+## 2026-10-27 — rodada 3, Mode B (Testing Report `testing-report-20261027-2307`, veredito `test-validation-20261027-2307` FAIL CODE)
+
+- FAIL-01 (CODE; `CHK-TEST-0004-03`, AC-US-0004-04; DES-0003 "Bloco da barreira" passo 1, ADR-0003 decisão 2): `src/physics.ts:372`
+  `barrierContactPoint` — `startSideNormal` passa de `sSide >= 0 ? leftOfAB : −leftOfAB` a `sSide >= 0 ? −leftOfAB : leftOfAB`, porque
+  `leftOfAB = {(b.z − a.z)/L, −(b.x − a.x)/L}` fica do lado em que `orientation(a, b, ·)` é negativa; a normal "do lado de S" apontava
+  para o lado oposto, o ramo do trajeto (`:376-378`) punha o kart do lado errado da barreira com `outgoing < 0` e a reflexão não
+  disparava (atravessava a 150–200 m/s; o caso `near.distanceM === 0` `:382` usava a mesma normal). Comentário da função (`:365-366`)
+  corrigido. Ramo de proximidade (`:380-383`), resposta (`:339-357`), muro, presets, `Input`, contrato de passo e `src/lap.ts` intactos;
+  481 linhas, nenhum `arquivo:linha` do manifesto desloca.
+- Manifesto: `01-implementation.md` 1.2.0 (rodada 3, tabela de arquivos, portão, decisão da normal), `core/DES-0003` 1.0.1,
+  `98-divergences.md` 1.2.0 (linha 5); `00-index.md` e `99-traceability.md` por `lint_artifacts.py --emit`.
+
+**Itens fechados**: FAIL-01.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Renomear `leftOfAB` (alternativa que o relatório oferece): não aplicado; o nome fica com o comentário que diz o lado que representa,
+  para que o arquivo mantenha as 481 linhas e as referências do manifesto e do relatório (`:367-383`) continuem válidas.
+- Qualquer linha de `tests/`, do ramo de proximidade ou do bloco da resposta: não tocada (o relatório manda mudar só a normal).
+
+**Migração de verificações existentes**: nenhuma verificação removida ou alterada por esta feature; `npx tsc --noEmit -p .` 0;
+`npx vite build` 0 (705 946 bytes); `npx tsx --test tests/*.test.ts` 398/398 (`CHK-TEST-0004-03` passa; `-02/-04/-05/-06` e
+`tests/physics.test.ts` verdes); `bench:handling` 46/46; `bench:physics` 10/10; `npm run track -- verify kart-park 1` V01–V18 `PASS`.

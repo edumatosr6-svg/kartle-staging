@@ -362,14 +362,14 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
 }
 // Sign of c relative to the directed segment ab (left positive).
 const orientation = (a: Point, b: Point, c: Point) => (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
-// Contact of the substep trajectory s -> e with barrier segment ab: the crossing point on s's side (step 1), or the
-// closest point when e lies within the contact surface (step 2); `m` is the unit normal pointing away from the barrier.
+// Contact of the substep trajectory s -> e with barrier segment ab: the crossing point on s's side (step 1), or the closest point
+// when e lies within the contact surface (step 2); `m` points away from the barrier, towards s's side (`leftOfAB` is the negative side).
 function barrierContactPoint(a: Point, b: Point, s: Point, e: Point): { q: Point; m: Point } | undefined {
   const lengthAB = Math.hypot(b.x - a.x, b.z - a.z);
   if (lengthAB === 0) return undefined;
   const leftOfAB: Point = { x: (b.z - a.z) / lengthAB, z: -(b.x - a.x) / lengthAB };
   const sSide = orientation(a, b, s);
-  const startSideNormal: Point = sSide >= 0 ? leftOfAB : { x: -leftOfAB.x, z: -leftOfAB.z };
+  const startSideNormal: Point = sSide >= 0 ? { x: -leftOfAB.x, z: -leftOfAB.z } : leftOfAB;
   const eSide = orientation(a, b, e);
   const aSide = orientation(s, e, a), bSide = orientation(s, e, b);
   if (sSide * eSide < 0 && aSide * bSide < 0) {

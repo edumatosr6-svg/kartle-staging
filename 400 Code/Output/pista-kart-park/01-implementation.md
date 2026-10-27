@@ -3,7 +3,7 @@ title: Registro de implementação — pista Kart Park
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -31,6 +31,17 @@ ISSUE-04 — DES-0002 1.1.0 lista `closestOnSegment`, `pointInQuad`, `centerline
 Nenhum preset, `Input`, regra de `src/lap.ts` nem linha de `src/physics.ts` tocados nesta rodada; nenhum arquivo de `tests/` escrito.
 Arquivos alterados: `scripts/trackPrep.ts`, `scripts/track-pipeline.ts`, `src/tracks/kart-park-v1.json` (regenerado),
 `tracks/registry.json` (entrada retirada e regravada) e este manifesto. As medidas abaixo são as da rodada 2.
+
+Rodada 3, Mode B (2026-10-27, Testing Report `testing-report-20261027-2307` — veredito `test-validation-20261027-2307` FAIL CODE):
+só o item do relatório. FAIL-01 — `barrierContactPoint` (`src/physics.ts:367-383`) escolhia a normal "do lado de S" invertida:
+`leftOfAB = {(b.z − a.z)/L, −(b.x − a.x)/L}` fica do lado em que `orientation(a, b, ·)` é negativa, e `startSideNormal` tomava
+`leftOfAB` quando `sSide >= 0`; no ramo do trajeto (passo 1 de DES-0003) o kart era posto a 0,1 m do lado oposto ao de origem,
+`outgoing = v·n < 0` e a reflexão não disparava (atravessava a 150–200 m/s; as velocidades alcançáveis eram seguradas só pelo ramo de
+proximidade). Correção na linha `:372`: `startSideNormal = sSide >= 0 ? {−leftOfAB.x, −leftOfAB.z} : leftOfAB`, que vale também para
+o caso `near.distanceM === 0` (`:382`); o ramo de proximidade (`:380-383`), o bloco da resposta (`:339-357`) e o muro não mudam;
+comentário da função (`:365-366`) corrigido. Nenhum preset, `Input`, contrato de passo, `src/lap.ts`, arquivo de `tests/` nem
+arquivo de pista tocados; `src/physics.ts` continua com 481 linhas (todas as referências `arquivo:linha` deste manifesto valem).
+Arquivos alterados: `src/physics.ts` e este manifesto. As medidas do preparo abaixo continuam as da rodada 2.
 
 Ordem de construção: dado de pista (`src/trackGeometry.ts` novo, `src/trackData.ts` esquema 3 — DES-0002, DES-0001, DM-0001),
 simulação (`src/physics.ts`, `src/lap.ts`, `src/trainingSession.ts` novo — DES-0003, DES-0004, DES-0005), aplicação pura
@@ -80,7 +91,7 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 |---|---|---|---|
 | `src/trackGeometry.ts` | novo (289 linhas) | dado de pista | DES-0002, DM-0001 |
 | `src/trackData.ts` | alterado (`TRACK_SCHEMA_VERSION` 3, `Schema3Fields`, `readSchema3Fields`, ordens 6 a 9, `checkConsistencyV3`; `checkConsistency` e o caminho da versão 2 intactos) | dado de pista | DES-0001, DM-0001, ADR-0001 |
-| `src/physics.ts` | alterado (`Surface` com `curb`, `CURB_GRIP_PC`, `surfaceMu`, `Environment.track`, `trackEnvironment`, `trackEdgeDistanceM`, telemetria `barrierTouching`/`barrierContact`, frações de rodas, bloco da barreira, `onRoad`, `getTrackContact`) | simulação | DES-0003, ADR-0003, ADR-0004 |
+| `src/physics.ts` | alterado (`Surface` com `curb`, `CURB_GRIP_PC`, `surfaceMu`, `Environment.track`, `trackEnvironment`, `trackEdgeDistanceM`, telemetria `barrierTouching`/`barrierContact`, frações de rodas, bloco da barreira, `onRoad`, `getTrackContact`); rodada 3: `barrierContactPoint` `:372` (normal do lado de S corrigida, FAIL-01) e comentário `:365-366`; 481 linhas | simulação | DES-0003, ADR-0003, ADR-0004 |
 | `src/lap.ts` | alterado (`kartAtStart`, corte por `trackEdgeDistanceM`, reposicionamento na linha central do ambiente) | simulação | DES-0004 |
 | `src/trainingSession.ts` | novo (94 linhas) | simulação | DES-0005, DM-0002 |
 | `src/curbFeedback.ts` | novo (37 linhas) | aplicação pura | DES-0009, DM-0002 |
@@ -103,12 +114,12 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 
 | Passo | Resultado |
 |---|---|
-| `npx tsc --noEmit -p .` | saída 0 nas duas rodadas (as bibliotecas puras `scripts/trackPrep.ts` e `scripts/trackChecks.ts` também passam em `tsc --strict` isolado; `scripts/track-pipeline.ts` usa `node:*` sem `@types/node`, como os demais programas de `scripts/`) |
-| `npx vite build` | saída 0; rodada 2: `dist/assets/index-bBRFdYaS.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes: 705 946 bytes sem compressão (rodada 1: 705 575; 642 759 antes da feature; o acréscimo é o arquivo de pista como literal, 49 360 caracteres, mais os módulos novos); o texto da Kart Park está no pacote, nenhuma requisição |
-| `npx tsx --test tests/*.test.ts` | rodada 2: 296 verificações, **296 aprovadas, 0 reprovadas** (`CHK-TEST-0009-02` reescrito por `race-lap-validation` em `32d0adf` e `CHK-TEST-0004-13` restrito aos campos da linha de base por `modelo-kart-01` em `c7e71b1`, entre as rodadas; rodada 1: 294/296 por essas duas). Nenhum teste editado por esta feature |
-| `npm run bench:handling` | saída 0; **46 registros `PASS`**, 0 `FAIL` (rodada 2 reexecutado) |
-| `npm run bench:physics` | saída 0; 10 registros `PASS` |
-| `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` (rodada 2, sobre o arquivo regenerado) |
+| `npx tsc --noEmit -p .` | saída 0 nas três rodadas (as bibliotecas puras `scripts/trackPrep.ts` e `scripts/trackChecks.ts` também passam em `tsc --strict` isolado; `scripts/track-pipeline.ts` usa `node:*` sem `@types/node`, como os demais programas de `scripts/`) |
+| `npx vite build` | saída 0; rodada 3: `dist/assets/index-DYFBop8t.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes (705 946 bytes, igual à rodada 2); rodada 2: `dist/assets/index-bBRFdYaS.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes: 705 946 bytes sem compressão (rodada 1: 705 575; 642 759 antes da feature; o acréscimo é o arquivo de pista como literal, 49 360 caracteres, mais os módulos novos); o texto da Kart Park está no pacote, nenhuma requisição |
+| `npx tsx --test tests/*.test.ts` | rodada 3: 398 verificações, **398 aprovadas, 0 reprovadas** (as 102 de `tests/pista-kart-park-*.test.ts` do estágio de testes incluídas; `CHK-TEST-0004-03` passa nos 8 lançamentos, `CHK-TEST-0004-02/-04/-05/-06` e `tests/physics.test.ts` verdes); rodada 2: 296 verificações, **296 aprovadas, 0 reprovadas** (`CHK-TEST-0009-02` reescrito por `race-lap-validation` em `32d0adf` e `CHK-TEST-0004-13` restrito aos campos da linha de base por `modelo-kart-01` em `c7e71b1`, entre as rodadas; rodada 1: 294/296 por essas duas). Nenhum teste editado por esta feature |
+| `npm run bench:handling` | saída 0; **46 registros `PASS`**, 0 `FAIL` (rodadas 2 e 3 reexecutado; a pista sintética não tem barreira) |
+| `npm run bench:physics` | saída 0; 10 registros `PASS` (rodada 3 reexecutado) |
+| `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` (rodada 2, sobre o arquivo regenerado; rodada 3 reexecutado, arquivo intacto) |
 | `lint_artifacts.py --stage code --emit` | saída 0 |
 
 ## Decisões de implementação (nenhuma muda contrato nem requisito; ver também `97-changelog.md`)
@@ -139,6 +150,13 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
   crescente de índice, o próprio ponto com peso 1; o grampo projeta sobre o círculo de 0,295 m; o arredondamento a 0,001 m vem antes da
   medição do comprimento, que `prepareTrack` confere (`:190-194`) e `publish` reconfere pela reprodução byte a byte. Os valores medidos
   (682,116 m, 0,2955 m, 22 pontos no grampo) coincidem com a evidência de ADR-0006. A rodada 1 (k = 0, 687,52 m) foi retirada do registro.
+
+- Normal do lado de S na barreira (rodada 3, FAIL-01): `orientation(a, b, c)` é positiva do lado oposto ao vetor
+  `{(b.z − a.z)/L, −(b.x − a.x)/L}` (a = (0, 0), b = (1, 0): o vetor é (0, −1) e `orientation` dá −1 nele); o nome `leftOfAB` ficou,
+  com o comentário dizendo que é o lado negativo, e `startSideNormal` toma o oposto quando `sSide >= 0`. Com isso o passo 1 de
+  DES-0003 põe o kart a 0,1 m do lado de origem com `outgoing > 0`, e a resposta do muro (1,12; 0,65; cancelar; `barrierHit`)
+  dispara nos lançamentos de 60 a 200 m/s; nas velocidades alcançáveis (≤ 34,5 m/s) o comportamento observado antes vinha do ramo de
+  proximidade, que não mudou.
 
 ## Rastreabilidade
 
