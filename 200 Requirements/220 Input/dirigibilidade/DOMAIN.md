@@ -71,3 +71,8 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   significam **nenhuma sequência de `understeer` com mais de 200 ms consecutivos** (o limiar de
   OPEN-03), e não tolerância zero. Assim, um patamar com `understeer` de até 200 ms seguido da saída da
   faixa acima de 50 km/h conta como "sem início de subesterço", e V1 é a velocidade mantida desse patamar.
+- 2026-10-27 — **Onde o subesterço é medido na curva com acelerador zero (Eduardo Matos), após FAIL SPEC
+  da rodada 3 de código:** no ensaio do arco de 18 m entrando a 50 km/h com acelerador zero, o
+  `understeer` conta **só no asfalto, até a primeira saída da faixa**; passos na grama depois da saída
+  não entram na medição (escorregar na grama não é "sair de frente"). O limiar continua 200 ms. O mesmo
+  vale para qualquer ensaio em que a permanência na faixa não é exigida.

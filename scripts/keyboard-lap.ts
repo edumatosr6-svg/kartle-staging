@@ -22,7 +22,8 @@ function measureStepCost(setup: PublishedSetup, version: 'current' | 'previous')
   const config = { ...(version === 'previous' && setup.previousConfig ? setup.previousConfig : setup.config), driverMass: BENCH_PARAMETERS.driverMassKg };
   const reading = syntheticReading();
   if (reading.trackDataStatus !== 'COMPLETE') throw new Error(`synthetic track is ${reading.trackDataStatus}`);
-  const started = startLap(undefined, { lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion }, reading, config);
+  const setupVersion = version === 'previous' && setup.previousSetupVersion ? setup.previousSetupVersion : setup.setupVersion;
+  const started = startLap(undefined, { lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion, setupId: setup.setupId, setupVersion }, reading, config);
   if (!started.ok) throw new Error(`startLap rejected the synthetic track: ${started.code}`);
   let lap = started.lap;
   for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, { throttle: 0, brake: 0, steer: 0 });

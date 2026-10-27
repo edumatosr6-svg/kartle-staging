@@ -223,7 +223,7 @@ function renderBest() {
 }
 function beginLap(kind: LapKind) {
   if (reading.trackDataStatus !== 'COMPLETE' && reading.trackDataStatus !== 'INCOMPLETE') return;
-  const r = startLap(lap, { lapKind: kind, trackId: reading.trackId, trackVersion: reading.trackVersion }, reading, config);
+  const r = startLap(lap, { lapKind: kind, trackId: reading.trackId, trackVersion: reading.trackVersion, setupId: setup.setupId, setupVersion: setup.setupVersion }, reading, config);
   if (!r.ok) return;
   setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
   lap = r.lap; started = true; accumulatorS = 0; keys.clear(); touch.clear();

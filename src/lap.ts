@@ -1,6 +1,6 @@
 // Simulation layer: the lap state machine over the unchanged physics step (DES-0001, DES-0003, DES-0004,
 // DES-0005, DM-0002, ADR-0002). Pure functions over an immutable LapSession; rejections are values.
-import { CIRCUIT, initialState, STEP, step, type Environment, type Input, type KartConfig, type State } from './physics';
+import { CIRCUIT, initialState, STEP, step, type Environment, type Input, type KartConfig, type SetupId, type State } from './physics';
 import { crossLine, nearest, track, WIDTH, type Line, type Point } from './track';
 import { DEFAULT_CUT_DISTANCE_M, DEFAULT_CUT_DURATION_MS, type TrackReading, type TrackVersion } from './trackData';
 import { COUNTDOWN_MS, COUNTDOWN_STEPS, interpolateMs, isCutExceeded, toMs } from './lapTiming';
@@ -20,13 +20,15 @@ export type LapLines = {
   cutDistanceM: number;
   cutDurationMs: number;
 };
-export type LapRequest = { lapKind: LapKind; trackId: string; trackVersion: TrackVersion; challengeNumber?: number };
+export type LapRequest = { lapKind: LapKind; trackId: string; trackVersion: TrackVersion; challengeNumber?: number; setupId?: SetupId; setupVersion?: string };
 
 export type LapSession = {
   lapKind: LapKind;
   trackId: string;
   trackVersion: TrackVersion;
   challengeNumber?: number;
+  setupId?: SetupId;
+  setupVersion?: string;
   trackStatus: TrackStatus;
   lines: LapLines;
   config: Readonly<KartConfig>;
@@ -49,6 +51,8 @@ export type LapResult = {
   trackId: string;
   trackVersion: TrackVersion;
   challengeNumber?: number;
+  setupId?: SetupId;
+  setupVersion?: string;
   lapKind: LapKind;
   lapValidity: LapValidity;
   invalidReason?: InvalidReason;
@@ -115,6 +119,9 @@ export function startLap(
     trackId: reading.trackId,
     trackVersion: reading.trackVersion,
     ...(request.challengeNumber !== undefined ? { challengeNumber: request.challengeNumber } : {}),
+    // Copied from the request without interpretation, like challengeNumber (API-0002 1.1.0; FB-01 of dirigibilidade).
+    ...(request.setupId !== undefined ? { setupId: request.setupId } : {}),
+    ...(request.setupVersion !== undefined ? { setupVersion: request.setupVersion } : {}),
     trackStatus: reading.trackDataStatus,
     lines,
     config: Object.freeze({ ...config }),
@@ -268,6 +275,8 @@ function buildResult(session: LapSession, finishMs?: number): LapResult {
     trackId: session.trackId,
     trackVersion: session.trackVersion,
     ...(session.challengeNumber !== undefined ? { challengeNumber: session.challengeNumber } : {}),
+    ...(session.setupId !== undefined ? { setupId: session.setupId } : {}),
+    ...(session.setupVersion !== undefined ? { setupVersion: session.setupVersion } : {}),
     lapKind: session.lapKind,
     lapValidity: session.validity,
     ...(!valid && session.invalidReason !== undefined ? { invalidReason: session.invalidReason } : {}),

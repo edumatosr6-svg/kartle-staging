@@ -1,8 +1,8 @@
 ---
 stage: code
 feature: dirigibilidade
-generated: 2026-10-22T18:08:06Z
-rows: 168
+generated: 2026-10-27T16:27:27Z
+rows: 171
 ---
 
 # Traceability
@@ -82,8 +82,11 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0001-08 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
 | REQ-FEAT-0001-09 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0002-01 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
+| REQ-FEAT-0002-01 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0002-02 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
+| REQ-FEAT-0002-02 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0002-03 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
+| REQ-FEAT-0002-03 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0002-04 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
 | REQ-FEAT-0002-04 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0002-05 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |

@@ -87,9 +87,10 @@ export function compareLapRecords(a: RecordIdentity, b: RecordIdentity): { compa
   return { comparability: 'COMPARABLE' };
 }
 
-// DM-0001 section 2: the LapResult of race-lap-validation, untouched, plus the setup identity.
+// DM-0001 section 2: the LapResult of race-lap-validation plus the setup identity, filling only what the result lacks;
+// a lap started with the two fields (API-0002 1.1.0 of race-lap-validation) already carries them, so the copy is idempotent.
 export function buildLapRecord(result: LapResult, setup: SetupRef): LapRecord {
-  return { ...result, setupId: setup.setupId, setupVersion: setup.setupVersion };
+  return { ...result, setupId: result.setupId ?? setup.setupId, setupVersion: result.setupVersion ?? setup.setupVersion };
 }
 
 // DM-0001 section 3: replay format version 1 from an ended session and its RUNNING inputs.
@@ -108,6 +109,7 @@ export function replayLap(record: ReplayRecord, reading: TrackReading, setup: Pu
   const request = {
     lapKind: record.lapKind, trackId: record.trackId, trackVersion: record.trackVersion,
     ...(record.challengeNumber !== undefined ? { challengeNumber: record.challengeNumber } : {}),
+    setupId: setup.setupId, setupVersion: setup.setupVersion,
   };
   const started = startLap(undefined, request, reading, { ...setup.config, driverMass: driverMassKg });
   if (!started.ok) return { ok: false, code: started.code };

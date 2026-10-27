@@ -3,11 +3,92 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de
 feature: dirigibilidade
 stage: code
 status: draft
-version: 1.0.0
+version: 2.0.0
 sources: []
 ---
 
 # Registro de mudanças
+
+## 2026-10-27 — rodada 3, Mode C (feedback `feedback-20261022-1803.md` resolvido pelo D-Spec na rodada 8, `dspec-validation-20261027-1531`; FB-01 de `race-lap-validation`)
+
+**O que mudou**
+
+- `scripts/handlingBench.ts` (DES-0004 5.0.0; ADR-0004 decisões 8, 9 e 10; ADR-0005 decisão 1): `referenceCornerBench` com
+  `THROTTLE_ZERO` percorre os 300 passos da janela esteja o kart onde estiver, mede `maxUndersteerMs` em todos eles (dentro e fora da
+  faixa) e conta os passos fora da faixa em `offAsphaltStepCount`, com `offAsphaltFirstStep` e posição da primeira saída; com
+  `THROTTLE_FULL` continua a parar no primeiro passo fora da faixa. `judge` emite `OFF_ASPHALT` em `REFERENCE_CORNER` só com
+  `THROTTLE_FULL`; com `THROTTLE_ZERO` o único critério é `maxUndersteerMs <= 200`. `understeerOnset` define `v1Mps` em todo fim
+  natural — o menor patamar completo com `understeer` > 200 ms ou, sem nenhum, o alvo do patamar interrompido pela saída — e mede a
+  maior sequência de `understeer` do patamar interrompido só para a linha `#`. `judge` em `UNDERSTEER_ONSET` na ordem `OFF_ASPHALT`
+  (`observed`) → menos de 2 pares `MEASUREMENT_MISSING` → fim natural sem `v1Mps` lança (malformado) → `BASELINE_MISSING` → limiares;
+  o caso (b) de `MEASUREMENT_MISSING` (fim natural sem V1) saiu. `v1FromCompletePlateau` e `understeerBaselineRecord` aceitam como V0
+  só um `v1Mps` que é velocidade de patamar completo com subesterço (`50 / 3.6` ou um par da lista acima de 200 ms). A linha `#` de
+  `UNDERSTEER_ONSET` diz de onde `v1Mps` veio com os três textos do projeto (inclusive "sem início de subesterço até a saída da
+  faixa") e imprime `interruptedPlateauMaxUndersteerMs`; `v1Measured` saiu. O pedido da volta de `testPilotLap` leva `setupId` e
+  `setupVersion` do acerto e da versão ensaiados.
+- `src/lap.ts` (DES-0003 2.0.0, DM-0001 M4; contrato API-0001/API-0002 1.1.0 de `race-lap-validation`): `LapRequest`, `LapSession` e
+  `LapResult` ganham `setupId?: SetupId` e `setupVersion?: string`, copiados do pedido em `startLap` e da sessão em `buildResult`, na
+  mesma forma de `challengeNumber` (presentes se e só se o pedido os trouxe; nenhuma verificação ou rejeição nova).
+- `src/setupRecords.ts` (DES-0003 2.0.0): `buildLapRecord` preenche só o que o resultado não traz (`result.setupId ?? setup.setupId`,
+  `result.setupVersion ?? setup.setupVersion`); `replayLap` pede a volta com os dois campos do acerto corrente.
+- `src/main.ts` (DES-0007 1.1.0): `beginLap` informa `setupId` e `setupVersion` no pedido de `startLap`. `scripts/keyboard-lap.ts`
+  (DES-0004): `measureStepCost` idem, com a `setupVersion` da versão ensaiada (`previousSetupVersion` com `--previous`).
+- `docs/physics.md`: entrada `arcade-assistido-v5` do bloco `handling-baseline` refeita em 2026-10-27 sob os vereditos de API-0003 3.3.0
+  (preset inalterado); prosa da seção datada atualizada (revisão de 2026-10-27, tabela de resultados); `arcade-assistido-v4` e
+  `realista-aluguel-4t-v4` mantidas.
+- Manifesto: `01-implementation.md` (2.0.0), `core/DES-0003` (2.0.0), `core/DES-0004` (2.0.0), `data/DM-0001` (2.0.0), `web/DES-0006`
+  (1.1.0), `web/DES-0007` (1.1.0), `98-divergences.md` (2.0.0, contra o registro 3.0.0 do projeto); `00-index.md` e
+  `99-traceability.md` gerados por `lint_artifacts.py --emit`. `core/DES-0001`, `core/DES-0002`, `web/DES-0005` e
+  `security/DES-0008` não mudam (as-built recitado pelo projeto sem mudança de interface).
+
+**Decisões de implementação, onde o projeto deixava detalhe em aberto** (nenhuma muda contrato nem requisito)
+
+- A maior sequência de `understeer` do patamar interrompido é medida nos seus passos no asfalto (subida e, se começou, fase mantida,
+  até o passo anterior à saída) e decide só o texto da linha `#`; quando `v1Mps` está ausente (saída que reprova por si sem patamar
+  completo com subesterço) a linha `#` diz "ausente (…)". A condição de V0 é uma função interna (`v1FromCompletePlateau`), não
+  exportada.
+- Em `src/lap.ts` os dois campos entram na mesma forma condicional de `challengeNumber`, de modo que um pedido sem eles produz um
+  resultado sem eles e `CHK-TEST-0012-02` (campos exatos de `getLapResult`) continua verde.
+- O fim natural é decidido na biblioteca por `exitSpeed > 50 / 3.6 && bySpeed.length >= 2` e `v1Mps` recebe o alvo do patamar
+  interrompido só nesse caso; nos outros desfechos `v1Mps` fica ausente sem patamar completo com subesterço, como API-0003 3.3.0 pede.
+
+**Itens fechados**: SPEC-ISSUE-01 de `feedback-20261022-1803.md` (V1 em todo fim natural; `UNDERSTEER_ONSET` passa a `PASS` com
+V1 = 64,4 km/h ≥ 57,5 km/h); SPEC-ISSUE-02 do mesmo feedback na parte de projeto (a curva com acelerador 0 deixa de reprovar por
+`OFF_ASPHALT` e é julgada só pelos 200 ms de `understeer`) — o limiar resultante não é alcançado pelo preset, ver abaixo; FB-01 de
+`race-lap-validation` (`reports/feedbacks/race-lap-validation/feedback-20261022-1703.md`, aceito pelo D-Spec na rodada 8),
+implementado por inteiro nos cinco sítios que o projeto nomeia.
+
+**Itens recusados, com motivo**
+
+- Retunar `ARCADE_ASSISTIDO_V5`: tentado e não entregue. 2 967 acertos avaliados pela biblioteca com os vereditos de API-0003 3.3.0
+  (7 amostragens aleatórias de 250–300 acertos nas faixas de todas as alavancas de DES-0001, cada uma seguida de subida local, e 4
+  subidas locais de 121 acertos a partir dos melhores) e 36 traços do arco: nenhum acerto aprova os 15 registros. O acerto entregue
+  reprova só `REFERENCE_CORNER` com acelerador 0 (633 ms); os que aprovam essa curva (`assistLateralG` ≤ 1,15, ou ≈ 1,31 com
+  `friction` 1,50) reprovam `REAR_RECOVERY`, `DRIFT_MANEUVER`, `NORMAL_DRIVING` e `TEST_PILOT_LAP`, ou `UNDERSTEER_ONSET` e
+  `ACCELERATION`. Um preset que troca um registro reprovado por outros não é entrega: o preset fica como está e o conflito vai ao
+  feedback (SPEC-ISSUE-03, `feedback-20261027-1619.md`).
+- Medir `maxUndersteerMs` com acelerador 0 só até a saída da faixa (o que a biblioteca anterior fazia: 125 ms, limiar atendido):
+  REQ-FEAT-0002-09 e ADR-0004 decisão 9 mandam medir em todos os passos, dentro e fora da faixa; escolher o contrário seria decidir o
+  F-Spec aqui.
+- Alterar `grassFriction`, o teto de guinada da assistência (`mu × g × 0,85 / u`), `engineBrake`, `brakeForce`, `steerRate`,
+  `axleScrub`, o classificador `handling`, os parâmetros de `BENCH_PARAMETERS` ou o piloto de teste: fora das alavancas que DES-0001
+  e ADR-0004 fixam.
+- Refazer as entradas `arcade-assistido-v4` e `realista-aluguel-4t-v4` do bloco: o projeto diz que continuam válidas (ADR-0004,
+  Consequências) e `REALISTA_UNCHANGED` passa com 0 medidas diferentes contra a entrada existente; o registro `REFERENCE_CORNER` com
+  acelerador 0 de `arcade-assistido-v4` (medido pela regra anterior) não é lido como linha de base por ensaio algum.
+- Arquivos de teste de test-strategy (`tests/dirigibilidade-*.test.ts`, `tests/fixtures/records.ts`) e `docs/handling-device-log.md`:
+  estágio de testes e evidência humana, como na rodada 2.
+- Nenhum limiar foi afrouxado, nenhum requisito enfraquecido, nenhuma dependência acrescentada, nenhum arquivo fora dos que o projeto
+  nomeia foi tocado.
+
+**Limiar que as alavancas do projeto não alcançam (reportado em `feedback-20261027-1619.md`, verdict FAIL SPEC)**
+
+- `REFERENCE_CORNER` com acelerador 0 (REQ-FEAT-0002-01, -03, -09; `DOMAIN/DEC-13`): saída pelo lado interno no passo 240 e, nos 61
+  passos seguintes na grama, `understeer` em todos (deriva dianteira 0,15–0,36 rad contra 0,05–0,08 rad na traseira, porque o teto
+  de guinada da assistência usa `grassFriction` 0,38 enquanto o limite de esterço cresce com a desaceleração): `maxUndersteerMs` 633.
+- Tudo o mais passa nos dois modos de `Input` (registros em `01-implementation.md`).
+
+**Migração de verificações existentes**: nenhuma verificação foi removida ou alterada; `npm test` 170/170.
 
 ## 2026-10-22 — rodada 2, Mode A (após o FAIL SPEC da rodada 1 e a revalidação do projeto)
 

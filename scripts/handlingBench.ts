@@ -262,22 +262,30 @@ function steerResponse(o: BenchOptions, steerInputNorm: number): { record: Steer
   return { record: judge(record), trace };
 }
 
-// REFERENCE_CORNER: the 18 m arc at 50 km/h, steer +1 held, throttle 0 or 1 held; stops at the first step off the lane.
+// REFERENCE_CORNER: the 18 m arc at 50 km/h, steer +1 held, throttle 0 or 1 held. With THROTTLE_FULL the run stops at the
+// first step off the lane (nothing is measured off the asphalt); with THROTTLE_ZERO it covers the whole window wherever the
+// kart is, and maxUndersteerMs is measured on every step, on and off the lane (DOMAIN/DEC-13; ADR-0004, decision 9).
 function referenceCornerBench(o: BenchOptions, throttleCondition: ThrottleCondition): { record: ReferenceCornerRecord; trace: Trace } {
   const config = setupConfig(o), trace = newTrace();
   const input = makeInput(o.inputMode, throttleCondition === 'THROTTLE_FULL' ? 1 : 0, 0, 1);
-  let state = arcEntry(FIFTY_KMH_MPS), run = 0, maxRun = 0, bad = 0, exit: Exit | undefined;
+  let state = arcEntry(FIFTY_KMH_MPS), run = 0, maxRun = 0, bad = 0, off = 0, exit: Exit | undefined;
   for (let i = 0; i < msToSteps(BENCH_PARAMETERS.cornerWindowMs); i++) {
     state = advance(state, config, arcEnvironment, o, trace, input);
     const t = lastOf(trace);
-    if (t.surface === 'GRASS') { exit = { step: t.simStepCount, x: state.x, z: state.z }; break; }
+    if (t.surface === 'GRASS') {
+      off++;
+      exit ??= { step: t.simStepCount, x: state.x, z: state.z };
+      if (throttleCondition === 'THROTTLE_FULL') break;
+    }
     run = t.handling === 'understeer' ? run + 1 : 0;
     maxRun = Math.max(maxRun, run);
     if (loose(t.handling)) bad++;
   }
   const record: ReferenceCornerRecord = {
     ...common(o, 'TEST_PAD'), benchId: 'REFERENCE_CORNER', throttleCondition, ...arcGeometry(),
-    maxUndersteerMs: toMs(maxRun), ...exitFields(exit), entrySpeedMps: FIFTY_KMH_MPS,
+    maxUndersteerMs: toMs(maxRun), offAsphaltStepCount: off,
+    ...(exit ? { offAsphaltFirstStep: exit.step, offAsphaltFirstXM: exit.x, offAsphaltFirstZM: exit.z } : {}),
+    entrySpeedMps: FIFTY_KMH_MPS,
   };
   const notes = throttleCondition === 'THROTTLE_FULL' ? [`oversteerOrSlidingStepCount ${bad}`] : [];
   const observed: Observed | undefined = throttleCondition === 'THROTTLE_FULL' && bad > 0 ? 'THRESHOLD_EXCEEDED' : undefined;
@@ -302,24 +310,37 @@ export function sameSetting(current: BenchRecord): (candidate: BenchRecord) => b
 export function baselineRecord<T extends BenchRecord>(baseline: Baseline | undefined, benchId: BenchId, match: (r: BenchRecord) => boolean = () => true): T | undefined {
   return baseline?.records.find(r => r.benchId === benchId && match(r)) as T | undefined;
 }
+const nearly = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+// Whether v1Mps is the held speed of a complete plateau that understeered for more than 200 ms: 50 / 3.6 (plateau 0, never in
+// the list) or a pair of the list above 200 ms. A v1Mps taken from the interrupted plateau is not (ADR-0003, decision 2).
+function v1FromCompletePlateau(r: UndersteerOnsetRecord): boolean {
+  if (typeof r.v1Mps !== 'number') return false;
+  if (nearly(r.v1Mps, FIFTY_KMH_MPS)) return true;
+  const v1 = r.v1Mps;
+  return Array.isArray(r.maxUndersteerMsBySpeed) && r.maxUndersteerMsBySpeed.some(([speed, ms]) => nearly(speed, v1) && ms > THRESHOLDS.maxUndersteerMs);
+}
 // The UNDERSTEER_ONSET baseline is the same plateau sweep (plateauMs and plateauSpeedHoldMode in the entry's parameters)
-// with V1 measured, whatever verdict the baseline run gave it (ADR-0003, decision 2).
+// whose v1Mps is the speed of a complete plateau with understeer, whatever verdict the baseline run gave it; V0 is never
+// taken from a speed at which the baseline reported no understeer (ADR-0003, decisions 2 and 5; ADR-0004, decision 10).
 function understeerBaselineRecord(baseline: Baseline | undefined, current: UndersteerOnsetRecord): UndersteerOnsetRecord | undefined {
   const p = baseline?.parameters;
   if (!p || p.plateauMs !== BENCH_PARAMETERS.plateauMs || p.plateauSpeedHoldMode !== BENCH_PARAMETERS.plateauSpeedHoldMode) return undefined;
   const same = sameSetting(current);
-  return baselineRecord<UndersteerOnsetRecord>(baseline, 'UNDERSTEER_ONSET', r => same(r) && typeof (r as UndersteerOnsetRecord).v1Mps === 'number');
+  return baselineRecord<UndersteerOnsetRecord>(baseline, 'UNDERSTEER_ONSET', r => same(r) && v1FromCompletePlateau(r as UndersteerOnsetRecord));
 }
 
 // UNDERSTEER_ONSET (ADR-0004, decision 8): one continuous run on the ring, steer +1 held, plateaus of held speed from
 // 50 km/h in steps of entrySpeedStepMps; each plateau climbs to its target and holds it for plateauMs; the sweep ends at
-// the first step off the lane, and the speed at that step decides (RULE-0002, "Fim da varredura"). The two results
-// RULE-0002 does not decide make this throw instead of emitting a record.
+// the first step off the lane, and the speed at that step decides (RULE-0002, "Fim da varredura"). V1 is the lowest
+// complete plateau with understeer above 200 ms or, on a natural end without one, the target of the interrupted plateau
+// (DOMAIN/DEC-12). The two results RULE-0002 does not decide make this throw instead of emitting a record.
 function understeerOnset(o: BenchOptions): { record: UndersteerOnsetRecord; trace: Trace } {
   const config = setupConfig(o), trace = newTrace();
   const plateauSteps = msToSteps(BENCH_PARAMETERS.plateauMs), climbLimit = msToSteps(BENCH_PARAMETERS.topSpeedWindowMs);
   let state = arcEntry(FIFTY_KMH_MPS);
   let k = 0, target = FIFTY_KMH_MPS, holding = true, held = 0, run = 0, maxRun = 0, climbSteps = 0, flat = 0;
+  // Understeer run of the plateau in progress over its asphalt steps (climb and held phase): presentation only, never V1.
+  let plateauRun = 0, plateauMaxRun = 0;
   const bySpeed: [number, number][] = [];
   let v1: number | undefined, completed = 0, exit: Exit | undefined, exitSpeed = 0;
   for (;;) {
@@ -327,6 +348,8 @@ function understeerOnset(o: BenchOptions): { record: UndersteerOnsetRecord; trac
     state = advance(state, config, arcEnvironment, o, trace, makeInput(o.inputMode, regulated(before, target), 0, 1));
     const t = lastOf(trace);
     if (t.surface === 'GRASS') { exit = { step: t.simStepCount, x: state.x, z: state.z }; exitSpeed = t.speedMps; break; }
+    plateauRun = t.handling === 'understeer' ? plateauRun + 1 : 0;
+    plateauMaxRun = Math.max(plateauMaxRun, plateauRun);
     if (!holding) {
       climbSteps++;
       flat = Math.abs(t.speedMps - before) < 1e-6 ? flat + 1 : 0;
@@ -344,15 +367,23 @@ function understeerOnset(o: BenchOptions): { record: UndersteerOnsetRecord; trac
         if (v1 === undefined && ms > THRESHOLDS.maxUndersteerMs) v1 = target;
         k++; target = FIFTY_KMH_MPS + k * BENCH_PARAMETERS.entrySpeedStepMps;
         if (target > BENCH_PARAMETERS.entrySpeedMaxMps) throw new Error('UNDERSTEER_ONSET: sweep ended without leaving the lane (last plateau completed)');
-        holding = false; climbSteps = 0; flat = 0;
+        holding = false; climbSteps = 0; flat = 0; plateauRun = 0; plateauMaxRun = 0;
       }
     }
   }
   if (exitSpeed === FIFTY_KMH_MPS) throw new Error('UNDERSTEER_ONSET: lane left at exactly 50 km/h');
+  // Natural end (RULE-0002, "Fim da varredura"): exit above 50 km/h after at least two complete plateaus above 50 km/h.
+  const naturalEnd = exitSpeed > FIFTY_KMH_MPS && bySpeed.length >= 2;
+  const v1Mps = v1 ?? (naturalEnd ? target : undefined);
+  // Where v1Mps came from, for the `#` line (API-0003 3.3.0: presentation, not a field).
+  const v1Origin = v1 !== undefined ? 'V1 de patamar completo com subesterço'
+    : naturalEnd ? (toMs(plateauMaxRun) > THRESHOLDS.maxUndersteerMs
+      ? 'V1 do patamar interrompido pela saída (subesterço iniciado nele)' : 'sem início de subesterço até a saída da faixa')
+    : 'ausente (a saída reprova por si e nenhum patamar completo teve subesterço acima de 200 ms)';
   const partial: UndersteerOnsetRecord = {
     ...common(o, 'TEST_PAD'), benchId: 'UNDERSTEER_ONSET', ...arcGeometry(),
     entrySpeedStepMps: BENCH_PARAMETERS.entrySpeedStepMps, maxUndersteerMsBySpeed: bySpeed, ...exitFields(exit),
-    ...(v1 !== undefined ? { v1Mps: v1 } : {}),
+    ...(v1Mps !== undefined ? { v1Mps } : {}),
   };
   const base = understeerBaselineRecord(o.baseline, partial);
   const record: UndersteerOnsetRecord = {
@@ -362,7 +393,7 @@ function understeerOnset(o: BenchOptions): { record: UndersteerOnsetRecord; trac
   const observed: Observed | undefined = exitSpeed < FIFTY_KMH_MPS ? 'OFF_ASPHALT' : undefined;
   const notes = [
     `exitSpeedMps ${exitSpeed} (${kmh(exitSpeed)} km/h)`, `interruptedPlateauSpeedMps ${target} (${kmh(target)} km/h)`,
-    `completePlateauCount ${completed}`, `v1Measured ${v1 !== undefined}`,
+    `interruptedPlateauMaxUndersteerMs ${toMs(plateauMaxRun)}`, `completePlateauCount ${completed}`, `v1Mps: ${v1Origin}`,
   ];
   if (observed) notes.push(`observed ${observed}: lane left below 50 km/h`);
   return { record: withDiagnostics(judge(record, observed), notes), trace };
@@ -465,7 +496,7 @@ function testPilotLap(o: BenchOptions, controller?: Controller): { record: TestP
   const config = setupConfig(o), trace = newTrace();
   const reading = syntheticReading();
   if (reading.trackDataStatus !== 'COMPLETE') throw new Error(`synthetic track is ${reading.trackDataStatus}`);
-  const started = startLap(undefined, { lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion }, reading, config);
+  const started = startLap(undefined, { lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion, ...setupRef(o) }, reading, config);
   if (!started.ok) throw new Error(`startLap rejected the synthetic track: ${started.code}`);
   let lap = started.lap;
   const idle: Input = { throttle: 0, brake: 0, steer: 0 };
@@ -660,7 +691,8 @@ export function judge<T extends BenchRecord>(input: T, observed?: Observed): T {
       break;
     }
     case 'REFERENCE_CORNER':
-      if (r.offAsphaltStepCount > 0) fail = 'OFF_ASPHALT';
+      // With THROTTLE_ZERO staying in the lane is not required (DOMAIN/DEC-13): only the understeer threshold is judged.
+      if (r.throttleCondition === 'THROTTLE_FULL' && r.offAsphaltStepCount > 0) fail = 'OFF_ASPHALT';
       else if (r.maxUndersteerMs > THRESHOLDS.maxUndersteerMs || (r.throttleCondition === 'THROTTLE_FULL' && observed === 'THRESHOLD_EXCEEDED')) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'UNDERSTEER_ONSET':
@@ -668,8 +700,9 @@ export function judge<T extends BenchRecord>(input: T, observed?: Observed): T {
       if (!(r.offAsphaltStepCount > 0)) throw new Error('UNDERSTEER_ONSET: record without a lane exit has no verdict');
       if (observed === 'OFF_ASPHALT') fail = 'OFF_ASPHALT';
       else if (r.maxUndersteerMsBySpeed.length < 2) fail = 'MEASUREMENT_MISSING';
+      // The natural end always carries V1 (API-0003 3.3.0): a record without it is malformed, never MEASUREMENT_MISSING.
+      else if (r.v1Mps === undefined) throw new Error('UNDERSTEER_ONSET: natural end of the sweep without v1Mps');
       else if (!r.baselineAvailable || r.v0Mps === undefined) fail = 'BASELINE_MISSING';
-      else if (r.v1Mps === undefined) fail = 'MEASUREMENT_MISSING';
       else if (r.v1Mps < THRESHOLDS.understeerOnsetRatio * r.v0Mps
         || r.maxUndersteerMsBySpeed.some(([, ms], i, a) => i > 0 && ms < a[i - 1][1])) fail = 'THRESHOLD_EXCEEDED';
       break;
