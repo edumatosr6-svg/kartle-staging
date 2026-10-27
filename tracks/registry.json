@@ -5,16 +5,16 @@
       "trackId": "kart-park",
       "trackVersion": 1,
       "file": "src/tracks/kart-park-v1.json",
-      "sha256": "24093e904466dd12bf864509496facf78da4362249588ad494e92cdd78dd9f7e",
-      "fileBytes": 42642,
+      "sha256": "04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1",
+      "fileBytes": 43013,
       "publicationState": "STAGING",
-      "stagedAtUtc": "2026-10-27T21:05:21.754Z",
+      "stagedAtUtc": "2026-10-27T21:58:06.132Z",
       "prep": {
         "originFile": "tracks/sources/kart-park.json",
         "originSha256": "52c5adda4ce89bd23a00e04a10d7e12a28900dd4d56414f444e0a4795f2c5302",
-        "smoothingIterations": 0,
-        "maxSmoothingOffsetM": 0,
-        "lapLengthM": 687.52,
+        "smoothingWindowM": 12,
+        "maxSmoothingOffsetM": 0.295,
+        "lapLengthM": 682.116,
         "originOffsetM": {
           "xM": 26.625,
           "zM": 5.49

@@ -3,7 +3,7 @@ id: DES-0008
 title: Desenho da Kart Park na tela de corrida — asfalto, zebras, barreira, linha de largada e minimapa — implementação
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [SCR-0003, FLOW-0002, FEAT-0002, FEAT-0004, FEAT-0005, FEAT-0007, REQ-FEAT-0002-13, REQ-FEAT-0004-08, REQ-FEAT-0005-04, REQ-FEAT-0007-01, REQ-FEAT-0007-02]
 ---

@@ -3,7 +3,7 @@ id: DES-0001
 title: Leitura do dado de pista em esquema 3 — implementação
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0001, FEAT-0002, FEAT-0003, REQ-FEAT-0002-02, REQ-FEAT-0002-12, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0001-14, REQ-FEAT-0003-08, REQ-FEAT-0003-13]
 ---

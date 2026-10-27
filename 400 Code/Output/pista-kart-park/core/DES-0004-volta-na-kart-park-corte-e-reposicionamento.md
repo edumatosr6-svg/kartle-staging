@@ -3,7 +3,7 @@ id: DES-0004
 title: Volta na Kart Park — corte pela borda da pista, reposicionamento e largada — implementação
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0003, FEAT-0005, FLOW-0002, RULE-0001, REQ-FEAT-0001-08, REQ-FEAT-0002-12, REQ-FEAT-0003-08, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-15, REQ-FEAT-0005-07]
 ---

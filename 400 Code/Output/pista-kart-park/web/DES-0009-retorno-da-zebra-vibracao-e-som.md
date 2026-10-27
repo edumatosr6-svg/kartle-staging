@@ -3,7 +3,7 @@ id: DES-0009
 title: Retorno da zebra — vibração em web-mobile e som em web-desktop — implementação
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [RULE-0004, SCR-0003, FLOW-0002, FEAT-0005, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12, REQ-FEAT-0005-13, REQ-FEAT-0005-14, REQ-FEAT-0005-15, REQ-FEAT-0005-16, REQ-FEAT-0005-17, REQ-FEAT-0005-18, REQ-FEAT-0005-19]
 ---

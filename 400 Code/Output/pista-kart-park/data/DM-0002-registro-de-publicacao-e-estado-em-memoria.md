@@ -3,17 +3,21 @@ id: DM-0002
 title: Registro de publicação das pistas e estado em memória da sessão de treino e do retorno da zebra — implementação
 feature: pista-kart-park
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0007-13, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
 ---
 
 # DM-0002 — Registro de publicação e estado em memória — implementação
 
 Sem banco. `tracks/registry.json` (novo, gerado por `npm run track -- publish kart-park 1`): `registryVersion` 1, uma entrada
-`kart-park` 1 `STAGING` com `file` `src/tracks/kart-park-v1.json`, `sha256` `24093e90…`, `fileBytes` 42 642, `stagedAtUtc`
-`2026-10-27T21:05:21.754Z` e `prep` (`originFile`, `originSha256` `52c5adda…`, `smoothingIterations` 0, `maxSmoothingOffsetM` 0,
-`lapLengthM` 687,52, `originOffsetM` {26,625; 5,49}, `curbWidthsM` 34 × 1, `reducedCurbs` []). O cliente não o importa.
+`kart-park` 1 `STAGING` com `file` `src/tracks/kart-park-v1.json`, `sha256` `04ce5e51…`, `fileBytes` 43 013, `stagedAtUtc`
+`2026-10-27T21:58:06.132Z` e `prep` (`originFile`, `originSha256` `52c5adda…`, `smoothingWindowM` 12, `maxSmoothingOffsetM` 0,295,
+`lapLengthM` 682,116, `originOffsetM` {26,625; 5,49}, `curbWidthsM` 34 × 1, `reducedCurbs` []). O cliente não o importa. Rodada 2
+(DM-0002 1.1.0, "Entrada de rodada reprovada"): a entrada gravada pela rodada 1 (`stagedAtUtc` 2026-10-27T21:05:21.754Z, `sha256`
+`24093e90…`, `smoothingIterations` 0, `lapLengthM` 687,52), nunca validada, testada nem implantada, foi retirada junto com o arquivo que
+apontava, antes de `prepare`/`verify`/`publish kart-park 1` com a suavização de ADR-0006 1.1.0; a partir desta entrada o registro é só
+acrescido.
 
 ## Realização por requisito
 
@@ -28,7 +32,7 @@ Sem banco. `tracks/registry.json` (novo, gerado por `npm run track -- publish ka
 
 | Passo | Estado | Reversão |
 |---|---|---|
-| criação de `tracks/registry.json` `registryVersion` 1 com a entrada `kart-park` 1 `STAGING` | **feito nesta rodada** (mesmo commit do arquivo publicado) | `git revert` do commit; `npm test` na árvore revertida; o cliente não lê o registro |
+| criação de `tracks/registry.json` `registryVersion` 1 com a entrada `kart-park` 1 `STAGING` | **feito** (rodada 1; rodada 2 retira a entrada da rodada reprovada e regrava a versão 1 no mesmo commit do arquivo regenerado) | `git revert` do commit; `npm test` na árvore revertida; o cliente não lê o registro |
 
 Preenchimento retroativo: nenhum (a pista sintética não é registrada). Retenção e privacidade: identificadores de pista, resumos,
 tamanhos, instantes UTC, parâmetros do preparo e, com `PRODUCTION`, a referência textual da decisão; quem publica não é registrado.

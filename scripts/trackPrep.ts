@@ -9,10 +9,10 @@ import {
   windingSumOf, type BarrierLine, type CurbSide, type CurbSpan, type TrackGeometry, type TrackPoint,
 } from '../src/trackGeometry';
 
-export const SMOOTH_LAMBDA = 0.5;
+export const SMOOTH_WINDOW_M = 12;
 export const SMOOTH_MAX_OFFSET_M = 0.295;
-export const SMOOTH_MAX_ITERATIONS = 400;
 export const TARGET_LAP_LENGTH_M = 687.5;
+export const LAP_LENGTH_TOLERANCE = 0.01;
 export const SECTOR_TARGETS_M: readonly number[] = [201.6, 350.3, 529.9];
 export const MARKER_TARGET_SPACING_M = 18;
 export const MIN_LINE_SPACING_M = 2;
@@ -45,7 +45,7 @@ export type Schema3File = {
 };
 export type ReducedCurb = { curbIndex: number; widthM: number; grassClearanceM: number };
 export type PrepRecord = {
-  smoothingIterations: number; maxSmoothingOffsetM: number; lapLengthM: number;
+  smoothingWindowM: number; maxSmoothingOffsetM: number; lapLengthM: number;
   originOffsetM: { xM: number; zM: number }; curbWidthsM: number[]; reducedCurbs: ReducedCurb[];
 };
 export type PrepareOptions = { trackId: string; trackVersion: number };
@@ -90,27 +90,28 @@ const cumulativeOf = (pts: readonly XZ[]) => {
   return { cumulative: c, length: l };
 };
 
-// Step 2: Jacobi smoothing with the clamp around the origin point; k chosen by the lap length nearest the target.
-function smooth(origin: readonly XZ[]): { points: XZ[]; iterations: number; maxOffsetM: number } {
+// Step 2: one weighted average over the origin points within a 12 m lap-distance window (raised-cosine weights),
+// then the 0.295 m clamp around the corresponding origin point; the length is re-measured on the rounded line.
+function smooth(origin: readonly XZ[]): { points: XZ[]; maxOffsetM: number; lapLengthM: number } {
   const n = origin.length;
-  let current = origin.map(p => ({ ...p }));
-  let best = { points: current.map(p => ({ x: round3(p.x), z: round3(p.z) })), iterations: 0, distance: Math.abs(polylineLength(current.map(p => ({ x: round3(p.x), z: round3(p.z) }))) - TARGET_LAP_LENGTH_M) };
-  for (let k = 1; k <= SMOOTH_MAX_ITERATIONS; k++) {
-    const next: XZ[] = [];
-    for (let i = 0; i < n; i++) {
-      const a = current[(i + n - 1) % n], b = current[(i + 1) % n], p = current[i];
-      let x = p.x + SMOOTH_LAMBDA * ((a.x + b.x) / 2 - p.x), z = p.z + SMOOTH_LAMBDA * ((a.z + b.z) / 2 - p.z);
-      const dx = x - origin[i].x, dz = z - origin[i].z, r = Math.hypot(dx, dz);
-      if (r > SMOOTH_MAX_OFFSET_M) { x = origin[i].x + dx / r * SMOOTH_MAX_OFFSET_M; z = origin[i].z + dz / r * SMOOTH_MAX_OFFSET_M; }
-      next.push({ x, z });
+  const { cumulative, length } = cumulativeOf(origin);
+  const half = SMOOTH_WINDOW_M / 2;
+  const points: XZ[] = [];
+  for (let i = 0; i < n; i++) {
+    let sx = 0, sz = 0, sw = 0;
+    for (let j = 0; j < n; j++) {
+      const gap = Math.abs(cumulative[j] - cumulative[i]), delta = Math.min(gap, length - gap);
+      if (delta > half) continue;
+      const w = 0.5 * (1 + Math.cos(Math.PI * delta / half));
+      sx += w * origin[j].x; sz += w * origin[j].z; sw += w;
     }
-    current = next;
-    const rounded = current.map(p => ({ x: round3(p.x), z: round3(p.z) }));
-    const distance = Math.abs(polylineLength(rounded) - TARGET_LAP_LENGTH_M);
-    if (distance < best.distance) best = { points: rounded, iterations: k, distance };
+    let x = sx / sw, z = sz / sw;
+    const dx = x - origin[i].x, dz = z - origin[i].z, r = Math.hypot(dx, dz);
+    if (r > SMOOTH_MAX_OFFSET_M) { x = origin[i].x + dx / r * SMOOTH_MAX_OFFSET_M; z = origin[i].z + dz / r * SMOOTH_MAX_OFFSET_M; }
+    points.push({ x: round3(x), z: round3(z) });
   }
-  const maxOffsetM = Math.max(...best.points.map((p, i) => Math.hypot(p.x - origin[i].x, p.z - origin[i].z)));
-  return { points: best.points, iterations: best.iterations, maxOffsetM };
+  const maxOffsetM = Math.max(...points.map((p, i) => Math.hypot(p.x - origin[i].x, p.z - origin[i].z)));
+  return { points, maxOffsetM, lapLengthM: polylineLength(points) };
 }
 
 // Fractional index of a lap distance on a closed polyline with the given cumulative distances.
@@ -185,8 +186,12 @@ export function prepareTrack(origin: OriginTrack, options: PrepareOptions): { fi
   const originXZ: XZ[] = origin.points.map(p => ({ x: p.x - cx, z: -(p.y - cy) }));
   const originCumulative = cumulativeOf(originXZ);
   if (windingSumOf(originXZ.map(p => ({ xM: p.x, zM: p.z }))) >= 0) return { error: 'origin winds clockwise in the game plane; COUNTER_CLOCKWISE required' };
-  // 2. Smoothing. 3. Widths copied.
+  // 2. Smoothing; the re-measured length must stay within 687.5 m +/- 1 % or nothing is written. 3. Widths copied.
   const smoothed = smooth(originXZ);
+  const lengthTolM = TARGET_LAP_LENGTH_M * LAP_LENGTH_TOLERANCE;
+  if (Math.abs(smoothed.lapLengthM - TARGET_LAP_LENGTH_M) > lengthTolM) {
+    return { error: `smoothed lap length ${round3(smoothed.lapLengthM)} m outside ${TARGET_LAP_LENGTH_M - lengthTolM}-${TARGET_LAP_LENGTH_M + lengthTolM} m` };
+  }
   const centerline: TrackPoint[] = smoothed.points.map((p, i) => ({ xM: p.x, zM: p.z, widthM: round3(origin.points[i].widthM) }));
   const base = buildTrackGeometry(centerline, [], []);
   const L = base.lapLengthM;
@@ -265,7 +270,7 @@ export function prepareTrack(origin: OriginTrack, options: PrepareOptions): { fi
     centerline, curbs, barriers: barriers.lines,
   };
   const prep: PrepRecord = {
-    smoothingIterations: smoothed.iterations, maxSmoothingOffsetM: round3(smoothed.maxOffsetM), lapLengthM: round3(L),
+    smoothingWindowM: SMOOTH_WINDOW_M, maxSmoothingOffsetM: round3(smoothed.maxOffsetM), lapLengthM: round3(L),
     originOffsetM: { xM: cx, zM: cy }, curbWidthsM: curbs.map(c => c.widthM), reducedCurbs: reduced,
   };
   return { file, prep };

@@ -105,7 +105,7 @@ function prepare(args: Args): void {
   const path = publishedPath(args.trackId, args.trackVersion);
   writeAtomic(path, text);
   const reduced = result.prep.reducedCurbs.map(r => `${r.curbIndex}:${r.widthM}`).join(' ') || 'nenhuma';
-  console.log(`PREPARED ${path} smoothingIterations=${result.prep.smoothingIterations} lapLengthM=${result.prep.lapLengthM} maxSmoothingOffsetM=${result.prep.maxSmoothingOffsetM} reducedCurbs=${reduced} bytes=${Buffer.byteLength(text)}`);
+  console.log(`PREPARED ${path} smoothingWindowM=${result.prep.smoothingWindowM} lapLengthM=${result.prep.lapLengthM} maxSmoothingOffsetM=${result.prep.maxSmoothingOffsetM} reducedCurbs=${reduced} bytes=${Buffer.byteLength(text)}`);
 }
 
 function verify(args: Args, quiet = false): { text: string; verified: boolean } {

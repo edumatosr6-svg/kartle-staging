@@ -2,8 +2,8 @@
 title: Registro de implementação — pista Kart Park
 feature: pista-kart-park
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: []
 ---
 
@@ -16,6 +16,21 @@ ADR-0001 a ADR-0006) foi implementado por inteiro sobre a árvore do commit `6ea
 commit `b86b200` em que o código de `dirigibilidade` foi validado com `npm test` passando (`code-validation-20261027-1824`): a
 ordem de entrega de REQ-FEAT-0007-12 é satisfeita, e o primeiro commit de código desta feature é o que o autor fizer sobre
 `6ea3862` (`git merge-base --is-ancestor b86b200 <esse commit>` sai com 0 por construção; o registro desta etapa não executa git).
+
+Rodada 2, Mode B (2026-10-27, `code-validation-20261027-2125` FAIL SPEC → projeto revisto e validado em `dspec-validation-20261027-2148`:
+ADR-0006 1.1.0, DES-0010 1.1.0, DES-0011 1.0.2, DM-0002 1.1.0, DES-0005 1.2.0, DES-0007 1.2.0, DES-0002 1.1.0, `01-architecture.md` 1.0.2):
+só os itens do relatório. ISSUE-01 — `smooth` em `scripts/trackPrep.ts` reescrita com a regra nova (janela fixa de 12 m de distância de
+volta, pesos de cosseno levantado, uma aplicação sobre a origem, grampo de 0,295 m, comprimento remedido e conferido em 687,5 m ± 1 %);
+`SMOOTH_WINDOW_M` e `LAP_LENGTH_TOLERANCE` entram, `SMOOTH_LAMBDA` e `SMOOTH_MAX_ITERATIONS` saem; `prep.smoothingWindowM` substitui
+`prep.smoothingIterations` (`PrepRecord` e a saída de `prepare`). Pela regra "Entrada de rodada reprovada" de DM-0002 1.1.0 a entrada
+`kart-park` 1 e o `src/tracks/kart-park-v1.json` da rodada 1 (nunca validados, testados nem implantados; `ba221ad` é ponto de controle)
+foram retirados e `prepare`/`verify`/`publish kart-park 1` refeitos com a regra nova; `trackVersion` continua 1. ISSUE-02 — a assinatura
+`startTrainingLap(session, lap, config, setup?)` da rodada 1 é agora a de DES-0005 1.2.0 (nenhuma mudança de código). ISSUE-03 — os
+passos 5 e 9 de DES-0010 1.1.0 descrevem o procedimento que `transversalLine` e `buildBarriers` já executavam (nenhuma mudança de código).
+ISSUE-04 — DES-0002 1.1.0 lista `closestOnSegment`, `pointInQuad`, `centerlineCrossings` e `windingSumOf` (nenhuma mudança de código).
+Nenhum preset, `Input`, regra de `src/lap.ts` nem linha de `src/physics.ts` tocados nesta rodada; nenhum arquivo de `tests/` escrito.
+Arquivos alterados: `scripts/trackPrep.ts`, `scripts/track-pipeline.ts`, `src/tracks/kart-park-v1.json` (regenerado),
+`tracks/registry.json` (entrada retirada e regravada) e este manifesto. As medidas abaixo são as da rodada 2.
 
 Ordem de construção: dado de pista (`src/trackGeometry.ts` novo, `src/trackData.ts` esquema 3 — DES-0002, DES-0001, DM-0001),
 simulação (`src/physics.ts`, `src/lap.ts`, `src/trainingSession.ts` novo — DES-0003, DES-0004, DES-0005), aplicação pura
@@ -34,19 +49,19 @@ novo); `tsconfig.json` inalterado; nenhum arquivo de `tests/` escrito ou alterad
 |---|---|
 | Origem | `tracks/sources/kart-park.json`, 32 189 bytes, SHA-256 `52c5adda4ce89bd23a00e04a10d7e12a28900dd4d56414f444e0a4795f2c5302`; 684 pontos, 33 zebras, `anti-horario`, `largada.indice` 0 |
 | Conversão | centro da caixa envolvente da origem `(26,625; 5,49)` m (`prep.originOffsetM`); eixos x = leste, z = −norte; soma de enrolamento no plano (x, z) negativa → `COUNTER_CLOCKWISE` (área com sinal no plano (x, −z) +16 153,5 m²) |
-| Suavização | `smoothingIterations` **0**: pela regra de ADR-0006 (iteração de 0 a 400 cujo comprimento arredondado fica mais perto de 687,5 m), k = 0 dá 687,5196 m (desvio 0,0196 m) e k = 1 já dá 686,72 m (desvio 0,78 m); a linha central publicada é a origem convertida e arredondada a 0,001 m; `maxSmoothingOffsetM` 0,000; V01 e V07 passam com desvio máximo 0,0000 m |
-| Comprimento | `lapLengthM` **687,520 m** (687,5196 calculado das coordenadas gravadas), dentro de 680,625–694,375 (V03) |
+| Suavização | `smoothingWindowM` **12** (ADR-0006 1.1.0, DES-0010 1.1.0 passo 2): uma média ponderada dos pontos da origem a até 6 m de distância de volta na linha original (volta fechada), pesos `½ (1 + cos(π δ / 6))`, seguida do grampo de 0,295 m em torno do ponto correspondente da origem e do arredondamento a 0,001 m; **22 pontos** no grampo; `maxSmoothingOffsetM` **0,295** (0,2955 m medido no ponto 218, V01; distância máxima à poligonal original 0,2940 m, V07); inversões do sinal da variação de rumo 110 na origem → 46 na linha publicada |
+| Comprimento | `lapLengthM` **682,116 m**, medido de novo sobre as coordenadas gravadas (soma dos 684 segmentos, inclusive o do último ponto ao ponto 0), dentro de 680,625–694,375 (V03; fora da faixa o preparo falha sem escrever, `scripts/trackPrep.ts:190-194`); só em `prep`, não é chave do arquivo (DM-0001, V18); o rótulo continua `displayLengthM` 687 |
 | Larguras | copiadas, 4,41–10,8 m (V06: 4,4 e 10,8 a uma casa) |
-| Largada e chegada | `startPosition` (−27,035; 5,78) m, `headingDeg` −54,728, meio do segmento P0→P1; `finishLine` transversal em P0, do lado de antes da largada (`sideOf > 0`) |
-| Limites de setor | pontos 200, 348 e 527 da linha central, a **201,63 / 350,34 / 529,86 m** de distância de volta (alvos 201,6 / 350,3 / 529,9 m) |
-| Marcadores | n = ⌈687,52 / 18⌉ = **39**, passo 17,63 m; pontos 9, 26, 44, …, 675; maior espaçamento consecutivo (inclusive 675 → 9 pela largada) **18,29 m** (≤ 25 m, V10) |
-| Linhas transversais | 43 (chegada, 3 limites, 39 marcadores); cada ponta a ≤ 3,001 m além da borda da pista ou parada por outra parte da pista ou pela barreira (V11) |
-| Zebras | **34 trechos** (a zebra `direita 676,5–690,5` da origem cruza a largada e vira `RIGHT 676,5–687,52` e `RIGHT 0–2,98`); largura 1,0 m em todos; `reducedCurbs` vazio (nenhuma folga de grama abaixo de 1,4 m até outra parte da volta a mais de 30 m de distância de volta) |
-| Barreira | **1 poligonal, 395 vértices, 394 segmentos, 63,51 m** entre os trechos de d_o 371–414 m e 580–615 m; 788/788 pontas de segmento na grama; menor distância de um vértice à borda da pista **0,433 m** (superfície de contato de 0,1 m não encosta na pista); maior soma de distâncias asfalto-a-asfalto num vértice ou amostra **5,743 m** (V14); 385 pares de amostras a ≤ 6 m, todos separados pela barreira (V13) |
-| Caixa da pista | x −88,51 … 89,13 m, z −59,50 … 60,50 m; grade de busca 23 × 16 células de 8 m |
-| Arquivo publicado | `src/tracks/kart-park-v1.json`, **42 642 bytes** (literal no pacote 49 049 caracteres; V17 < 200 000), uma linha, chaves na ordem de DM-0001, SHA-256 `24093e904466dd12bf864509496facf78da4362249588ad494e92cdd78dd9f7e`; `readTrackData` → `COMPLETE`, `checkConsistencyV3` → lista vazia |
-| Verificação | `verify kart-park 1`: V01 a V18 **PASS**, `VERIFIED` (74–121 ms); `verifyTrackFile` duas vezes dá listas iguais |
-| Registro | `tracks/registry.json` `registryVersion` 1, uma entrada `kart-park` 1 `STAGING` (`stagedAtUtc` 2026-10-27T21:05:21.754Z, `fileBytes` 42 642, `prep` completo); segundo `publish` → `já registrado`; segundo `prepare` recusado (par já registrado); `promote` sem `--esri-decision` → `argumento inválido: --esri-decision`; `trackVersion` `01` e `trackId` `synthetic` → `argumento inválido` sem ler nem escrever |
+| Largada e chegada | `startPosition` (−27,024; 5,796) m, `headingDeg` −55,644, meio do segmento P0→P1; `finishLine` transversal em P0, do lado de antes da largada (`sideOf > 0`); área com sinal +16 125,8 m² |
+| Limites de setor | pontos 200, 348 e 527 da linha central (os que minimizam `|d_o(i) − D_k|` na linha original, alvos 201,6 / 350,3 / 529,9 m), a **199,394 / 347,042 / 525,650 m** de distância de volta na linha publicada (os alvos escalados pela razão 682,116/687,52 dão 200,0 / 347,5 / 525,7 m) |
+| Marcadores | n = ⌈682,116 / 18⌉ = **38**, passo 17,95 m; pontos 9, 27, 45, …, 675; maior espaçamento consecutivo (inclusive 675 → 9 pela largada) **18,00 m** (≤ 25 m, V10) |
+| Linhas transversais | 42 (chegada, 3 limites, 38 marcadores); cada ponta a ≤ 3,001 m além da borda da pista ou parada por outra parte da pista ou pela barreira (V11) |
+| Zebras | **34 trechos** (a zebra `direita 676,5–690,5` da origem cruza a largada e vira `RIGHT 671,129–682,116` e `RIGHT 0–2,977`); largura 1,0 m em todos; `reducedCurbs` vazio (nenhuma folga de grama abaixo de 1,4 m até outra parte da volta a mais de 30 m de distância de volta) |
+| Barreira | **1 poligonal, 382 vértices, 381 segmentos, 53,29 m** entre os trechos de d_o 371–414 m e 580–615 m; todos os vértices na grama (V15); menor distância de um vértice ou amostra a 0,25 m à borda do asfalto **0,510 m** (superfície de contato de 0,1 m não encosta na pista); maior soma de distâncias asfalto-a-asfalto num vértice ou amostra **5,800 m** (V14); 376 pares de amostras a ≤ 6 m, todos separados pela barreira (V13) |
+| Caixa da pista | x −88,36 … 88,96 m, z −59,38 … 60,20 m; grade de busca 23 × 15 células de 8 m |
+| Arquivo publicado | `src/tracks/kart-park-v1.json`, **43 013 bytes** (literal no pacote 49 360 caracteres; V17 < 200 000), uma linha, chaves na ordem de DM-0001, SHA-256 `04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1`; `readTrackData` → `COMPLETE`, `checkConsistencyV3` → lista vazia |
+| Verificação | `verify kart-park 1`: V01 a V18 **PASS**, `VERIFIED`; `verifyTrackFile` duas vezes dá listas iguais |
+| Registro | `tracks/registry.json` `registryVersion` 1, uma entrada `kart-park` 1 `STAGING` (`stagedAtUtc` 2026-10-27T21:58:06.132Z, `fileBytes` 43 013, `prep` com `smoothingWindowM` 12, `maxSmoothingOffsetM` 0,295, `lapLengthM` 682,116); a entrada da rodada 1 (`stagedAtUtc` 2026-10-27T21:05:21.754Z, `smoothingIterations` 0) foi retirada antes do `prepare` (DM-0002 1.1.0, "Entrada de rodada reprovada"); segundo `publish` → `já registrado`; segundo `prepare` recusado (par já registrado); `promote` sem `--esri-decision` → `argumento inválido: --esri-decision`; `trackVersion` `01` e `trackId` `synthetic` → `argumento inválido` sem ler nem escrever |
 | Reprodutibilidade | `publish` reexecuta `prepareTrack` + `serializeTrackFile` e confere igualdade byte a byte com o arquivo publicado antes de registrar |
 
 ## Verificação em tela (navegador embutido da sessão, `vite preview` 4173)
@@ -76,54 +91,57 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 | `index.html` | alterado (`#track-name`, `#track-selector`, `#track-credit`, `#lap-result-credit`; "Circuito Aurora" retirado) | aplicação | DES-0007 |
 | `src/style.css` | alterado (linha 8: `.track-selector`, `.track-credit`) | aplicação | DES-0007 |
 | `src/rawImports.d.ts` | novo (declaração de `*.json?raw`) | aplicação | DES-0007, ADR-0002 |
-| `src/tracks/kart-park-v1.json` | novo, gerado por `prepare` | dado de pista | DM-0001, DES-0010 |
-| `scripts/trackPrep.ts` | novo (386 linhas) | dado de pista (papel `scripts/`) | DES-0010, ADR-0006 |
+| `src/tracks/kart-park-v1.json` | novo, gerado por `prepare`; regenerado na rodada 2 com a suavização de ADR-0006 1.1.0 | dado de pista | DM-0001, DES-0010 |
+| `scripts/trackPrep.ts` | novo (386 linhas); rodada 2: 391 linhas (`smooth` `:93-116`, conferência do comprimento `:190-194`, `PrepRecord.smoothingWindowM`) | dado de pista (papel `scripts/`) | DES-0010, ADR-0006 |
 | `scripts/trackChecks.ts` | novo (361 linhas) | dado de pista (papel `scripts/`) | DES-0011 |
-| `scripts/track-pipeline.ts` | novo (167 linhas) | aplicação (programa em Node) | DES-0010, DES-0011, DM-0002 |
+| `scripts/track-pipeline.ts` | novo (167 linhas); rodada 2: saída de `prepare` com `smoothingWindowM` (`:108`) | aplicação (programa em Node) | DES-0010, DES-0011, DM-0002 |
 | `tracks/sources/kart-park.json` | novo, cópia byte a byte de `200 Requirements/220 Input/pista-kart-park/kart-park.json` | dado do preparo | DES-0010 |
-| `tracks/registry.json` | novo, gerado por `publish` | dado do preparo | DM-0002, DES-0011 |
+| `tracks/registry.json` | novo, gerado por `publish`; rodada 2: entrada da rodada reprovada retirada e `publish` refeito | dado do preparo | DM-0002, DES-0011 |
 | `package.json` | alterado: script `track`; dependências inalteradas | tooling | DES-0010 |
 
 ## Portão determinístico desta rodada
 
 | Passo | Resultado |
 |---|---|
-| `npx tsc --noEmit -p .` | saída 0 (as bibliotecas puras `scripts/trackPrep.ts` e `scripts/trackChecks.ts` também passam em `tsc --strict` isolado; `scripts/track-pipeline.ts` usa `node:*` sem `@types/node`, como os demais programas de `scripts/`) |
-| `npx vite build` | saída 0; `dist/assets/index-hfMcla9y.js` 693 685 bytes e `index-Dv0Dz75T.css` 11 890 bytes: 705 575 bytes sem compressão (642 759 antes; o acréscimo é o arquivo de pista como literal, 49 049 caracteres, mais os módulos novos); o texto da Kart Park está no pacote (`trackId "kart-park"`, `COUNTER_CLOCKWISE`), nenhuma requisição |
-| `npx tsx --test tests/*.test.ts` | 296 verificações, **294 aprovadas, 2 reprovadas**: `CHK-TEST-0009-02` (`race-lap-validation`: afirma `SYNTHETIC_TRACK_FILE.schemaVersion === TRACK_SCHEMA_VERSION`, que o projeto manda separar — pista sintética em 2, leitor em 3, ADR-0001) e `CHK-TEST-0004-13` (`modelo-kart-01`: `DETERMINISM` compara o `State` final por `deepEqual` com a linha de base gravada antes dos campos `barrierTouching`/`barrierContact` da telemetria, que DES-0003 acrescenta; provado por programa descartável que, retirados os dois campos, o estado final é `deepEqual` e `lapMs` 29 419 / 43 932 são os da linha de base). Nenhum teste editado; ver `98-divergences.md` |
-| `npm run bench:handling` | saída 0; **46 registros `PASS`** (`STEP_COST` 194,4 µs contra 203,3 µs da linha de base) |
+| `npx tsc --noEmit -p .` | saída 0 nas duas rodadas (as bibliotecas puras `scripts/trackPrep.ts` e `scripts/trackChecks.ts` também passam em `tsc --strict` isolado; `scripts/track-pipeline.ts` usa `node:*` sem `@types/node`, como os demais programas de `scripts/`) |
+| `npx vite build` | saída 0; rodada 2: `dist/assets/index-bBRFdYaS.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes: 705 946 bytes sem compressão (rodada 1: 705 575; 642 759 antes da feature; o acréscimo é o arquivo de pista como literal, 49 360 caracteres, mais os módulos novos); o texto da Kart Park está no pacote, nenhuma requisição |
+| `npx tsx --test tests/*.test.ts` | rodada 2: 296 verificações, **296 aprovadas, 0 reprovadas** (`CHK-TEST-0009-02` reescrito por `race-lap-validation` em `32d0adf` e `CHK-TEST-0004-13` restrito aos campos da linha de base por `modelo-kart-01` em `c7e71b1`, entre as rodadas; rodada 1: 294/296 por essas duas). Nenhum teste editado por esta feature |
+| `npm run bench:handling` | saída 0; **46 registros `PASS`**, 0 `FAIL` (rodada 2 reexecutado) |
 | `npm run bench:physics` | saída 0; 10 registros `PASS` |
-| `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` |
+| `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` (rodada 2, sobre o arquivo regenerado) |
 | `lint_artifacts.py --stage code --emit` | saída 0 |
 
 ## Decisões de implementação (nenhuma muda contrato nem requisito; ver também `97-changelog.md`)
 
 - `startTrainingLap(session, lap, config, setup?)`: quarto parâmetro opcional `SetupRef`, copiado para o pedido como `src/main.ts`
-  já fazia antes desta feature (FB-01 de `dirigibilidade`, API-0002 1.1.0 de `race-lap-validation`); o projeto 1.1.0 de DES-0005
-  antecede essa mudança e não a nomeia. Sem ele, `LapResult.setupId`/`setupVersion` de uma volta de treino sumiriam.
-- Linha transversal (DES-0010, passo 9): a marcha de 0,05 m ao longo da normal termina quando o ponto fica 3 m **além da borda da
+  já fazia antes desta feature (FB-01 de `dirigibilidade`, API-0002 1.1.0 de `race-lap-validation`). Rodada 2: é a assinatura da
+  tabela de interface de DES-0005 1.2.0 (ISSUE-02 fechado); `src/main.ts:297` passa `{setupId, setupVersion}` no quarto argumento.
+- Linha transversal (DES-0010 1.1.0, passo 9 — rodada 2: o texto do projeto passou a descrever este procedimento, ISSUE-03 fechado): a marcha de 0,05 m ao longo da normal termina quando o ponto fica 3 m **além da borda da
   pista** (`beyondTrackEdgeM`, a medida do corte), com o ponto final refinado por bissecção a 2,99 m, e não a 3 m de deslocamento ao
   longo da normal: numa curva, ou com outra parte da pista à frente, o deslocamento e a distância além da borda divergem (marcador 0:
   2,868 m; marcador 20: outra parte da pista a 6,33 m) e V11 reprovaria. A marcha não tem teto de 3 m na normal (teto de segurança 60 m).
-- Borda voltada para o outro trecho (DES-0010, passo 5): a borda cuja amostra, no mesmo parâmetro, está mais perto das bordas do
+- Borda voltada para o outro trecho (DES-0010 1.1.0, passo 5 — idem, ISSUE-03): a borda cuja amostra, no mesmo parâmetro, está mais perto das bordas do
   outro trecho (a da outra borda cruzaria o próprio asfalto); o teste "p + 0,05 m em direção a q está no próprio asfalto" descartava
   as primeiras amostras numa borda côncava e deixava V13 sem barreira em (19,56; −45,86).
 - V13 "cruza (ou toca)": toque dentro de 0,002 m (arredondamento a 0,001 m das coordenadas gravadas, meia unidade por coordenada); a
   superfície de contato física tem 0,1 m.
 - `TrackGeometry.curbQuads` é a lista plana dos quadriláteros de zebra com `curbQuadSpan[k]` apontando para o trecho; `pointInQuad`,
-  `closestOnSegment`, `centerlineCrossings` e `windingSumOf` são exportados além da tabela de interface de DES-0002 porque
-  `src/trackData.ts` (C1 e C2 v3), `src/physics.ts` (barreira) e `scripts/trackChecks.ts` os usam.
+  `closestOnSegment`, `centerlineCrossings` e `windingSumOf` são exportados porque `src/trackData.ts` (C1 e C2 v3), `src/physics.ts`
+  (barreira) e `scripts/trackChecks.ts` os usam; rodada 2: os quatro constam da tabela de interface de DES-0002 1.1.0 (ISSUE-04 fechado).
 - Visão geral da câmera (DES-0008 cita a câmera anterior a `modelo-kart-01`): `trackBounds` passa a seguir a sessão (caixa da
   geometria do arquivo na Kart Park; faixa externa da sintética); a caixa de sombra já acompanha o kart (±60 m) desde
   `modelo-kart-01`, de modo que a linha "extensões da câmera de sombra" de DES-0008 não tem mais objeto.
 - `renderBest()` é chamado em `chooseTrack`: o melhor tempo exibido é comparado com a pista da sessão (RULE-0003 de `dirigibilidade`).
 - `scripts/track-pipeline.ts` lê a raiz como `process.cwd()` (`npm run track` roda da raiz) e guarda o resumo esperado da origem por
   `trackId` (`ORIGIN_SHA256`); `publish` recalcula `prepareTrack` para preencher `prep` e exige igualdade byte a byte.
-- O resultado k = 0 da suavização é o que a regra de ADR-0006 produz sobre este dado; nenhuma suavização adicional foi aplicada
-  (ver "Proposta ao autor" em `97-changelog.md`).
+- Suavização (rodada 2, ISSUE-01): `smooth` (`scripts/trackPrep.ts:93-116`) aplica a regra de ADR-0006 1.1.0 à letra — a janela é
+  medida pela distância de volta na linha original (`cumulativeOf`), `δ = min(|d_o(j) − d_o(i)|, L_o − |d_o(j) − d_o(i)|)`, `j` em ordem
+  crescente de índice, o próprio ponto com peso 1; o grampo projeta sobre o círculo de 0,295 m; o arredondamento a 0,001 m vem antes da
+  medição do comprimento, que `prepareTrack` confere (`:190-194`) e `publish` reconfere pela reprodução byte a byte. Os valores medidos
+  (682,116 m, 0,2955 m, 22 pontos no grampo) coincidem com a evidência de ADR-0006. A rodada 1 (k = 0, 687,52 m) foi retirada do registro.
 
 ## Rastreabilidade
 
 A matriz `99-traceability.md` e o índice `00-index.md` são gerados pelo gate a partir dos campos `sources` dos registros `core/`,
 `data/`, `web/`, `pipeline/` e `security/`; cada registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. As divergências
-herdadas do D-Spec (13 linhas) estão em `98-divergences.md`, com as duas verificações de outras features reprovadas por esta rodada.
+herdadas do D-Spec (13 linhas) estão em `98-divergences.md`, com o encerramento das duas verificações de outras features que a rodada 1 reprovava.

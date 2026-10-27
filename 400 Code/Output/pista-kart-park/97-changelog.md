@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park (estágio de código)
 feature: pista-kart-park
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: []
 ---
 
@@ -106,3 +106,46 @@ modo que a linha publicada é a origem sem suavização; se a intenção for sua
 regra precisa de outro critério (por exemplo, o maior k cujo comprimento fique na faixa de ± 1 %) — mudança de projeto, com
 `trackVersion` 2. A pista também concentra um `InstancedMesh` de 394 segmentos de barreira (vértices a cada 0,25 m de amostragem dos
 dois sentidos); uma simplificação da poligonal seria outra versão do preparo.
+
+## 2026-10-27 — rodada 2, Mode B (`code-validation-20261027-2125` FAIL SPEC; projeto revisto em `dspec-validation-20261027-2148`: ADR-0006 1.1.0, DES-0010 1.1.0, DES-0011 1.0.2, DM-0002 1.1.0, DES-0005 1.2.0, DES-0007 1.2.0, DES-0002 1.1.0)
+
+- ISSUE-01 (error): `scripts/trackPrep.ts` `smooth` (`:93-116`) reescrita — janela fixa de 12 m de distância de volta (± 6 m na linha
+  original, volta fechada), pesos de cosseno levantado `½ (1 + cos(π δ / 6))`, uma aplicação sobre os pontos da origem, grampo de 0,295 m
+  em torno do ponto correspondente, arredondamento a 0,001 m; `prepareTrack` mede o comprimento de novo sobre a linha arredondada e falha
+  fora de 687,5 m ± 1 % (`:190-194`). Constantes: `SMOOTH_WINDOW_M` 12 e `LAP_LENGTH_TOLERANCE` 0,01 entram; `SMOOTH_LAMBDA` e
+  `SMOOTH_MAX_ITERATIONS` saem. `PrepRecord.smoothingWindowM` substitui `smoothingIterations` (`:47-50`, `:272-275`;
+  `scripts/track-pipeline.ts:108`). Entrada `kart-park` 1 e `src/tracks/kart-park-v1.json` da rodada reprovada retirados
+  (DM-0002 1.1.0, "Entrada de rodada reprovada"); `prepare`/`verify`/`publish kart-park 1` refeitos: 682,116 m, desvio máximo 0,2955 m,
+  22 pontos no grampo, V01–V18 `PASS`, 43 013 bytes, SHA-256 `04ce5e51…`, `STAGING` 2026-10-27T21:58:06.132Z; `trackVersion` 1.
+  Recomputados na linha suavizada: limites nos pontos 200/348/527 (199,394 / 347,042 / 525,650 m), 38 marcadores (≤ 18,00 m), 34 zebras
+  (a da largada `RIGHT 671,129–682,116` e `0–2,977`), 1 barreira de 382 vértices e 53,29 m a ≥ 0,510 m do asfalto. `lapLengthM` fica só em
+  `prep`; nenhuma chave acrescentada ao arquivo (ISSUE-01 de `dspec-validation-20261027-2148`, V18).
+- ISSUE-02 (warning): nenhuma mudança de código; `startTrainingLap(session, lap, config, setup?)` (`src/trainingSession.ts:83`) é a
+  assinatura de DES-0005 1.2.0 e `src/main.ts:297` passa o `SetupRef` no quarto argumento (DES-0007 1.2.0).
+- ISSUE-03 (warning): nenhuma mudança de código; os passos 5 e 9 de DES-0010 1.1.0 descrevem o que `transversalLine` (`:133-161`,
+  `refineEnd` `:163-171`) e `buildBarriers` (`:287-367`) executam.
+- ISSUE-04 (info): nenhuma mudança de código; DES-0002 1.1.0 lista os quatro símbolos exportados.
+- ISSUE-05 e ISSUE-06 (divergence, verificações de outras features): fechados fora desta feature entre as rodadas —
+  `CHK-TEST-0009-02` reescrito por `race-lap-validation` (`32d0adf`) e `CHK-TEST-0004-13` restrito aos campos gravados por
+  `modelo-kart-01` (`c7e71b1`); `npx tsx --test tests/*.test.ts` 296/296 nesta rodada, nenhum teste editado por esta feature.
+- Manifesto: `01-implementation.md` 1.1.0, `98-divergences.md` 1.1.0, `pipeline/DES-0010` 1.1.0, `pipeline/DES-0011` 1.1.0,
+  `data/DM-0001` 1.1.0, `data/DM-0002` 1.1.0, `core/DES-0002` 1.1.0, `core/DES-0005` 1.1.0, `web/DES-0007` 1.1.0; `00-index.md` e
+  `99-traceability.md` por `lint_artifacts.py --emit`.
+
+**Itens fechados**: ISSUE-01, ISSUE-02, ISSUE-03, ISSUE-04 (código ou projeto); ISSUE-05, ISSUE-06 (fechados pelas features donas).
+
+**Itens recusados ou não aplicados, com motivo**
+
+- `trackVersion` 2 para o arquivo suavizado: não aplicado; ADR-0006 1.1.0 e DM-0002 1.1.0 mandam retirar a entrada da rodada reprovada e
+  refazer a versão 1 (o F-Spec fixa a primeira versão publicada como 1).
+- Acrescentar `lapLengthM` ao arquivo de pista: não aplicado; DM-0001 define o comprimento como quantidade derivada da `centerline`, V18
+  reprova chave fora de DM-0001 e `dspec-validation-20261027-2148` ISSUE-01 pede que fique só em `prep`.
+- Campo `clampedPoints` (ou equivalente) em `prep`: não acrescentado; DM-0002 1.1.0 não o nomeia e a superfície está congelada numa rodada de
+  correção (§16); a contagem (22) fica registrada em `01-implementation.md`.
+- Editar `scripts/trackChecks.ts` (V01, V03, V07 já medem o que DES-0011 1.0.2 descreve) ou qualquer arquivo de `tests/`: não tocados.
+- A "Proposta ao autor" da rodada 1 (simplificação da poligonal da barreira): continua para `SCOPE-BACKLOG.md`; a barreira recomputada
+  tem 381 segmentos e não é item deste relatório.
+
+**Migração de verificações existentes**: nenhuma verificação removida ou alterada por esta feature; `npx tsc --noEmit -p .` 0;
+`npx vite build` 0 (705 946 bytes); `npx tsx --test tests/*.test.ts` 296/296; `bench:handling` 46/46;
+`npm run track -- verify kart-park 1` V01–V18 `PASS`.

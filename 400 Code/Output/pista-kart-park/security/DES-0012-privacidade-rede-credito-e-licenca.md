@@ -3,7 +3,7 @@ id: DES-0012
 title: Privacidade, rede, crédito OSM/ODbL e licença Esri — implementação
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0001, FEAT-0006, FEAT-0007, RULE-0005, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0006-12, REQ-FEAT-0006-14, REQ-FEAT-0007-05, REQ-FEAT-0007-13]
 ---

@@ -3,8 +3,8 @@ id: DES-0007
 title: Tela inicial com seletor e crédito, crédito na tela de resultado e nome da pista da sessão — implementação
 feature: pista-kart-park
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
 ---
 
@@ -30,7 +30,7 @@ chamado por `src/main.ts` (só `startTrainingLap`); "Circuito Aurora", "41,45" e
 | REQ-FEAT-0006-07, -08, -11 | `optionLabel` (`src/lapMessages.ts:93-95`): `Kart Park — São José dos Pinhais (traçado aproximado) · 687 m` e `Pista sintética`; `#track-name` (`index.html:17`) recebe `optionLabel` em `chooseTrack` (`src/main.ts:250`); nenhum desses textos passa por `message()`/`resolveLanguage` |
 | REQ-FEAT-0006-09 | nenhum recorde nas telas; o melhor tempo exibido continua o registro da página de `dirigibilidade` |
 | REQ-FEAT-0003-09, -14; SCR-0002; FEAT-0003 | `renderResult` (`:439-468`) inalterado além do crédito: motivo "marcador pulado", tempo total e 4 setores de `race-lap-validation` |
-| FLOW-0001; FEAT-0001; FEAT-0006 | `chooseTrack` (`:227-251`): `selectTrainingTrack`, `training`/`lap` substituídos, avisos `track-data`, estado da zebra zerado, cena, caixa da câmera, `#track-name`, `renderBest`; `beginLap` (`:296-307`) por `startTrainingLap`; guarda de `renderOffer` por `lang:sessionState:selectedTrackId:trackDataStatus` (`:253-257`) |
+| FLOW-0001; FEAT-0001; FEAT-0006 | `chooseTrack` (`:227-251`): `selectTrainingTrack`, `training`/`lap` substituídos, avisos `track-data`, estado da zebra zerado, cena, caixa da câmera, `#track-name`, `renderBest`; `beginLap` (`:296-307`) por `startTrainingLap` com `{setupId, setupVersion}` no quarto argumento (`:297`, DES-0007 1.2.0); guarda de `renderOffer` por `lang:sessionState:selectedTrackId:trackDataStatus` (`:253-257`) |
 | SCR-0001 (estilo) | `src/style.css:8` `.track-selector` (linha flexível; `aria-pressed=true` com a cor de `.primary`), `.track-credit a` (`#d5ef91`, sublinhado); o crédito usa `lap-chip` (tamanho mínimo e contraste já verificados) |
 
 Visto em tela (`vite preview`): abertura na Kart Park com seletor, crédito, nome e oferta; troca para a sintética sem crédito;
