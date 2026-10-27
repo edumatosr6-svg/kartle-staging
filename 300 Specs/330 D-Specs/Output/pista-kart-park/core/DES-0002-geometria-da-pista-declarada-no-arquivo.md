@@ -4,7 +4,7 @@ title: Geometria da pista declarada no arquivo — bordas, zebras, borda da pist
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [RULE-0001, RULE-0002, FEAT-0002, FEAT-0003, FEAT-0005, REQ-FEAT-0002-12, REQ-FEAT-0003-06, REQ-FEAT-0003-10, REQ-FEAT-0005-03, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07]
 ---
 
@@ -47,6 +47,10 @@ Unidades: metros e radianos; `Point` é `{x, z}` de `src/track.ts`.
 | `lapMAtIndex(g, i, f)` | `(TrackGeometry, number, number) => number` (m) | distância de volta do índice fracionário `i + f`: `cumulativeM[i] + f * comprimento do segmento i` |
 | `positionAtLapM(g, lapM)` | `(TrackGeometry, number) => {index, fraction, center: Point, normal: Point, leftEdge: Point, rightEdge: Point}` | posição de uma distância de volta, com borda e normal interpoladas linearmente entre os pontos (RULE-0001) |
 | `nearestBarrier(g, p)` | `(TrackGeometry, Point) => {distanceM, point: Point, segment: number} \| undefined` | barreira mais próxima de `p`; `undefined` sem barreira |
+| `closestOnSegment(a, b, p)` | `(Point, Point, Point) => {point: Point; t: number; distanceM: number}` (m) | ponto do segmento `ab` mais próximo de `p`, com o parâmetro `t` grampeado a [0, 1]; a primitiva de `beyondTrackEdgeM`, `nearestBarrier` e `nearestOnCenterline`, usada pela física (`src/physics.ts`, contato com a barreira), pelo preparo e pelas verificações (`scripts/trackPrep.ts`, `scripts/trackChecks.ts`) |
+| `pointInQuad(q, p)` | `(Quad, Point) => boolean`, `Quad` = `readonly [Point, Point, Point, Point]` | ponto dentro de um quadrilátero (asfalto ou zebra) pelo teste do número de cruzamentos; ponto na borda conta como dentro; a primitiva de `classifySurface` |
+| `centerlineCrossings(g, line)` | `(TrackGeometry, Line) => {lapM: number; point: Point; forward: boolean; index: number}[]` | cruzamentos da linha central fechada com uma linha, na ordem dos índices, com a distância de volta de cada um (`crossLine` de `src/track.ts`); compartilhada pela consistência da versão 3 (`src/trackData.ts`, C7 v3) e pelas verificações V04, V09 e V10 |
+| `windingSumOf(centerline)` | `(readonly {xM, zM}[]) => number` | soma com sinal `Σ (x_i z_(i+1) − x_(i+1) z_i)` sobre a linha central fechada (C1 v3): positiva `CLOCKWISE`, negativa `COUNTER_CLOCKWISE`; usada por `src/trackData.ts` e por V05 |
 
 Definições (RULE-0001, RULE-0002), com índices em volta fechada:
 

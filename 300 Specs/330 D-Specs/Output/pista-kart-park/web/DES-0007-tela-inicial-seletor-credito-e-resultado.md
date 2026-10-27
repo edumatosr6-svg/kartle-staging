@@ -4,7 +4,7 @@ title: Tela inicial com seletor e crédito, crédito na tela de resultado e nome
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
 ---
 
@@ -81,7 +81,7 @@ menção e o link são idênticos (REQ-FEAT-0006-13).
 | `:155-158` leitura da pista sintética | `TRACK_SOURCES = {'kart-park': kartParkV1Text, synthetic: SYNTHETIC_TRACK_FILE}`; `training = initialTrainingSession()`; `chooseTrack(OPENING_TRACK_ID)` na carga do módulo, sem ler escolha anterior; os avisos `console.warn('track-data', ...)` passam a ser emitidos por `chooseTrack` com os mesmos identificadores |
 | `chooseTrack(trackId)` | nova função local: `r = selectTrainingTrack(training, lap, trackId, TRACK_SOURCES)`; guarda `r.session` e `r.lap`; zera o estado do retorno da zebra ([DES-0009](DES-0009-retorno-da-zebra-vibracao-e-som.md)); troca a cena ([DES-0008](DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)); ligada ao `onclick` de cada botão de `#track-selector` |
 | `:187-207` `renderOffer` | a guarda de redesenho passa de `offerLang === lang` a uma chave com `lang`, `sessionState`, `selectedTrackId` e `trackDataStatus`; desenha o seletor e o crédito a partir de `getTrainingTrackOptions(training)`; `#track-status` mostra `loadingTrack` com `NO_SESSION`/`LOADING`, `trackDataError` com `FAILED` (textos de `race-lap-validation`) e o `trackId` com `READY`, como hoje; a oferta de volta é `offeredLapKinds(reading, [])`, que numa sessão de treino é só `TRAINING`, e não aparece sem sessão `READY` |
-| `:208-218` `beginLap` | `startTrainingLap(training, lap, config)` no lugar de `startLap(...)`; o tipo de volta deixa de ser argumento |
+| `:208-218` `beginLap` | `startTrainingLap(training, lap, config, {setupId: setup.setupId, setupVersion: setup.setupVersion})` no lugar de `startLap(...)`; o tipo de volta deixa de ser argumento e a referência do acerto, que `beginLap` já copiava ao pedido (FB-01 de `dirigibilidade`), passa pelo quarto argumento ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md) 1.2.0) |
 | `:331-358` `renderResult` | além do que já faz, `renderCredit($('lap-result-credit'), creditFor(<entrada de result.trackId>))`; a guarda `resultLang === lang` continua e é zerada a cada volta, como hoje |
 | rótulo `.track-label` | `#track-name` recebe `optionLabel` da opção selecionada a cada mudança de sessão |
 

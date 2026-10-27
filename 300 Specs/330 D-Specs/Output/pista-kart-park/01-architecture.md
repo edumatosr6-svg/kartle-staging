@@ -3,7 +3,7 @@ title: Arquitetura — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: []
 ---
 
@@ -116,8 +116,8 @@ sequenceDiagram
     M->>T: selectTrainingTrack(sessao, volta, synthetic, fontes)
     T-->>M: READY, sessao nova com CIRCUIT, volta descartada
     J->>M: volta de treino
-    M->>T: startTrainingLap(sessao, volta, acerto)
-    T->>L: startLap TRAINING, trackId e trackVersion da sessao, sem challengeNumber, ambiente da sessao
+    M->>T: startTrainingLap(sessao, volta, acerto, referencia do acerto)
+    T->>L: startLap TRAINING, trackId e trackVersion da sessao, setupId e setupVersion copiados, sem challengeNumber, ambiente da sessao
     L-->>M: COUNTDOWN
     L-->>M: ENDED e LapResult
     M-->>J: resultado de race-lap-validation e credito OSM se a pista tem osmCredit

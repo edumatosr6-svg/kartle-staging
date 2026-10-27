@@ -4,7 +4,7 @@ title: Sessão de treino, catálogo do treino e seleção de pista
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-14, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11]
 ---
 
@@ -50,7 +50,7 @@ Park chega como argumento (`sources`), empacotado pela aplicação ([DES-0007](.
 | `initialTrainingSession()` | `() => TrainingSession` | `{sessionState: 'NO_SESSION', selectedTrackId: OPENING_TRACK_ID}` |
 | `getTrainingTrackOptions(session)` | `(TrainingSession) => {options; selectedTrackId; sessionState; trackDataStatus?}` | `options` são sempre as duas entradas; `trackDataStatus` só com `READY` ou `FAILED` (API-0002) |
 | `selectTrainingTrack(session, lap, trackId, sources)` | `(TrainingSession, LapSession \| undefined, string, TrainingTrackSources) => SelectTrainingTrackResult` | abaixo |
-| `startTrainingLap(session, lap, config)` | `(TrainingSession, LapSession \| undefined, KartConfig) => LapCommandResult<StartLapRejection>` | com sessão `READY`: `startLap(lap, {lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion}, reading, config, environment)`, nunca com `challengeNumber`; sem leitura, `{ok: false, code: 'TRACK_DATA_UNREADABLE'}` |
+| `startTrainingLap(session, lap, config, setup?)` | `(TrainingSession, LapSession \| undefined, KartConfig, SetupRef?) => LapCommandResult<StartLapRejection>` | com sessão `READY`: `startLap(lap, {lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion, setupId: setup?.setupId, setupVersion: setup?.setupVersion}, reading, config, environment)`, nunca com `challengeNumber`; `setup` (`SetupRef` de `src/physics.ts`, `{setupId, setupVersion}` de `dirigibilidade`) é **copiado ao pedido sem interpretação** — os dois campos só entram quando `setup` é dado, nunca derivados nem preenchidos com padrão — para que `LapResult.setupId`/`setupVersion` (API-0001 1.1.0 de `race-lap-validation`, FB-01 de `dirigibilidade`) e `compareLapRecords` (RULE-0003 de `dirigibilidade`) sigam valendo na volta de treino, como `src/main.ts` já fazia antes desta feature; sem leitura, `{ok: false, code: 'TRACK_DATA_UNREADABLE'}` |
 | `trainingIdleKart(session)` | `(TrainingSession) => State \| undefined` | `startKart` da sessão `READY`; `undefined` sem sessão pronta |
 
 `SelectTrainingTrackResult`, campo a campo de API-0002:
@@ -85,7 +85,9 @@ stateDiagram-v2
 ## Colaboradores
 
 Chama `readTrackData` (`src/trackData.ts`), `buildTrackGeometry` (`src/trackGeometry.ts`),
-`trackEnvironment`, `CIRCUIT` (`src/physics.ts`), `startLap`, `kartAtStart` (`src/lap.ts`). É chamado pela
+`trackEnvironment`, `CIRCUIT` e o tipo `SetupRef` (`src/physics.ts`), `startLap`, `kartAtStart` (`src/lap.ts`);
+a referência do acerto vem da aplicação ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)),
+que a guarda como hoje, e esta sessão não a interpreta nem a guarda. É chamado pela
 aplicação ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)), pelo programa do preparo
 offline, que lê só `TRAINING_TRACKS` para validar o argumento `<trackId>`
 ([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)), e pelos testes.
@@ -114,7 +116,8 @@ campo de recorde; a abertura (`initialTrainingSession` e `selectTrainingTrack` c
 uma volta em `COUNTDOWN`, `RUNNING` e `PAUSED` devolve `lap` `undefined`, `getLapState` `NO_ACTIVE_LAP` e o
 kart na largada sintética; escolher a mesma pista `READY` devolve a mesma sessão e a mesma volta; uma volta
 iniciada por `startTrainingLap` tem `lapKind` `TRAINING`, sem `challengeNumber`, e `trackId` `kart-park` ou
-`synthetic` conforme a sessão; com o texto da Kart Park corrompido, a seleção dá `FAILED`, `startTrainingLap`
+`synthetic` conforme a sessão; com `setup` dado, a volta carrega `setupId` e `setupVersion` iguais aos do
+argumento (e o `LapResult` os devolve), e sem `setup` os dois ficam ausentes do pedido; com o texto da Kart Park corrompido, a seleção dá `FAILED`, `startTrainingLap`
 rejeita e uma nova seleção da pista sintética dá `READY`; a entrada `kart-park` tem `displayName`
 `Kart Park — São José dos Pinhais (traçado aproximado)`, `displayLengthM` 687 e `osmCredit` verdadeiro, e a
 entrada `synthetic` tem `displayName` `Pista sintética`, nenhum `displayLengthM` e `osmCredit` falso; o

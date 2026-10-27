@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -162,3 +162,78 @@ símbolos movidos já existiam no conjunto e o módulo que os recebe já existe 
 - ISSUE-04, demais linhas da tabela "Mudanças dentro de `integrate` e `step`" e o bloco da barreira de
   DES-0003: não reescritos; o relatório nomeou só a linha de `step`, e as outras descrevem expressões que o
   F-Spec fixa (85 % da aderência, a resposta do muro) e que os testes comparam bit a bit.
+
+## 2026-10-27 — rodada 3, Mode C (feedback do código `reports/feedback/feedback-20261027-2125.md`, SPEC-ISSUE-01 a SPEC-ISSUE-03)
+
+Feedback de `code-validator` (FAIL SPEC, `code-validation-20261027-2125`). Decisões do dono do produto que
+regem, dadas ao gerador e não redescobertas: `DOMAIN.md` 2026-10-22 "Fidelidade" (suavizar a linha central
+com janela de cerca de 12 m e apresentar como "traçado aproximado"), tolerância da suavização fechada no seed (nenhum ponto suavizado a
+mais de 0,30 m da original), SEED US-2 (comprimento medido de novo depois da suavização, 687,5 m ± 1 %; o
+rótulo mostra 687 m). Fatos medidos (`NOTES.md`): origem 687,52 m, ruído 0,09 m RMS com 8 m a 13 m de
+comprimento de onda.
+
+**O que mudou**
+
+- SPEC-ISSUE-01 (ADR-0006 1.0.0 → 1.1.0; DES-0010 1.0.1 → 1.1.0; DM-0002 1.0.1 → 1.1.0; DES-0011 1.0.1 →
+  1.0.2): a regra "iteração de Jacobi com `k` de 0 a 400 escolhido pelo comprimento mais próximo de 687,5 m"
+  escolhia `k` 0 sobre este dado (origem já em 687,520 m) e publicava a linha original sem suavização. Regra
+  nova: janela fixa de 12 m de distância de volta (± 6 m, medida na linha original), pesos de cosseno
+  levantado `½ (1 + cos(π δ / 6))`, uma só aplicação sobre os pontos da origem, grampo de 0,295 m em torno do
+  ponto correspondente; comprimento medido de novo sobre a linha arredondada, dentro de 680,625 m a 694,375 m
+  senão o preparo falha; `lapLengthM` publicado é o medido; `displayLengthM` continua 687. Evidência medida
+  sobre a origem registrada em ADR-0006: a janela adotada dá 682,116 m, maior desvio 0,2955 m, 22 pontos no
+  grampo, zigue-zague de 105 para 46 inversões de rumo; a média uniforme sobre os mesmos 12 m dá 680,372 m
+  (fora da faixa: o grampo bate em 326 pontos e encurta as curvas). Constantes de DES-0010: `SMOOTH_WINDOW_M`
+  12 e `LAP_LENGTH_TOLERANCE` 0,01 entram; `SMOOTH_LAMBDA` e `SMOOTH_MAX_ITERATIONS` saem. DM-0002:
+  `prep.smoothingWindowM` substitui `prep.smoothingIterations`. DES-0011: V03 diz que o comprimento é o medido
+  na `centerline` gravada depois da suavização. **`trackVersion` continua 1**: o F-Spec fixa a primeira
+  versão publicada como 1 (REQ-FEAT-0002-01, RULE-0005, V16) e a entrada `kart-park` 1 que a rodada de
+  código 1 gravou em `tracks/registry.json` veio de uma rodada reprovada no gate (FAIL SPEC), nunca validada,
+  testada nem implantada (commit `ba221ad` é ponto de controle); DM-0002 ganha o parágrafo "Entrada de rodada
+  reprovada" (publicada é a entrada entregue por rodada que passou no gate; `STAGING`/`PRODUCTION` são estados
+  de entrada entregue, ADR-0005), e DES-0010/DES-0011 dizem que a rodada de código seguinte retira essa
+  entrada e o arquivo e refaz `prepare`/`verify`/`publish kart-park 1`.
+- SPEC-ISSUE-02 (DES-0005 1.1.0 → 1.2.0; DES-0007 1.1.0 → 1.2.0; `01-architecture.md` 1.0.1 → 1.0.2):
+  `startTrainingLap(session, lap, config, setup?)`, com `setup?: SetupRef` (`src/physics.ts`,
+  `{setupId, setupVersion}`) copiado ao pedido de `startLap` sem interpretação, só quando dado, nunca
+  derivado — API-0001 1.1.0 de `race-lap-validation`, FB-01 de `dirigibilidade`, `compareLapRecords`. DES-0007
+  `beginLap` passa a referência pelo quarto argumento; o diagrama de sequência da volta de treino a carrega;
+  prova acrescida em DES-0005 (volta com e sem `setup`).
+- SPEC-ISSUE-03 (DES-0010 1.1.0; DES-0002 1.0.0 → 1.1.0): passo 5 reescrito com o procedimento que passa em
+  V13 a V15 — pares de amostras nas duas bordas, borda voltada para o outro trecho é a da amostra mais
+  próxima dele, marcha de 0,01 m em `pq` para a parte de grama, vértice no meio, ordenação pelo primeiro
+  trecho, sequências cortadas em 1 m, constantes `GAP_MARCH_STEP_M` e `BARRIER_SEQUENCE_GAP_M`; passo 9
+  reescrito com o fim da linha pela distância à borda **medida** (`beyondTrackEdgeM`), bissecção até
+  `LINE_END_TARGET_M` 2,99 m, limite `LINE_MARCH_MAX_M` 60 m, e o motivo (3 m ao longo da normal dão 2,868 m
+  no marcador 0 e encontram outra parte no marcador 20; V11 reprova). O requisito não muda: a barreira nunca
+  invade o asfalto (V15) e a folga medida fica registrada. DES-0002 lista `closestOnSegment`, `pointInQuad`,
+  `centerlineCrossings` e `windingSumOf`, exportados por `src/trackGeometry.ts` e usados por
+  `src/trackData.ts`, `src/physics.ts` e `scripts/trackChecks.ts`.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate (`lint_artifacts.py --emit`); nenhum outro item
+  tocado; `98-divergences.md` inalterado.
+
+**Itens fechados**: SPEC-ISSUE-01, SPEC-ISSUE-02, SPEC-ISSUE-03.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- SPEC-ISSUE-01, primeira sugestão do relatório ("o maior `k` ≤ 400 cujo comprimento fique em 680,625 m a
+  694,375 m"): não adotada; escolheria `k` 14 ou 15 por busca no dado (`k` 14 dá 680,779 m, a 0,15 m do limite; `k` 16 dá 680,422 m e
+  reprova em V03), e o dono do produto fixou a janela, não a intensidade.
+- SPEC-ISSUE-01, "declarar que `k` 0 satisfaz o requisito": não adotada; contraria US-2, AC-US-0002-06,
+  FLOW-0003 passo 3 e a decisão "Fidelidade".
+- SPEC-ISSUE-01, média móvel uniforme de 12 m (a leitura literal de "janela de cerca de 12 m"): não adotada;
+  medida em 680,372 m, fora da faixa de ± 1 % que o F-Spec verifica (V03), porque o grampo de 0,30 m bate em
+  metade dos pontos nas curvas de raio abaixo de cerca de 20 m; a janela de 12 m com pesos de cosseno
+  levantado mantém a decisão do dono do produto e a faixa.
+- SPEC-ISSUE-01, `trackVersion` 2 com o arquivo atual mantido ("se o autor preferir manter o arquivo
+  atual"): não adotada; a versão 1 nunca foi entregue e o F-Spec fixa a primeira versão publicada como 1.
+- SPEC-ISSUE-02, `SetupRef` como campo da sessão: não adotada; a sessão (RULE-0003) não guarda acerto, e a
+  aplicação já guarda a referência (`src/main.ts`, `setupRef`); passar por parâmetro é a cópia sem
+  interpretação que API-0001 1.1.0 pede.
+- `test-strategy.md`: não alterado; nenhuma linha cita a regra de suavização, a assinatura de
+  `startTrainingLap` ou o procedimento da barreira (AC-US-0002-02, -06 continuam por V03 e V07).
+- Leituras fora da lista de entrada, declaradas: `tracks/sources/kart-park.json` foi lido por script de
+  rascunho (fora do repositório) só para medir as regras candidatas da tabela de ADR-0006; `tracks/registry.json`,
+  `src/trainingSession.ts:83`, `src/physics.ts:91-92`, `src/lap.ts:24`, `src/main.ts:165-299`,
+  `src/trackGeometry.ts` (assinaturas) e `scripts/trackPrep.ts:1-60, 80-175, 275-370` foram lidos para
+  posicionamento; `DOMAIN.md`, `NOTES.md` e `SEED.md` só nos trechos que o chamador nomeou.

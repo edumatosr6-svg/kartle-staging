@@ -4,7 +4,7 @@ title: Verificações V01 a V18 do arquivo, registro de publicação e promoçã
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13]
 ---
 
@@ -50,7 +50,7 @@ unidade da última casa gravada, 0,0005 m e 0,0005 grau):
 |---|---|
 | V01 | `centerline` tem o mesmo número de pontos que `pontos` da origem (684) e `|P_i − O_i| <= 0,30 m` para todo `i` (ponto `i` gerado é o ponto `i` da origem) |
 | V02 | 3 pontos ou mais; o último ponto difere do ponto 0 |
-| V03 | `680,625 <= lapLengthM <= 694,375` |
+| V03 | `680,625 <= lapLengthM <= 694,375`, com `lapLengthM` medido de novo na `centerline` gravada, depois da suavização (soma dos 684 segmentos, inclusive o do último ponto ao ponto 0), nunca o comprimento da origem nem o declarado por ela |
 | V04 | a `finishLine` passa a até 0,002 m de `P_0`, é paralela a `n_0` (seno do ângulo até 0,001) e vai da esquerda para a direita; `startPosition` está a até 0,002 m do segmento do ponto 0 ao ponto 1, com parâmetro de projeção menor que 1, do lado de depois da chegada (`sideOf(finishLine, start) > 0`) e `headingDeg` igual ao rumo do segmento |
 | V05 | área com sinal positiva no plano (x, −z) e `direction` `COUNTER_CLOCKWISE` |
 | V06 | `widthM_i` igual à largura do ponto `i` da origem; o menor valor arredondado a uma casa é 4,4 e o maior 10,8 |
@@ -108,7 +108,12 @@ nenhuma altera arquivo. O registro é a única escrita: dedupe por (`trackId`, `
 garantida pelo programa e verificada em `npm test`, segunda chegada sem efeito (mesmo resumo) ou recusada
 (outro resumo), contador de sequência `trackVersion` que só cresce. Escrita atômica (temporário e renomeação).
 Dois Curadores ao mesmo tempo não existem no processo; se existissem, a última renomeação vence e o teste de
-unicidade reprova um registro com par duplicado.
+unicidade reprova um registro com par duplicado. A imutabilidade protege entradas entregues: a entrada
+`kart-park` 1 gravada pela rodada de código reprovada em `code-validation-20261027-2125` (`STAGING`,
+`smoothingIterations` 0) é retirada pela rodada seguinte, junto com `src/tracks/kart-park-v1.json`, e
+`prepare`/`verify`/`publish kart-park 1` são refeitos com a suavização de ADR-0006 1.1.0
+([DM-0002](../data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md), "Entrada de rodada reprovada");
+`trackVersion` continua 1 e V16 não muda.
 
 ## Comportamento em falha
 

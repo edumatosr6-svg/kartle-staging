@@ -4,7 +4,7 @@ title: Registro de publicação das pistas e estado em memória da sessão de tr
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0007-13, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
 ---
 
@@ -30,7 +30,7 @@ e lido por ele e por `npm test`. O cliente não o importa nem o empacota.
 | Campo | Tipo | Unidade | Nulável | Padrão | Restrições e motivo |
 |---|---|---|---|---|---|
 | `registryVersion` | inteiro | — | não | — | `1`; o programa recusa, sem alterar o arquivo, um registro de versão desconhecida (I3, I4) |
-| `entries` | lista de entradas | — | não | `[]` | só acrescida; nenhuma entrada é removida |
+| `entries` | lista de entradas | — | não | `[]` | só acrescida; nenhuma entrada entregue é removida (a única retirada é a de uma rodada reprovada, abaixo) |
 
 Entrada:
 
@@ -53,9 +53,9 @@ Entrada:
 |---|---|---|---|
 | `originFile` | texto | — | `tracks/sources/kart-park.json` |
 | `originSha256` | texto hexadecimal | — | resumo do arquivo de origem: `52c5adda4ce89bd23a00e04a10d7e12a28900dd4d56414f444e0a4795f2c5302` para a Kart Park |
-| `smoothingIterations` | inteiro ≥ 0 | iterações | o número de iterações escolhido pelo preparo |
+| `smoothingWindowM` | número | m | largura total da janela de suavização aplicada pelo preparo, 12 (ADR-0006 1.1.0; substitui `smoothingIterations` da revisão 1.0.1, que registrava uma intensidade escolhida pelo dado) |
 | `maxSmoothingOffsetM` | número | m | maior distância entre um ponto gerado e o ponto correspondente da origem |
-| `lapLengthM` | número | m | comprimento da volta da `centerline` gravada |
+| `lapLengthM` | número | m | comprimento da volta da `centerline` gravada, medido de novo depois da suavização; o mesmo valor do arquivo |
 | `originOffsetM` | `{xM, zM}` | m | deslocamento aplicado às coordenadas da origem (centro da caixa envolvente) |
 | `curbWidthsM` | lista de números | m | largura gravada de cada trecho de `curbs`, na ordem do arquivo |
 | `reducedCurbs` | lista de `{curbIndex, widthM, grassClearanceM}` | —, m, m | trechos cuja largura ficou abaixo de 1,0 m pela folga de grama, com a folga que a limitou |
@@ -69,6 +69,15 @@ Segunda chegada (idempotência, D-DS-03): publicar de novo o mesmo arquivo com o
 par já registrado é recusado, sem alterar o registro. Promover de novo uma entrada já `PRODUCTION` não muda
 nada. A escrita é atômica: o programa escreve num arquivo temporário na mesma pasta e o renomeia sobre o
 registro, de modo que uma falha no meio deixa o registro anterior intacto.
+
+**Entrada de rodada reprovada.** Uma entrada é publicada — e por isso imutável (I3, RULE-0005) — quando a
+rodada de código que a gravou passou no gate; `STAGING` e `PRODUCTION` são estados de uma entrada entregue
+([ADR-0005](../adr/ADR-0005-kart-park-sem-chave-e-producao-bloqueada.md)). A entrada `kart-park` 1 gravada em
+`tracks/registry.json` pela rodada reprovada em `code-validation-20261027-2125` (FAIL SPEC; `smoothingIterations`
+0, `maxSmoothingOffsetM` 0, `lapLengthM` 687,52) não foi validada, testada nem implantada, e o commit `ba221ad`
+é ponto de controle, não entrega: a rodada de código seguinte a retira, junto com `src/tracks/kart-park-v1.json`,
+no mesmo commit em que refaz `prepare`/`verify`/`publish kart-park 1`. Depois de entregue, nenhuma entrada é
+retirada nem reescrita; a regra "só acrescida" vale a partir daí.
 
 ## Estado em memória — sessão de treino ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md))
 
