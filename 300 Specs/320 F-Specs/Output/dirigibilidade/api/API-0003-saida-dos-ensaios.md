@@ -4,7 +4,7 @@ title: Contrato da saída dos ensaios de dirigibilidade
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.3.0
+version: 3.4.0
 sources: [US-0001, US-0002, US-0003, US-0004, US-0005, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0006, NFR-0007, NFR-0009, AC-US-0001-05, AC-US-0001-06, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0003-06, AC-US-0003-07, AC-US-0004-07, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-06]
 ---
 
@@ -66,14 +66,14 @@ nem dado pessoal (I6).
 | `REFERENCE_CORNER` | `throttleCondition` | enum `THROTTLE_ZERO`, `THROTTLE_FULL` | — | sim | |
 | `REFERENCE_CORNER` | `arcRadiusM` | número | m | sim | 18 (`DOMAIN/REF-03`) |
 | `REFERENCE_CORNER` | `laneWidthM` | número | m | sim | largura da faixa de asfalto do arco ("faixa da largura da pista"); parâmetro de ensaio |
-| `REFERENCE_CORNER` | `maxUndersteerMs` | inteiro | ms | sim | maior duração consecutiva de `understeer` em todos os passos do arco (AC-US-0002-05); com `throttleCondition` `THROTTLE_ZERO`, também nos passos fora da faixa (`DOMAIN/DEC-13` via AC-US-0002-01) |
-| `REFERENCE_CORNER` | `offAsphaltStepCount` | inteiro | passos | sim | 0 para `PASS` com `throttleCondition` `THROTTLE_FULL` (AC-US-0002-02); com `THROTTLE_ZERO`, informativo: não altera `verdict`, porque permanecer na faixa enquanto o kart desacelera não é exigido (`DOMAIN/DEC-13` via AC-US-0002-01) |
+| `REFERENCE_CORNER` | `maxUndersteerMs` | inteiro | ms | sim | maior duração consecutiva de `understeer` (AC-US-0002-05): com `throttleCondition` `THROTTLE_FULL`, em todos os passos do arco; com `THROTTLE_ZERO`, só nos passos na faixa de asfalto até a primeira saída da faixa, sem os passos depois dela (`DOMAIN/DEC-14` via AC-US-0002-01) |
+| `REFERENCE_CORNER` | `offAsphaltStepCount` | inteiro | passos | sim | 0 para `PASS` com `throttleCondition` `THROTTLE_FULL` (AC-US-0002-02); com `THROTTLE_ZERO`, informativo: não altera `verdict`, porque permanecer na faixa enquanto o kart desacelera não é exigido (`DOMAIN/DEC-13` via AC-US-0002-01), e a primeira saída fecha a janela de medição de `maxUndersteerMs` (`DOMAIN/DEC-14` via AC-US-0002-01) |
 | `REFERENCE_CORNER` | `offAsphaltFirstStep` | inteiro | passos | só com `offAsphaltStepCount` > 0 | passo da saída da faixa, nas duas condições de acelerador (US-0002, caso anormal) |
 | `REFERENCE_CORNER` | `offAsphaltFirstXM`, `offAsphaltFirstZM` | número | m | só com `offAsphaltStepCount` > 0 | posição da saída da faixa |
 | `REFERENCE_CORNER` | `entrySpeedMps` | número | m/s | sim | 13,89 (50 km/h, `DOMAIN/DEC-02`); apresentado também em km/h |
 | `UNDERSTEER_ONSET` | `arcRadiusM`, `laneWidthM` | número | m | sim | como em `REFERENCE_CORNER`; a linha de base só vale com o mesmo `arcRadiusM` |
 | `UNDERSTEER_ONSET` | `v0Mps` | número | m/s | só com `baselineAvailable` | linha de base no mesmo ensaio e arco (AC-US-0002-05); apresentado também em km/h |
-| `UNDERSTEER_ONSET` | `v1Mps` | número | m/s | sim sempre que a varredura chega ao fim natural (saída da faixa com `speedMps` acima de 13,89 m/s depois de pelo menos dois patamares completos acima de 50 km/h); nos desfechos em que a saída reprova (`OFF_ASPHALT`, `MEASUREMENT_MISSING`), só quando algum patamar completo teve `understeer` por mais de 200 ms consecutivos | novo acerto (AC-US-0002-05), a velocidade de início do subesterço do glossário: a menor velocidade mantida de patamar completo em que `understeer` durou mais de 200 ms consecutivos; quando nenhum patamar, completo ou interrompido, o teve até a saída da faixa acima de 50 km/h, a velocidade mantida do patamar interrompido pela saída (`DOMAIN/DEC-12`, `DOMAIN/REF-05` via AC-US-0002-03) — nesse caso a saída serializada apresenta, ao lado do valor, o motivo "sem início de subesterço até a saída da faixa" (apresentação, não campo, como o km/h); V1 ≥ 1,15 × V0 é avaliado com o valor reportado nos dois casos; apresentado também em km/h |
+| `UNDERSTEER_ONSET` | `v1Mps` | número | m/s | sim sempre que a varredura chega ao fim natural (saída da faixa com `speedMps` acima de 13,89 m/s depois de pelo menos dois patamares completos acima de 50 km/h); nos desfechos em que a saída reprova (`OFF_ASPHALT`, `MEASUREMENT_MISSING`), só quando algum patamar completo teve `understeer` por mais de 200 ms consecutivos | novo acerto (AC-US-0002-05), a velocidade de início do subesterço do glossário: a menor velocidade mantida de patamar completo em que `understeer` durou mais de 200 ms consecutivos; quando nenhum patamar completo o teve até a saída da faixa acima de 50 km/h, a velocidade mantida do patamar interrompido pela saída — medido só nos passos na faixa, até a saída (`DOMAIN/DEC-14` via AC-US-0002-03) —, inclusive quando esse patamar é o primeiro em que `understeer` passa de 200 ms consecutivos ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço"); no caso de `DOMAIN/DEC-12` (nenhum patamar, completo ou interrompido, com `understeer` por mais de 200 ms consecutivos; `DOMAIN/REF-05` via AC-US-0002-03) a saída serializada apresenta, ao lado do valor, o motivo "sem início de subesterço até a saída da faixa" (apresentação, não campo, como o km/h); V1 ≥ 1,15 × V0 é avaliado com o valor reportado em todos os casos; apresentado também em km/h |
 | `UNDERSTEER_ONSET` | `entrySpeedStepMps` | número | m/s | sim | passo da varredura a partir da velocidade de entrada de 13,89 m/s (50 km/h): diferença de velocidade mantida entre patamares sucessivos, o tamanho do patamar de AC-US-0002-04 (`DOMAIN/REF-04`); parâmetro de ensaio; apresentado também em km/h |
 | `UNDERSTEER_ONSET` | `maxUndersteerMsBySpeed` | lista de pares (`plateauSpeedMps`, `maxUndersteerMs`) | m/s, ms | sim | um par por patamar completo de velocidade mantida acima de 13,89 m/s (50 km/h) medido antes do fim da varredura, em ordem crescente de velocidade: a velocidade mantida do patamar e a maior sequência de `understeer` consecutivo dentro dele, em ms de tempo simulado (AC-US-0002-04); o patamar interrompido pela saída da faixa não entra; lista vazia quando nenhum patamar acima de 50 km/h se completou |
 | `UNDERSTEER_ONSET` | `offAsphaltStepCount` | inteiro | passos | sim | 0 ou 1: a varredura termina no primeiro passo fora da faixa; 1 não reprova por si, o resultado da saída segue [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço" (AC-US-0002-06) |
@@ -131,16 +131,19 @@ produz `PASS` implícito.
 Em `UNDERSTEER_ONSET`, a saída da faixa acima de 50 km/h depois de pelo menos dois patamares completos acima
 de 50 km/h é o fim natural da varredura e não é erro por si: o registro traz `offAsphaltStepCount` 1, o passo
 e a posição da saída, `v1Mps` — a menor velocidade de patamar completo com `understeer` por mais de 200 ms
-consecutivos ou, sem nenhum patamar assim, a velocidade mantida do patamar interrompido pela saída, com o
-motivo "sem início de subesterço até a saída da faixa" apresentado ao lado — e o veredito de V1 ≥ 1,15 × V0 e
+consecutivos ou, sem nenhum patamar completo assim, a velocidade mantida do patamar interrompido pela saída,
+medido só até ela (`DOMAIN/DEC-14`), com o motivo "sem início de subesterço até a saída da faixa"
+apresentado ao lado no caso de `DOMAIN/DEC-12` — e o veredito de V1 ≥ 1,15 × V0 e
 da não diminuição entre patamares: `PASS`, ou `FAIL` com `THRESHOLD_EXCEEDED` quando um dos dois não é
 atendido ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço";
 AC-US-0002-03, AC-US-0002-06; `DOMAIN/DEC-12`).
 
 Em `REFERENCE_CORNER` com `throttleCondition` `THROTTLE_ZERO`, a saída da faixa não é erro: o registro traz
 `offAsphaltStepCount`, `offAsphaltFirstStep` e a posição, e o veredito é só o de `maxUndersteerMs` ≤ 200 ms,
-medido em todos os passos do arco (`DOMAIN/DEC-13` via AC-US-0002-01; US-0002, caso anormal "Kart sai da
-faixa de asfalto do arco"). Com `THROTTLE_FULL`, a saída é `FAIL` com `OFF_ASPHALT` (AC-US-0002-02).
+contado só nos passos na faixa de asfalto até a primeira saída da faixa, sem os passos depois dela —
+escorregar na grama não é sair de frente (`DOMAIN/DEC-13` e `DOMAIN/DEC-14` via AC-US-0002-01; US-0002,
+caso anormal "Kart sai da faixa de asfalto do arco"). Com `THROTTLE_FULL`, a saída é `FAIL` com
+`OFF_ASPHALT` e `maxUndersteerMs` é medido em todos os passos do arco (AC-US-0002-01, AC-US-0002-02).
 
 Em `STEER_RESPONSE`, a saída da faixa da reta da pista de teste não é erro e não tem campo no registro: o
 veredito depende só dos tempos medidos de subida e de queda da taxa de guinada, com a velocidade mantida
@@ -212,3 +215,14 @@ registro foi publicado sob a forma anterior e nenhum consumidor lê este contrat
 não há leitura a rejeitar (I3). Nenhum campo nem valor de enum é acrescentado: o motivo "sem início de
 subesterço até a saída da faixa" é apresentação na saída serializada e em `docs/physics.md`, como o km/h,
 não campo do contrato.
+
+Na versão 3.4.0 deste contrato, por AC-US-0002-01, AC-US-0002-03 e AC-US-0002-06 dos requisitos 3.4.0
+(`DOMAIN/DEC-14`): em `REFERENCE_CORNER`, `maxUndersteerMs` mantém nome, unidade e significado (maior
+duração consecutiva de `understeer`) e, com `throttleCondition` `THROTTLE_ZERO`, deixa de cobrir os passos
+fora da faixa — a janela de medição fecha na primeira saída da faixa, e os passos depois dela não entram;
+com `THROTTLE_FULL` nada muda. Em `UNDERSTEER_ONSET`, `v1Mps` mantém nome, unidade, obrigatoriedade e
+valor: o patamar interrompido pela saída, cuja velocidade mantida é V1 quando nenhum patamar completo
+reportou `understeer` por mais de 200 ms consecutivos, é medido só nos passos na faixa, até a saída — onde
+a varredura já terminava na versão 3.3.0. Nenhum registro foi publicado sob a forma anterior e nenhum
+consumidor lê este contrato como entrada, de modo que não há leitura a rejeitar (I3). Nenhum campo nem
+valor de enum é acrescentado.

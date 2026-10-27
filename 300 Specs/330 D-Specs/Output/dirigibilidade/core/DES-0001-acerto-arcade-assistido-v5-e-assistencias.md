@@ -4,7 +4,7 @@ title: Acerto Arcade assistido v5, assistências, pista de teste e classificaç�
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 3.3.0
+version: 3.4.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0006, RULE-0001, RULE-0002, FLOW-0001, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-08, REQ-FEAT-0002-10, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-08, REQ-FEAT-0004-10, REQ-FEAT-0005-07, REQ-FEAT-0005-09, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04]
 ---
 
@@ -28,7 +28,8 @@ construídos aqui. Decisões: [ADR-0001](../adr/ADR-0001-versao-do-acerto-como-r
 `src/physics.ts`, camada **Simulação**, **existente**: o item está escrito pelas rodadas de código 1 e 2
 (as-built, 385 linhas, commit `0068a57`) e é lido aqui como descrição do que o sistema faz; nenhuma
 interface deste item muda nesta rodada — só a leitura das alavancas de `UNDERSTEER_ONSET` e da curva de
-referência com acelerador 0 à luz de `DOMAIN/DEC-12` e `DOMAIN/DEC-13` (F-Spec 3.3.0). Nenhum módulo novo:
+referência com acelerador 0 à luz de `DOMAIN/DEC-12`, `DOMAIN/DEC-13` e `DOMAIN/DEC-14` (F-Spec 3.4.0); a
+rodada de código 3 (commit `767508e`) não tocou este módulo nem `ARCADE_ASSISTIDO_V5`. Nenhum módulo novo:
 o modelo do veículo, os seus presets e os ambientes (`Environment`, `CIRCUIT`, `TEST_PAD`, `:164-166`) vivem
 aqui (decisão do autor: presets em `src/physics.ts`). O que **não** muda: `STEP` (`:5`), `PHYSICS_VERSION`
 (`:7`), `Input` (`:8`), `RENTAL_KART` (`:50-58`), `ARCADE_KART` (`:61-68`), `KART_PRESETS` (`:69`), a
@@ -57,7 +58,7 @@ modo que `RENTAL_KART` e `ARCADE_KART`, que não os declaram, se comportam exata
 |---|---|---|---|---|
 | `steerApplyRatePerS` | múltiplo do limite por s (1/s) | 5 | `:206-207` taxa de aproximação do esterço ao alvo | subida a 90 % em ≤ 180 ms (REQ-FEAT-0001-01, -03); entregue 14 |
 | `steerReturnRatePerS` | múltiplo do limite por s (1/s) | 10 | `:206-207` taxa de retorno ao soltar ou inverter | queda a 10 % em ≤ 250 ms (REQ-FEAT-0001-02, -04); entregue 24 |
-| `assistLateralG` | g | `friction` | `:184-187` aceleração lateral que o limite de esterço por velocidade pede | raio de 18 m a 50 km/h sem saturar a frente (REQ-FEAT-0002-01 a -03): a 13,89 m/s o raio de 18 m pede 10,7 m/s² (1,09 g) de aceleração lateral; entregue 1,48 g. Com acelerador 0 a velocidade cai, o limite de esterço cresce e o raio natural aperta (sai do anel pelo lado interno, [ADR-0005](../adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md)): por `DOMAIN/DEC-13` isso não reprova, e a alavanca só precisa manter `understeer` ≤ 200 ms consecutivos em todos os 300 passos; com acelerador cheio a permanência na faixa continua exigida |
+| `assistLateralG` | g | `friction` | `:184-187` aceleração lateral que o limite de esterço por velocidade pede | raio de 18 m a 50 km/h sem saturar a frente (REQ-FEAT-0002-01 a -03): a 13,89 m/s o raio de 18 m pede 10,7 m/s² (1,09 g) de aceleração lateral; entregue 1,48 g. Com acelerador 0 a velocidade cai, o limite de esterço cresce e o raio natural aperta (sai do anel pelo lado interno, [ADR-0005](../adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md)): por `DOMAIN/DEC-13` isso não reprova, e a alavanca só precisa manter `understeer` ≤ 200 ms consecutivos nos passos na faixa até a primeira saída (`DOMAIN/DEC-14`, F-Spec 3.4.0): na grama, depois da saída, o teto de guinada da assistência cai com `grassFriction` (`:253`, `:260-261`) enquanto o limite de esterço cresce com a desaceleração, a deriva dianteira fica entre 0,15 e 0,36 rad contra 0,05–0,08 rad na traseira e o rótulo `understeer` vale por construção em todo passo — nenhuma alavanca desta tabela move `grassFriction`, o teto de guinada ou o rótulo, e os passos depois da saída não entram na medição. Medido pela rodada de código 3 (`docs/physics.md:253`, `:270-277`): 633 ms na janela inteira, 125 ms até a saída, de modo que o acerto entregue (1,48 g) atende sem retune; com acelerador cheio a permanência na faixa continua exigida |
 | `assistSteerAllowanceRad` | rad | 0,045 | `:185-187` folga além do limite cinemático | saturação progressiva da frente acima de V1 (REQ-FEAT-0002-04, -05, -10): com `assistLateralG`, decide se, e em que patamar, a frente satura e a telemetria reporta `understeer` no asfalto. Por `DOMAIN/DEC-12` (F-Spec 3.3.0) a frente **não precisa** avisar antes da saída da faixa: V1 ≥ 1,15 × V0 (57,5 km/h) é cumprido por um patamar completo com `understeer` acima de 200 ms consecutivos de alvo ≥ 59,0 km/h, **ou** pela saída da faixa acima de 50 km/h depois de pelo menos dois patamares completos acima de 50 km/h com o patamar interrompido de alvo ≥ 59,0 km/h, sem subesterço em patamar algum (V1 = velocidade mantida do patamar interrompido; [ADR-0004](../adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md), decisão 8). Medido pela rodada de código 2 (`docs/physics.md:252`; feedback de 2026-10-22): `ARCADE_KART` (0,045 rad, `friction` 1,10) reporta 808 ms no patamar de 50 km/h e sai a 51,7 km/h (V0 = 50 km/h); o acerto entregue (0,004 rad, 1,48 g, `:78`) chega ao limite com os dois eixos derivando por igual (dianteira 0,075–0,130 rad, traseira 0,088–0,122 rad), o rótulo `understeer` de `handling()` (`:156-163`: deriva dianteira > 0,09 rad **e** > 1,2 × a traseira; inalterado por decisão do dono) fica em `grip`, o kart completa 7 patamares acima de 50 km/h sem `understeer` e sai da faixa a 56,1 km/h com o patamar interrompido em 64,4 km/h — `MEASUREMENT_MISSING` pelo projeto anterior, fim natural com V1 = 64,4 km/h por este; folga ≥ 0,016 rad reporta `understeer` já a 50 km/h com acelerador 0 (REQ-FEAT-0002-01 reprova) e ≤ 0,012 rad nunca. Nenhuma alavanca dependente da velocidade é acrescentada |
 | `yawTrackingGainPerS` | 1/s | 0 (termo inexistente fora do drift; no drift o ganho 4 de `:268` não muda) | `:270-272` momento `clamp(inertia × (intendedYaw − yawRate) × ganho, ±140 N·m)` fora do drift | rapidez da guinada ao aplicar e ao soltar (REQ-FEAT-0001-01 a -04); entregue 5,8 |
 | `yawCorrectGainPerS` | 1/s | 9 | `:266` amortecimento do excesso de guinada ao soltar | recuperação em ≤ 400 ms (REQ-FEAT-0003-04, -09); entregue 33 |
@@ -102,8 +103,9 @@ Dois geradores de `Environment` (`:164`), puros, sem importação nova, ao lado 
 `laneWidthM` é sempre `WIDTH` (`src/track.ts:2`, 11 m): "faixa da largura da pista". `arcRadiusM` é 18
 (`DOMAIN/REF-03`). Fora da faixa `surface` é `GRASS` no sentido de "fora do asfalto" (API-0001): a
 telemetria não distingue grama de ensaio de grama de pista, e nenhum critério de grama é medido na pista
-de teste; a curva de referência com acelerador 0 continua a ser medida fora da faixa, nessa condição
-(REQ-FEAT-0002-09; ADR-0005). `wallContact` nunca é verdadeiro ali porque `walls` é falso (`:299`). A
+de teste; na curva de referência com acelerador 0 a execução continua fora da faixa e a saída é reportada,
+mas `maxUndersteerMs` é medido só nos passos na faixa até a primeira saída (REQ-FEAT-0002-09;
+`DOMAIN/DEC-14`; ADR-0005). `wallContact` nunca é verdadeiro ali porque `walls` é falso (`:299`). A
 constante `TEST_PAD` (asfalto sem limite) permanece para os usos existentes e para `DRIFT_MANEUVER`, cujo
 ambiente é o da verificação existente (`tests/maneuvers.test.ts:63-67`).
 

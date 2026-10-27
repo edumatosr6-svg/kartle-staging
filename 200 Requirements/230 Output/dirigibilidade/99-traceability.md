@@ -1,8 +1,8 @@
 ---
 stage: req
 feature: dirigibilidade
-generated: 2026-10-22T18:37:00Z
-rows: 77
+generated: 2026-10-27T17:13:48Z
+rows: 78
 ---
 
 # Traceability
@@ -26,6 +26,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | DOMAIN/DEC-11 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | DOMAIN/DEC-12 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | DOMAIN/DEC-13 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-14 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | DOMAIN/REF-01 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
 | DOMAIN/REF-01 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | DOMAIN/REF-01 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |

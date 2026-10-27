@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.3.0
+version: 3.4.0
 sources: []
 ---
 
@@ -723,3 +723,129 @@ e absorvido pelos requisitos 3.3.0, que esta rodada realiza). Divergências regi
 - Ordem entre `BASELINE_MISSING` e os demais motivos de `UNDERSTEER_ONSET` quando ambos se aplicam: não
   decidida; nenhuma issue a aponta.
 - Os itens recusados das rodadas 1, 5, 6, 7 e 8 continuam recusados pelos mesmos motivos.
+
+## 2026-10-27 — rodada 10, Mode B (fspec-validation-20261027-1714: 5 erros, 1 aviso; requisitos 3.4.0)
+
+**Gatilho**: o relatório FAIL `fspec-validation-20261027-1714` (`ISSUE-02` a `ISSUE-06`, erros, F4;
+`ISSUE-01`, aviso, F3, reverificada de `fspec-validation-20261022-1857`): os requisitos passaram a 3.4.0
+(US-0002, `01-context.md` e o changelog dos requisitos; validados em `req-validation-20261027-1705`) com o
+rótulo novo `DOMAIN/DEC-14`, e o conjunto realizava a leitura anterior de AC-US-0002-01 (`understeer`
+medido em todos os passos do arco, dentro e fora da faixa, com acelerador 0). Decisão do dono do produto
+recebida para esta rodada e carregada sem redescoberta (2026-10-27, após o FAIL SPEC da rodada 3 de código,
+`feedback-20261027-1619` da etapa D-Spec, SPEC-ISSUE-03): `DOMAIN/DEC-14` — no ensaio do arco de 18 m com
+acelerador zero, e em qualquer ensaio em que a permanência na faixa não é exigida, o `understeer` conta só
+no asfalto, até a primeira saída da faixa; os passos na grama depois da saída não entram na medição
+(escorregar na grama não é sair de frente); o limiar continua 200 ms; nenhum outro limiar ou regra muda; o
+acerto `ARCADE_ASSISTIDO_V5` não muda. O autor pediu o ajuste de `RULE-0002`, `API-0003` e `FEAT-0002`
+(`REQ-FEAT-0002-09`: janela de medição do `understeer` com acelerador zero até a primeira saída da faixa) e
+declarou a superfície congelada. Todo o conteúdo especificado vem de US-0002 3.4.0 e de `01-context.md`
+3.4.0 dos requisitos, que já carregam a decisão; a pasta do seed e o código na raiz do repositório
+(`scripts/handlingBench.ts`) não foram lidos (conventions §12). O seed segue em `revision: 3`.
+
+**O que mudou**
+
+- `ISSUE-02` (erro, F4 — `FEAT-0002`): `REQ-FEAT-0002-01` declara a janela de medição da condição de
+  acelerador 0 — só os passos na faixa de asfalto, até a primeira saída da faixa; os passos depois da saída
+  não entram; limiar de 200 ms — citando AC-US-0002-01 e `DOMAIN/DEC-14` via AC-US-0002-01;
+  `REQ-FEAT-0002-02` inalterado (acelerador cheio, janela de todo o arco); `REQ-FEAT-0002-09` diz que, com
+  `THROTTLE_ZERO`, a primeira saída fecha a janela de `maxUndersteerMs` e os passos depois dela não entram,
+  com `offAsphaltStepCount`, `offAsphaltFirstStep` e posição reportados sem reprovar; `REQ-FEAT-0002-10`
+  ganha a cláusula do patamar interrompido medido só até a saída (`DOMAIN/DEC-14` via AC-US-0002-06). O
+  Resumo, as duas linhas de Comportamento (`THROTTLE_ZERO` e saída da faixa em `REFERENCE_CORNER`), as duas
+  linhas da varredura e o primeiro e o quarto critérios de aceite seguem o mesmo enunciado. A condição
+  `THROTTLE_FULL` (requisitos 02, 03 e 09) não muda. `sources:` inalterado.
+- `ISSUE-03` (erro, F4 — `RULE-0002`): a célula "Grama e parede" de `TEST_PAD` e a célula Medição de
+  `REFERENCE_CORNER` passam a "medido só nos passos na faixa de asfalto, até a primeira saída da faixa; os
+  passos depois da saída não entram na medição (`DOMAIN/DEC-14` via AC-US-0002-01)", com a saída reportada
+  sem reprovar (`DOMAIN/DEC-13`) e a condição de acelerador cheio medida em todo o arco; Veredito e Fonte
+  das duas linhas citam `DOMAIN/DEC-14`; a nota de Limiares cita `DOMAIN/DEC-14` entre as decisões que não
+  mudam limiar; a linha `UNDERSTEER_ONSET`, a prosa de "Fim da varredura de início do subesterço", a
+  segunda linha da sua tabela e a nota depois dela citam `DOMAIN/DEC-14` (via AC-US-0002-03 e
+  AC-US-0002-06) para o patamar interrompido medido só até a saída, sem mudar o comportamento. `sources:`
+  inalterado.
+- `ISSUE-04` (erro, F4 — `API-0003`): a linha `maxUndersteerMs` de `REFERENCE_CORNER` e o parágrafo de
+  Erros dessa variante passam a "com `THROTTLE_FULL`, em todos os passos do arco; com `THROTTLE_ZERO`, só
+  nos passos na faixa de asfalto até a primeira saída da faixa, sem os passos depois dela (`DOMAIN/DEC-14`
+  via AC-US-0002-01)"; a linha `offAsphaltStepCount` de `REFERENCE_CORNER` diz que a primeira saída fecha
+  a janela; a linha `v1Mps` e o parágrafo do fim natural citam `DOMAIN/DEC-14` para o patamar interrompido
+  medido só até a saída; entrada nova de Compatibilidade (versão 3.4.0 do contrato): `maxUndersteerMs`
+  mantém nome, unidade e significado e, com `THROTTLE_ZERO`, deixa de cobrir os passos fora da faixa;
+  `v1Mps` mantém nome, unidade, obrigatoriedade e valor; nenhum registro publicado sob a forma anterior e
+  nenhum consumidor lê o contrato como entrada (I3); nenhum campo nem valor de enum acrescentado.
+  `sources:` inalterado.
+- `ISSUE-05` (erro, F4 — `FLOW-0002`): a linha de `REFERENCE_CORNER` com `THROTTLE_ZERO` da tabela
+  Alternativas passa a "a primeira saída fecha a janela de medição de `maxUndersteerMs`: contado só nos
+  passos na faixa de asfalto até ela; os passos depois da saída não entram (`DOMAIN/DEC-14` via
+  AC-US-0002-01); `offAsphaltStepCount`, `offAsphaltFirstStep` e posição reportados sem reprovar
+  (`DOMAIN/DEC-13`)"; o passo 4, o passo 5 (medição de `maxUndersteerMs` nessa variante) e a linha de
+  `UNDERSTEER_ONSET` citam `DOMAIN/DEC-14` para o patamar interrompido medido só até a saída. `sources:`
+  inalterado.
+- `ISSUE-06` (erro, F4 — `01-overview.md`): base declarada "versão 3.4.0" com `DOMAIN/DEC-01` a
+  `DOMAIN/DEC-14`; frase nova dizendo que a decisão de 2026-10-27 (`DOMAIN/DEC-14`) fixa onde o
+  `understeer` é medido na curva de referência com acelerador 0 — só no asfalto, até a primeira saída da
+  faixa — e em qualquer ensaio em que a permanência na faixa não é exigida, sem mudar nenhum limiar, com
+  remissão a `RULE-0002`.
+- `ISSUE-01` (aviso, F3 — V1 no fim natural da varredura, terceiro caso): `REQ-FEAT-0002-04`, a linha de
+  Comportamento da varredura e o segundo critério de aceite de `FEAT-0002`; `v1Mps` e o parágrafo do fim
+  natural em `API-0003`; a linha de `UNDERSTEER_ONSET` em `FLOW-0002`; a linha `UNDERSTEER_ONSET` e a
+  segunda linha da tabela de "Fim da varredura" em `RULE-0002`; e "Velocidade de início do subesterço" em
+  `02-glossary.md` enunciam o segundo caso como `RULE-0002` já o decidia: sem nenhum patamar completo com
+  `understeer` por mais de 200 ms consecutivos, V1 é a velocidade mantida do patamar interrompido pela
+  saída, inclusive quando esse patamar é o primeiro em que `understeer` passa de 200 ms, citando
+  `RULE-0002` "Fim da varredura de início do subesterço" (AC-US-0002-03; `DOMAIN/DEC-12` por derivação,
+  mesmo valor). Nenhum valor muda. O motivo "sem início de subesterço até a saída da faixa" segue
+  apresentado no caso de `DOMAIN/DEC-12` (nenhum patamar, completo ou interrompido, com `understeer` acima
+  de 200 ms), como `FEAT-0002` e `API-0003` já o ligavam.
+- Sítios do mesmo fato carregados fora das linhas que o relatório nomeia: em `02-glossary.md`, "Curva de
+  referência" e `throttleCondition` dizem a janela de medição com acelerador 0 (`DOMAIN/DEC-14`); em
+  `FEAT-0002`, o Resumo e `REQ-FEAT-0002-10`; em `FLOW-0002`, o passo 5. `RULE-0001` ("fora do asfalto
+  nenhum critério de aderência é medido") já era coerente com a decisão e não foi tocada.
+- Versões: `FEAT-0002`, `RULE-0002`, `API-0003` e `FLOW-0002` em 3.4.0; `01-overview.md` e
+  `02-glossary.md` em 3.3.0; este changelog em 3.4.0; todos em `status: draft` por terem mudado.
+  Intocados: `FEAT-0001`, `FEAT-0003` a `FEAT-0006`, `FLOW-0001`, `FLOW-0003`, `API-0001`, `API-0002`,
+  `RULE-0001`, `RULE-0003`, `SCR-0001`, `SCR-0002`, `98-divergences.md` (nenhuma divergência: esta etapa
+  não lê o código para derivar comportamento). `00-index.md` e `99-traceability.md` não foram escritos: o
+  gate os regenera.
+
+**Leituras registradas** (para o validador e para o autor; nenhuma é limiar novo)
+
+- Terceiro caso de V1 (o patamar interrompido pela saída, medido só até ela, é o primeiro em que
+  `understeer` passa de 200 ms consecutivos): os requisitos 3.4.0 continuam a enunciar só os dois casos de
+  AC-US-0002-03; o conjunto carrega a leitura de `RULE-0002` em todos os sítios, com o mesmo valor que
+  `DOMAIN/DEC-12` dá, de modo que `v1Mps` nunca falta no fim natural. Proposta ao autor para
+  `SCOPE-BACKLOG.md` (não escrita por esta etapa): "2026-10-27 fspec-loop rodada 10 — confirmar em
+  `DOMAIN.md` que, se só o patamar interrompido pela saída reportou `understeer` por mais de 200 ms
+  consecutivos, V1 é a velocidade mantida desse patamar (leitura de `RULE-0002`;
+  `fspec-validation-20261027-1714`, ISSUE-01)".
+- "Qualquer ensaio em que a permanência na faixa não é exigida" (`DOMAIN/DEC-14`): neste conjunto são
+  `REFERENCE_CORNER` com `THROTTLE_ZERO` e o patamar interrompido de `UNDERSTEER_ONSET`, como
+  `01-context.md` 3.4.0 dos requisitos aplica a decisão; `REAR_RECOVERY`, `REFERENCE_CORNER` com
+  `THROTTLE_FULL` e `TEST_PILOT_LAP` exigem a permanência e não mudam; `STEER_RESPONSE` não mede
+  `understeer` como critério (`DOMAIN/DEC-09`).
+
+**Superfície (conventions §16)**: nenhum requisito, campo, valor de enum, endpoint, tela ou configuração
+acrescentado. Requisitos funcionais: 62 antes e depois. `failReason`: sete valores antes e depois. A
+entrada nova de Compatibilidade de `API-0003` registra uma mudança de cobertura sob o mesmo nome, não um
+campo.
+
+**Tabela de migração** (conventions §17): nenhum requisito, contrato, campo, tela, regra ou ensaio
+retirado. Modificados: `REQ-FEAT-0002-01` (janela de medição da condição de acelerador 0),
+`REQ-FEAT-0002-04` (segundo caso de V1 enunciado como `RULE-0002`), `REQ-FEAT-0002-09` (janela de
+`maxUndersteerMs` com `THROTTLE_ZERO` fechada pela primeira saída), `REQ-FEAT-0002-10` (patamar
+interrompido medido só até a saída). Campo que muda de cobertura sob o mesmo nome: `maxUndersteerMs` em
+`REFERENCE_CORNER` com `THROTTLE_ZERO` (registrado em Compatibilidade 3.4.0). Critérios `AC-*` realizados:
+32 antes e depois.
+
+**Itens fechados**: `ISSUE-01` a `ISSUE-06` de `fspec-validation-20261027-1714`. Nenhum `FB-<nn>` pendente
+para esta feature (o `feedback-20261027-1619` do D-Spec, SPEC-ISSUE-03, foi respondido pelo dono do produto
+em `DOMAIN.md` e absorvido pelos requisitos 3.4.0, que esta rodada realiza). Divergências registradas:
+nenhuma.
+
+**Itens recusados, com motivo**
+
+- Reescrever a entrada 3.3.0 de Compatibilidade de `API-0003` ("com `THROTTLE_ZERO`, cobre também os passos
+  fora da faixa"): mantida como registro histórico daquela versão do contrato; a entrada 3.4.0 declara o
+  estado corrente do campo.
+- Um campo que diga em que passo a janela de `maxUndersteerMs` fechou: não acrescentado —
+  `offAsphaltFirstStep` já o reporta, e seria superfície numa rodada de correção (§16).
+- Os itens recusados das rodadas 1, 5, 6, 7, 8 e 9 continuam recusados pelos mesmos motivos.

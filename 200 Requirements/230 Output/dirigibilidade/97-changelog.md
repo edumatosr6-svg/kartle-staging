@@ -3,7 +3,7 @@ title: Changelog — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.3.1
+version: 3.4.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -606,3 +606,105 @@ antes e depois.
   recusados pelos mesmos motivos (entre eles a `ISSUE-06`/`ISSUE-07` info do relatório
   `req-validation-20261022-1817.md`), e as propostas de `SCOPE-BACKLOG.md` das rodadas 6, 7, 8 e 9 seguem
   valendo.
+
+## 2026-10-27 — rodada 11, Mode B (relatório `req-validation-20261027-1659.md`, 2 erros e 2 infos)
+
+**Gatilho**: o dono do produto decidiu em `DOMAIN.md` (2026-10-27), após o FAIL SPEC da rodada 3 de código
+(`300 Specs/330 D-Specs/Output/dirigibilidade/reports/feedback/feedback-20261027-1619.md`, SPEC-ISSUE-03),
+onde o subesterço é medido na curva de referência com acelerador zero: só no asfalto, até a primeira saída
+da faixa; passos na grama depois da saída não entram na medição; limiar de 200 ms mantido; o mesmo vale para
+qualquer ensaio em que a permanência na faixa não é exigida. Nenhum outro limiar ou regra muda. O validador
+reprovou o conjunto com dois erros (R4: a decisão sem rótulo nem cobertura; R2: US-0002 a contradiz) e
+reverificou as duas infos de `req-validation-20261022-1829.md`, que ainda não tinham resposta neste changelog.
+O seed segue em `revision: 3`; a decisão entrou pela camada durável `DOMAIN.md`, como as anteriores.
+
+**Issues desta rodada** (uma por issue do relatório)
+
+- ISSUE-01 — error, R4, `01-context.md`: a entrada de 2026-10-27 de `DOMAIN.md` não tem rótulo na chave,
+  não consta da tabela de decisões aplicadas nem de nenhum `sources:`; item do seed sem cobertura.
+- ISSUE-02 — error, R2, US-0002: o critério 01 conta o `understeer` "em nenhum trecho do arco" com
+  acelerador 0 e o caso anormal de saída da faixa diz que o critério 01 continua a ser julgado em todo o
+  arco; `DOMAIN.md` fixa que a medição para na primeira saída da faixa.
+- ISSUE-03 — info, R3, AC-US-0002-03 e glossário "Velocidade de início do subesterço": as duas leituras de
+  `DOMAIN/DEC-12` (fórmula; nunca sair de frente cumpre) só coincidem quando a velocidade do patamar
+  interrompido é maior ou igual a 1,15 × V0.
+- ISSUE-04 — info, R3, AC-US-0003-01: a cláusula da curva de referência com acelerador cheio está ligada à
+  condução normal por "em particular", embora com acelerador cheio a velocidade possa passar de 50 km/h.
+
+**O que mudou**
+
+- `ISSUE-01` (R4, `01-context.md`): a decisão de 2026-10-27 ganhou o rótulo `DOMAIN/DEC-14` na chave de
+  rastreabilidade, com o texto da decisão; o parágrafo das decisões de domínio em "O que é a feature" e a
+  introdução de "Decisões de domínio aplicadas" a descrevem (decisão do dono do produto, sem ponto aberto
+  próprio, sem mudar limiar); a tabela de decisões aplicadas ganhou a linha `DOMAIN/DEC-14` apontando
+  US-0002 (critério 01 na condição de acelerador 0; caso anormal "Kart sai da faixa de asfalto do arco"; e,
+  por "o mesmo vale para qualquer ensaio em que a permanência na faixa não é exigida", o patamar interrompido
+  pela saída acima de 50 km/h dos critérios 03 e 06 e do caso anormal "Nenhum patamar reporta `understeer`
+  até a saída da faixa acima de 50 km/h", onde a varredura já terminava na saída por `DOMAIN/DEC-11` e só
+  faltava a citação). Fechada por edição.
+- `ISSUE-02` (R2, US-0002): o critério 01 passa a declarar que, na condição de acelerador 0, a maior
+  sequência de `understeer` consecutivo é contada só nos passos em que o kart está na faixa de asfalto, até
+  a primeira saída da faixa, com o limiar de 200 ms inalterado (`DOMAIN/DEC-14`); na condição de acelerador
+  cheio a janela continua a ser todo o arco (a permanência na faixa é exigida pelo critério 02). O caso
+  anormal "Kart sai da faixa de asfalto do arco" diz que a primeira saída fecha a janela de medição do
+  critério 01 (o ensaio continua a reportar o passo e a posição da saída; os passos na grama depois da saída
+  não entram na medição — escorregar na grama não é sair de frente) e que na condição de acelerador cheio
+  nada muda (a saída falha o critério 02). Fechada por edição.
+- O fato de `DOMAIN/DEC-14` foi levado a todos os seus lugares: critério 01; caso anormal de saída da faixa;
+  critérios 03 e 06 e caso anormal "Nenhum patamar reporta `understeer` até a saída da faixa acima de
+  50 km/h" (o patamar interrompido pela saída acima de 50 km/h é medido só nos passos na faixa, até ela —
+  só citação, a varredura já terminava na saída); `sources:`, Fontes e Pontos em aberto de US-0002; chave,
+  parágrafo de decisões e tabela de decisões aplicadas de `01-context.md`. A frase "a pista de teste não tem
+  paredes nem grama a ensaiar" do caso anormal passou a "não tem paredes, e a grama fora da faixa não é
+  ensaiada aqui", porque `DOMAIN/DEC-14` nomeia a grama depois da saída.
+- Versões: US-0002, `01-context.md` e este changelog em 3.4.0, `status: draft` até o validador.
+  `02-glossary.md`, US-0001, US-0003 a US-0005, os nove NFRs e `98-divergences.md` não foram tocados:
+  nenhum deles afirma onde o `understeer` é medido com acelerador 0, e a definição "Velocidade de início do
+  subesterço" já diz que a varredura termina quando o kart sai da faixa (`DOMAIN/DEC-11`). `00-index.md` e
+  `99-traceability.md` não foram escritos: o gate os regenera.
+
+**Leituras registradas** (sem decisão nova)
+
+- "O mesmo vale para qualquer ensaio em que a permanência na faixa não é exigida" alcança a varredura de
+  início do subesterço acima de 50 km/h, em que a saída é o fim natural (`DOMAIN/DEC-11`): o patamar
+  interrompido é medido até a saída, como o conjunto já lia; e não alcança a condição de acelerador cheio
+  dos critérios 01 e 02, em que a permanência na faixa continua exigida (`DOMAIN/DEC-13`).
+- A proposta da rodada 9 a `SCOPE-BACKLOG.md` ("com acelerador 0, o critério de 200 ms de `understeer` é
+  medido também nos passos depois de o kart sair da faixa?") está respondida por `DOMAIN/DEC-14`: não.
+- `SCOPE-BACKLOG.md` passou a existir na pasta do seed, com duas perguntas de 2026-10-27 adiadas ao autor
+  pelo D-Spec (V0 quando a linha de base nunca sai de frente; veredito para saída exatamente a 50 km/h e
+  para varredura que termina sem saída). Nenhuma foi decidida; o conjunto não inventa regra para elas.
+
+**Superfície (conventions §16)**: nenhum requisito, história, critério, campo, limiar ou termo acrescentado
+ou removido. A janela de medição do critério 01 na condição de acelerador 0 é a decisão do dono do produto
+em `DOMAIN/DEC-14`, que prevalece sobre a leitura anterior do conjunto ("em nenhum trecho do arco"); o limiar
+de 200 ms e o acerto não mudam.
+
+**Tabela de migração** (conventions §17): nenhum item retirado. Cinco histórias, nove NFRs e 33 critérios
+antes e depois. Modificados: AC-US-0002-01 (janela de medição na condição de acelerador 0: só na faixa de
+asfalto, até a primeira saída); AC-US-0002-03 e AC-US-0002-06 (só citação de `DOMAIN/DEC-14` no patamar
+interrompido pela saída).
+
+**Itens fechados**: `ISSUE-01`, `ISSUE-02`. Divergências registradas em `98-divergences.md`: nenhuma.
+
+**Itens recusados, com motivo**
+
+- `ISSUE-03` (info, R3, AC-US-0002-03 e glossário): nenhuma mudança. O conjunto é decidível como está — a
+  saída do ensaio reporta V1 igual à velocidade mantida do patamar interrompido e o veredito é V1 ≥ 1,15 × V0
+  (a fórmula governa); as duas leituras de `DOMAIN/DEC-12` só divergem quando essa velocidade fica abaixo de
+  1,15 × V0, e a escolha nesse caso é do dono do produto, que a registra primeiro em `DOMAIN.md`. O próprio
+  relatório espera nenhuma mudança nesta etapa, e a decisão do autor para esta rodada é "nada mais muda".
+  Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-27 req-loop rodada 11 — quando a varredura termina
+  pela saída da faixa acima de 50 km/h sem subesterço e a velocidade do patamar interrompido fica abaixo de
+  1,15 × V0, o critério reprova (fórmula de `DOMAIN/DEC-12`) ou aprova (nunca sair de frente cumpre)?"
+- `ISSUE-04` (info, R3, AC-US-0003-01): nenhuma mudança. O critério é decidível como está (estado de
+  aderência em todos os passos do arco, inclusive acima de 50 km/h, como o próprio relatório lê) e coerente
+  com `DOMAIN/DEC-13`; a decisão do autor para esta rodada restringe a mudança a US-0002 ("Incorpore em
+  US-0002. Nada mais muda"). A separação das duas cláusulas fica para uma rodada em que US-0003 se mova.
+- Os fatos de código que acompanharam a decisão do autor — identificador do acerto em vigor, o valor que o
+  ensaio mede com a regra nova, a localização da biblioteca de ensaios e do código — não entraram no
+  conjunto: esta etapa não nomeia módulo, arquivo nem identificador de preset (política de critérios
+  estritos, regra 8); eles pertencem às etapas de spec e de código.
+- Os itens recusados das rodadas 1, 3, 5, 6, 7, 8 e 9 continuam recusados pelos mesmos motivos, e as
+  propostas de `SCOPE-BACKLOG.md` das rodadas 6, 7, 8 e 9 seguem valendo, exceto a da rodada 9 sobre os
+  passos depois da saída da faixa com acelerador 0, respondida por `DOMAIN/DEC-14`.

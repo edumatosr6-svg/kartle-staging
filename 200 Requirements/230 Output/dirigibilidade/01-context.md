@@ -3,7 +3,7 @@ title: Contexto — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.3.0
+version: 3.4.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -59,7 +59,11 @@ código — "Início do subesterço num acerto que não sai de frente" (`DOMAIN/
 com acelerador zero" (`DOMAIN/DEC-13`) — fecham dois casos dos ensaios de US-0002 sem mudar nenhum limiar,
 e a entrada da mesma data "Leitura de 'sem subesterço'" (`DOMAIN/REF-05`, redator, coerente com
 `DOMAIN/DEC-03`) fixa que "sem `understeer`" significa nenhuma sequência com mais de 200 ms consecutivos,
-não tolerância zero. Este conjunto usa só os valores em vigor.
+não tolerância zero. A entrada de 2026-10-27 do dono do produto, após o FAIL SPEC da rodada 3 de código —
+"Onde o subesterço é medido na curva com acelerador zero" (`DOMAIN/DEC-14`) — fixa que, no ensaio do arco
+de 18 m com acelerador zero e em qualquer ensaio em que a permanência na faixa não é exigida, o `understeer`
+conta só no asfalto, até a primeira saída da faixa, com o limiar de 200 ms inalterado. Este conjunto usa só
+os valores em vigor.
 
 ## Atores e canais
 
@@ -126,6 +130,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-11` | Fim da varredura de início do subesterço (2026-10-22, após a parada do D-Spec): no ensaio em que a velocidade sobe no arco de raio 18 m da pista de teste — o ensaio de início do subesterço —, sair da faixa abaixo de 50 km/h reprova por saída do asfalto; sair da faixa acima de 50 km/h é o fim natural da varredura e não reprova, desde que pelo menos duas velocidades acima de 50 km/h tenham sido medidas antes da saída, para que o critério de que o subesterço não diminui tenha dados; se a saída ocorrer antes da segunda medição acima de 50 km/h, o ensaio reprova por falta de medida, motivo distinto da saída do asfalto |
 | `DOMAIN/DEC-12` | Início do subesterço num acerto que não sai de frente (2026-10-22, dono do produto, após FAIL SPEC do código): quando a varredura em patamares no arco de raio 18 m termina pela saída da faixa acima de 50 km/h sem a telemetria ter reportado `understeer` em nenhum patamar, a velocidade de início do subesterço V1 é a velocidade mantida do patamar interrompido pela saída, e "V1 ≥ 1,15 × V0" é avaliado com esse valor; nunca sair de frente até sair da faixa cumpre o critério; o rótulo `understeer` da telemetria não muda |
 | `DOMAIN/DEC-13` | Curva de referência com acelerador zero (2026-10-22, dono do produto): no ensaio do arco de raio 18 m entrando a 50 km/h com acelerador zero, o único critério é "sem `understeer` por mais de 200 ms consecutivos"; permanecer na faixa enquanto desacelera não é exigido; a variante com acelerador cheio continua exigindo permanência na faixa e ausência de `understeer`/`oversteer` |
+| `DOMAIN/DEC-14` | Onde o subesterço é medido na curva com acelerador zero (2026-10-27, dono do produto, após FAIL SPEC da rodada 3 de código): no ensaio do arco de raio 18 m entrando a 50 km/h com acelerador zero, o `understeer` conta só no asfalto, até a primeira saída da faixa; passos na grama depois da saída não entram na medição (escorregar na grama não é "sair de frente"); o limiar continua 200 ms; o mesmo vale para qualquer ensaio em que a permanência na faixa não é exigida |
 
 ## Decisões de domínio aplicadas
 
@@ -137,7 +142,10 @@ ponto aberto numerado próprio (a segunda detalha o ciclo do ponto 08); `DOMAIN/
 `DOMAIN/DEC-12` e `DOMAIN/DEC-13` são as decisões de 2026-10-22 do dono do produto após o FAIL SPEC do
 código, também sem ponto aberto próprio: a primeira fixa o valor de V1 quando nenhum patamar reporta
 `understeer`, a segunda fixa o critério único da curva de referência com acelerador 0; nenhuma das duas
-muda um limiar. Onde cada uma é aplicada:
+muda um limiar. `DOMAIN/DEC-14` é a decisão de 2026-10-27 do dono do produto, após o FAIL SPEC da rodada 3
+de código, também sem ponto aberto próprio: fixa onde o `understeer` é medido na curva de referência com
+acelerador 0 — só no asfalto, até a primeira saída da faixa — e em qualquer ensaio em que a permanência na
+faixa não é exigida, sem mudar o limiar de 200 ms. Onde cada uma é aplicada:
 
 | Decisão | Histórias e NFRs |
 |---|---|
@@ -154,6 +162,7 @@ muda um limiar. Onde cada uma é aplicada:
 | `DOMAIN/DEC-11` | US-0002 (critérios 03, 04 e 06, ensaio de início do subesterço, e caso anormal de saída da faixa); não muda os critérios 01 e 02, da curva de referência com entrada a 50 km/h, em que a saída da faixa falha o critério 02 na condição de acelerador cheio (`DOMAIN/DEC-13`) |
 | `DOMAIN/DEC-12` | US-0002 (critério 03: valor de V1 quando nenhum patamar reporta `understeer` até a saída da faixa acima de 50 km/h; caso anormal "Nenhum patamar reporta `understeer` até a saída da faixa"); `02-glossary.md`, "Velocidade de início do subesterço" |
 | `DOMAIN/DEC-13` | US-0002 (critério 01, único critério da condição de acelerador 0; critério 02, restrito à condição de acelerador cheio; caso anormal de saída da faixa). Confirma, sem mudar, a cláusula da curva de referência com acelerador cheio de US-0003 (critério 01: `grip` ou `understeer` em todos os passos do arco) |
+| `DOMAIN/DEC-14` | US-0002 (critério 01, na condição de acelerador 0: a maior sequência de `understeer` consecutivo é contada só nos passos em que o kart está na faixa de asfalto, até a primeira saída; caso anormal "Kart sai da faixa de asfalto do arco": a primeira saída fecha a janela de medição do critério 01; e, por "o mesmo vale para qualquer ensaio em que a permanência na faixa não é exigida", o patamar interrompido pela saída acima de 50 km/h dos critérios 03 e 06 e do caso anormal "Nenhum patamar reporta `understeer` até a saída da faixa acima de 50 km/h", medido só até a saída, onde a varredura já terminava por `DOMAIN/DEC-11`). Não muda a condição de acelerador cheio dos critérios 01 e 02, em que a permanência na faixa é exigida (`DOMAIN/DEC-13`) |
 | `DOMAIN/REF-04` | US-0002 (critérios 03, 04 e 06 e caso anormal de saída da faixa: a velocidade medida da varredura é um patamar completo de velocidade mantida); o tamanho e a duração do patamar são parâmetros do ensaio, registrados como os demais parâmetros de ensaio de NFR-0004 |
 | `DOMAIN/REF-05` | US-0002 (critério 03: "nenhum patamar reporta `understeer`" lido como nenhuma sequência com mais de 200 ms consecutivos, o limiar de `DOMAIN/DEC-03`); `02-glossary.md`, "Velocidade de início do subesterço" |
 | `DOMAIN/REF-03`, `SEED/RD-06` | US-0001, US-0002, US-0003 (pista de teste), US-0005 (pista sintética), NFR-0004 (parâmetros do ambiente de ensaio registrados) |

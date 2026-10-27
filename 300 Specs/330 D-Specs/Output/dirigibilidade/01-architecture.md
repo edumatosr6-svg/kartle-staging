@@ -3,13 +3,13 @@ title: Arquitetura — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 3.0.0
+version: 3.1.0
 sources: []
 ---
 
 # Arquitetura
 
-Este conjunto projeta como cada `REQ-*` do F-Spec validado de `dirigibilidade` (3.3.0, contra o seed
+Este conjunto projeta como cada `REQ-*` do F-Spec validado de `dirigibilidade` (3.4.0, contra o seed
 `revision: 3`; FEAT-0001 a FEAT-0006, API-0001 a API-0003, RULE-0001 a RULE-0003, SCR-0001, SCR-0002,
 FLOW-0001 a FLOW-0003) é realizado sobre o código em execução. Os caminhos são relativos à raiz do
 repositório (diretriz do estágio: o código vive em `src/`, `tests/`, `scripts/`; `400 Code/Source/` está
@@ -24,16 +24,27 @@ por inteiro o projeto validado em `dspec-validation-20261022-1615` (DES-0001 a D
 com todos os ensaios, `scripts/keyboard-lap.ts` e `scripts/physics-bench.ts` chamando-a; `src/main.ts` com
 `PUBLISHED_SETUPS`, `getHandlingTelemetry`, `LapRecord`, comparabilidade e compartilhar; `index.html` com
 `#lap-result-setup` e `#lap-share`; `docs/physics.md` com a entrada datada e o bloco `handling-baseline`
-(três entradas). O portão passa (`npx tsc --noEmit` 0; `npm test` 170/170; `npm run build` 0; os dois
-benches 0) e 13 dos 15 registros do acerto entregue são `PASS`; os dois que reprovam são os de SPEC-ISSUE-01
-e SPEC-ISSUE-02 do feedback da etapa de código (`reports/feedback/feedback-20261022-1803.md`), que o dono
-do produto decidiu (`DOMAIN/DEC-12`, `DOMAIN/DEC-13`, carregados pelo F-Spec 3.3.0) e esta rodada projeta.
-Esse código é lido aqui como descrição do que o sistema faz hoje, e o projeto vence onde diverge (as linhas
-estão em `98-divergences.md`). Não foram escritos: `tests/dirigibilidade-*.test.ts`,
-`tests/fixtures/records.ts`, `docs/handling-device-log.md` e os campos `setupId`/`setupVersion` em
-`src/lap.ts` (FB-01 de `race-lap-validation`, abaixo).
+(três entradas); 13 dos 15 registros do acerto entregue eram `PASS`, e os dois que reprovavam
+(SPEC-ISSUE-01 e SPEC-ISSUE-02 de `reports/feedback/feedback-20261022-1803.md`) foram decididos pelo dono
+do produto (`DOMAIN/DEC-12`, `DOMAIN/DEC-13`, F-Spec 3.3.0) e projetados na rodada 8 deste conjunto. A
+rodada de código 3 (commit `767508e`) implementou esse projeto (`dspec-validation-20261027-1531`, versão
+5.0.0 de `DES-0004`) sobre a mesma árvore: `ARCADE_ASSISTIDO_V5` e `src/physics.ts` inalterados; a
+biblioteca `scripts/handlingBench.ts` com a curva de referência com acelerador 0 percorrendo a janela
+inteira, V1 em todo fim natural, a condição de V0 e a linha `#`; `src/lap.ts` com `setupId?`/`setupVersion?`
+copiados do pedido (`:23`, `:30-31`, `:54-55`, `:123-124`, `:278-279`); `src/setupRecords.ts` com
+`buildLapRecord` preenchendo só o que falta (`:92-93`) e `replayLap` pedindo a volta com os dois campos
+(`:109-114`); `src/main.ts:226`, `scripts/handlingBench.ts:499` e `scripts/keyboard-lap.ts:26` informando os
+dois campos; `docs/physics.md` com a entrada `arcade-assistido-v5` refeita (`:196-277`; bloco `:279-426`). O
+portão passa (`npx tsc --noEmit` 0; `npm test` 170/170; `npm run build` 0; os dois benches 0) e 14 dos 15
+registros do acerto entregue são `PASS` — `UNDERSTEER_ONSET` passou a `PASS` (V1 = 17,89 m/s, fim natural).
+O que reprova é `REFERENCE_CORNER` com acelerador 0 (633 ms de `understeer`: 15 passos no asfalto e 61 na
+grama depois da saída pelo lado interno no passo 240), SPEC-ISSUE-03 do feedback da etapa de código
+(`reports/feedback/feedback-20261027-1619.md`), que o dono do produto decidiu (`DOMAIN/DEC-14`, carregado
+pelo F-Spec 3.4.0) e esta rodada projeta. Esse código é lido aqui como descrição do que o sistema faz hoje,
+e o projeto vence onde diverge (as linhas estão em `98-divergences.md`). Não foram escritos:
+`tests/dirigibilidade-*.test.ts`, `tests/fixtures/records.ts` e `docs/handling-device-log.md`.
 
-**O que a revisão 3 do seed e as decisões de 2026-10-22 mudam neste projeto.** A pista sintética
+**O que a revisão 3 do seed e as decisões de 2026-10-22 e 2026-10-27 mudam neste projeto.** A pista sintética
 (`src/track.ts:3-6`) não tem curva de raio 18 m: os seus raios discretos mínimos são 24,0 m (índice 0),
 25,1 m (índices 53 e 187) e 4,1 m no grampo (índice 120). Os ensaios de resposta do volante, curva de
 referência, início do subesterço e recuperação da traseira rodam na **pista de teste** (`benchEnvironment`
@@ -52,9 +63,10 @@ nesse passo decide o resultado da saída (RULE-0002, "Fim da varredura de iníci
 natural, **V1 tem sempre valor** — a menor velocidade de patamar completo com `understeer` acima de 200 ms
 consecutivos ou, sem nenhum patamar assim, a velocidade mantida do patamar interrompido pela saída, de modo
 que nunca sair de frente até sair da faixa cumpre V1 ≥ 1,15 × V0 (`DOMAIN/DEC-12`). A curva de referência
-com acelerador 0 é julgada só pelos 200 ms de `understeer`, medidos em todos os passos do arco, dentro e
-fora da faixa, e a saída da faixa é reportada sem reprovar; com acelerador cheio a permanência na faixa
-continua exigida (`DOMAIN/DEC-13`). Os dois casos que RULE-0002 deixa sem decisão fazem a biblioteca lançar
+com acelerador 0 é julgada só pelos 200 ms de `understeer`, medidos só nos passos na faixa de asfalto até a
+primeira saída da faixa — a execução percorre a janela inteira e a saída é reportada sem reprovar, mas os
+passos depois dela não entram na medição (`DOMAIN/DEC-13`, `DOMAIN/DEC-14`); com acelerador cheio a
+permanência na faixa continua exigida. Os dois casos que RULE-0002 deixa sem decisão fazem a biblioteca lançar
 em vez de emitir um veredito; todo parâmetro de ensaio, o piloto de teste inclusive, é fixo, e o que o
 registro de API-0003 não carrega — a saída da faixa abaixo de 50 km/h nessa varredura, a precondição de
 `GRASS_LOSS` e o `oversteer` na curva com acelerador cheio — chega ao veredito pelo segundo argumento de
@@ -78,12 +90,12 @@ pista publicado: não tem `trackId`, não entra em registro algum e nenhuma tela
 | Dado de pista | `src/track.ts`, `src/trackData.ts` | inalterados | a pista sintética e o seu leitor não mudam (NFR-0008); `WIDTH` (`src/track.ts:2`) é a largura da faixa da pista de teste (`laneWidthM`) |
 | Simulação | `src/physics.ts` | existente (as-built, rodadas de código 1 e 2) | preset `ARCADE_ASSISTIDO_V5` (`:73-83`), campos opcionais de `KartConfig` (`:40-46`), `PUBLISHED_SETUPS` (`:92-100`), `SOLVER_SUBSTEPS` (`:84`), `isForcing` (`:118-120`), `forcingRampFraction` (`:192-195`), telemetria por passo (`:17-21`, `:314-316`), `stepCount` (`:341`), `getHandlingTelemetry` (`:351-360`), `testPadLane`/`testPadArc` (`:170-178`), `classifyHandlingSteps`/`RECOVERY_MAX_STEPS` (`:363-385`). `ARCADE_KART`, `RENTAL_KART`, `KART_PRESETS`, `STEP`, `Input`, `step`, `handling()` e a linha 3 ficam como estão |
 | Simulação | `src/maneuvers.ts` | inalterado | a manobra de drift de `requirements/11` não muda |
-| Simulação | `src/lap.ts`, `src/lapTiming.ts` | `src/lap.ts` **alterado** (campos copiados); `src/lapTiming.ts` inalterado | ciclo da volta, validade e cronometragem não mudam (NFR-0008). `src/lap.ts` ganha `setupId?` e `setupVersion?` em `LapRequest` (`:23`), `LapSession` (`:25-46`) e `LapResult` (`:48-58`), copiados do pedido sem interpretação como `challengeNumber` (`:117`, `:270`) e ausentes quando o pedido não os traz — o contrato API-0001/API-0002 1.1.0 de `race-lap-validation`, projetado no D-Spec daquela feature (DM-0002, DES-0001) e implementado pelo código desta (FB-01 aceito; [DES-0003](core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)) |
-| Simulação | `src/setupRecords.ts` | existente (rodada de código 1), **alterado** nesta rodada | leitores e construtores dos registros: `getSetupVersion`, `readReplay`, `compareLapRecords`, `buildLapRecord` (passa a preencher só o que o resultado não traz), `buildReplayRecord`, `replayLap` (o pedido passa a levar os dois campos) (API-0002, RULE-0003) |
-| Simulação (lugar na árvore: `scripts/`) | `scripts/handlingBench.ts` | existente (rodadas 1 e 2), **alterado** nesta rodada | biblioteca dos ensaios de RULE-0002: um registro de API-0003 por ensaio e variante, com `benchEnvironment`; ambientes por ensaio; leitura da linha de base por ensaio, ambiente, geometria e método; serialização; usada pelos benches e, quando escritos, por `npm test`. Muda: `REFERENCE_CORNER` com acelerador 0, V1 e veredito de `UNDERSTEER_ONSET`, V0, linha `#`, pedido da volta do piloto de teste |
-| Aplicação (programa de bench em Node; lugar na árvore: `scripts/`) | `scripts/keyboard-lap.ts`, `scripts/physics-bench.ts` | existentes (rodada de código 2) | pontos de entrada de `bench:handling` e `bench:physics`, que emitem os registros de API-0003; único lugar que lê o relógio de parede (`new Date()` para `measuredAtUtc` nos dois; `node:perf_hooks` para `STEP_COST` e `node:os` para `runtimeId()` só em `scripts/keyboard-lap.ts`). Muda em `scripts/keyboard-lap.ts`: o pedido da volta cronometrada leva os dois campos |
+| Simulação | `src/lap.ts`, `src/lapTiming.ts` | `src/lap.ts` existente (as-built, rodada de código 3: campos copiados); `src/lapTiming.ts` inalterado | ciclo da volta, validade e cronometragem não mudam (NFR-0008). `src/lap.ts` tem `setupId?` e `setupVersion?` em `LapRequest` (`:23`), `LapSession` (`:30-31`) e `LapResult` (`:54-55`), copiados do pedido sem interpretação como `challengeNumber` (`:123-124`, `:278-279`) e ausentes quando o pedido não os traz — o contrato API-0001/API-0002 1.1.0 de `race-lap-validation`, projetado no D-Spec daquela feature (DM-0002, DES-0001) e implementado pelo código desta na rodada 3 (FB-01 aceito; [DES-0003](core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)) |
+| Simulação | `src/setupRecords.ts` | existente (rodadas de código 1 a 3) | leitores e construtores dos registros: `getSetupVersion`, `readReplay`, `compareLapRecords`, `buildLapRecord` (preenche só o que o resultado não traz, `:92-93`), `buildReplayRecord`, `replayLap` (o pedido leva os dois campos, `:109-114`) (API-0002, RULE-0003) |
+| Simulação (lugar na árvore: `scripts/`) | `scripts/handlingBench.ts` | existente (rodadas de código 1 a 3), **alterado** nesta rodada num ponto | biblioteca dos ensaios de RULE-0002: um registro de API-0003 por ensaio e variante, com `benchEnvironment`; ambientes por ensaio; leitura da linha de base por ensaio, ambiente, geometria e método; serialização; usada pelos benches e, quando escritos, por `npm test`. Muda: a janela de medição de `maxUndersteerMs` em `REFERENCE_CORNER` com acelerador 0 — só os passos na faixa até a primeira saída (`DOMAIN/DEC-14`; `:280-281` em `767508e`) |
+| Aplicação (programa de bench em Node; lugar na árvore: `scripts/`) | `scripts/keyboard-lap.ts`, `scripts/physics-bench.ts` | existentes (rodadas de código 2 e 3) | pontos de entrada de `bench:handling` e `bench:physics`, que emitem os registros de API-0003; único lugar que lê o relógio de parede (`new Date()` para `measuredAtUtc` nos dois; `node:perf_hooks` para `STEP_COST` e `node:os` para `runtimeId()` só em `scripts/keyboard-lap.ts`). Em `scripts/keyboard-lap.ts:26` o pedido da volta cronometrada leva os dois campos (rodada de código 3) |
 | Adaptadores de controle | em `src/main.ts` | inalterados | teclado binário, inclinação proporcional e toque continuam entregando `Input` saturado na faixa; nenhuma regra |
-| Aplicação | `src/main.ts` | existente (rodada de código 2), **alterado** nesta rodada num ponto | escolhe o acerto pelo dado publicado, lê o HUD por `getHandlingTelemetry`, constrói o registro da volta, compara só o comparável, compartilha o texto. Muda: `beginLap` (`:226`) informa `setupId` e `setupVersion` no pedido de `startLap` ([DES-0007](web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)) |
+| Aplicação | `src/main.ts` | existente (rodadas de código 2 e 3) | escolhe o acerto pelo dado publicado, lê o HUD por `getHandlingTelemetry`, constrói o registro da volta, compara só o comparável, compartilha o texto. `beginLap` (`:226`) informa `setupId` e `setupVersion` no pedido de `startLap` (rodada de código 3; [DES-0007](web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)) |
 | Aplicação | `src/handlingMessages.ts` | existente (rodada de código 2) | texto compartilhado e rótulo do botão de compartilhar, puros e testáveis sem DOM |
 | Aplicação | `index.html` | existente (rodada de código 2) | linha da `setupVersion` e botão de compartilhar na tela de resultado (`index.html:25`) |
 
@@ -209,7 +221,7 @@ transferência; a sua falha não altera nenhum registro.
 | Dado de pista | inalterado (`schemaVersion` 2, `trackVersion` 2); a pista de teste não é dado de pista |
 | `TEST_PAD` (constante de `src/physics.ts:166`) | intacta: asfalto sem limite, usada por `tests/physics.test.ts` e `scripts/physics-bench.ts`; os geradores `testPadLane`/`testPadArc` são acréscimos |
 | Saída dos benches existentes | os campos que `scripts/physics-bench.ts` já imprime continuam (`:9-39`); os registros de API-0003 são acrescentados (`:40-47`) |
-| Linha de base em `docs/physics.md` | bloco `handling-baseline` (`docs/physics.md:265-412`); uma entrada só vale para o ensaio, o ambiente, a geometria e o método em que foi medida (`BASELINE_MISSING` fora disso); a entrada `arcade-assistido-v5` é refeita pela rodada de código seguinte porque `UNDERSTEER_ONSET` e `REFERENCE_CORNER` com acelerador 0 mudam de veredito sob este projeto |
+| Linha de base em `docs/physics.md` | bloco `handling-baseline` (`docs/physics.md:265-412`); uma entrada só vale para o ensaio, o ambiente, a geometria e o método em que foi medida (`BASELINE_MISSING` fora disso); a entrada `arcade-assistido-v5` foi refeita pela rodada de código 3 e é refeita de novo pela rodada seguinte só no registro `REFERENCE_CORNER` com acelerador 0, cuja janela de medição muda sob este projeto |
 
 ## Rastros de decisão
 
@@ -218,5 +230,5 @@ transferência; a sua falha não altera nenhum registro.
 | [ADR-0001](adr/ADR-0001-versao-do-acerto-como-registro-novo-no-codigo.md) | a nova versão do acerto é um registro novo em código; a anterior fica intacta; não há chave mestra |
 | [ADR-0002](adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md) | formato do replay versão 1 e registro de volta sobre o `LapResult`, que carrega os campos de acerto copiados do pedido (API-0001/API-0002 1.1.0 de `race-lap-validation`); `buildLapRecord` preenche só o que falta; sem persistência |
 | [ADR-0003](adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md) | linha de base legível por máquina dentro de `docs/physics.md`, resolvida por ensaio, ambiente, geometria e método; V0 só de um patamar completo com subesterço; identidade de máquina e runtime sem dado pessoal |
-| [ADR-0004](adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md) | ensaios como biblioteca em `scripts/` compartilhada por `npm test` e pelos benches; parâmetros de ensaio fixos, o piloto de teste inclusive; o que o registro não carrega pelo segundo argumento de `judge`; varredura de `UNDERSTEER_ONSET` em patamares de velocidade mantida até a primeira saída da faixa, decidida pela velocidade nesse passo, com V1 em todo fim natural (`DOMAIN/DEC-12`); curva de referência com acelerador 0 percorrida inteira e julgada só por `understeer` (`DOMAIN/DEC-13`); entrada do Realista e registros antigos como opções da biblioteca |
-| [ADR-0005](adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md) | pista de teste como geradores de `Environment` em `src/physics.ts` (reta e arco de 18 m, largura `WIDTH`); velocidade mantida por acelerador regulado por passo; classificador de passo na simulação; a curva com acelerador 0 continua fora da faixa |
+| [ADR-0004](adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md) | ensaios como biblioteca em `scripts/` compartilhada por `npm test` e pelos benches; parâmetros de ensaio fixos, o piloto de teste inclusive; o que o registro não carrega pelo segundo argumento de `judge`; varredura de `UNDERSTEER_ONSET` em patamares de velocidade mantida até a primeira saída da faixa, decidida pela velocidade nesse passo, com V1 em todo fim natural (`DOMAIN/DEC-12`); curva de referência com acelerador 0 percorrida inteira e julgada só por `understeer` medido na faixa até a primeira saída (`DOMAIN/DEC-13`, `DOMAIN/DEC-14`); entrada do Realista e registros antigos como opções da biblioteca |
+| [ADR-0005](adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md) | pista de teste como geradores de `Environment` em `src/physics.ts` (reta e arco de 18 m, largura `WIDTH`); velocidade mantida por acelerador regulado por passo; classificador de passo na simulação; a curva com acelerador 0 continua fora da faixa, reportada mas não medida depois da saída |

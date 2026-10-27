@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 3.0.0
+version: 3.1.0
 sources: []
 ---
 
@@ -777,3 +777,128 @@ pendente para esta feature.
   `200 Requirements/230 Output/` não foram lidos (§12).
 - Os itens recusados das rodadas 1, 3, 5, 6 e 7 continuam recusados pelos mesmos motivos, salvo o de
   "campos no `LapResult`" (rodadas 1 e 5), superado acima.
+
+## 2026-10-27 — rodada 9, Mode C (feedback do código `reports/feedback/feedback-20261027-1619.md`, SPEC-ISSUE-03; F-Spec 3.4.0)
+
+**Gatilho**: o FAIL SPEC da rodada de código 3 (`feedback-20261027-1619`, SPEC-ISSUE-03): com a biblioteca
+realizando DES-0004 5.0.0 (`maxUndersteerMs` medido em todos os 300 passos, dentro e fora da faixa), o
+acerto entregue sai da faixa pelo lado interno no passo 240 e, nos 61 passos seguintes na grama, o rótulo
+`understeer` vale por construção (teto de guinada com `grassFriction` contra o limite de esterço que cresce
+com a desaceleração) — 633 ms, `FAIL` `THRESHOLD_EXCEEDED` nos dois `inputMode`; 2 967 acertos avaliados
+pela etapa de código, nenhum aprova os 15 registros. Único feedback pendente para esta feature (mais novo
+que `dspec-validation-20261027-1531`; conventions §14).
+
+**Decisão do autor recebida para esta rodada e carregada sem redescoberta** (dono do produto, 2026-10-27,
+`DOMAIN/DEC-14`; chega a este estágio por FEAT-0002, RULE-0002, API-0003 e FLOW-0002 3.4.0,
+`status: validated`): no ensaio do arco de 18 m com acelerador zero — e em qualquer ensaio em que a
+permanência na faixa não é exigida — o `understeer` conta só no asfalto, até a primeira saída da faixa; os
+passos na grama depois da saída não entram na medição; o limiar continua 200 ms; nenhum outro limiar ou
+regra muda; `ARCADE_ASSISTIDO_V5` não muda (com essa regra o ensaio mede 125 ms e passa). Código na raiz do
+repositório; biblioteca de ensaios em `scripts/handlingBench.ts`. Resolver SPEC-ISSUE-03 em DES-0004 /
+ADR-0004 (decisão 9) e na test-strategy; nada mais muda. O código da rodada 3 (commit `767508e`, 14/15
+registros) é o as-built.
+
+**O que mudou**
+
+- SPEC-ISSUE-03 (janela de medição de `maxUndersteerMs` em `REFERENCE_CORNER` com `THROTTLE_ZERO`;
+  `DOMAIN/DEC-14`):
+  - `DES-0004` (5.1.0): Realiza e linha `REFERENCE_CORNER` da tabela de ensaios — a execução com
+    `THROTTLE_ZERO` continua a percorrer os 300 passos e a reportar a saída sem reprovar, mas a janela de
+    medição de `maxUndersteerMs` fecha no passo anterior a `offAsphaltFirstStep`: a sequência consecutiva de
+    `understeer` é acumulada só nos passos na faixa até a primeira saída, e nenhum passo depois dela entra,
+    na grama ou de volta ao asfalto; `offAsphaltStepCount` continua informativo na janela inteira;
+    `THROTTLE_FULL` inalterado; `BenchRecord` (cobertura de `maxUndersteerMs` sob API-0003 3.4.0); tabela de
+    falha; Observabilidade (`offAsphaltFirstStep` diz onde a janela fechou); Posicionamento com o as-built
+    da rodada de código 3 (`scripts/handlingBench.ts:272-283`, `:280-281`; `docs/physics.md:196-277`, `:253`,
+    bloco `:279-426`), os marcadores **(muda)** da 5.0.0 declarados entregues e a marca **(muda 5.1.0)** no
+    único ponto que muda; API-0003 e RULE-0002 citados em 3.4.0.
+  - `ADR-0004` (4.1.0): Contexto com o F-Spec 3.4.0 e os fatos medidos pela rodada de código 3 (633 ms = 15
+    passos no asfalto + 61 na grama; teto de guinada `mu × g × 0,85 / u` com `grassFriction` 0,38,
+    `src/physics.ts:253`, `:260-261`; rótulo por construção na grama; 2 967 acertos); decisão 9 reescrita
+    (janela de medição até a primeira saída; execução, traço e `offAsphaltStepCount` inalterados); decisão
+    3 (a saída fecha a janela); alternativas (parar na saída — recusada; medir na grama — substituída;
+    alavanca sobre o teto de guinada fora do asfalto, `grassFriction` ou revisão dos limiares — recusadas;
+    `NORMAL_DRIVING` na mesma janela — recusada); consequências (a entrada `arcade-assistido-v5` refeita só
+    nesse registro; o acerto entregue mede 125 ms).
+  - `ADR-0005` (1.3.0): Contexto (`DEC-14` e a medida), decisão 1 (a telemetria continua lida fora da
+    faixa para a saída e para `DETERMINISM`, mas nenhum ensaio mede critério fora do asfalto), alternativa
+    "interromper na saída" com o motivo atual, consequência (os passos depois da saída são executados e
+    reportados, não medidos).
+  - `DES-0001` (3.4.0): alavanca `assistLateralG` sob `DEC-14` (o acerto entregue, 1,48 g, atende sem
+    retune: 125 ms até a saída; na grama nenhuma alavanca move `grassFriction`, o teto de guinada ou o
+    rótulo); parágrafo da pista de teste; Posicionamento (F-Spec 3.4.0; `src/physics.ts` e
+    `ARCADE_ASSISTIDO_V5` não tocados pela rodada de código 3).
+  - `test-strategy.md` (5.1.0): caminho de AC-US-0002-01 (recomputação de `maxUndersteerMs` sobre os passos
+    anteriores ao primeiro `GRASS`, igual ao campo; a recomputação sobre o traço inteiro é maior ou igual) e
+    de AC-US-0002-02 (registro sintético com os valores medidos: `offAsphaltStepCount` 61,
+    `offAsphaltFirstStep` 240, 125 ms é `PASS`; nenhum passo a partir da saída altera o campo);
+    Verificações existentes com as medidas da rodada de código 3.
+  - `01-architecture.md` (3.1.0): F-Spec 3.4.0; estado as-built da rodada de código 3 (14/15; o que
+    reprova e por quê); parágrafo das decisões com `DEC-14`; tabela de camadas com `src/lap.ts`,
+    `src/setupRecords.ts`, `src/main.ts`, `scripts/keyboard-lap.ts` e `scripts/handlingBench.ts` como
+    as-built e o único ponto que muda; tabela de compatibilidade (entrada `arcade-assistido-v5`); rastros
+    de ADR-0004 e ADR-0005.
+  - `98-divergences.md` (3.1.0): recitado contra a árvore da rodada de código 3 (commit `767508e`): a linha
+    de REQ-FEAT-0002-01, -03, -09 reescrita (exigência 3.4.0; `scripts/handlingBench.ts:280-281` acumula em
+    todos os 300 passos; medido 633 ms, 61 passos fora; pelo projeto 125 ms); as linhas de REQ-FEAT-0002-04,
+    -05, -07, -10 e de REQ-FEAT-0005-05, -06, -08 (FB-01) passam à tabela "Linhas resolvidas pela rodada de
+    código 3", com o `arquivo:linha` que as resolve; a linha dos testes em `npm test` continua aberta
+    (`tests/dirigibilidade-*.test.ts` e `tests/fixtures/records.ts` ainda ausentes); 2 linhas abertas, 18
+    resolvidas.
+- Intocados (validados): `DES-0002`, `DES-0003`, `DES-0005`, `DES-0006`, `DES-0007`, `DES-0008`, `DM-0001`
+  (não carrega o fato: `offAsphaltStepCount` continua a contar a janela inteira e API-0003 3.4.0 não
+  acrescenta campo), `ADR-0001`, `ADR-0002`, `ADR-0003`. `00-index.md` e `99-traceability.md` não foram
+  escritos: o gate os regenera com `lint_artifacts.py --emit`.
+
+**Superfície (conventions §16)**: nenhum módulo, item de projeto, ADR, modelo de dados, campo, valor de
+enum, parâmetro de ensaio, alavanca, tela ou configuração acrescentado. Muda de cobertura sob o mesmo nome,
+unidade e significado: `maxUndersteerMs` em `REFERENCE_CORNER` com `THROTTLE_ZERO` (API-0003 3.4.0,
+Compatibilidade). Limiares: nenhum muda. `ARCADE_ASSISTIDO_V5`: inalterado.
+
+**Tabela de migração** (conventions §17): 8 DES, 1 DM e 5 ADR antes e depois; 62 requisitos `REQ-*`, 32
+critérios `AC-*` e 9 NFR realizados antes e depois; divergências: 4 abertas e 16 resolvidas antes; 2 abertas
+e 18 resolvidas depois (duas resolvidas pela rodada de código 3; uma reescrita; uma inalterada); nenhum item
+de projeto, ensaio, fixture, critério ou verificação retirado. Interface que muda: a medição de
+`maxUndersteerMs` em `referenceCornerBench` com `THROTTLE_ZERO` (acumulação condicionada a "ainda sem
+saída"); `judge`, `BenchRecord`, `offAsphaltStepCount`, o traço e os parâmetros de ensaio não mudam. Ramo
+retirado: a acumulação de `understeer` nos passos depois da primeira saída.
+
+**Itens fechados**: SPEC-ISSUE-03 de `reports/feedback/feedback-20261027-1619.md`. O item informativo do
+mesmo feedback ("Estado do código nesta rodada") foi lido como as-built e carregado em `01-architecture.md`
+e `98-divergences.md`. Nenhum `ISSUE-<nn>` pendente (`dspec-validation-20261027-1531` é SUCCESS); nenhum
+outro feedback pendente para esta feature.
+
+**Itens recusados, com motivo**
+
+- As saídas que o feedback ofereceu além da janela de medição — alavanca em `DES-0001` sobre o teto de
+  guinada fora do asfalto, mudança de `grassFriction`, revisão dos limiares que se contrariam (recuperação a
+  60 km/h no anel de 23,5 m, grampo do piloto de teste, curva de 18 m com acelerador 0): não tomadas; o
+  dono do produto decidiu pela janela de medição (`DOMAIN/DEC-14`), sem mudar limiar, alavanca, acerto ou
+  `handling()` (ADR-0004, Alternativas).
+- Parar a execução com acelerador 0 no primeiro passo fora da faixa (a biblioteca da rodada de código 2,
+  mesmos 125 ms): não tomado; mudaria `offAsphaltStepCount` (0 ou 1) e o traço de `DETERMINISM`, que
+  API-0003 3.4.0 não mudou — só a cobertura de `maxUndersteerMs` (ADR-0004 e ADR-0005, Alternativas).
+- Restringir `NORMAL_DRIVING` à janela até a primeira saída: não tomado; RULE-0002 define o agregado pelos
+  passos de condução normal no asfalto e o F-Spec 3.4.0 não o mudou (com o acerto entregue o kart não volta
+  ao asfalto na janela: 61 passos fora, do 240 ao 300).
+- Um campo que diga em que passo a janela fechou: não acrescentado; `offAsphaltFirstStep` já o diz (como o
+  F-Spec recusou na rodada 10 do seu changelog).
+- Reler as demais citações `arquivo:linha` de `DES-0004` e dos itens não tocados contra a árvore da rodada de
+  código 3: não feito; `DES-0004` declara que as suas linhas são as de `0068a57` salvo as marcadas
+  `em 767508e`, e as linhas que decidem o veredito (`98-divergences.md`, `01-architecture.md`) foram
+  recitadas. `DM-0001` segue citando API-0003 "3.1.0 a 3.3.0" para os campos, porque a 3.4.0 não acrescenta
+  campo.
+- Editar `ARCADE_ASSISTIDO_V5` ou refazer a entrada `arcade-assistido-v5` de `docs/physics.md`: da etapa de
+  código; sob esta versão o registro `REFERENCE_CORNER` com acelerador 0 passa a 125 ms e a rodada de código
+  seguinte o refaz, em Mode B/C sobre `scripts/handlingBench.ts` (uma condição na acumulação de `:280-281`).
+- Veredito para os dois casos que RULE-0002 não decide e V0 de linha de base sem subesterço: continuam como
+  nas rodadas 7 e 8 (a biblioteca lança; `BASELINE_MISSING`); as propostas de `SCOPE-BACKLOG.md` seguem com
+  o autor (registradas em `842943a`).
+- Nenhum requisito foi enfraquecido, removido ou dividido; nenhuma divergência `waived-pending`; nenhum
+  feedback a outra feature (`race-lap-validation` já carrega o contrato 1.1.0 e revalidou o seu código após
+  o drift de `src/lap.ts`, `4ea95d3`). `DOMAIN.md` foi lido só para conferir a entrada de 2026-10-27
+  (`DEC-14`; conventions §15); todo conteúdo projetado vem do F-Spec 3.4.0 e do feedback; o restante da pasta
+  do seed e `200 Requirements/230 Output/` não foram lidos (§12).
+- Os itens recusados das rodadas 1, 3, 5, 6, 7 e 8 continuam recusados pelos mesmos motivos, salvo "medir
+  `maxUndersteerMs` em todos os passos do arco, dentro e fora da faixa" (rodada 8, decisão 9 de ADR-0004
+  4.0.0), substituído por `DOMAIN/DEC-14`.

@@ -4,8 +4,8 @@ title: Aderência em curva sem sair de frente
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.3.0
-sources: [SEED/US-2, SEED/RD-01, SEED/RD-05, SEED/RD-06, SEED/NF-03, SEED/IM-I9, DOMAIN/REF-01, DOMAIN/REF-02, DOMAIN/REF-03, DOMAIN/REF-04, DOMAIN/REF-05, DOMAIN/DEC-02, DOMAIN/DEC-03, DOMAIN/DEC-11, DOMAIN/DEC-12, DOMAIN/DEC-13]
+version: 3.4.0
+sources: [SEED/US-2, SEED/RD-01, SEED/RD-05, SEED/RD-06, SEED/NF-03, SEED/IM-I9, DOMAIN/REF-01, DOMAIN/REF-02, DOMAIN/REF-03, DOMAIN/REF-04, DOMAIN/REF-05, DOMAIN/DEC-02, DOMAIN/DEC-03, DOMAIN/DEC-11, DOMAIN/DEC-12, DOMAIN/DEC-13, DOMAIN/DEC-14]
 ---
 
 # US-0002 — Aderência em curva sem sair de frente
@@ -42,9 +42,14 @@ Como Jogador, quero que o kart faça a curva que eu pedi, para não sair de fren
 - AC-US-0002-01: No estado da simulação, percorrendo a curva de referência da pista de teste com entrada a
   50 km/h e esterço cheio mantido, em cada uma das duas condições de acelerador ensaiadas — acelerador 0
   mantido durante todo o arco e acelerador cheio mantido durante todo o arco —, a telemetria não reporta
-  `understeer` por mais de 200 ms consecutivos de tempo simulado em nenhum trecho do arco. Na condição de
-  acelerador 0 este é o único critério da curva de referência: permanecer na faixa enquanto o kart
-  desacelera não é exigido (`DOMAIN/DEC-02`, `DOMAIN/DEC-03`, `DOMAIN/REF-03`, `DOMAIN/DEC-13`).
+  `understeer` por mais de 200 ms consecutivos de tempo simulado na janela de medição da condição. Na
+  condição de acelerador cheio, a janela de medição é todo o arco, em nenhum trecho do qual a sequência
+  passa de 200 ms (a permanência na faixa é exigida pelo critério 02). Na condição de acelerador 0, a maior
+  sequência de `understeer` consecutivo é contada só nos passos em que o kart está na faixa de asfalto, até
+  a primeira saída da faixa: os passos depois da saída não entram na medição, e o limiar continua 200 ms
+  (`DOMAIN/DEC-14`); nessa condição este é o único critério da curva de referência: permanecer na faixa
+  enquanto o kart desacelera não é exigido (`DOMAIN/DEC-02`, `DOMAIN/DEC-03`, `DOMAIN/REF-03`,
+  `DOMAIN/DEC-13`, `DOMAIN/DEC-14`).
 - AC-US-0002-02: No estado da simulação, percorrendo a curva de referência da pista de teste com entrada a
   50 km/h, esterço cheio mantido e acelerador cheio mantido durante todo o arco, o kart permanece dentro da
   faixa de asfalto em todos os passos do arco: a curva de 18 m é feita a 50 km/h sem sair de frente e sem
@@ -58,10 +63,11 @@ Como Jogador, quero que o kart faça a curva que eu pedi, para não sair de fren
   medida em cujo patamar a telemetria reporta `understeer` por mais de 200 ms consecutivos; quando a
   varredura termina pela saída da faixa acima de 50 km/h sem nenhum patamar ter reportado `understeer`
   por mais de 200 ms consecutivos (`DOMAIN/REF-05`), V1 é a velocidade mantida do patamar interrompido
-  pela saída e o critério é avaliado com esse valor: a saída do ensaio reporta V1 em km/h igual a essa
-  velocidade, e nunca sair de frente até sair da faixa cumpre o critério (`DOMAIN/DEC-12`). Se a
-  varredura terminou sem reprovar, isso continua a ser decidido pelo critério 06 (`SEED/US-2`, segundo
-  critério; `DOMAIN/DEC-11`; `DOMAIN/REF-04`; `DOMAIN/DEC-12`; `DOMAIN/REF-05`).
+  pela saída — patamar medido só nos passos na faixa, até a saída (`DOMAIN/DEC-14`) — e o critério é
+  avaliado com esse valor: a saída do ensaio reporta V1 em km/h igual a essa velocidade, e nunca sair de
+  frente até sair da faixa cumpre o critério (`DOMAIN/DEC-12`). Se a varredura terminou sem reprovar, isso
+  continua a ser decidido pelo critério 06 (`SEED/US-2`, segundo critério; `DOMAIN/DEC-11`;
+  `DOMAIN/REF-04`; `DOMAIN/DEC-12`; `DOMAIN/REF-05`; `DOMAIN/DEC-14`).
 - AC-US-0002-04: No ensaio do critério 03 com o novo acerto, a perda da frente acima de 50 km/h é
   progressiva, sem salto de aderência total para perda total: para cada velocidade medida acima de
   50 km/h — um patamar completo de velocidade mantida no arco, cujo tamanho em km/h e cuja duração são
@@ -81,7 +87,9 @@ Como Jogador, quero que o kart faça a curva que eu pedi, para não sair de fren
   varredura e não reprova o ensaio quando, antes dela, foram medidas pelo menos duas velocidades acima de
   50 km/h (dois patamares completos, critério 04); se sai acima de 50 km/h antes da segunda velocidade
   medida acima de 50 km/h, o ensaio é reportado como reprovado por falta de medida, motivo distinto da
-  reprovação por saída do asfalto (`SEED/US-2`, segundo critério; `DOMAIN/DEC-11`; `DOMAIN/REF-04`).
+  reprovação por saída do asfalto. Em qualquer dos casos de saída acima de 50 km/h, o patamar interrompido
+  pela saída é medido só nos passos na faixa, até ela (`SEED/US-2`, segundo critério; `DOMAIN/DEC-11`;
+  `DOMAIN/REF-04`; `DOMAIN/DEC-14`).
 
 ## Casos anormais
 
@@ -90,22 +98,27 @@ Como Jogador, quero que o kart faça a curva que eu pedi, para não sair de fren
   (`SEED/RD-01`).
 - **Esterço aplicado tarde (kart já fora da linha ideal)**: o conjunto não fixa limite; vale só o critério
   01 para a entrada de curva do ensaio.
-- **Kart sai da faixa de asfalto do arco**: a pista de teste não tem paredes nem grama a ensaiar. Na curva
-  de referência dos critérios 01 e 02 (entrada a 50 km/h), na condição de acelerador cheio, o passo em
-  que o kart sai da faixa falha o critério 02, em qualquer velocidade, e o ensaio reporta o passo e a
-  posição da saída; na condição de acelerador 0, a saída da faixa não reprova o ensaio — permanecer na
-  faixa enquanto o kart desacelera não é exigido (`DOMAIN/DEC-13`) —, o ensaio reporta o passo e a posição
-  da saída e o critério 01 continua a ser julgado em todo o arco. No ensaio de início do subesterço dos
-  critérios 03, 04 e 06, a saída da faixa segue `DOMAIN/DEC-11` (critério 06): abaixo de 50 km/h, o ensaio
-  reprova por saída do asfalto; acima de 50 km/h, encerra a varredura sem reprovar se pelo menos duas
-  velocidades medidas acima de 50 km/h (patamares completos) a precederam, e o ensaio reprova por falta de
-  medida se ela ocorre antes da segunda medição acima de 50 km/h; se até a saída acima de 50 km/h nenhum
-  patamar reportou `understeer` por mais de 200 ms consecutivos, vale o caso seguinte; em todos os casos o
-  ensaio reporta o passo e a posição da saída. Na pista sintética, grama e parede seguem US-0004, e nenhum
-  critério de subesterço é medido fora do asfalto.
+- **Kart sai da faixa de asfalto do arco**: a pista de teste não tem paredes, e a grama fora da faixa não é
+  ensaiada aqui. Na curva de referência dos critérios 01 e 02 (entrada a 50 km/h), na condição de
+  acelerador cheio nada muda com `DOMAIN/DEC-14`: o passo em que o kart sai da faixa falha o critério 02,
+  em qualquer velocidade, e o ensaio reporta o passo e a posição da saída; na condição de acelerador 0, a
+  saída da faixa não reprova o ensaio — permanecer na faixa enquanto o kart desacelera não é exigido
+  (`DOMAIN/DEC-13`) —, o ensaio continua a reportar o passo e a posição da saída, e a primeira saída fecha
+  a janela de medição do critério 01: a maior sequência de `understeer` consecutivo é contada só nos passos
+  na faixa de asfalto até essa saída, e os passos na grama depois dela não entram na medição — escorregar
+  na grama não é sair de frente (`DOMAIN/DEC-14`). No ensaio de início do subesterço dos critérios 03, 04 e
+  06, a saída da faixa segue `DOMAIN/DEC-11` (critério 06): abaixo de 50 km/h, o ensaio reprova por saída
+  do asfalto; acima de 50 km/h, encerra a varredura sem reprovar se pelo menos duas velocidades medidas
+  acima de 50 km/h (patamares completos) a precederam, e o ensaio reprova por falta de medida se ela ocorre
+  antes da segunda medição acima de 50 km/h; o patamar interrompido pela saída é medido só nos passos na
+  faixa, até ela (`DOMAIN/DEC-14`); se até a saída acima de 50 km/h nenhum patamar reportou `understeer`
+  por mais de 200 ms consecutivos, vale o caso seguinte; em todos os casos o ensaio reporta o passo e a
+  posição da saída. Na pista sintética, grama e parede seguem US-0004, e nenhum critério de subesterço é
+  medido fora do asfalto.
 - **Nenhum patamar reporta `understeer` até a saída da faixa acima de 50 km/h** (acerto que não sai de
-  frente): nenhum patamar da varredura, completo ou interrompido, teve sequência de `understeer` com mais
-  de 200 ms consecutivos (`DOMAIN/REF-05`); V1 é a velocidade mantida do patamar interrompido pela saída
+  frente): nenhum patamar da varredura, completo ou interrompido — este medido só nos passos na faixa, até
+  a saída (`DOMAIN/DEC-14`) —, teve sequência de `understeer` com mais de 200 ms consecutivos
+  (`DOMAIN/REF-05`); V1 é a velocidade mantida do patamar interrompido pela saída
   e o critério 03 é avaliado com esse valor — nunca sair de frente até sair da faixa cumpre V1 ≥ 1,15 × V0
   (`DOMAIN/DEC-12`). A saída do ensaio reporta esse V1 em km/h (critério 05); o critério 04 compara os
   patamares completos acima de 50 km/h, e o critério 06 continua a reprovar por falta de medida se a saída
@@ -150,6 +163,11 @@ Como Jogador, quero que o kart faça a curva que eu pedi, para não sair de fren
 - `DOMAIN/REF-05` — leitura de "sem subesterço" (2026-10-22, redator, coerente com `DOMAIN/DEC-03`): "sem
   `understeer`" e "nenhum patamar reporta `understeer`" significam nenhuma sequência com mais de 200 ms
   consecutivos, não tolerância zero.
+- `DOMAIN/DEC-14` — onde o subesterço é medido na curva com acelerador zero (2026-10-27, dono do produto,
+  após FAIL SPEC da rodada 3 de código): no ensaio do arco de 18 m entrando a 50 km/h com acelerador zero,
+  o `understeer` conta só no asfalto, até a primeira saída da faixa; passos na grama depois da saída não
+  entram na medição (escorregar na grama não é "sair de frente"); o limiar continua 200 ms; o mesmo vale
+  para qualquer ensaio em que a permanência na faixa não é exigida.
 
 ## Pontos em aberto
 
@@ -157,4 +175,5 @@ Nenhum — `DOMAIN/DEC-02` e `DOMAIN/DEC-03` fecham os pontos abertos 02 e 03 do
 quando o ensaio de início do subesterço termina e quando reprova; `DOMAIN/REF-04` define a velocidade
 medida da varredura; `DOMAIN/DEC-12` fixa V1 quando nenhum patamar reporta `understeer`; `DOMAIN/DEC-13`
 fixa o critério único da curva de referência com acelerador 0; `DOMAIN/REF-05` fixa a leitura de "sem
-`understeer`".
+`understeer`"; `DOMAIN/DEC-14` fixa onde o `understeer` é medido na condição de acelerador 0 — só no
+asfalto, até a primeira saída da faixa.

@@ -4,7 +4,7 @@ title: Ensaios como biblioteca em scripts/ compartilhada por npm test e pelos be
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 4.0.0
+version: 4.1.0
 sources: [API-0003, RULE-0002, FLOW-0002, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, REQ-FEAT-0001-06, REQ-FEAT-0001-09, REQ-FEAT-0002-01, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0003-08, REQ-FEAT-0004-07, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0006-04, REQ-FEAT-0006-05, NFR-0001, NFR-0003, NFR-0007, NFR-0009]
 ---
 
@@ -15,7 +15,8 @@ sources: [API-0003, RULE-0002, FLOW-0002, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-
 Os critérios nomeiam "a saída de `npm test` ou de `npm run bench:handling`/bench de física" como ponto de
 observação dos mesmos registros (API-0003). As rodadas de código 1 e 2 escreveram a biblioteca
 `scripts/handlingBench.ts` e os dois programas de bench segundo as versões anteriores deste projeto
-(as-built, commit `0068a57`). O F-Spec 3.3.0 deixa ao ensaio parâmetros (modo de manter a velocidade e
+(as-built, commit `0068a57`; a rodada 3, commit `767508e`, realiza a versão 4.0.0 desta decisão). O F-Spec
+3.4.0 deixa ao ensaio parâmetros (modo de manter a velocidade e
 faixa tolerada, janela de estabilização, largura da faixa; na varredura de início do subesterço, o tamanho
 do patamar, a sua duração e o modo de manter a sua velocidade) e lacunas deliberadas (resposta à inversão,
 recuperação parcial, magnitude da perda na parede, comprimento do arco). Em `UNDERSTEER_ONSET`, RULE-0002
@@ -28,8 +29,12 @@ de patamar completo com `understeer` por mais de 200 ms consecutivos ou, sem nen
 velocidade mantida do patamar interrompido pela saída, de modo que nunca sair de frente até sair da faixa
 cumpre V1 ≥ 1,15 × V0 —; acima, com zero ou um, `FAIL` `MEASUREMENT_MISSING`, o único caso desse motivo. Em
 `REFERENCE_CORNER`, RULE-0002 e API-0003 3.3.0 (`DOMAIN/DEC-13`) tornam a permanência na faixa exigência só
-da execução com acelerador cheio: com acelerador 0 o único critério é `maxUndersteerMs` ≤ 200 ms, medido em
-todos os passos do arco, dentro e fora da faixa, e a saída é reportada sem reprovar. A saída exatamente a
+da execução com acelerador cheio: com acelerador 0 o único critério é `maxUndersteerMs` ≤ 200 ms e a saída é
+reportada sem reprovar; a 3.4.0 (`DOMAIN/DEC-14`, decisão do dono do produto de 2026-10-27 após o FAIL SPEC
+da rodada de código 3, SPEC-ISSUE-03) fixa a janela dessa medição — só os passos na faixa de asfalto, até a
+primeira saída da faixa; os passos depois da saída não entram —, com o limiar de 200 ms inalterado, e o
+mesmo para qualquer ensaio em que a permanência na faixa não é exigida (neste conjunto, também o patamar
+interrompido de `UNDERSTEER_ONSET`, que a decisão 8 já media só até a saída). A saída exatamente a
 50 km/h e o fim da varredura sem saída da faixa ficam sem decisão (lacunas deliberadas de `01-overview.md`
 do F-Spec), assim como o recuo de V0 para uma linha de base que não reporta subesterço em patamar algum. A
 velocidade do kart no passo da saída não é campo do registro (API-0003).
@@ -57,6 +62,20 @@ registrados em `docs/physics.md:239-262` e no feedback da etapa de código de 20
   menos de 12,5 m e ele sai da faixa **pelo lado interno** do anel no passo 240 de 300, com `understeer`
   por no máximo 125 ms. Os acertos que mantêm a curva com acelerador 0 (`assistLateralG` ≈ 0,9 g) não fazem
   o grampo de 4,1 m da pista sintética com o piloto de teste fixo (`TEST_PILOT_LAP` sai do asfalto).
+- Medido pela rodada de código 3 (commit `767508e`; `docs/physics.md:253`, `:270-277`; feedback da etapa de
+  código de 2026-10-27, SPEC-ISSUE-03) com a biblioteca medindo `understeer` em todos os 300 passos (a
+  decisão 9 da versão 4.0.0): o acerto entregue sai da faixa pelo lado interno no passo 240 e, nos 61
+  passos seguintes na grama, a telemetria reporta `understeer` sem interrupção — `maxUndersteerMs` 633 (15
+  passos no asfalto + 61 na grama), `FAIL` `THRESHOLD_EXCEEDED` nos dois `inputMode`; até a saída, 125 ms.
+  Fora da faixa a assistência limita a guinada ao teto `mu × g × 0,85 / u` com `mu` = `grassFriction` 0,38
+  (`src/physics.ts:253`, `:260-261`) enquanto o limite de esterço por velocidade cresce com a desaceleração:
+  a deriva dianteira fica entre 0,15 e 0,36 rad contra 0,05–0,08 rad na traseira, e o rótulo `understeer`
+  de `handling()` (> 0,09 rad **e** > 1,2 × a traseira) vale por construção em todo passo na grama; nenhuma
+  alavanca de DES-0001 muda `grassFriction`, o teto de guinada ou o rótulo. A etapa de código avaliou 2 967
+  acertos: nenhum aprova os 15 registros medindo na grama — os que saem da faixa depois do passo ~285, ou
+  não saem (`assistLateralG` ≤ 1,15, ou ≈ 1,31 com `friction` 1,50), reprovam a recuperação a 60 km/h no
+  anel de raio externo 23,5 m, o drift, a condução normal na pista sintética e a volta do piloto de teste,
+  ou a varredura de subesterço e a aceleração.
 - A pista sintética tem 368,5 m; o piloto da biblioteca (`maxSpeedMps` 26, `lateralBudgetMps2` 9,5) faz a
   volta com `ARCADE_KART` em 26 703 ms e com o acerto entregue em 21 340 ms, sem passo fora do asfalto
   (`docs/physics.md:255`). `ARCADE_KART` reporta `understeer` por 808 ms consecutivos no patamar de 50 km/h e
@@ -98,7 +117,7 @@ registrados em `docs/physics.md:239-262` e no feedback da etapa de código de 20
    do kart abaixo de 50 km/h (`OFF_ASPHALT`; a velocidade no passo da saída não é campo). A velocidade fora
    da faixa mantida é `SPEED_NOT_HELD`. A saída da faixa da reta em `STEER_RESPONSE` e a saída da faixa do
    arco em `REFERENCE_CORNER` com acelerador 0 não alteram o veredito (API-0003, AC-US-0001-05;
-   `DOMAIN/DEC-13`).
+   `DOMAIN/DEC-13`); a segunda fecha a janela de medição de `maxUndersteerMs` (decisão 9; `DOMAIN/DEC-14`).
 4. As lacunas deliberadas do F-Spec não ganham ensaio: nenhum registro mede inversão do esterço, redução
    parcial do esterço ou magnitude da perda na parede.
 5. O cenário de `DRIFT_MANEUVER` é o do teste existente `tests/maneuvers.test.ts:68-79`, replicado na
@@ -144,15 +163,21 @@ registrados em `docs/physics.md:239-262` e no feedback da etapa de código de 20
    `#` diz de onde `v1Mps` veio e, no caso sem subesterço, apresenta o motivo "sem início de subesterço até a
    saída da faixa" que API-0003 pede (apresentação, não campo).
 9. **A curva de referência com acelerador 0 percorre a janela inteira e é julgada só pelos 200 ms de
-   `understeer`** (REQ-FEAT-0002-01, -03, -09; `DOMAIN/DEC-13`). A execução com `THROTTLE_ZERO` avança os
-   300 passos de `cornerWindowMs` qualquer que seja a posição do kart em relação à faixa: "o arco" é a
-   janela, a posição do kart não tira um passo dele, e `maxUndersteerMs` é medido em todos os passos,
-   dentro e fora da faixa; `offAsphaltStepCount` passa a contar os passos fora da faixa (informativo), com
-   `offAsphaltFirstStep` e a posição da primeira saída, e `OFF_ASPHALT` nunca é emitido nessa condição. A
-   execução com `THROTTLE_FULL` continua a parar no primeiro passo fora da faixa e a reprovar com
-   `OFF_ASPHALT`, exigindo também `handling` só `grip`/`understeer` (REQ-FEAT-0003-02). Os passos fora da
-   faixa da execução com acelerador 0 não entram em `NORMAL_DRIVING` (o agregado só toma passos no
-   asfalto); `DETERMINISM` compara o traço inteiro.
+   `understeer`, medidos na faixa até a primeira saída** (REQ-FEAT-0002-01, -03, -09; `DOMAIN/DEC-13`,
+   `DOMAIN/DEC-14`). A execução com `THROTTLE_ZERO` avança os 300 passos de `cornerWindowMs` qualquer que
+   seja a posição do kart em relação à faixa — a saída não encerra a execução nem reprova —, e a **janela de
+   medição** de `maxUndersteerMs` é só a dos passos na faixa de asfalto até a primeira saída: a sequência
+   consecutiva de `understeer` é acumulada nos passos anteriores a `offAsphaltFirstStep` e termina ali;
+   nenhum passo depois da primeira saída entra na medição, esteja o kart na grama ou de volta ao asfalto
+   (escorregar na grama não é sair de frente). Quando o kart não sai, a janela de medição é a janela
+   inteira. `offAsphaltStepCount` continua a contar os passos fora da faixa na janela inteira (informativo),
+   com `offAsphaltFirstStep` e a posição da primeira saída — `offAsphaltFirstStep` é, por isso, também o
+   passo em que a janela de medição fechou —, e `OFF_ASPHALT` nunca é emitido nessa condição. A execução
+   com `THROTTLE_FULL` continua a parar no primeiro passo fora da faixa e a reprovar com `OFF_ASPHALT`,
+   exigindo também `handling` só `grip`/`understeer` (REQ-FEAT-0003-02), com `maxUndersteerMs` medido em
+   todos os passos do arco. Os passos fora da faixa da execução com acelerador 0 não entram em
+   `NORMAL_DRIVING` (o agregado só toma passos no asfalto); `DETERMINISM` compara o traço inteiro. O limiar
+   de 200 ms e `ARCADE_ASSISTIDO_V5` não mudam: com esta janela o acerto entregue mede 125 ms e passa.
 10. **V0 nunca é tirado de uma velocidade em que a linha de base não reportou subesterço.** Serve de V0 o
     registro `UNDERSTEER_ONSET` da linha de base cujo `v1Mps` é a velocidade de um patamar completo com
     `understeer` acima de 200 ms consecutivos (`50 / 3.6`, ou o `plateauSpeedMps` de um par com
@@ -217,10 +242,22 @@ registrados em `docs/physics.md:239-262` e no feedback da etapa de código de 20
   (`DOMAIN/DEC-13`) que, com acelerador 0, o único critério é o de 200 ms de `understeer` e permanecer na
   faixa não é exigido; REQ-FEAT-0002-01 mantém o acelerador em 0 e o piloto é parâmetro fixo (decisão 2).
   Recusadas.
-- **Parar a execução com acelerador 0 no primeiro passo fora da faixa e medir `maxUndersteerMs` só até
-  ali** (o as-built, `scripts/handlingBench.ts:273`). REQ-FEAT-0002-09 e RULE-0002 mandam continuar a medir
-  em todos os passos do arco, dentro e fora da faixa; parar esconderia um subesterço fora da faixa.
-  Recusada (decisão 9).
+- **Parar a execução com acelerador 0 no primeiro passo fora da faixa** (a biblioteca da rodada de código 2,
+  `scripts/handlingBench.ts:273` em `0068a57`), que mede os mesmos 125 ms. Faria `offAsphaltStepCount`
+  voltar a 0 ou 1 e encurtaria o traço que `DETERMINISM` compara, mudanças que API-0003 3.4.0 não fez (só a
+  cobertura de `maxUndersteerMs` muda); a decisão do dono é sobre a janela de medição, não sobre a
+  execução. Recusada; a execução continua e a janela de medição fecha (decisão 9).
+- **Medir `maxUndersteerMs` em todos os passos do arco, dentro e fora da faixa** (a decisão 9 da versão
+  4.0.0; o as-built da rodada de código 3, `scripts/handlingBench.ts:280-281` em `767508e`). Na grama o
+  rótulo `understeer` vale por construção (Contexto) e nenhum acerto aprova os 15 registros; o dono do
+  produto decidiu (`DOMAIN/DEC-14`) que escorregar na grama não é sair de frente. Substituída.
+- **Alavanca em `DES-0001` sobre o teto de guinada fora do asfalto, mudança de `grassFriction`, ou revisão
+  dos limiares que se contrariam** (as saídas que o feedback da rodada de código 3 ofereceu para
+  SPEC-ISSUE-03). O dono do produto decidiu pela janela de medição, sem mudar limiar, alavanca, acerto ou
+  `handling()`. Recusadas.
+- **Restringir `NORMAL_DRIVING` à mesma janela** (só os passos até a primeira saída). RULE-0002 define o
+  agregado pelos passos de condução normal no asfalto e o F-Spec 3.4.0 não o mudou; com o acerto entregue o
+  kart não volta ao asfalto na janela (61 passos fora, do 240 ao 300). Recusada.
 - **Campos novos no registro para a precondição de `GRASS_LOSS`.** O registro de API-0003 não os tem;
   acrescentá-los mudaria o contrato. Recusada; o motivo sai na linha `#`.
 - **Piloto de teste retunável pela etapa de código.** Faria o limiar de 25 s ser atendido mudando a régua
@@ -247,7 +284,9 @@ registrados em `docs/physics.md:239-262` e no feedback da etapa de código de 20
   entrada) não são comparáveis com as desta versão e não entram em linha de base alguma (ADR-0003,
   decisão 3). As da rodada de código 2 têm o mesmo método e a mesma geometria: a linha de base
   `arcade-assistido-v4` continua válida; só `judge` e os campos de `REFERENCE_CORNER` com acelerador 0
-  mudam de significado, e a entrada `arcade-assistido-v5` é refeita pela rodada de código seguinte.
+  mudam de significado; a entrada `arcade-assistido-v5` foi refeita pela rodada de código 3
+  (`docs/physics.md:196-277`) e é refeita de novo pela rodada seguinte só no registro `REFERENCE_CORNER`
+  com acelerador 0, cuja janela de medição muda nesta versão (`DOMAIN/DEC-14`).
 - `baselineLapTimeMs` é o tempo do mesmo piloto com `arcade-assistido-v4` (26 703 ms); o valor de cerca
   de 31 400 ms que API-0003 cita como "linha de base citada" é do programa anterior, com outro piloto, e
   não é linha de base deste ensaio (RULE-0002: linha de base é o mesmo ensaio).
@@ -270,8 +309,10 @@ registrados em `docs/physics.md:239-262` e no feedback da etapa de código de 20
   ensaio o exigir; um acerto que sai da faixa abaixo de 50 km/h, ou antes do segundo patamar completo,
   continua a reprovar com `OFF_ASPHALT` ou `MEASUREMENT_MISSING`.
 - A curva de referência com acelerador 0 aprova um acerto cujo raio natural aperta ao desacelerar e sai do
-  anel pelo lado interno, desde que `understeer` nunca passe de 200 ms consecutivos em nenhum dos 300
-  passos; a saída fica visível em `offAsphaltStepCount`, no passo e na posição.
+  anel pelo lado interno, desde que `understeer` nunca passe de 200 ms consecutivos nos passos na faixa até
+  essa saída; o que a telemetria reporta na grama depois dela não é julgado; a saída fica visível em
+  `offAsphaltStepCount`, no passo (onde a janela de medição fechou) e na posição. Com o acerto entregue:
+  125 ms, `PASS`, sem retune.
 - Os dois casos sem decisão do F-Spec, se ocorrerem, aparecem como erro da execução de `npm test` ou do
   bench, e cabe ao autor decidi-los no seed; com a medida acima, nenhum acerto de kart chega ao teto de
   25 m/s dentro da faixa.

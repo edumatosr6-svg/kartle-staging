@@ -1,7 +1,7 @@
 ---
 stage: fspec
 feature: dirigibilidade
-generated: 2026-10-22T19:04:19Z
+generated: 2026-10-27T17:43:16Z
 rows: 196
 ---
 
