@@ -2,8 +2,8 @@
 title: Changelog do estágio de testes
 feature: race-lap-validation
 stage: test
-status: draft
-version: 1.1.0
+status: validated
+version: 1.2.0
 ---
 
 # 97 — Changelog
@@ -131,3 +131,64 @@ subir a constante para 3 junto com o seu leitor, as duas provas decidem os mesmo
 ### Itens declinados, com o motivo
 
 - Nenhum. O único item da rodada (FB-01 de `pista-kart-park`) foi aplicado integralmente.
+
+## 2026-10-27 — rodada 3, Modo B (relatório `test-validation-20261022-1827`, ISSUE-08)
+
+### Entrada
+
+- Relatório FAIL TEST `reports/test-validation/test-validation-20261022-1827.md`: um único `error`, ISSUE-08 — a estratégia
+  1.1.1 (nível "Contrato de API", linha 29, e fixture da linha 42) atribui a `lap-contract` a prova de que `setupId` e
+  `setupVersion` (API-0001 1.1.0 e API-0002 1.1.0, FB-01 de `dirigibilidade`) estão no resultado exatamente quando o pedido
+  `startLap` os trouxe, copiados sem interpretação, e ausentes quando não; nenhuma verificação da suíte os mencionava.
+- Árvore de código no momento da rodada: `src/lap.ts` já declara `setupId?`/`setupVersion?` em `LapRequest`, `LapSession`
+  e `LapResult` e os copia literalmente (`code-loop` de `race-lap-validation` posterior ao relatório); as verificações
+  novas são escritas a partir dos contratos e da estratégia, não do código (D-TS-03), e passam na árvore corrente.
+
+### O que mudou
+
+- `tests/race-lap-validation-contract.test.ts`: duas verificações novas, uma por comportamento, sob TEST-0012, ambas
+  decidindo NFR-0005 (a estratégia 1.1.1 atribui a `lap-contract` "chaves do resultado são exatamente as de API-0001") e
+  nomeando API-0001/API-0002 na mensagem de falha:
+  - CHK-TEST-0012-12 — `startLap` com `setupId` `REALISTA_ALUGUEL_4T` (literal do enum, diferente do padrão) e
+    `setupVersion` `contract-fixture-7.3.1` (texto que só existe no teste), volta completa pelo `autopilot`; `getLapResult`
+    devolve os dois valores exatamente iguais aos do pedido e o conjunto de chaves é exatamente o do contrato mais os dois
+    campos.
+  - CHK-TEST-0012-13 — o mesmo pedido sem os campos: `'setupId' in result` e `'setupVersion' in result` falsos (ausentes,
+    não `null` nem padrão) e volta idêntica em validade, motivo, tempo total e setores à volta iniciada com os campos.
+  - Constante de fixture `SETUP_FIELDS` e importação de `MAX_LAP_STEPS` do helper existente. Nenhuma outra linha do arquivo
+    mudou; nenhum outro arquivo de `tests/` (fixtures e helpers inclusive) foi tocado.
+- `TEST-0012-contrato-da-volta.md` 1.1.0: linha de fixtures e as duas linhas novas na tabela de verificações.
+- Nada em `src/`, `index.html`, `scripts/` ou `package.json`; `98-divergences.md` intacto. `00-index.md` e
+  `99-traceability.md` reemitidos por `lint_artifacts.py --emit`.
+
+### Superfície da rodada
+
+As duas verificações não acrescentam requisito, campo, parâmetro nem chave (conventions §16): `setupId` e `setupVersion`
+já constam de API-0001 1.1.0 e API-0002 1.1.0 (F-Spec validada), de DES-0001 1.1.0 e DM-0002 1.1.0, e da estratégia
+1.1.1 validada em `dspec-validation-20261022-1754`; a adição é a cobertura exigida pelo upstream movido, como o próprio
+ISSUE-08 pede que seja registrada, e não superfície nova de rodada de correção.
+
+### Migração de verificações existentes
+
+Inventário antes da escrita: 138 ids `CHK-TEST-*` em `tests/race-lap-validation-*.test.ts`, os mesmos 138 em
+`99-traceability.md` e no `junit-latest.xml` da rodada 2. Depois: 138 carregados sem mudança, 0 modificados, 0 fundidos,
+0 removidos, 2 acrescentados (CHK-TEST-0012-12, CHK-TEST-0012-13) — 140 no total.
+
+### Prova de que as verificações novas podem falhar
+
+CHK-TEST-0012-12 reprova se `startLap` ou `buildResult` deixar de copiar um dos campos, se copiar um valor derivado ou
+normalizado (o padrão `ARCADE_ASSISTIDO`, a `setupVersion` publicada `realista-aluguel-4t-v4` ou qualquer outro texto) ou
+se o resultado trouxer um campo além dos contratados. CHK-TEST-0012-13 reprova se um pedido sem os campos produzir
+resultado com a chave presente (`null`, `undefined` ou valor padrão), ou se a presença dos campos alterar validade,
+motivo, tempo ou setores da volta. Nenhuma das duas lê o relógio, compara ponto flutuante (tempos inteiros em ms) nem
+depende de ordem.
+
+### Itens declinados, com o motivo
+
+- Nenhum item declinado: ISSUE-08, único `error` do relatório, foi aplicado integralmente.
+- Itens de severidade `warning` e `info` mantidos do relatório (ISSUE-01 a ISSUE-07, ISSUE-09 e ISSUE-10), sem ação nesta
+  rodada por instrução do loop, que a abriu só para o `error`: ISSUE-01 (asserção `toString()` em CHK-TEST-0012-07) e
+  ISSUE-02 (igualdade exata em valores exigidos pela especificação) continuam abertos como `warning` para uma rodada que
+  toque esses arquivos; ISSUE-03, -04, -05, -07, -09 e -10 têm "nenhuma ação" como esperado no próprio relatório; ISSUE-06
+  (reconciliação de `98-divergences.md` com `docs/lap-validation-device-log.md`) depende do dono do registro humano e fica
+  aberto.

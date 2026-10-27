@@ -1,8 +1,8 @@
 ---
 stage: test
 feature: race-lap-validation
-status: draft
-generated: 2026-10-22T18:17:00Z
+status: validated
+generated: 2026-10-27T16:57:13Z
 files: 16
 ---
 
@@ -12,7 +12,7 @@ files: 16
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.1.0 |
+| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.2.0 |
 | `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | validated | 1.0.0 |
 | `TEST-0001-tempo-da-volta.md` | TEST-0001 | Tempo da volta em milissegundos inteiros | validated | 1.0.0 |
 | `TEST-0002-cruzamento-de-linhas.md` | TEST-0002 | Cruzamento de linhas, sentido e fração | validated | 1.0.0 |
@@ -25,6 +25,6 @@ files: 16
 | `TEST-0009-dado-de-pista.md` | TEST-0009 | Leitura e classificação do dado de pista versionado | draft | 1.1.0 |
 | `TEST-0010-mensagens-e-idioma.md` | TEST-0010 | Textos de estado e motivo, idioma e formato de tempo | validated | 1.0.0 |
 | `TEST-0011-legibilidade-do-hud.md` | TEST-0011 | Tamanho e contraste das fichas do HUD | validated | 1.0.0 |
-| `TEST-0012-contrato-da-volta.md` | TEST-0012 | Contrato do estado, do resultado e dos comandos | validated | 1.0.0 |
+| `TEST-0012-contrato-da-volta.md` | TEST-0012 | Contrato do estado, do resultado e dos comandos | draft | 1.1.0 |
 | `TEST-0013-camadas-e-privacidade.md` | TEST-0013 | Camadas, simulação pura e ausência de rede | validated | 1.0.0 |
 | `TEST-0014-fisica-congelada.md` | TEST-0014 | Passo fixo, Input e presets inalterados | validated | 1.0.0 |

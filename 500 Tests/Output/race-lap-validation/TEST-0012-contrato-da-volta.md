@@ -4,7 +4,7 @@ title: Contrato do estado, do resultado e dos comandos
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004-03, AC-US-0005-02, AC-US-0008-03, AC-US-0009-01, NFR-0005, NFR-0012]
 ---
 
@@ -15,7 +15,7 @@ sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004
 | Arquivo | `tests/race-lap-validation-contract.test.ts` (estratégia: `lap-contract`) |
 | Nível | contrato de API (API-0001, API-0002, API-0003), em processo |
 | Interface exercitada | `getLapState`, `getLapResult`, `startLap`, `pauseLap`, `resumeLap`, `repositionKart`, `readTrackData` |
-| Fixtures | `syntheticReading()`, `syntheticFile()` com `schemaVersion` alterada, `track-v1.json`, texto ilegível literal |
+| Fixtures | `syntheticReading()`, `syntheticFile()` com `schemaVersion` alterada, `track-v1.json`, texto ilegível literal; pedido de `startLap` com `setupId` e `setupVersion` (`SETUP_FIELDS`: literal do enum de API-0002 diferente do padrão e um texto de versão que só existe no teste, para distinguir valor copiado de valor padrão ou derivado) |
 
 ## Verificações
 
@@ -32,5 +32,7 @@ sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004
 | CHK-TEST-0012-09 | AC-US-0002-11 | challengeNumber is copied to the result when given and absent otherwise, without changing the lap | `challengeNumber` derivado ou com efeito na volta |
 | CHK-TEST-0012-10 | NFR-0012 | readTrackData answers UNREADABLE with no other field and UNSUPPORTED_SCHEMA with the version only | campo extra na resposta de erro |
 | CHK-TEST-0012-11 | AC-US-0004-03 | an invalid result carries its reason and no time field | tempo em resultado inválido |
+| CHK-TEST-0012-12 | NFR-0005 | setupId and setupVersion are copied verbatim to the result when startLap carries them, with no other field added | campo não copiado, copiado com outro valor (padrão `ARCADE_ASSISTIDO`, versão publicada ou qualquer derivação) ou campo a mais no resultado (API-0001 1.1.0) |
+| CHK-TEST-0012-13 | NFR-0005 | without setupId and setupVersion in startLap the result carries neither field, not defaulted, and the lap is the same | chave `setupId` ou `setupVersion` presente no resultado (com `null`, `undefined` ou padrão) quando o pedido não a trouxe; validade, motivo, tempo ou setores diferentes da volta iniciada com os campos (API-0002 1.1.0) |
 
 Não há endpoint autenticado nem papel além de `player` anônimo (API-0001/0002, I6): não cabem verificações de acesso não autenticado ou de papel recusado.

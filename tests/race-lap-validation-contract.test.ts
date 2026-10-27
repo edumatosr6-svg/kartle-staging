@@ -5,7 +5,7 @@ import { ARCADE_KART } from '../src/physics';
 import { getLapResult, getLapState, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapSession, type LapStateView } from '../src/lap';
 import { readTrackData } from '../src/trackData';
 import { syntheticFile, syntheticReading, trackV1Text } from './fixtures/trackFiles';
-import { autopilot, completeLap, constant, DRIVE_OUT, drive, IDLE, runCountdown, startSession } from './helpers/autopilot';
+import { autopilot, completeLap, constant, DRIVE_OUT, drive, IDLE, MAX_LAP_STEPS, runCountdown, startSession } from './helpers/autopilot';
 
 const reading = syntheticReading();
 if (reading.trackDataStatus !== 'COMPLETE') throw new Error('fixture: synthetic reading must be COMPLETE');
@@ -16,6 +16,9 @@ const STATE_KEYS = ['lapPhase', 'lapKind', 'lapValidity', 'countdownRemainingMs'
 const STATE_OPTIONAL = ['resumePhase', 'pauseCause', 'invalidReason'];
 const RESULT_KEYS = ['trackId', 'trackVersion', 'lapKind', 'lapValidity', 'official'];
 const RESULT_OPTIONAL = ['challengeNumber', 'invalidReason', 'lapMs', 'sectorMs'];
+// API-0002 1.1.0: a literal of the setupId enum that is not the default (ARCADE_ASSISTIDO) and a version text that exists only in
+// this test, so a defaulted or derived value is told apart from one copied verbatim from the request.
+const SETUP_FIELDS = { setupId: 'REALISTA_ALUGUEL_4T' as const, setupVersion: 'contract-fixture-7.3.1' };
 
 test('CHK-TEST-0012-01 getLapState carries exactly the fields of API-0001, with the optional ones only in their phase', () => {
   // AC-US-0009-01
@@ -149,4 +152,29 @@ test('CHK-TEST-0012-11 an invalid result carries its reason and no time field', 
   assert.equal(r.lapValidity, 'INVALID', 'AC-US-0004-03: the fixture must be invalid');
   assert.ok(typeof r.invalidReason === 'string', 'AC-US-0004-03: an invalid result must carry invalidReason');
   assert.ok(!('lapMs' in r) && !('sectorMs' in r), 'AC-US-0004-03: an invalid result must carry neither lapMs nor sectorMs');
+});
+
+test('CHK-TEST-0012-12 setupId and setupVersion are copied verbatim to the result when startLap carries them, with no other field added', () => {
+  // NFR-0005 (API-0001 1.1.0, API-0002 1.1.0; strategy 1.1.1, contract level)
+  const started = startLap(undefined, { ...request, ...SETUP_FIELDS }, reading, ARCADE_KART);
+  assert.ok(started.ok, 'NFR-0005: startLap carrying setupId and setupVersion must be accepted (API-0002)');
+  const r = getLapResult(drive(runCountdown(started.lap), autopilot(), MAX_LAP_STEPS).lap) as Record<string, unknown>;
+  assert.equal(r.lapValidity, 'VALID', 'NFR-0005: the fixture lap must end VALID');
+  assert.equal(r.setupId, SETUP_FIELDS.setupId, `NFR-0005: setupId must be copied to the result exactly as given in startLap, got ${String(r.setupId)} (API-0001)`);
+  assert.equal(r.setupVersion, SETUP_FIELDS.setupVersion, `NFR-0005: setupVersion must be copied to the result exactly as given in startLap, without interpretation, got ${String(r.setupVersion)} (API-0001)`);
+  assert.deepEqual(keys(r), keys(Object.fromEntries([...RESULT_KEYS, 'lapMs', 'sectorMs', 'setupId', 'setupVersion'].map(k => [k, 0]))), 'NFR-0005: a valid result of a lap started with setupId and setupVersion must carry exactly the contract fields plus those two (API-0001)');
+});
+
+test('CHK-TEST-0012-13 without setupId and setupVersion in startLap the result carries neither field, not defaulted, and the lap is the same', () => {
+  // NFR-0005 (API-0001 1.1.0, API-0002 1.1.0; strategy 1.1.1, contract level)
+  const withSetup = startLap(undefined, { ...request, ...SETUP_FIELDS }, reading, ARCADE_KART);
+  assert.ok(withSetup.ok, 'NFR-0005: startLap carrying setupId and setupVersion must be accepted (API-0002)');
+  const ra = getLapResult(drive(runCountdown(withSetup.lap), autopilot(), MAX_LAP_STEPS).lap) as Record<string, unknown>;
+  const rb = getLapResult(completeLap(reading).lap) as Record<string, unknown>;
+  assert.ok(!('setupId' in rb), `NFR-0005: setupId must be absent from the result when startLap did not carry it, neither null nor the default, got ${String(rb.setupId)} (API-0001)`);
+  assert.ok(!('setupVersion' in rb), `NFR-0005: setupVersion must be absent from the result when startLap did not carry it, neither null nor a published version, got ${String(rb.setupVersion)} (API-0001)`);
+  assert.equal(rb.lapValidity, ra.lapValidity, 'NFR-0005: setupId and setupVersion must not change the validity of the lap (API-0002)');
+  assert.equal(rb.invalidReason, ra.invalidReason, 'NFR-0005: setupId and setupVersion must not change the reason of the lap (API-0002)');
+  assert.equal(rb.lapMs, ra.lapMs, 'NFR-0005: setupId and setupVersion must not change the lap time (API-0002)');
+  assert.deepEqual(rb.sectorMs, ra.sectorMs, 'NFR-0005: setupId and setupVersion must not change the sector times (API-0002)');
 });

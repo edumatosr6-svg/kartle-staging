@@ -3,7 +3,7 @@ id: TEST-0009
 title: Leitura e classificação do dado de pista versionado
 feature: race-lap-validation
 stage: test
-status: draft
+status: validated
 version: 1.1.0
 sources: [NFR-0012, AC-US-0008-03, AC-US-0005-03, AC-US-0005-04, AC-US-0001-06, AC-US-0004-02, AC-US-0004-05, AC-US-0002-10, AC-US-0002-13, AC-US-0006-04]
 ---
