@@ -3,7 +3,7 @@ title: Registro de mudanças — validação de volta de corrida
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.1
+version: 1.1.2
 sources: []
 ---
 
@@ -245,3 +245,80 @@ versão de esquema, como registrado na rodada 3.
   registrada pela etapa devedora.
 - Nenhum módulo, tabela, campo, endpoint, elemento de tela ou componente acrescentado (§16); nenhum requisito
   enfraquecido, removido ou dividido; nenhuma verificação existente é removida (§17).
+
+## 2026-10-27 — rodada 5, Mode C (feedback de `modelo-kart-01` e relatório de testes `test-validation-20261027-1704`)
+
+**Entrada**
+
+- Feedback `reports/feedbacks/modelo-kart-01/feedback-20261022-1840.md`, item FB-01 (severidade `scope`, D3 da origem),
+  pendente por ser posterior ao relatório de validação mais novo desta etapa, `dspec-validation-20261022-1754.md`
+  (2026-10-22T17:54:09Z). É o único feedback pendente, de qualquer origem, para esta feature nesta etapa (o de
+  `pista-kart-park`, 2026-10-22T16:14Z, é história: aplicado na rodada 3).
+- Relatório da etapa de testes desta feature,
+  `500 Tests/Output/race-lap-validation/reports/test-validation/test-validation-20261027-1704.md` (SUCCESS, 172/172,
+  140 checks), itens ISSUE-04 e ISSUE-05 (`info`, T2): duas linhas de `test-strategy.md` 1.1.1 desatualizadas em relação
+  à suíte validada.
+- Decisões do autor para esta rodada, carregadas como estão: FB-01 recusado (o kart congela depois de `ENDED`, como hoje;
+  INV-1 de `data/DM-0002` fica como está); as duas linhas da estratégia passam a descrever o que a suíte validada faz,
+  sem mudar critério nem limiar; nada mais muda (API-0001 e API-0002 1.1.0 inalteradas, `setupId`/`setupVersion` já
+  presentes; esquema de pista inalterado); nenhum feedback a outra feature nesta rodada salvo contradição real.
+
+**Itens fechados**
+
+- ISSUE-04 do relatório de testes (AC-US-0004-06): `test-strategy.md` 1.1.1 → 1.1.2 — a linha do critério deixa de
+  descrever a excursão lateral de 10,5 m em torno do marcador 2 e passa a descrever CHK-TEST-0005-11
+  (`tests/race-lap-validation-validity.test.ts`): `seedLap` salta o kart para 3 índices de arco depois do ponto de
+  cruzamento do marcador 2 com `markersPassedCount` 1 e `autopilot()` pilota até a chegada; `ENDED`, `INVALID`,
+  `MISSED_MARKER`. A linha registra por que a excursão dirigida não é alcançável na pista publicada (alcance do marcador
+  9 m maior que borda 5,5 m + limite 3 m; retorno pela grama acima de 1000 ms — medição da etapa de testes, rodada 1 do
+  registro dela). Critério e limiar inalterados.
+- ISSUE-05 do relatório de testes (AC-US-0006-03): mesma versão — a linha deixa de descrever "2 m além da borda por
+  600 passos" e passa a descrever CHK-TEST-0006-03 e CHK-TEST-0006-04 (`tests/race-lap-validation-cut.test.ts`):
+  `autopilot(-7)` (1,5 m além da borda) por 600 passos com o laço do teste medindo a distância além da borda a partir do
+  passo 240 (máximo menor ou igual a 3 m, mais de 200 passos na grama; `VALID`, `RUNNING`), e kart parado por `seedLap`
+  a exatamente 2 m além da borda por 600 passos com `IDLE` (`VALID`, `elapsedMs === toMs(600)`). O limiar de 3 m e
+  1000 ms não muda.
+- Mesmo fato carregado aos seus outros sítios em `test-strategy.md`, sem mudar regra: na tabela de fixtures, a coluna de
+  uso de `autopilot` (escapada a 1,5 m além da borda; resto da volta depois do salto semeado), a de `seedLap` (marcador
+  pulado na pista publicada; kart parado 2 m além da borda) e a do oráculo de corte (distância máxima além da borda e
+  contagem de passos na grama). A linha de AC-US-0006-08 continua a remeter à escapada de AC-US-0006-03, que é a de
+  CHK-TEST-0006-08 (mesmo `autopilot(-7)` por 600 passos).
+
+**Versões** (todas em `status: draft` até a validação)
+
+- `test-strategy.md` 1.1.1 → 1.1.2; este registro 1.1.1 → 1.1.2. Nenhum outro arquivo tocado.
+- `00-index.md` e `99-traceability.md` não foram escritos: o gate os regenera com `lint_artifacts.py --emit`.
+
+**Itens recusados ou limitados, com motivo**
+
+- FB-01 de `modelo-kart-01` ("kart pilotável depois de `ENDED`"): recusado. O dono do produto decidiu em 2026-10-22 que
+  o kart congela depois de `ENDED`, como o sistema faz hoje (`stepLap` devolve a sessão sem avançar fora de `RUNNING`,
+  `src/lap.ts:180`; o laço de quadros só avança a volta em `COUNTDOWN` e `RUNNING`, `src/main.ts:403`): INV-1 e INV-3
+  de `data/DM-0002` ficam como estão, e nenhum `REQ-*` desta feature nem de `modelo-kart-01` exige passos aceitos em
+  `ENDED`. A frase "o kart continua pilotável" do F-Spec de `modelo-kart-01` foi erro de redação, já corrigido no
+  seed/`DOMAIN.md` daquela feature e no seu F-Spec e D-Spec revalidados (commit `6f75122`: "kart congela após a volta;
+  decisão só da câmera"); a contradição que o feedback aponta não existe mais, e a decisão da câmera é função só da
+  pose, válida com o kart parado. Nenhum arquivo deste conjunto muda por causa dele; nenhuma entrada em
+  `SCOPE-BACKLOG.md` desta feature, porque a correção já foi feita na origem.
+- Feedback a `modelo-kart-01`, `dirigibilidade` ou `pista-kart-park` nesta rodada: não escrito. Decisão do autor
+  ("salvo contradição real") e nenhuma contradição real encontrada: o F-Spec e o D-Spec revalidados de `modelo-kart-01`
+  já dizem o que INV-1 diz.
+- Alterar API-0001/API-0002 (`setupId`/`setupVersion` já em 1.1.0) ou o esquema de pista (DM-0001, ADR-0003; a versão 3
+  é de `pista-kart-park`): não; decisão do autor, e nenhum item desta rodada os toca.
+- Alterar `data/DM-0002`, `core/DES-0001` ou `web/DES-0007` por causa de FB-01: não; a regra que o feedback questiona
+  é a que fica.
+- Mudar critério ou limiar de AC-US-0004-06 (marcador pulado → `MISSED_MARKER`) ou de AC-US-0006-03 (3 m e 1000 ms):
+  não; só a descrição do caminho de prova muda, para o que a suíte validada faz.
+- Propor fixture nova que pule um marcador por pilotagem na pista publicada (excursão lateral de outra amplitude ou
+  janela): não; a etapa de testes mediu janelas de 1 a 12 índices e amplitudes de 9,5 a 12 m sem alcançar o caso sem
+  corte, e o estado semeado é recurso já previsto na estratégia (tabela de fixtures, `seedLap`; preâmbulo), não
+  superfície só de teste (política 10).
+- ISSUE-10 do relatório de testes (voltas da suíte com `ARCADE_KART` e sem os campos de acerto; fixture nova no acerto
+  publicado como padrão "a entrar pela estratégia ou por `SCOPE-BACKLOG.md`"): não acrescentada nesta rodada; fora das
+  decisões do autor, e o relatório mesmo diz "nenhuma ação nesta rodada". Fica para o autor, numa rodada que a autorize.
+- Os demais itens do relatório de testes (ISSUE-01 a ISSUE-03, ISSUE-06 a ISSUE-09, ISSUE-11, ISSUE-12 e as 27
+  divergências): não dirigidos a este estágio; permanecem com a etapa de testes e com as etapas devedoras.
+- Rejulgar DIV-01 ou as linhas de `98-divergences.md`: não; fora dos itens desta rodada, e a resolução é registrada
+  pela etapa devedora.
+- Nenhum requisito enfraquecido, removido ou dividido; nenhuma verificação existente é removida (§17); nenhum módulo,
+  tabela, campo, endpoint, elemento de tela ou componente acrescentado.

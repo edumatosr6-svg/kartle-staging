@@ -3,7 +3,7 @@ title: Estratégia de testes — validação de volta de corrida
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.1
+version: 1.1.2
 sources: []
 ---
 
@@ -42,11 +42,11 @@ com a posição do kart ou um contador alterados, como um estado de partida seme
 | pedido de `startLap` com `setupId` e `setupVersion` | literais do enum de API-0002 e um texto de versão, no teste, copiados sem interpretação | resultado com os dois campos; o mesmo pedido sem eles dá resultado sem os campos (os padrões de leitura são do leitor de registros de `dirigibilidade`, fora deste conjunto) |
 | `withCutLimits(1, 300)` | cópia do sintético com `cutDistanceM` 1 e `cutDurationMs` 300 (`trackVersion` 3) | corte pelos limites da pista |
 | `withShortMarker(2)` | cópia do sintético em que o marcador 2 é um segmento curto de −1 m a +9 m do lado direito da linha central | marcador que um kart a −4 m da linha central não cruza |
-| `autopilot(state, offsetM)` em `tests/helpers/autopilot.ts` | controlador determinístico de entradas a 10 Hz, derivado do de `scripts/keyboard-lap.ts`, com deslocamento lateral opcional em função da posição de arco | volta completa (cerca de 3770 passos); excursões laterais curtas; marcador pulado na pista sintética publicada |
+| `autopilot(state, offsetM)` em `tests/helpers/autopilot.ts` | controlador determinístico de entradas a 10 Hz, derivado do de `scripts/keyboard-lap.ts`, com deslocamento lateral opcional em função da posição de arco | volta completa (cerca de 3770 passos); escapada pela grama a 1,5 m além da borda (`autopilot(-7)`); resto da volta depois de um salto semeado |
 | `driveOut` | `Input` `{throttle: 1, brake: 0, steer: 0}` fixo | saída de pista em linha reta, para o corte |
-| `seedLap(lap, patch)` | cópia da `LapSession` com `kart`, `markersPassedCount` ou `sectorBoundsMs` alterados | marcadores fora de ordem; cruzamento na contramão; cruzamento repetido depois do fim; volta que começa depois de um limite |
+| `seedLap(lap, patch)` | cópia da `LapSession` com `kart`, `markersPassedCount` ou `sectorBoundsMs` alterados | marcadores fora de ordem; marcador pulado na pista sintética publicada; cruzamento na contramão; cruzamento repetido depois do fim; volta que começa depois de um limite; kart parado 2 m além da borda |
 | `tests/helpers/seeded.ts` | gerador congruencial linear com semente fixa | sequências de `Input` variadas e repetíveis; nunca `Math.random` |
-| oráculo de corte | laço do próprio teste com `step` e `nearest` | primeiro passo em que o kart passa de 3 m além da borda por mais de 120 passos seguidos |
+| oráculo de corte | laço do próprio teste com `step` e `nearest` | primeiro passo em que o kart passa de 3 m além da borda por mais de 120 passos seguidos; na escapada dentro do limite, a distância máxima além da borda e a contagem de passos na grama |
 
 Cruzamento exatamente sobre o passo: a física não permite posicionar o kart numa linha com precisão arbitrária; o
 caso é provado em `crossLine` (deslocamento que termina em `side` igual a 0 dá `fraction` 1) e em `interpolateMs(k, 1)`
@@ -131,7 +131,7 @@ arquivos `tests/<feature>-<área>.test.ts`, de modo que o nome curto desta estra
 | AC-US-0004-03 | `lap-state` (I): resultado inválido sem `lapMs` nem `sectorMs`, `official` falso |
 | AC-US-0004-04 | `lap-messages` (U): "marcador pulado"; E2E-02 |
 | AC-US-0004-05 | `lap-validity` (I): na volta de `withShortMarker(2)` os três limites de setor são cruzados e o resultado é `MISSED_MARKER` |
-| AC-US-0004-06 | `lap-validity` (I): pista sintética publicada com excursão lateral curta de 10,5 m em torno do marcador 2 (menos de 120 passos além de 3 m da borda, sem corte): `MISSED_MARKER` |
+| AC-US-0004-06 | `lap-validity` (I): na pista sintética publicada, `seedLap` salta o kart, em repouso na linha central, para 3 índices de arco depois do ponto de cruzamento único do marcador 2, com `markersPassedCount` 1 (marcador 1 contado, marcador 2 nunca cruzado), e `autopilot()` pilota o resto da volta até a chegada: fase `ENDED`, `INVALID`, `MISSED_MARKER` (CHK-TEST-0005-11). Pular um marcador por pilotagem, sem corte, não é alcançável nesta pista (o alcance do marcador, 9 m, excede a borda mais o limite de corte, 5,5 m + 3 m, e o retorno pela grama passa de 1000 ms — medição da etapa de testes); o salto é o estado de partida semeado previsto no preâmbulo, e a regra de marcador pulado fica provada também por pilotagem em `withShortMarker(2)` (AC-US-0004-01) |
 | AC-US-0004-07 | `lap-validity` (I): `elapsedMs` não muda depois do passo da chegada inválida e um novo cruzamento não gera segundo resultado |
 | AC-US-0005-01 | `lap-validity` (I): `seedLap` põe o kart depois da chegada, de costas; ao cruzar, a fase segue `RUNNING` e `lapValidity` `VALID` |
 | AC-US-0005-02 | `lap-validity` (I): na mesma situação `getLapResult` devolve `NO_RESULT` |
@@ -139,7 +139,7 @@ arquivos `tests/<feature>-<área>.test.ts`, de modo que o nome curto desta estra
 | AC-US-0005-04 | `lap-validity` (I): `seedLap` antes do marcador 1, de costas: `markersPassedCount` continua 0 |
 | AC-US-0006-01 | `lap-cut` (I): `driveOut` com oráculo: `INVALID` `CUT` no primeiro passo em que 120 passos seguidos são ultrapassados com mais de 3 m da borda |
 | AC-US-0006-02 | `lap-cut` (I): saída de até 120 passos e retorno a 3 m ou menos não invalida; nova saída recomeça a contagem |
-| AC-US-0006-03 | `lap-cut` (I): `autopilot` com deslocamento constante de 2 m além da borda por 600 passos não invalida (oráculo confirma distância menor ou igual a 3 m) |
+| AC-US-0006-03 | `lap-cut` (I), duas verificações: (a) `autopilot(-7)` — alvo 7 m à direita da linha central, 1,5 m além da borda da pista de 11 m — por 600 passos, com o laço do próprio teste medindo, a partir do passo 240, a distância além da borda: mais de 200 passos na grama e máximo menor ou igual a 3 m; `VALID` e fase `RUNNING` (CHK-TEST-0006-03); (b) `seedLap` põe o kart parado a exatamente 2 m além da borda (`kartAt(40, 0, WIDTH / 2 + 2)`, conferido pelo teste com tolerância de 0,05 m) e 600 passos com entrada `IDLE`: `VALID` e `elapsedMs === toMs(600)` (CHK-TEST-0006-04). A pilotagem fica a 1,5 m, e não a 2 m, porque a 2 m além da borda o autopilot passa de 3 m nas curvas e a volta termina em `CUT` (medição da etapa de testes); os 2 m são provados com o kart parado. Limiar inalterado: 3 m e 1000 ms |
 | AC-US-0006-04 | `lap-cut` (I): `withCutLimits(1, 300)` invalida pelos limites da pista |
 | AC-US-0006-05 | `lap-messages` (U): "corte"; E2E-02 |
 | AC-US-0006-06 | `lap-cut` (I): `elapsedMs` e `sectorBoundsMs` não mudam depois do passo da invalidação |

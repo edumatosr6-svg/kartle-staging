@@ -2,7 +2,7 @@
 stage: dspec
 feature: race-lap-validation
 status: validated
-generated: 2026-10-22T18:00:49Z
+generated: 2026-10-27T17:27:28Z
 files: 23
 ---
 
@@ -13,7 +13,7 @@ files: 23
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
 | `01-architecture.md` | - | Arquitetura — validação de volta de corrida | validated | 1.1.1 |
-| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida | validated | 1.1.1 |
+| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida | validated | 1.1.2 |
 | `98-divergences.md` | - | Divergências — validação de volta de corrida | validated | 1.1.0 |
 | `adr/ADR-0001-tempo-inteiro-em-ms-e-interpolacao.md` | ADR-0001 | Tempo da volta em aritmética inteira e arredondamento da interpolação | validated | 1.0.0 |
 | `adr/ADR-0002-volta-como-modulo-sobre-step-inalterado.md` | ADR-0002 | A volta é um módulo sobre o passo da física, com comandos fora de Input | validated | 1.0.0 |
@@ -30,7 +30,7 @@ files: 23
 | `data/DM-0001-arquivo-de-pista-versao-2.md` | DM-0001 | Arquivo de pista, versão de esquema 2 | validated | 1.0.1 |
 | `data/DM-0002-estado-da-volta-em-memoria.md` | DM-0002 | Estado e resultado da volta em memória | validated | 1.1.0 |
 | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` | DES-0011 | Privacidade, uso offline e ausência de persistência | validated | 1.1.0 |
-| `test-strategy.md` | - | Estratégia de testes — validação de volta de corrida | validated | 1.1.1 |
+| `test-strategy.md` | - | Estratégia de testes — validação de volta de corrida | validated | 1.1.2 |
 | `web/DES-0007-integracao-da-aplicacao.md` | DES-0007 | Integração da aplicação, adaptadores de pausa e laço de quadros | validated | 1.0.0 |
 | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` | DES-0008 | HUD da volta, mensagens, idioma e legibilidade | validated | 1.0.0 |
 | `web/DES-0009-inicio-de-volta-e-erros.md` | DES-0009 | Início de volta, oferta de tipo e estados de erro | validated | 1.1.1 |
