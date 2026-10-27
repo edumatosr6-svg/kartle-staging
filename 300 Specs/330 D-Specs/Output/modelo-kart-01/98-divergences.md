@@ -3,20 +3,20 @@ title: Divergências — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.2.0
 sources: []
 ---
 
 # Divergências
 
 Registro durável dos requisitos deste conjunto que o sistema em execução não satisfaz (conventions §6). O
-F-Spec (1.1.0) é normativo: nenhuma linha abaixo enfraquece um requisito. Cada linha cita o que existe hoje
+F-Spec (1.2.0, `fspec-validation-20261027-1520`) é normativo: nenhuma linha abaixo enfraquece um requisito. Cada linha cita o que existe hoje
 em `arquivo:linha` — `src/main.ts` do commit `0068a57`, que já carrega as mudanças da `dirigibilidade` —, a
 etapa que deve a mudança e o item de projeto que a fecha. Caminhos relativos à raiz do repositório.
 
 | Requisito | O que exige | O que o sistema faz hoje | Etapa devedora | Item de projeto | Estado |
 |---|---|---|---|---|---|
-| REQ-FEAT-0001-01, -02 a -14, -17 | todo kart exibido é o Kart 01, com as medidas, os 16 grupos e as cores da ficha, nos dois canais e nas duas formas | `src/main.ts:113-134` monta o kart provisório: três caixas (`#e7a056`, `#edb45f`, `#243e35`), uma esfera `helmet`, quatro cilindros de raio 0,31 m e largura 0,28 m em `wheelPositions(setup.config)` (bitola 1,20 m, entre-eixos 1,04 m); nenhum grupo nomeado, nenhuma das quatro cores, 1,45 m de largura só na caixa dianteira; `docs/kart-01/kart.js` não é importado | código | DES-0001, DES-0004, DES-0006, ADR-0001 | open |
+| REQ-FEAT-0001-01, -02 a -14, -17 | todo kart exibido é o Kart 01, com as medidas, os 16 grupos e as cores da ficha, nos dois canais e nas duas formas | `src/main.ts:113-120` e `:123-134` montam o kart provisório (`:121-122`, `let setup`, é da `dirigibilidade` e fica): três caixas (`#e7a056`, `#edb45f`, `#243e35`), uma esfera `helmet`, quatro cilindros de raio 0,31 m e largura 0,28 m em `wheelPositions(setup.config)` (bitola 1,20 m, entre-eixos 1,04 m); nenhum grupo nomeado, nenhuma das quatro cores, 1,45 m de largura só na caixa dianteira; `docs/kart-01/kart.js` não é importado | código | DES-0001, DES-0004, DES-0006, ADR-0001 | open |
 | REQ-FEAT-0001-15 | número 01 na placa do para-choque exibido | não existe placa nem número (`src/main.ts:113-120`) | código | DES-0001, DES-0004 | open |
 | REQ-FEAT-0001-16 | sombra do kart no chão, visível junto ao kart pela câmera de corrida | o kart de caixas projeta sombra (`box()` em `:74`; rodas em `:130`) numa caixa de sombra fixa de ±120 m × ±100 m em torno da origem (`:36`), 2 048 texels: 11,7 cm por texel, e sem sombra fora da caixa | código | DES-0004 | open |
 | REQ-FEAT-0002-01 | cada roda dianteira girada pelo `steerAngleRad` que a simulação informa | `src/main.ts:474` gira cada pivô pelo ângulo **por roda** da telemetria (`telemetry.wheels[i].steerAngle`, correção de Ackermann), e não por um único ângulo de esterço; `getKartPose` não existe | código | DES-0002, DES-0004 | open |
@@ -48,11 +48,16 @@ compressão (REQ-FEAT-0006-01); `three` como única dependência de execução, 
 -03: `package.json`); os três arquivos da simulação e os presets intactos (REQ-FEAT-0006-06: nenhum item de
 projeto os toca).
 
-Fato lido como as-built que o F-Spec descreve de outro modo e que nenhum `REQ-*` desta feature exige: o
-glossário e RULE-0002 dizem que, com a volta encerrada, "o kart continua pilotável"; hoje a sessão em
-`ENDED` não avança (`src/lap.ts:173`; `src/main.ts:403` só avança em `COUNTDOWN` e `RUNNING`) e o kart fica
-parado. Não é divergência deste conjunto — o fim da volta e o seu ciclo pertencem à `race-lap-validation`
-(INV-1 de `DM-0002` daquela feature: nenhum passo muda a sessão depois de `ENDED`) e REQ-FEAT-0006-06 proíbe
-mudar `src/lap.ts` — e o projeto da câmera vale nos dois casos, porque é função só da pose
-([ADR-0002](adr/ADR-0002-camera-como-funcao-pura-do-quadro.md)). Registrado em `97-changelog.md` como
-proposta ao autor.
+Fato conferido no as-built e que o F-Spec 1.2.0 especifica igual, sem divergência: ao fim da volta (`ENDED`),
+válida ou invalidada, inclusive por reposicionamento, a simulação para e o kart congela — hoje a sessão em
+`ENDED` não avança (`src/lap.ts:173`; `src/main.ts:403` só avança em `COUNTDOWN` e `RUNNING`), e é isso que
+FEAT-0003 (tabela Comportamento, "Volta encerrada"), RULE-0002 (tabela Modos; transição "`RACE_CHASE`
+permanece `RACE_CHASE`"), FLOW-0001 (passo 1) e `02-glossary.md` ("Em corrida", "Volta encerrada") do F-Spec
+1.2.0 exigem, pelo invariante INV-1 de `race-lap-validation` (`DM-0002` daquela feature: nenhum passo muda a
+sessão depois de `ENDED`), que esta feature não muda (REQ-FEAT-0006-06 proíbe tocar `src/lap.ts`). Só a câmera
+continua na pose de corrida em relação ao kart parado, até a próxima visão geral: realizado por DES-0003
+(`decideCameraMode`, `ENDED` → `RACE_CHASE`; câmera função só da pose), DES-0004 (`beginLap`, `emitReposition`
+e `#lap-new-lap` inalterados) e [ADR-0002](adr/ADR-0002-camera-como-funcao-pura-do-quadro.md) (Consequências).
+Nenhum requisito de pilotagem depois do fim da volta existe no F-Spec, e nenhuma proposta ao autor fica
+pendente sobre isso: a pergunta da rodada 1 foi respondida pelo dono do produto (`DOMAIN/DEC-06` corrigida em
+2026-10-22, absorvida pelo F-Spec 1.2.0; `97-changelog.md`, rodada 2).

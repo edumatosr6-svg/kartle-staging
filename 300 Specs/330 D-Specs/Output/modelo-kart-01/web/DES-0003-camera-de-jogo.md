@@ -4,7 +4,7 @@ title: Câmera de jogo (API-0003) — modos, pose de corrida, visão geral, desc
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [API-0003, RULE-0002, FEAT-0003, FLOW-0001, FLOW-0002, SCR-0001, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15]
 ---
 
@@ -12,9 +12,11 @@ sources: [API-0003, RULE-0002, FEAT-0003, FLOW-0001, FLOW-0002, SCR-0001, REQ-FE
 
 ## Realiza
 
-Os 15 requisitos de FEAT-0003 e o contrato API-0003 campo a campo: o modo da câmera decidido pela fase da
-volta, com `ENDED` em `RACE_CHASE` e a visão geral só sem volta ativa (REQ-FEAT-0003-01, -11; RULE-0002;
-`DOMAIN/DEC-06`); a pose de corrida (1,38 m acima do chão, 3,05 m atrás, mira 3,2 m à frente a 0,30 m)
+Os 15 requisitos de FEAT-0003 e o contrato API-0003 campo a campo (a operação `getCameraView`, realizada por
+`computeCameraView`): o modo da câmera decidido pela fase da volta, com `ENDED` em `RACE_CHASE` — simulação
+parada e kart congelado, como hoje (INV-1 de `race-lap-validation`), só a câmera na pose de corrida em relação
+ao kart parado — e a visão geral só sem volta ativa (REQ-FEAT-0003-01, -11; RULE-0002; `DOMAIN/DEC-06`, na
+redação corrigida); a pose de corrida (1,38 m acima do chão, 3,05 m atrás, mira 3,2 m à frente a 0,30 m)
 presa ao rumo, sem suavização, atraso nem corte (REQ-FEAT-0003-01 a -03, -08, -13); a forma da área de jogo
 e as regras de campo de visão de paisagem e de retrato, com o efeito de turbo a partir da base da forma
 corrente, aplicadas no quadro seguinte a uma troca de forma (REQ-FEAT-0003-04 a -07, -10, -15); o kart
@@ -41,7 +43,7 @@ exigem que a câmera seja calculável fora do laço de quadros.
 | `TrackBounds` | tipo | `{ minXM, maxXM, minZM, maxZM }` (m): retângulo, no referencial da pista, que contém a pista inteira |
 | `trackBoundsOf(points, halfWidthM)` | `(readonly { x: número; z: número }[] (m), número (m)) => TrackBounds` | mínimo e máximo de `x` e `z` dos pontos, estendidos de `halfWidthM` para cada lado; para a pista sintética, `track` de `src/track.ts` com `WIDTH / 2 + 1` (a faixa externa de `src/main.ts:66`); aceita qualquer lista de pontos, para a `pista-kart-park` fornecer os seus |
 | `CameraFrameInputs` | tipo | `{ lapState: LapStateView \| { code: 'NO_ACTIVE_LAP' }; kartPose: KartPose \| { code: 'NO_STATE' }; viewWidthPx: inteiro > 0 (px); viewHeightPx: inteiro > 0 (px); turboActive: booleano; trackBounds: TrackBounds \| undefined }` |
-| `decideCameraMode(lapState)` | `(LapStateView \| { code }) => CameraMode` | `NO_ACTIVE_LAP` → `TRACK_OVERVIEW`; `lapPhase` `COUNTDOWN`, ou `PAUSED` com `resumePhase` `COUNTDOWN` → `COUNTDOWN_DESCENT`; `RUNNING`, `PAUSED` com `resumePhase` `RUNNING` ou ausente (`src/lap.ts:146` retoma em `RUNNING`), ou `ENDED` → `RACE_CHASE` (tabela Modos de RULE-0002) |
+| `decideCameraMode(lapState)` | `(LapStateView \| { code }) => CameraMode` | `NO_ACTIVE_LAP` → `TRACK_OVERVIEW`; `lapPhase` `COUNTDOWN`, ou `PAUSED` com `resumePhase` `COUNTDOWN` → `COUNTDOWN_DESCENT`; `RUNNING`, `PAUSED` com `resumePhase` `RUNNING` ou ausente (`src/lap.ts:146` retoma em `RUNNING`), ou `ENDED` → `RACE_CHASE` (tabela Modos de RULE-0002; em `ENDED` a simulação está parada e o kart congelado — INV-1 de `race-lap-validation` —, a pose não muda e a câmera é a mesma em cada quadro) |
 | `viewShapeOf(viewWidthPx, viewHeightPx)` | `(px, px) => ViewShape` | `LANDSCAPE` se largura ≥ altura; `PORTRAIT` se altura > largura (RULE-0002, Forma da área de jogo) |
 | `baseVerticalFovDeg(shape, aspect)` | `(ViewShape, adimensional = largura ÷ altura) => graus` | `LANDSCAPE`: 62. `PORTRAIT`: `max(62, graus(2 × atan(tan(30°) / aspect)))` — o menor campo de visão vertical que dá 60° na horizontal, nunca abaixo de 62° (`DOMAIN/DEC-03`; RULE-0002, tabela de campo de visão). Exemplos: 9:16 → 91,5°; 3:4 → 75,2°; 1:1 é paisagem |
 | `horizontalFovDeg(verticalFovDeg, aspect)` | `(graus, adimensional) => graus` | `graus(2 × atan(tan(verticalFovDeg / 2) × aspect))`: o horizontal que resulta do vertical e da razão largura ÷ altura (API-0003) |
@@ -53,7 +55,7 @@ exigem que a câmera seja calculável fora do laço de quadros.
 | `trackOverviewPose(bounds, shape, aspect)` | `(TrackBounds, ViewShape, adimensional) => CameraPose` | câmera em `(cx, H, cz + H × tan(10°))` com `H = fitOverviewHeightM(bounds, baseVerticalFovDeg(shape, aspect), aspect)`; mira em `(cx, 0, cz)`: acima da pista, olhando para baixo, pista inteira no quadro na forma corrente (RULE-0002, Pose por modo). Pista sintética, 16:9: `H` ≈ 103 m; 9:16: ≈ 160 m |
 | `DESCENT_HOLD_MS` | `100` (ms) | retenção da pose da visão geral no início da contagem; igual a `MAX_FRAME_S × 1000` de `src/frameClock.ts:5`, o máximo de tempo simulado que um quadro avança, de modo que o **primeiro quadro desenhado** da contagem (`countdownRemainingMs` entre 2 900 e 3 000 ms) está sempre na pose da visão geral (REQ-FEAT-0003-12) |
 | `countdownDescentPose(overview, chase, countdownRemainingMs)` | `(CameraPose, CameraPose, ms) => CameraPose` | `s = clamp((COUNTDOWN_MS − countdownRemainingMs − DESCENT_HOLD_MS) / (COUNTDOWN_MS − DESCENT_HOLD_MS), 0, 1)`; `e = s² × (3 − 2s)`; cada coordenada da câmera e da mira é `overview + (chase − overview) × e`. `e` é monótono não decrescente em `s`, e `s` só cresce quando `countdownRemainingMs` diminui: a altura `cameraHeightM` nunca aumenta de um quadro para o seguinte e é menor no fim (`e` → 1, 1,38 m) que no início (`H` ≥ 20 m) (REQ-FEAT-0003-12); com a contagem parada (`PAUSED`), `countdownRemainingMs` não muda e a pose é a mesma (REQ-FEAT-0003-14); em `countdownRemainingMs` 0 a pose é exatamente `chase` |
-| `computeCameraView(inputs)` | `(CameraFrameInputs) => CameraView \| { code: 'NO_SCENE' }` | `trackBounds` ausente → `NO_SCENE`. Senão: `shape = viewShapeOf(...)`, `aspect = viewWidthPx / viewHeightPx`, `base = baseVerticalFovDeg(shape, aspect)`, `mode = decideCameraMode(lapState)`; com `kartPose` `NO_STATE` não existe volta (toda `LapSession` tem `kart`), logo `mode` é `TRACK_OVERVIEW` e `simStepCount` é ausente. `TRACK_OVERVIEW`: pose de `trackOverviewPose`, `verticalFovDeg = base`. `COUNTDOWN_DESCENT`: pose de `countdownDescentPose(trackOverviewPose(...), raceChasePose(kartPose), lapState.countdownRemainingMs)`, `verticalFovDeg = base`. `RACE_CHASE`: pose de `raceChasePose(kartPose)`, `baseVerticalFovDeg = base`, `turboFovDeltaDeg = turboActive ? 4 : 0`, `verticalFovDeg = base + turboFovDeltaDeg`. Em todos: `horizontalFovDeg = horizontalFovDeg(verticalFovDeg, aspect)`, `viewShape`, `viewWidthPx`, `viewHeightPx`, `simStepCount = kartPose.simStepCount` quando há estado |
+| `computeCameraView(inputs)` | `(CameraFrameInputs) => CameraView \| { code: 'NO_SCENE' }` | **Realiza a operação `getCameraView` de API-0003** (resposta `CameraView` campo a campo; erro `NO_SCENE`). O nome difere porque a função é pura, num módulo sem DOM e sem relógio, que não tem "quadro corrente" para ler: as entradas do quadro — estado da volta, pose do kart, largura e altura da área de jogo, estado de turbo e limites da pista — são passadas explicitamente por `src/main.ts`, que é quem lê o quadro corrente ([DES-0004](DES-0004-integracao-da-cena-em-main-ts.md)); nenhum símbolo `getCameraView` existe. `trackBounds` ausente → `NO_SCENE`. Senão: `shape = viewShapeOf(...)`, `aspect = viewWidthPx / viewHeightPx`, `base = baseVerticalFovDeg(shape, aspect)`, `mode = decideCameraMode(lapState)`; com `kartPose` `NO_STATE` não existe volta (toda `LapSession` tem `kart`), logo `mode` é `TRACK_OVERVIEW` e `simStepCount` é ausente. `TRACK_OVERVIEW`: pose de `trackOverviewPose`, `verticalFovDeg = base`. `COUNTDOWN_DESCENT`: pose de `countdownDescentPose(trackOverviewPose(...), raceChasePose(kartPose), lapState.countdownRemainingMs)`, `verticalFovDeg = base`. `RACE_CHASE`: pose de `raceChasePose(kartPose)`, `baseVerticalFovDeg = base`, `turboFovDeltaDeg = turboActive ? 4 : 0`, `verticalFovDeg = base + turboFovDeltaDeg`. Em todos: `horizontalFovDeg = horizontalFovDeg(verticalFovDeg, aspect)`, `viewShape`, `viewWidthPx`, `viewHeightPx`, `simStepCount = kartPose.simStepCount` quando há estado |
 
 O kart inteiro no quadro (REQ-FEAT-0003-09) é consequência da pose: em `RACE_CHASE` o kart ocupa sempre a
 mesma região do quadro, porque a câmera está presa à posição e ao rumo e a simulação não inclina o kart. Com
@@ -73,7 +75,8 @@ Chamado por `src/main.ts` uma vez por quadro (`computeCameraView`) e por `tests/
 
 Sem estado: `computeCameraView` é função pura das entradas do quadro. Idempotência (API-0003): repetir a
 chamada com as mesmas entradas devolve o mesmo valor; em `RACE_CHASE` o mesmo `simStepCount`, a mesma forma e
-o mesmo estado de turbo dão a mesma câmera; em `COUNTDOWN_DESCENT` o mesmo `countdownRemainingMs` e a mesma
+o mesmo estado de turbo dão a mesma câmera — em `ENDED`, com a simulação parada (INV-1 de `race-lap-validation`),
+`simStepCount` não avança e todo quadro repete a mesma câmera; em `COUNTDOWN_DESCENT` o mesmo `countdownRemainingMs` e a mesma
 pose dão a mesma câmera. As transições de modo de RULE-0002 não têm contador próprio: são reavaliações por
 quadro do estado da volta, cujos contadores (`countdownRemainingMs` só diminui; `simStepCount`) pertencem à
 simulação; `startLap` repetido é rejeitado por `race-lap-validation` e não reinicia nada aqui.

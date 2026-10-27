@@ -4,7 +4,7 @@ title: A câmera é função pura do estado da volta, da pose do kart, da forma 
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [API-0003, RULE-0002, FEAT-0003, REQ-FEAT-0003-05, REQ-FEAT-0003-08, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14]
 ---
 
@@ -71,13 +71,16 @@ quadro da contagem, altura que nunca aumenta, pose de corrida no sinal verde, e 
   esbatidas e visíveis. Uma pista cuja visão geral exigir altura próxima de 300 m ficará esbatida por
   inteiro: isso é assunto da feature que trouxer essa pista (proposta ao autor em `97-changelog.md`), não
   um requisito desta.
-- Depois de `ENDED` a sessão não avança (`src/lap.ts:173`; `src/main.ts:403`): a câmera fica atrás do kart
-  parado, na pose de corrida, com o painel de resultado sobre a cena. Se `race-lap-validation` vier a
-  manter o kart pilotável depois do fim da volta, nada aqui muda: a câmera é função só da pose.
+- Depois de `ENDED` a simulação para e o kart congela, como hoje (`src/lap.ts:173`; `src/main.ts:403`): é o
+  invariante INV-1 de `race-lap-validation`, que o F-Spec 1.2.0 (FEAT-0003, RULE-0002, FLOW-0001) especifica e
+  esta feature não muda. A câmera fica atrás do kart parado, na pose de corrida, com o painel de resultado
+  sobre a cena; como `simStepCount` não avança e a pose lida em cada quadro é a mesma, a câmera é a mesma em
+  cada quadro até um `startLap` aceito ou uma recarga. A decisão depende só da pose do kart exibido, não do
+  que a sessão faz depois de `ENDED`; nenhuma hipótese de pilotagem depois do fim da volta faz parte dela.
 - `camera.far` passa a `max(500, 3 × altura)`, para a pista inteira entrar no volume de visão da visão geral.
 - A câmera deixa de depender de `dt`: `RENDER_NEUTRAL` e o teste de câmera percorrem sessões reais
   quadro a quadro e afirmam cada campo de API-0003.
 
 ## Estado
 
-Aceita nesta rodada.
+Aceita na rodada 1; a consequência sobre `ENDED` foi alinhada ao F-Spec 1.2.0 na rodada 2.

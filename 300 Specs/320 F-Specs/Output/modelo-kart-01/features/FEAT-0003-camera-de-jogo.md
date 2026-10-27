@@ -4,7 +4,7 @@ title: Câmera de jogo — visão geral, descida na contagem, pose de corrida e 
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13]
 ---
 
@@ -19,13 +19,16 @@ retrato, horizontal de pelo menos 60° (`DOMAIN/DEC-03`). O efeito de turbo cont
 Antes da contagem regressiva a tela mostra a pista inteira do alto; durante a contagem a câmera desce até
 trás do piloto e, no sinal verde, já está na pose de corrida (`DOMAIN/DEC-04`). "Em corrida" vai do sinal
 verde até a próxima visão geral da pista: quando a volta termina (`ENDED`), válida ou invalidada, inclusive
-por reposicionamento, e o painel de resultado aparece, a câmera continua na pose de corrida e o kart continua
-pilotável; a visão geral existe só antes da contagem regressiva (`DOMAIN/DEC-06`).
+por reposicionamento, e o painel de resultado aparece, a simulação para e o kart congela, como hoje
+(invariante INV-1 de `race-lap-validation`, que esta feature não muda), e só a câmera continua na pose de
+corrida, em relação ao kart parado; a visão geral existe só antes da contagem regressiva (`DOMAIN/DEC-06`,
+na redação corrigida em 2026-10-22). Nenhum requisito de pilotagem depois do fim da volta existe nesta feature.
 
 ## Canais
 
 `web-desktop` e `web-mobile`: a mesma pose de corrida, a mesma visão geral, a mesma descida e a mesma
-permanência na pose de corrida depois do fim da volta, com o painel de resultado exibido. A regra de
+permanência na pose de corrida depois do fim da volta, em relação ao kart parado, com a simulação parada e
+o painel de resultado exibido. A regra de
 campo de visão depende da forma da área de jogo, não do canal: `web-mobile` usa paisagem ou retrato conforme
 o Jogador segura o celular; `web-desktop` usa paisagem, e retrato só quando a janela é mais alta que larga.
 Em `web-mobile` com sensor ausente ou permissão negada, o controle recai para toque com estado visível
@@ -97,7 +100,7 @@ Modos, pose e campo de visão: [RULE-0002](../rules/RULE-0002-camera-de-jogo.md)
 | Pista carregada, sem volta ativa | Visão geral da pista (`TRACK_OVERVIEW`) |
 | Volta iniciada (`lapPhase` `COUNTDOWN`) | Descida (`COUNTDOWN_DESCENT`) a partir da pose da visão geral, função de `countdownRemainingMs` |
 | Sinal verde (`countdownRemainingMs` chega a 0, `lapPhase` `RUNNING`) | Pose de corrida (`RACE_CHASE`) já no quadro do sinal verde |
-| Reposicionamento do kart em corrida | No primeiro quadro depois dele, pose de corrida em relação à nova posição e ao novo rumo; a mudança de visada é igual à mudança de rumo, por isso não é corte. Vale igual quando o reposicionamento invalida a volta: a volta passa a `ENDED` e a câmera continua na pose de corrida |
+| Reposicionamento do kart em corrida | No primeiro quadro depois dele, pose de corrida em relação à nova posição e ao novo rumo; a mudança de visada é igual à mudança de rumo, por isso não é corte. Vale igual quando o reposicionamento invalida a volta: a volta passa a `ENDED`, a simulação para, o kart congela e a câmera continua na pose de corrida em relação ao kart parado |
 | Rodada ou derrapagem forte | A câmera acompanha o rumo do kart, não a direção do movimento; numa rodada de 180°, gira junto com o kart |
 | Marcha à ré, se a simulação a informar | A câmera continua atrás do kart em relação ao rumo; o kart se move em direção à câmera |
 | Troca de orientação ou redimensionamento em corrida | No quadro seguinte, a regra de campo de visão da nova forma; a pose de corrida não muda |
@@ -105,7 +108,7 @@ Modos, pose e campo de visão: [RULE-0002](../rules/RULE-0002-camera-de-jogo.md)
 | Kart junto a uma parede ou a uma borda | A pose de corrida não muda; não há desvio da câmera por obstáculo |
 | Pausa em corrida | A simulação não avança; a câmera fica na pose de corrida em relação ao kart parado |
 | Pausa ou suspensão durante a contagem | A contagem não avança; a câmera não desce; ao continuar, a descida retoma do ponto em que parou; no sinal verde vale o requisito 13 |
-| Volta encerrada (`lapPhase` `ENDED`), válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido | O quadro continua "em corrida": a câmera continua na pose de corrida em relação ao kart exibido (`RACE_CHASE`), do quadro em que a volta termina até o quadro anterior à próxima visão geral; o painel de resultado aparece sobre a cena sem mover a câmera; o kart continua pilotável, a câmera continua presa ao rumo sem corte (requisito 08) e com a regra de campo de visão da forma (requisitos 05 a 07, 10 e 15); nenhum quadro mostra a visão geral até a contagem de uma nova volta ([RULE-0002](../rules/RULE-0002-camera-de-jogo.md)) |
+| Volta encerrada (`lapPhase` `ENDED`), válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido | O quadro continua "em corrida" para a câmera: a simulação está parada e o kart congelado, como hoje (invariante INV-1 de `race-lap-validation`, que esta feature não muda); a câmera fica na pose de corrida em relação ao kart parado (`RACE_CHASE`), do quadro em que a volta termina até o quadro anterior à próxima visão geral; o painel de resultado aparece sobre a cena sem mover a câmera; como o rumo do kart parado não muda, a visada não muda entre quadros (requisito 08, com variação nula) e vale a regra de campo de visão da forma (requisitos 05 a 07, 10 e 15); nenhum quadro mostra a visão geral até a contagem de uma nova volta ([RULE-0002](../rules/RULE-0002-camera-de-jogo.md)) |
 | Nova volta a partir da volta encerrada (`startLap` aceito com a volta em `ENDED`) | O primeiro quadro da nova contagem está na pose da visão geral — a próxima visão geral — e a descida recomeça; o quadro anterior ainda está na pose de corrida |
 | Recarga da página antes da largada, durante a volta ou depois do fim dela | Sem volta ativa: visão geral; a descida recomeça com a nova contagem |
 | Sensor ausente ou permissão negada (`web-mobile`) | Toque com estado visível (I4); a câmera não muda |
@@ -121,7 +124,7 @@ Lê `lapPhase`, `resumePhase` e `countdownRemainingMs` do contrato de estado da 
 |---|---|---|
 | `TRACK_OVERVIEW` | Sem volta ativa (`NO_ACTIVE_LAP`); nunca com `lapPhase` `ENDED` | Pista carregada; recarga da página sem volta ativa |
 | `COUNTDOWN_DESCENT` | `lapPhase` `COUNTDOWN`, ou `PAUSED` com `resumePhase` `COUNTDOWN` | `startLap` aceito, sem volta ativa ou com a volta em `ENDED`; `countdownRemainingMs` |
-| `RACE_CHASE` | `lapPhase` `RUNNING`, `PAUSED` com `resumePhase` `RUNNING`, ou `ENDED` (volta encerrada, válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido) | Sinal verde; pose do kart por `simStepCount`; o fim da volta não muda o modo |
+| `RACE_CHASE` | `lapPhase` `RUNNING`, `PAUSED` com `resumePhase` `RUNNING`, ou `ENDED` (volta encerrada, válida ou invalidada, inclusive por reposicionamento, com o painel de resultado exibido) | Sinal verde; pose do kart por `simStepCount`, que não avança depois de `ENDED` (simulação parada); o fim da volta não muda o modo |
 
 As transições, a sua idempotência e os contadores de sequência estão em
 [RULE-0002](../rules/RULE-0002-camera-de-jogo.md).

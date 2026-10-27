@@ -4,7 +4,7 @@ title: Efeitos presos ao kart — marcas de pneu em wheelPositions por passo, fu
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [FEAT-0005, RULE-0003, FLOW-0001, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-07, REQ-FEAT-0005-08, NFR-0007]
 ---
 
@@ -22,7 +22,7 @@ nenhum trecho novo e efeitos presos ao kart parado (REQ-FEAT-0005-08). As marcas
 
 ## Posicionamento
 
-`src/main.ts`, camada **Aplicação**, alterado (trechos `:136-151` e `:443-472` do commit `0068a57`). Nenhum
+`src/main.ts`, camada **Aplicação**, alterado (trechos `:136-151`, `:231` e `:443-472` do commit `0068a57`). Nenhum
 módulo novo: as posições vêm de `simWheelGroundPositions` de `src/kartPose.ts`
 ([DES-0002](DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md)) e o ponto do escapamento de
 `kart01.anchors.exhaustOutlet` ([DES-0001](DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md)).
@@ -40,9 +40,10 @@ Inventário dos efeitos que o jogo exibe hoje (lido como as-built; nenhum é acr
 | Trecho atual | Mudança |
 |---|---|
 | `:141` `let skidIndex = 0, skidClock = 0;` | `skidClock` (acumulador de relógio de parede) sai; entra `let lastSkidStepCount = 0;` |
-| `:447-449` cadência `skidClock += dt; if (skidClock >= 0.04)` | a cadência passa a ser por passo da simulação: um trecho novo quando `pose.simStepCount − lastSkidStepCount >= SKID_STEP_INTERVAL` (constante local `5` passos = 41,7 ms, a cadência de 40 ms de hoje arredondada ao passo) e as condições de situação de hoje valem; então `lastSkidStepCount = pose.simStepCount`. Num quadro sem passo novo ou na pausa `simStepCount` não avança e nenhum trecho é desenhado (REQ-FEAT-0005-08; RULE-0003, Estado e repetição); o mesmo passo nunca desenha um segundo trecho |
+| `:447-450` cadência `skidClock += dt; if (skidClock >= 0.04) { skidClock = 0;` | a cadência passa a ser por passo da simulação: um trecho novo quando `pose.simStepCount − lastSkidStepCount >= SKID_STEP_INTERVAL` (constante local `5` passos = 41,7 ms, a cadência de 40 ms de hoje arredondada ao passo) e as condições de situação de hoje valem; então `lastSkidStepCount = pose.simStepCount`. Num quadro sem passo novo ou na pausa `simStepCount` não avança e nenhum trecho é desenhado (REQ-FEAT-0005-08; RULE-0003, Estado e repetição); o mesmo passo nunca desenha um segundo trecho |
 | `:451-455` `wheelPositions(config).slice(2)` transformadas pela pose | `simWheelGroundPositions(pose, lap.config).slice(2)` em `y` 0,055 m, como hoje — as posições traseiras de `wheelPositions` levadas pela posição e pelo rumo, com a configuração **congelada da volta** (`lap.config`, `src/lap.ts:120`) em vez do `config` corrente da aplicação (mesmos valores hoje; a volta é a fonte) (REQ-FEAT-0005-01) |
 | `:472` `else { previousSkids = []; skidClock = 0; }` | `previousSkids` é também esvaziado quando `pose.simStepCount < lastSkidStepCount` (contador reiniciado por nova volta ou reposicionamento) e `lastSkidStepCount` recebe o valor novo: o primeiro trecho depois de um reposicionamento sai da nova posição e os trechos já gravados na `InstancedMesh` não são tocados (REQ-FEAT-0005-07) |
+| `:231` `skidMarks.count = 0; skidIndex = 0; previousSkids = []; skidClock = 0;` (dentro de `beginLap`) | `skidClock = 0` sai; os outros três ficam. `lastSkidStepCount` não é escrito aqui: a nova volta cria um `kart` com `stepCount` 0 e a regra do contador que recua (linha `:472`) o reinicia no primeiro quadro da volta nova — na contagem, com o kart parado, o ramo sem marca é o que roda — antes de qualquer trecho. Com esta linha a retirada do símbolo `skidClock` fica completa num só item: `:141`, `:231`, `:448-450` e `:472` são os seus quatro usos em `0068a57`, e o teste de contrato afirma a ausência ([DES-0006](DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md); `test-strategy.md`, AC-US-0005-01). O resto de `:224-235` fica inalterado ([DES-0004](DES-0004-integracao-da-cena-em-main-ts.md)) |
 | `:143-151` jatos de escapamento | um único cone (`ConeGeometry(0.18, 1.2, 8)` com o material de hoje), filho de `kart01.anchors.exhaustOutlet`, apontando para trás do kart (`+Z` do referencial do modelo: `rotation.x = π / 2` no referencial do nó), com a base na saída da ponteira; visível com `maneuvers.boost > 0` e pulsação `scale.z = 1 + sin(state.elapsed × 35) × 0,12` como hoje (`state.elapsed` é tempo simulado: congela na pausa) (REQ-FEAT-0005-02, -04, -08) |
 | Indicação de drift | realizada pela ancoragem das marcas: durante o drift elas nascem sob os pneus traseiros do Kart 01 exibido (REQ-FEAT-0005-03); nenhum efeito novo é criado (REQ-FEAT-0005-04) |
 

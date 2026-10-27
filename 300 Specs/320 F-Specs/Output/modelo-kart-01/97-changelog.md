@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -103,7 +103,9 @@ sources: []
 - ISSUE-01 (error, F7, D-FS-02): o modo da câmera com a volta encerrada passou de `TRACK_OVERVIEW` a
   `RACE_CHASE` — do quadro em que a volta termina, válida ou invalidada, inclusive por reposicionamento,
   com o painel de resultado sobre a cena, até o quadro anterior à próxima visão geral, que existe só antes da
-  contagem regressiva; o kart continua pilotável; a próxima visão geral é a do primeiro quadro da contagem
+  contagem regressiva; o kart continua pilotável *(frase superada na rodada 3: o dono do produto corrigiu
+  `DOMAIN/DEC-06` — a simulação para e o kart congela ao fim da volta, e só a câmera continua na pose de
+  corrida)*; a próxima visão geral é a do primeiro quadro da contagem
   de uma nova volta (`startLap` aceito com a volta em `ENDED`) ou a de uma recarga sem volta ativa. O fato
   foi levado a todos os pontos que o relatório nomeia e aos demais onde aparecia: `RULE-0002` (fontes;
   tabela Modos; parágrafo sobre `ENDED`; diagrama e tabela de transições, com a permanência em `RACE_CHASE`
@@ -161,3 +163,110 @@ sources: []
 - Divergência com o sistema em execução para o modo da câmera com a volta encerrada: nenhuma registrada;
   esta etapa não lê a raiz de código (§12), e a etapa de código registra em `98-divergences.md`, com
   `arquivo:linha`, o que o sistema ainda não atende.
+
+## 2026-10-22 — rodada 3, Mode B (relatório `fspec-validation-20261022-1919.md`, 7 erros, 1 info)
+
+**O que mudou**
+
+- Origem das ISSUE-01 a ISSUE-07: os requisitos validados moveram depois de `fspec-validation-20261022-1757`
+  (`req-validation-20261022-1909`, SUCCESS). O dono do produto corrigiu `DOMAIN/DEC-06` em `DOMAIN.md`
+  (2026-10-22, depois de um feedback do D-Spec) e os requisitos absorveram a correção em US-0003 1.2.1
+  (Canais; pré-condições; casos anormais "Reposicionamento do kart em corrida" e "Fim da volta, válida ou
+  invalidada, com o painel de resultado exibido"; Fontes), `02-glossary.md` 1.2.0 ("Em corrida", "Fim da
+  volta (`ENDED`)", "Painel de resultado") e `01-context.md` 1.2.0 (`DOMAIN/DEC-06`; relação com
+  `race-lap-validation`): a frase "o kart continua pilotável" não vale; quando a volta termina (`ENDED`) e
+  o painel de resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de
+  `race-lap-validation`), e a decisão descreve só a câmera, que continua atrás do piloto, na pose de
+  corrida em relação ao kart parado, até a próxima visão geral. O autor passou a decisão a esta execução
+  com a ordem de retirar toda frase de pilotagem depois de `ENDED` e de não redescobri-la. Nenhum `AC-*`
+  mudou em 1.2.1.
+- ISSUE-01 (error, F4, `02-glossary.md`): "Em corrida" deixa de dizer "enquanto o Jogador pilota" e "o
+  kart continua pilotável" e passa a dizer que, depois do fim da volta, com o painel exibido, a simulação
+  está parada e o kart congelado, como hoje, e só a câmera continua na pose de corrida em relação ao kart
+  parado até a próxima visão geral (`DOMAIN/DEC-06` corrigida); "Volta encerrada" diz que a simulação para
+  e o kart congela (INV-1) e que a câmera continua em `RACE_CHASE` em relação ao kart parado; "Painel de
+  resultado" diz "sobre a cena com a simulação parada e o kart congelado". O mesmo fato levado às linhas
+  `simStepCount` (não avança com a simulação parada) e `cameraMode` (`ENDED` com a simulação parada).
+  Fechada por edição.
+- ISSUE-02 (error, F4, `01-overview.md`): o primeiro parágrafo de "O que é especificado", a decisão de
+  forma "Modo da câmera derivado do estado da volta" e o item `race-lap-validation` de "Relação com outras
+  features" dizem que, ao fim da volta, a simulação para e o kart congela (INV-1 de `race-lap-validation`,
+  que é daquela feature e não muda) e que só a câmera continua na pose de corrida em relação ao kart
+  parado; o parágrafo de camadas lista o congelamento ao fim da volta entre o que não muda. Fechada por
+  edição.
+- ISSUE-03 (error, F4, `FEAT-0003`): o resumo diz que a simulação para e o kart congela ao fim da volta e
+  que só a câmera continua na pose de corrida; a linha "Volta encerrada" da tabela Comportamento diz que a
+  câmera fica na pose de corrida em relação ao kart parado, com a simulação parada (INV-1), que a visada
+  não muda entre quadros porque o rumo não muda (requisito 08 com variação nula) e que vale a regra de
+  campo de visão da forma; "o kart continua pilotável" sai. O mesmo fato levado à seção Canais (como em
+  US-0003 1.2.1, Canais), à linha "Reposicionamento do kart em corrida" (a simulação para, o kart congela)
+  e à linha `RACE_CHASE` da tabela Estado (`simStepCount` não avança depois de `ENDED`). Os requisitos 01
+  a 03 e 11 e os critérios de aceite não mudaram: nenhum `AC-*` mudou. Fechada por edição.
+- ISSUE-04 (error, F4 e D-FS-02, `RULE-0002`): o parágrafo depois da tabela Modos diz que a câmera
+  continua na pose de corrida em relação ao kart parado, com a simulação parada e o kart congelado (INV-1
+  de `race-lap-validation`, que esta feature não muda), citando `DOMAIN/DEC-06` corrigida; a coluna de
+  contador da linha "`RACE_CHASE` permanece `RACE_CHASE`" diz que `simStepCount` não avança depois de
+  `ENDED` e que a pose lida em cada quadro é a mesma, em relação ao kart parado, até `startLap` aceito ou
+  recarga. O mesmo fato levado às Fontes, à linha `RACE_CHASE` de "Pose por modo", ao parágrafo da pose
+  (visada com variação nula com o kart parado; reposicionamento que invalida a volta) e ao parágrafo da
+  tabela de campo de visão. Nenhuma transição, modo, campo ou estado novo. Fechada por edição.
+- ISSUE-05 (error, F4, `FLOW-0001`): a introdução e a linha "Volta encerrada" dizem que, com a volta em
+  `ENDED`, a simulação está parada e o kart congelado (INV-1; NFR-0006): os passos 1 a 3 não produzem
+  passo novo (`simStepCount` não avança) e os passos 4 a 11 leem o estado congelado e desenham a câmera na
+  pose de corrida em relação ao kart parado, sem corte e sem visão geral, até o quadro anterior à próxima
+  visão geral; o passo 1 deixa de afirmar pilotagem depois do fim da volta e deixa de citar AC-US-0003-13
+  para isso (cita US-0003, caso anormal "Fim da volta"); o passo 3 diz que nenhum passo ocorre em `ENDED`;
+  o laço do diagrama diz o mesmo; a linha "Reposicionamento do kart" carrega o congelamento. Fechada por
+  edição.
+- ISSUE-06 (error, F4, `FLOW-0002`): o passo 9 diz "em relação ao kart parado, com a simulação parada e o
+  kart congelado (INV-1 de `race-lap-validation`)", mantendo o resto do passo. O mesmo fato levado à
+  introdução, ao diagrama, ao passo 8 (a simulação para e o kart congela; `simStepCount` não avança) e às
+  alternativas "Reposicionamento que invalida a volta" e "Troca de orientação, redimensionamento, pausa ou
+  turbo com a volta encerrada". Fechada por edição.
+- ISSUE-07 (error, F4, `SCR-0001`): a linha "Em corrida (populado)" diz que, com a volta encerrada, o
+  Kart 01 é exibido congelado no estado que a simulação informa (simulação parada, INV-1), rodas sem giro
+  e sem trecho novo de marca, que o painel aparece sobre a cena sem mover a câmera, que a câmera fica na
+  pose de corrida em relação ao kart parado e que nenhum quadro mostra a visão geral. O mesmo fato levado
+  ao propósito, às ações "Esterçar, acelerar, frear" (com a volta encerrada a cena não muda) e
+  "Reposicionar o kart", e à navegação. Nenhum estado de tela novo (§16). Fechada por edição.
+- ISSUE-08 (info, F3, `02-glossary.md`; reemissão da ISSUE-01 de `fspec-validation-20261022-1757`): a
+  linha de campos de `getLapState` nomeia também `resumePhase` (`COUNTDOWN` ou `RUNNING`, a fase a que a
+  volta em `PAUSED` retorna), como campo de `race-lap-validation` nomeado e não redefinido, que `FEAT-0003`,
+  `RULE-0002` e `FLOW-0002` já liam; a coluna Onde passa a citar os três. Não é superfície nova (§16): o
+  conjunto já carregava o nome em três arquivos; só a linha do glossário estava atrás. Fechada por edição.
+- O item da rodada 2 deste changelog que repetia "o kart continua pilotável" recebeu a marca de superado,
+  como o item da rodada 1 recebeu na rodada 2; o registro histórico não foi reescrito.
+- Versões: `01-overview.md`, `02-glossary.md`, `FEAT-0003`, `RULE-0002`, `FLOW-0001`, `FLOW-0002` e
+  `SCR-0001` em 1.2.0, com `status: draft`; o gate e o validador decidem. `API-0001`, `API-0002`,
+  `API-0003`, `98-divergences.md` e os demais arquivos sem mudança. `00-index.md` e `99-traceability.md`
+  não foram tocados: o gate os regenera.
+
+**Itens fechados**: ISSUE-01 a ISSUE-08, todos por edição. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Requisito novo (`REQ-*`) dizendo que a simulação para e o kart congela ao fim da volta: não criado. O
+  congelamento é o invariante INV-1 de `race-lap-validation`, que esta feature não muda (US-0003 1.2.1,
+  pré-condições; `DOMAIN/DEC-06`), e "simulação, passo e validação de volta inalterados" já está em
+  `FEAT-0006` (NFR-0005, NFR-0006); um requisito desta feature sobre isso seria superfície nova numa
+  rodada de correção (§16) e restataria o invariante de outra feature. O fato entra como pré-condição e
+  comportamento, não como requisito.
+- `API-0003`: não editado. Nenhuma frase de pilotagem depois de `ENDED` existe nele; `RACE_CHASE` em
+  `ENDED` e a idempotência por `simStepCount` continuam válidas com o kart parado (o passo não avança, e a
+  mesma pose dá a mesma câmera), como o relatório registrou em Coverage.
+- Requisitos 01 a 03 e 11 de `FEAT-0003` e os critérios de aceite: não alterados; os `AC-*` não mudaram
+  em US-0003 1.2.1 e o relatório diz que não mudam.
+- "O que o D-Spec herdou" (`300 Specs/330 D-Specs/Output/modelo-kart-01/`): não editado. Esta execução
+  escreve só sob `300 Specs/320 F-Specs/Output/modelo-kart-01/` (fspec-generator, "Artifact locations";
+  conventions §14 e §20); o D-Spec lê este conjunto como upstream movido e corrige a herança no seu
+  próprio loop.
+- Decisões do autor repassadas a esta rodada que não mudam o conjunto: "feature só de camada de
+  aplicação" já está em `FEAT-0006` (NFR-0005, NFR-0006) e em `01-overview.md` (Camadas); "fonte do modelo
+  `docs/kart-01/kart.js`" já está em `FEAT-0001` via `DOMAIN/DEC-00`; "código na raiz do repositório" e
+  "código entra depois da dirigibilidade" continuam fora, pelo motivo das rodadas 1 e 2: decisões de
+  design e de entrega, para `300 Specs/330 D-Specs`.
+- Divergência com o sistema em execução: nenhuma registrada; o congelamento ao fim da volta é "como
+  hoje", e esta etapa não lê a raiz de código (§12).
+- Pausa com a volta encerrada (alternativa de `FLOW-0002`): a linha foi mantida com a situação original e
+  o tratamento ajustado ao kart parado; se `race-lap-validation` não admite `PAUSED` a partir de `ENDED`,
+  a linha é vazia e inofensiva; esta especificação não redefine o estado da volta daquela feature.

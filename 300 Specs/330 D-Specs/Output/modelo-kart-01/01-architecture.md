@@ -3,15 +3,16 @@ title: Arquitetura — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.2.0
 sources: []
 ---
 
 # Arquitetura
 
-Este conjunto projeta como cada `REQ-*` do F-Spec validado de `modelo-kart-01` (1.1.0, validação
-`fspec-validation-20261022-1757`; FEAT-0001 a FEAT-0006 com 63 requisitos, API-0001 a API-0003, RULE-0001 a
-RULE-0003, FLOW-0001 a FLOW-0003, SCR-0001) é realizado sobre o código em execução. Os caminhos são relativos
+Este conjunto projeta como cada `REQ-*` do F-Spec validado de `modelo-kart-01` (1.2.0, validação
+`fspec-validation-20261027-1520`; FEAT-0001 a FEAT-0006 com 63 requisitos, API-0001 a API-0003, RULE-0001 a
+RULE-0003, FLOW-0001 a FLOW-0003, SCR-0001; os 63 `REQ-*` e os três contratos sem mudança desde 1.1.0) é
+realizado sobre o código em execução. Os caminhos são relativos
 à raiz do repositório (diretriz do estágio: o código vive em `src/`, `tests/`, `scripts/`, `docs/`;
 `400 Code/Source/` está vazio). O produto é um cliente de navegador sem servidor, sem conta e sem banco: não
 existem as pastas `backend/` e `mobile/` deste estágio; a pasta `core/` (simulação) também não existe neste
@@ -25,19 +26,23 @@ como `DOMAIN/DEC-00` a `DOMAIN/DEC-06`): fonte do modelo em `docs/kart-01/kart.j
 sem mudar a forma, com rodas, volante e braços animáveis; física não alinhada ao modelo; retrato com campo de
 visão horizontal de pelo menos 60°; câmera que desce do alto para trás do piloto durante a contagem; kart com
 sombra; quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel
-de resultado aparece, a câmera continua na pose de corrida e a visão geral existe só antes da contagem.
+de resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`),
+e só a câmera continua na pose de corrida, em relação ao kart parado, até a próxima visão geral, que existe só
+antes da contagem (`DOMAIN/DEC-06`, na redação corrigida pelo dono do produto em 2026-10-22; nenhum requisito
+de pilotagem depois do fim da volta existe nesta feature).
 Decisões de entrega: a feature é só camada de aplicação (não muda `src/physics.ts`, `src/lap.ts`,
 `src/track.ts` nem os presets); o código fica na raiz do repositório; **o código desta feature entra depois
 do da `dirigibilidade`, que também altera `src/main.ts`**
 ([ADR-0003](adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md)).
 
-**Estado do código lido como as-built nesta rodada.** `src/main.ts` (540 linhas, commit `0068a57`) já
+**Estado do código lido como as-built.** `src/main.ts` (540 linhas, commit `0068a57`; em HEAD `aadd01f` a
+pasta `src/` é igual à desse commit) já
 carrega as mudanças de aplicação da `dirigibilidade` (acerto publicado `PUBLISHED_SETUPS`, HUD por
 `getHandlingTelemetry`, registro `LapRecord`, compartilhar); aquela feature está em "checkpoint de código,
 aguarda D-Spec Modo C", sem relatório de validação de código. As linhas citadas neste conjunto são as desse
 arquivo; os itens de projeto nomeiam também o **símbolo ou trecho**, de modo que a etapa de código reencontra
 cada ponto se a rodada final da `dirigibilidade` mover linhas. O que o sistema exibe hoje: o kart provisório
-de caixas (`src/main.ts:113-134`), com rodas cilíndricas de raio 0,31 m nas posições de `wheelPositions`; a
+de caixas (`src/main.ts:113-120` e `:123-134`; `:121-122` é o `let setup` da `dirigibilidade`, que fica), com rodas cilíndricas de raio 0,31 m nas posições de `wheelPositions`; a
 câmera alta de perseguição suavizada (`:478-482`) com campo de visão 48° mais termo de velocidade e de turbo
 suavizados (`:483-487`); a câmera inicial fixa em (125, 130, 145) olhando para a origem (`:395-396`); marcas de
 pneu em `wheelPositions(config)` (`:451-455`), com cadência de relógio de parede (`:448-449`); dois jatos de
@@ -63,9 +68,9 @@ chave, porque nada aqui tem chave. O tempo que a animação e a câmera usam é 
 | Aplicação | `src/kart01Model.ts` | **novo** | monta o Kart 01 com o piloto a partir do código do Cowork, com os 16 grupos nomeados, o agrupamento por material e os pontos de ancoragem; pose das rodas, do volante e dos braços ([DES-0001](web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md)) |
 | Aplicação | `src/kart01Decals.ts` | **novo** | pinta os decalques (placa com o número 01, adesivo lateral) em `canvas` e os aplica aos materiais de decalque; único módulo do modelo que usa o DOM ([DES-0001](web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md)) |
 | Aplicação | `src/kartPose.ts` | **novo** | leitura `getKartPose` (API-0001), velocidade de rolamento com sinal, giro acumulado das rodas por `simStepCount`, ponto de referência do kart exibido e posições de roda da simulação no mundo ([DES-0002](web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md)) |
-| Aplicação | `src/gameCamera.ts` | **novo** | modo da câmera, pose de corrida, visão geral, descida, forma da área de jogo e campo de visão; `computeCameraView` (API-0003) ([DES-0003](web/DES-0003-camera-de-jogo.md)) |
+| Aplicação | `src/gameCamera.ts` | **novo** | modo da câmera, pose de corrida, visão geral, descida, forma da área de jogo e campo de visão; `computeCameraView`, que realiza a operação `getCameraView` de API-0003 ([DES-0003](web/DES-0003-camera-de-jogo.md)) |
 | Aplicação | `src/main.ts` | alterado | retira o kart provisório e a câmera alta de corrida; põe o Kart 01 na cena, a sombra que acompanha o kart, a câmera decidida por `computeCameraView`, os efeitos presos ao modelo ([DES-0004](web/DES-0004-integracao-da-cena-em-main-ts.md), [DES-0005](web/DES-0005-efeitos-presos-ao-kart.md)) |
-| Aplicação (programa de teste em Node) | `tests/helpers/kart01Report.ts`, `tests/modelo-kart-01-*.test.ts`, `scripts/kart01-baseline.ts` | **novos** | as verificações de `npm test` e o relatório de API-0002; o gravador da linha de base ([DES-0006](web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md), [DM-0001](data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md)) |
+| Aplicação (programa de teste em Node) | `tests/helpers/kart01Report.ts`, `tests/modelo-kart-01-*.test.ts`, `scripts/kart01-baseline.ts` | **novos** | as verificações de `npm test` e o relatório de API-0002 (`kartModelReport`: o conjunto de registros que os três arquivos de teste emitem); o gravador da linha de base ([DES-0006](web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md), [DM-0001](data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md)) |
 | Aplicação (dado) | `tests/fixtures/kart01-sim-baseline.json`, `docs/kart-01/device-log.md` | **novos** | linha de base da simulação anterior à feature e registro dos testes em tela ([DM-0001](data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md)) |
 | Aplicação | `index.html`, `src/style.css`, `src/audio.ts` | inalterados | nenhum texto, controle, elemento de HUD ou som é acrescentado (SCR-0001) |
 
@@ -115,14 +120,17 @@ sequenceDiagram
     M-->>T: renderer.render(scene, camera)
 ```
 
-A largada ([FLOW-0002](../../320%20F-Specs/Output/modelo-kart-01/flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md))
+A largada ([FLOW-0002](../../../320%20F-Specs/Output/modelo-kart-01/flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md))
 segue o mesmo laço: com `NO_ACTIVE_LAP` a câmera está em `TRACK_OVERVIEW`; com `COUNTDOWN` (ou `PAUSED` com
 `resumePhase` `COUNTDOWN`) em `COUNTDOWN_DESCENT`, função só de `countdownRemainingMs` e da pose do kart; com
-`RUNNING`, `PAUSED` com `resumePhase` `RUNNING` ou `ENDED` em `RACE_CHASE`. Nenhum quadro em `ENDED` volta à
-visão geral; a próxima visão geral é a pose do primeiro quadro da contagem da volta seguinte, ou
-`TRACK_OVERVIEW` depois de uma recarga ([DES-0003](web/DES-0003-camera-de-jogo.md)).
+`RUNNING`, `PAUSED` com `resumePhase` `RUNNING` ou `ENDED` em `RACE_CHASE`. Em `ENDED` a simulação está parada e
+o kart congelado, como hoje (INV-1 de `race-lap-validation`; `src/lap.ts:173`, `src/main.ts:403`): `stepLap` não
+produz passo novo, `simStepCount` não avança e a câmera, função só da pose, é a mesma em cada quadro, atrás do
+kart parado, com o painel de resultado sobre a cena. Nenhum quadro em `ENDED` volta à visão geral; a próxima
+visão geral é a pose do primeiro quadro da contagem da volta seguinte, ou `TRACK_OVERVIEW` depois de uma
+recarga ([DES-0003](web/DES-0003-camera-de-jogo.md)).
 
-A verificação em `npm test` ([FLOW-0003](../../320%20F-Specs/Output/modelo-kart-01/flows/FLOW-0003-verificacao-do-modelo-montado.md))
+A verificação em `npm test` ([FLOW-0003](../../../320%20F-Specs/Output/modelo-kart-01/flows/FLOW-0003-verificacao-do-modelo-montado.md))
 monta o modelo com `buildKart01Model()` em Node (sem decalques pintados), mede-o com
 `tests/helpers/kart01Report.ts`, avança passos com os mesmos `startLap`/`stepLap` das demais features e
 compara com a linha de base de `tests/fixtures/kart01-sim-baseline.json`

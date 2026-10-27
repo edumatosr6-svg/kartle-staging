@@ -4,7 +4,7 @@ title: Linha de base da simulação anterior à feature (fixture versionado) e r
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.2.0
 sources: [API-0002, FLOW-0003, FEAT-0004, FEAT-0005, FEAT-0006, REQ-FEAT-0004-05, REQ-FEAT-0005-05, REQ-FEAT-0006-07, REQ-FEAT-0006-08, NFR-0001, NFR-0006, NFR-0007]
 ---
 
@@ -31,7 +31,7 @@ código desta feature; lido por `readSimBaseline`
 | `recordedAtUtc` | texto ISO 8601 | — | não | instante da gravação; só documental |
 | `recordedOnCommit` | texto (sha) | — | sim | revisão em que foi medido (`--commit`); só documental |
 | `stepS` | número | s | não | `STEP` em vigor (1/120) |
-| `inputTypeLine` | texto | — | não | a linha `export type Input = ...` de `src/physics.ts`; comparada literalmente (`inputContractUnchanged`) |
+| `inputTypeLine` | texto | — | não | a linha `export type Input = ...` de `src/physics.ts`; comparada literalmente: a parte "conjunto de campos" de `inputContractUnchanged`; a parte "faixas" é provada pela saturação de `step` em `simContractCheck` ([DES-0006](../web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md): pares além/no limite, limite/dentro e limite/junto ao limite a 0,01; um limite movido para dentro de menos de 0,01 fica para a diferença de 0 linhas em `src/physics.ts` do manifesto da etapa de código), sem campo próprio na linha de base |
 | `simWheelbaseM`, `simTrackWidthM` | número | m | não | 1,04 e 1,20: `wheelbase` e `trackWidth` dos acertos publicados |
 | `trackId`, `trackVersion` | texto; texto ou inteiro | — | não | da leitura usada (`synthetic`, 2); leitura corrente diferente é `BASELINE_MISSING` |
 | `wheelPositions` | objeto por `setupId` → lista de 4 `{ forwardM, leftM }` | m | não | `wheelPositions(config)` de cada acerto publicado, na ordem dianteira esquerda, dianteira direita, traseira esquerda, traseira direita |

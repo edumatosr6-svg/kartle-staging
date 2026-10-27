@@ -3,7 +3,7 @@ title: Visão geral — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -23,12 +23,14 @@ conferir; no máximo 30 chamadas de desenho do kart com o piloto, agrupando por 
 as medidas da física não são alinhadas ao modelo nesta feature; em retrato, campo de visão horizontal de
 pelo menos 60°; antes da largada a câmera mostra a pista do alto e desce para trás do piloto durante a
 contagem regressiva; o kart projeta sombra; quando a volta termina (`ENDED`), válida ou invalidada,
-inclusive por reposicionamento, e o painel de resultado aparece, a câmera continua na pose de corrida e o
-kart continua pilotável, até a próxima visão geral, que existe só antes da contagem regressiva
-(`DOMAIN/DEC-06`, via AC-US-0003-13).
+inclusive por reposicionamento, e o painel de resultado aparece, a simulação para e o kart congela, como
+hoje (invariante INV-1 de `race-lap-validation`), e só a câmera continua na pose de corrida, em relação ao
+kart parado, até a próxima visão geral, que existe só antes da contagem regressiva (`DOMAIN/DEC-06`, na
+redação corrigida pelo dono do produto em 2026-10-22, via AC-US-0003-13; nenhum requisito de pilotagem
+depois do fim da volta existe nesta feature).
 
-A feature é só de apresentação (I2): a simulação, o passo, os presets, a validação de volta e
-`wheelPositions` não mudam (NFR-0005, NFR-0006, NFR-0007). Nenhuma tentativa, volta, resultado, replay ou
+A feature é só de apresentação (I2): a simulação, o passo, os presets, a validação de volta, o congelamento
+ao fim da volta e `wheelPositions` não mudam (NFR-0005, NFR-0006, NFR-0007). Nenhuma tentativa, volta, resultado, replay ou
 dado persistido do Jogador é criado, consumido ou alterado: D-FS-01 e D-FS-04 não se aplicam; nenhum fluxo
 recebe evento externo, então não há deduplicação a declarar (D-FS-03); tudo roda sem rede (D-FS-08, RNF08).
 Nenhuma mudança de dado persistido ou de esquema é implicada.
@@ -88,8 +90,9 @@ contrato de estado da volta da feature `race-lap-validation` (`getLapState`, cam
   `COUNTDOWN_DESCENT`, `RACE_CHASE`), decididos pela fase da volta
   ([RULE-0002](rules/RULE-0002-camera-de-jogo.md)). "Antes do início da contagem regressiva" (critério 10 de
   US-0003) é todo quadro com a pista carregada e sem volta ativa (`NO_ACTIVE_LAP`). A volta encerrada
-  (`ENDED`) não é visão geral: a câmera continua em `RACE_CHASE`, na pose de corrida, com o painel de
-  resultado sobre a cena e o kart pilotável (critério 13 de US-0003, `DOMAIN/DEC-06`); a próxima visão
+  (`ENDED`) não é visão geral: a câmera continua em `RACE_CHASE`, na pose de corrida em relação ao kart
+  parado, com o painel de resultado sobre a cena, a simulação parada e o kart congelado, como hoje
+  (invariante INV-1 de `race-lap-validation`; critério 13 de US-0003, `DOMAIN/DEC-06` corrigida); a próxima visão
   geral é a do primeiro quadro da contagem de uma nova volta — que `race-lap-validation` inicia direto de
   `ENDED` (`startLap` de `ENDED` para `COUNTDOWN`) — ou a de uma recarga da página sem volta ativa. "Em
   corrida" é a definição dos requisitos: do sinal verde até a próxima visão geral, sem terminar em `ENDED`.
@@ -164,8 +167,10 @@ Idêntico ao dos requisitos:
   de design.
 - **`race-lap-validation`.** Esta feature usa a contagem regressiva (3000 ms de tempo de simulação) e o sinal
   verde que já existem, pelo contrato `getLapState`, só para decidir o modo da câmera, e o fim da volta
-  (`ENDED`) e o painel de resultado que já existem, só para manter a câmera na pose de corrida
-  (`DOMAIN/DEC-06`); não muda a validação de volta nem as telas daquela feature.
+  (`ENDED`) e o painel de resultado que já existem, só para manter a câmera na pose de corrida em relação
+  ao kart parado (`DOMAIN/DEC-06`). Ao fim da volta a simulação para e o kart congela, como hoje: o
+  congelamento é o invariante INV-1 daquela feature e não muda; esta feature não muda a validação de volta,
+  o congelamento nem as telas daquela feature.
 - **`pista-kart-park`.** O Kart 01 e a câmera valem em qualquer pista em jogo.
 
 Nenhum feedback foi enviado a outra feature: nenhum requisito delas precisa mudar.
