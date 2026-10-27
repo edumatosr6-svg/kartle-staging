@@ -2,7 +2,7 @@
 title: Registro de implementação — validação de volta de corrida
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: []
 ---

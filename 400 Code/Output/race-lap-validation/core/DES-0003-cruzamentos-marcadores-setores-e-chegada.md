@@ -3,7 +3,7 @@ id: DES-0003
 title: Cruzamentos, marcadores, setores e chegada — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0002, FEAT-0004, FEAT-0006, FEAT-0009, REQ-FEAT-0002-01, REQ-FEAT-0002-10, REQ-FEAT-0002-12, REQ-FEAT-0002-13, REQ-FEAT-0002-14, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0004-07, REQ-FEAT-0004-09, REQ-FEAT-0004-10, REQ-FEAT-0004-11, REQ-FEAT-0004-12, REQ-FEAT-0004-13, REQ-FEAT-0006-13, REQ-FEAT-0009-01]
 ---

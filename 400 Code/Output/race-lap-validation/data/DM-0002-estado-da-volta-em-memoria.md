@@ -3,7 +3,7 @@ id: DM-0002
 title: Estado e resultado da volta em memória — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0003, REQ-FEAT-0001-05, REQ-FEAT-0002-04, REQ-FEAT-0002-11, REQ-FEAT-0003-08]
 ---

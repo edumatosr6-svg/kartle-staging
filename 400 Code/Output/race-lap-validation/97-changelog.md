@@ -2,7 +2,7 @@
 title: Registro de mudanças — validação de volta de corrida (estágio de código)
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: []
 ---

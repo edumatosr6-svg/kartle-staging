@@ -3,7 +3,7 @@ id: DES-0012
 title: Invariantes da simulação, física congelada e verificação das regras — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0005, FEAT-0009, REQ-FEAT-0005-07, REQ-FEAT-0009-02, REQ-FEAT-0009-03, REQ-FEAT-0009-04, REQ-FEAT-0009-10]
 ---

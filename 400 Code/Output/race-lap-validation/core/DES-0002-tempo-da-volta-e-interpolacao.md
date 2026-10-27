@@ -3,7 +3,7 @@ id: DES-0002
 title: Tempo da volta em passos e interpolação do cruzamento — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0003, REQ-FEAT-0001-01, REQ-FEAT-0001-05, REQ-FEAT-0001-08, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-11]
 ---

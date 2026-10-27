@@ -3,7 +3,7 @@ id: DES-0011
 title: Privacidade, uso offline e ausência de persistência — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0009, REQ-FEAT-0001-14, REQ-FEAT-0002-16, REQ-FEAT-0003-15, REQ-FEAT-0004-15, REQ-FEAT-0005-12, REQ-FEAT-0006-16, REQ-FEAT-0009-07, REQ-FEAT-0009-08, REQ-FEAT-0009-09, REQ-FEAT-0009-11]
 ---

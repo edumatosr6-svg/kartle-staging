@@ -3,7 +3,7 @@ id: DES-0005
 title: Tipos de volta, reposicionamento e resultado oficial — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0006, FEAT-0008, REQ-FEAT-0006-01, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-06, REQ-FEAT-0006-08, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-14, REQ-FEAT-0006-15, REQ-FEAT-0008-06, REQ-FEAT-0008-07]
 ---

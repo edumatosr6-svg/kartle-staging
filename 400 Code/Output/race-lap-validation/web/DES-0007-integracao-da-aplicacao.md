@@ -3,7 +3,7 @@ id: DES-0007
 title: Integração da aplicação, adaptadores de pausa e laço de quadros — implementação
 feature: race-lap-validation
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0001, FEAT-0003, FEAT-0007, FEAT-0009, REQ-FEAT-0001-12, REQ-FEAT-0001-13, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-12, REQ-FEAT-0007-12, REQ-FEAT-0009-05, REQ-FEAT-0009-06]
 ---
