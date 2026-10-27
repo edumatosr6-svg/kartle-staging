@@ -3,7 +3,7 @@ id: DES-0008
 title: Privacidade dos registros, do texto compartilhado e da saída dos ensaios — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0001, API-0002, API-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0006-02, REQ-FEAT-0006-08, NFR-0004, NFR-0009]
 ---

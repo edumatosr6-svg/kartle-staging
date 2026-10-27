@@ -1,8 +1,8 @@
 ---
 stage: code
 feature: dirigibilidade
-status: draft
-generated: 2026-10-27T16:27:27Z
+status: validated
+generated: 2026-10-27T18:23:05Z
 files: 12
 ---
 
@@ -12,13 +12,13 @@ files: 12
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-implementation.md` | - | Registro de implementação — dirigibilidade do Arcade assistido | draft | 2.0.0 |
-| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido (estágio de código) | draft | 2.0.0 |
-| `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido (estágio de código) | draft | 2.0.0 |
+| `01-implementation.md` | - | Registro de implementação — dirigibilidade do Arcade assistido | draft | 2.1.0 |
+| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido (estágio de código) | draft | 2.1.0 |
+| `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido (estágio de código) | draft | 2.1.0 |
 | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` | DES-0001 | Acerto Arcade assistido v5, assistências, pista de teste e classificação do passo — implementação | draft | 1.0.0 |
 | `core/DES-0002-telemetria-de-dirigibilidade.md` | DES-0002 | Telemetria de dirigibilidade por passo (API-0001) — implementação | draft | 1.0.0 |
 | `core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md` | DES-0003 | Versão do acerto, registros de volta e replay e comparabilidade (API-0002) — implementação | draft | 2.0.0 |
-| `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` | DES-0004 | Ensaios de dirigibilidade, ambientes, linha de base e saída (API-0003) — implementação | draft | 2.0.0 |
+| `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` | DES-0004 | Ensaios de dirigibilidade, ambientes, linha de base e saída (API-0003) — implementação | draft | 2.1.0 |
 | `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` | DM-0001 | Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base — implementação | draft | 2.0.0 |
 | `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` | DES-0008 | Privacidade dos registros, do texto compartilhado e da saída dos ensaios — implementação | draft | 1.0.0 |
 | `web/DES-0005-hud-velocidade-e-aderencia.md` | DES-0005 | HUD de velocidade e estado de aderência — implementação | draft | 1.0.0 |

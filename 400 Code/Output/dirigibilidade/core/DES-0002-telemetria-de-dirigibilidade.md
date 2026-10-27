@@ -3,7 +3,7 @@ id: DES-0002
 title: Telemetria de dirigibilidade por passo (API-0001) — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0001, FLOW-0001, RULE-0001, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, REQ-FEAT-0001-05, REQ-FEAT-0003-03, REQ-FEAT-0003-10, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0006-01, REQ-FEAT-0006-02]
 ---

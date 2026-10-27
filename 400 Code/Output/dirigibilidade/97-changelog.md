@@ -2,12 +2,72 @@
 title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de código)
 feature: dirigibilidade
 stage: code
-status: draft
-version: 2.0.0
+status: validated
+version: 2.1.0
 sources: []
 ---
 
 # Registro de mudanças
+
+## 2026-10-27 — rodada 4, Mode B (SPEC-ISSUE-03 de `feedback-20261027-1619.md` resolvido pelo D-Spec na rodada 9, `dspec-validation-20261027-1803`; `DOMAIN/DEC-14`; F-Spec API-0003 3.4.0)
+
+**O que mudou**
+
+- `scripts/handlingBench.ts` (DES-0004 5.1.0; ADR-0004 4.1.0 decisões 3 e 9; ADR-0005 1.3.0 decisão 1): em `referenceCornerBench`, a
+  acumulação da sequência consecutiva de `understeer` (`:280-281`) passa a valer só enquanto `exit` está indefinido — com
+  `THROTTLE_ZERO`, `maxUndersteerMs` cobre só os passos na faixa de asfalto até a primeira saída; a sequência em curso termina no
+  passo da saída e nenhum passo depois dela entra, na grama ou de volta ao asfalto. A execução continua a percorrer os 300 passos,
+  o traço, `offAsphaltStepCount` (janela inteira, informativo), `offAsphaltFirstStep` e posição, `judge`, `BenchRecord`,
+  `BENCH_PARAMETERS` e `THRESHOLDS` não mudam; com `THROTTLE_FULL` nada muda (a execução já parava no passo da saída, antes da
+  acumulação). Comentário da função (`:265-267`) atualizado. O arquivo não mudou de comprimento: as citações `arquivo:linha` da
+  rodada 3 continuam válidas.
+- `docs/physics.md`: entrada `arcade-assistido-v5` do bloco `handling-baseline` refeita em 2026-10-27T18:18Z com a saída de
+  `npm run bench:handling` desta rodada (46 registros `PASS`; `REFERENCE_CORNER` acelerador 0: `maxUndersteerMs` 125,
+  `offAsphaltStepCount` 61, `offAsphaltFirstStep` 240; `STEP_COST` 220,4 µs, medida de relógio); título da seção datada (API-0003
+  3.4.0), parágrafo de revisão (`DEC-14`, DES-0004 5.1.0), linhas `REFERENCE_CORNER` acelerador 0 e `STEP_COST` da tabela de
+  resultados, parágrafo final (todos os 15 ensaios passam; o motivo pelo qual os 61 passos na grama não entram). `arcade-assistido-v4`
+  e `realista-aluguel-4t-v4` mantidas.
+- Manifesto: `01-implementation.md` (2.1.0), `core/DES-0004` (2.1.0), `98-divergences.md` (2.1.0, contra o registro 3.1.0 do projeto:
+  linha B `resolved`, linha D `open`, A e C resolvidas pela rodada 3 e recitadas); `00-index.md` e `99-traceability.md` gerados por
+  `lint_artifacts.py --emit`. `core/DES-0001`, `core/DES-0002`, `core/DES-0003`, `data/DM-0001`, `web/DES-0005`, `web/DES-0006`,
+  `web/DES-0007` e `security/DES-0008` não mudam (nenhum campo, interface ou arquivo deles tocado; DM-0001 não carrega o fato, como o
+  projeto diz).
+
+**Decisões de implementação, onde o projeto deixava detalhe em aberto** (nenhuma muda contrato nem requisito)
+
+- A condição é escrita sobre `exit` (já definido no mesmo passo da primeira saída, antes da acumulação), de modo que o passo da
+  saída não entra na medição — "fecha no passo anterior a `offAsphaltFirstStep`" — e a mesma linha serve às duas condições de
+  acelerador: com `THROTTLE_FULL` o laço interrompe antes dela no passo da saída, como antes.
+- A contagem de `oversteer`/`sliding` da linha `#` com acelerador cheio não foi movida para dentro da condição: só existe com
+  `THROTTLE_FULL`, onde `exit` nunca está definido ao chegar nela; o comportamento é idêntico.
+
+**Itens fechados**: SPEC-ISSUE-03 de `feedback-20261027-1619.md` (resolvido pelo projeto 5.1.0 com `DOMAIN/DEC-14`; implementado; o
+registro `REFERENCE_CORNER` com acelerador 0 passa a `PASS` com 125 ms sem retune). Nenhum `ISSUE-<nn>` pendente (nenhum relatório de
+validação de código nesta feature ainda); nenhum `FB-<nn>` pendente.
+
+**Itens recusados, com motivo**
+
+- Retunar `ARCADE_ASSISTIDO_V5`, ou tocar `ARCADE_KART`, `RENTAL_KART`, `grassFriction`, o teto de guinada, `handling()`, os
+  parâmetros de `BENCH_PARAMETERS` ou os limiares: o projeto 5.1.0 diz que nada disso muda (ADR-0004 4.1.0, Alternativas) e o acerto
+  entregue atende sob `DEC-14`.
+- Parar a execução com acelerador 0 no primeiro passo fora da faixa (biblioteca da rodada 2): recusado pelo projeto (mudaria
+  `offAsphaltStepCount` e o traço de `DETERMINISM`); não feito.
+- Restringir `NORMAL_DRIVING` à janela até a primeira saída, ou acrescentar um campo que diga onde a janela fechou: recusados pelo
+  projeto (`offAsphaltFirstStep` já o diz); não feitos.
+- `src/lap.ts`: não tocado (regras de volta congeladas, NFR-0008); `src/setupRecords.ts`, `src/handlingMessages.ts`, `src/main.ts`:
+  nenhum deles carrega valor medido nem lê API-0003 — nada a mudar.
+- Versão de esquema dos registros: API-0003 3.4.0 não acrescenta campo nem valor de enum ("nenhum registro foi publicado sob a forma
+  anterior e nenhum consumidor lê este contrato como entrada"); nenhum campo de versão existe em `BenchRecord` e nenhum foi criado
+  (superfície congelada, conventions §16).
+- Refazer as entradas `arcade-assistido-v4` e `realista-aluguel-4t-v4` do bloco: continuam válidas (ADR-0004, Consequências);
+  `REALISTA_UNCHANGED` passa com 0 medidas diferentes contra a entrada existente.
+- Arquivos de teste de test-strategy (`tests/dirigibilidade-*.test.ts`, `tests/fixtures/records.ts`) e `docs/handling-device-log.md`:
+  estágio de testes e evidência humana, como nas rodadas 2 e 3.
+- Nenhum limiar foi afrouxado, nenhum requisito enfraquecido, nenhuma dependência acrescentada, nenhum arquivo fora dos que o projeto
+  nomeia foi tocado.
+
+**Migração de verificações existentes**: nenhuma verificação foi removida ou alterada; `npx tsx --test tests/*.test.ts` 172/172
+(`race-lap-validation` incluída); `npx tsc --noEmit -p .` 0.
 
 ## 2026-10-27 — rodada 3, Mode C (feedback `feedback-20261022-1803.md` resolvido pelo D-Spec na rodada 8, `dspec-validation-20261027-1531`; FB-01 de `race-lap-validation`)
 

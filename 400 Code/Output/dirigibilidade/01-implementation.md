@@ -2,12 +2,46 @@
 title: Registro de implementação — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: code
-status: draft
-version: 2.0.0
+status: validated
+version: 2.1.0
 sources: []
 ---
 
 # Registro de implementação
+
+Rodada 4, Mode B (2026-10-27): o projeto revalidado de `300 Specs/330 D-Specs/Output/dirigibilidade/` (rodada 9,
+`dspec-validation-20261027-1803`; DES-0004 5.1.0, ADR-0004 4.1.0, ADR-0005 1.3.0, DES-0001 3.4.0, 98-divergences 3.1.0; F-Spec API-0003
+3.4.0; `DOMAIN/DEC-14`) resolveu o SPEC-ISSUE-03 de `feedback-20261027-1619.md`, e esta rodada aplica só o que ele nomeia: a janela de
+medição de `maxUndersteerMs` em `REFERENCE_CORNER` com `THROTTLE_ZERO` fecha no passo anterior à primeira saída da faixa
+(`scripts/handlingBench.ts:280-281`, `referenceCornerBench`: a sequência consecutiva de `understeer` é acumulada só enquanto `exit`
+está indefinido; os passos depois da saída, na grama ou de volta ao asfalto, não entram), sem outro efeito sobre a execução (os 300
+passos continuam percorridos), o traço, `offAsphaltStepCount` (informativo, janela inteira), a primeira saída, `judge`, `BenchRecord`
+ou os parâmetros de ensaio; com `THROTTLE_FULL` nada muda. A entrada `arcade-assistido-v5` do bloco `handling-baseline` e a prosa
+datada de `docs/physics.md` foram refeitas com a saída de `npm run bench:handling` desta rodada. `src/physics.ts`
+(`ARCADE_ASSISTIDO_V5`, `ARCADE_KART`, `RENTAL_KART`), `src/lap.ts` (NFR-0008), `src/setupRecords.ts`, `src/main.ts`,
+`src/handlingMessages.ts`, `scripts/keyboard-lap.ts`, `scripts/physics-bench.ts`, `tests/*`, `package.json` e `tsconfig.json` não
+foram tocados; nenhuma dependência acrescentada; nenhum limiar, parâmetro de ensaio ou alavanca mudou. Resultado: 15/15 ensaios
+`PASS` nos dois modos de `Input` (46 registros); `REFERENCE_CORNER` com acelerador 0 mede 125 ms (saída no passo 240, 61 passos fora
+da faixa, como o projeto previu). `scripts/handlingBench.ts` não mudou de comprimento (as citações `arquivo:linha` da rodada 3
+continuam válidas).
+
+## Arquivos tocados nesta rodada (D-CD-01)
+
+| Arquivo | Situação | Camada | Itens de projeto |
+|---|---|---|---|
+| `scripts/handlingBench.ts` | alterado em `referenceCornerBench` (`:265-267` comentário; `:280-281` acumulação condicionada a "ainda sem saída") | simulação (papel `scripts/`) | DES-0004 5.1.0 (ADR-0004 decisão 9, ADR-0005 decisão 1) |
+| `docs/physics.md` | alterado (título da seção datada, parágrafo de revisão, linhas `REFERENCE_CORNER` acelerador 0 e `STEP_COST` da tabela de resultados, parágrafo final; entrada `arcade-assistido-v5` do bloco refeita em 2026-10-27T18:18Z) | registro | DM-0001 (M3), DES-0004 (NFR-0004) |
+
+## Portão determinístico desta rodada
+
+| Passo | Resultado |
+|---|---|
+| `npx tsc --noEmit -p .` | saída 0 |
+| `npx tsx --test tests/*.test.ts` | 172 testes, 172 aprovados, 0 reprovados |
+| `npm run bench:handling` | saída 0; 46 registros do `arcade-assistido-v5`, 46 `PASS` (15/15 ensaios nos dois modos); `REFERENCE_CORNER` acelerador 0 `PASS` 125 ms (saída no passo 240, 61 passos fora da faixa, informativo), acelerador cheio `PASS` 0 ms na faixa; `STEP_COST` 220,4 µs contra 203,3 µs (1,08 ×, `PASS`); os demais registros com as medidas da rodada 3 (determinísticos) |
+| `lint_artifacts.py --stage code --emit` | saída 0 |
+
+## Rodada anterior (3, Mode C, 2026-10-27)
 
 Rodada 3, Mode C (2026-10-27): o projeto revalidado de `300 Specs/330 D-Specs/Output/dirigibilidade/` (rodada 8,
 `dspec-validation-20261027-1531`; DES-0004 5.0.0, DES-0003 2.0.0, DM-0001 2.0.0, ADR-0003 1.4.0, ADR-0004 4.0.0, ADR-0005 1.2.0,
@@ -28,7 +62,7 @@ rodada termina **FAIL SPEC** com o feedback
 `300 Specs/330 D-Specs/Output/dirigibilidade/reports/feedback/feedback-20261027-1619.md` (SPEC-ISSUE-03); o preset fica como está
 e a implementação do projeto fica completa para a rodada seguinte.
 
-## Arquivos tocados nesta rodada (D-CD-01)
+## Arquivos tocados na rodada 3 (D-CD-01)
 
 | Arquivo | Situação | Camada | Itens de projeto |
 |---|---|---|---|
@@ -44,7 +78,7 @@ Inalterados nesta rodada: `src/physics.ts` (`ARCADE_ASSISTIDO_V5`, `handling()`,
 `src/maneuvers.ts`, `src/lapMessages.ts`, `src/frameClock.ts`, `src/audio.ts`, `src/style.css`, `tests/*`. A tabela de arquivos
 da rodada 2 está em `97-changelog.md`.
 
-## Portão determinístico desta rodada
+## Portão determinístico da rodada 3
 
 | Passo | Resultado |
 |---|---|
@@ -70,5 +104,6 @@ fora da faixa); `REFERENCE_CORNER` acelerador cheio `PASS` (0 ms, 0 `oversteer`/
 
 A matriz `99-traceability.md` é gerada pelo gate a partir dos campos `sources` dos registros `core/`, `data/`, `web/` e `security/`;
 cada registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. O índice `00-index.md` também é gerado. As divergências
-herdadas do D-Spec 3.0.0 estão em `98-divergences.md`: das 4 linhas abertas do projeto, 2 resolvidas nesta rodada com
-`arquivo:linha` e 2 `open` com o motivo; as 16 linhas resolvidas pela rodada 2 são recitadas com o `arquivo:linha` de hoje.
+herdadas do D-Spec 3.1.0 estão em `98-divergences.md`: das 2 linhas abertas do projeto, a de `REFERENCE_CORNER` com acelerador 0
+resolvida nesta rodada (4) com `arquivo:linha` e a de `npm test` `open` com o motivo (estágio de testes); as 18 linhas resolvidas
+pelas rodadas 2 e 3 são recitadas com o `arquivo:linha` de hoje.

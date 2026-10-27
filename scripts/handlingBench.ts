@@ -263,8 +263,8 @@ function steerResponse(o: BenchOptions, steerInputNorm: number): { record: Steer
 }
 
 // REFERENCE_CORNER: the 18 m arc at 50 km/h, steer +1 held, throttle 0 or 1 held. With THROTTLE_FULL the run stops at the
-// first step off the lane (nothing is measured off the asphalt); with THROTTLE_ZERO it covers the whole window wherever the
-// kart is, and maxUndersteerMs is measured on every step, on and off the lane (DOMAIN/DEC-13; ADR-0004, decision 9).
+// first step off the lane (nothing is measured off the asphalt); with THROTTLE_ZERO it runs the whole window wherever the kart
+// is, but maxUndersteerMs is measured only on the lane, up to the first exit (DOMAIN/DEC-13, DEC-14; ADR-0004, decision 9).
 function referenceCornerBench(o: BenchOptions, throttleCondition: ThrottleCondition): { record: ReferenceCornerRecord; trace: Trace } {
   const config = setupConfig(o), trace = newTrace();
   const input = makeInput(o.inputMode, throttleCondition === 'THROTTLE_FULL' ? 1 : 0, 0, 1);
@@ -277,8 +277,8 @@ function referenceCornerBench(o: BenchOptions, throttleCondition: ThrottleCondit
       exit ??= { step: t.simStepCount, x: state.x, z: state.z };
       if (throttleCondition === 'THROTTLE_FULL') break;
     }
-    run = t.handling === 'understeer' ? run + 1 : 0;
-    maxRun = Math.max(maxRun, run);
+    // The measurement window closes at the first lane exit: later steps, on grass or back on asphalt, never enter it (DEC-14).
+    if (!exit) { run = t.handling === 'understeer' ? run + 1 : 0; maxRun = Math.max(maxRun, run); }
     if (loose(t.handling)) bad++;
   }
   const record: ReferenceCornerRecord = {

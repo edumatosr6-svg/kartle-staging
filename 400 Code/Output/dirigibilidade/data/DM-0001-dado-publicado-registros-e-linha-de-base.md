@@ -3,7 +3,7 @@ id: DM-0001
 title: Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 2.0.0
 sources: [API-0002, API-0003, RULE-0002, RULE-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0002-07, REQ-FEAT-0002-10, REQ-FEAT-0005-05, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0004, NFR-0009]
 ---

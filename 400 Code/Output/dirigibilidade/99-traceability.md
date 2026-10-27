@@ -1,7 +1,7 @@
 ---
 stage: code
 feature: dirigibilidade
-generated: 2026-10-27T16:27:27Z
+generated: 2026-10-27T18:23:05Z
 rows: 171
 ---
 

@@ -3,7 +3,7 @@ id: DES-0005
 title: HUD de velocidade e estado de aderência — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [SCR-0001, FLOW-0001, API-0001, FEAT-0004, FEAT-0006, REQ-FEAT-0004-06, REQ-FEAT-0004-09, REQ-FEAT-0006-01]
 ---

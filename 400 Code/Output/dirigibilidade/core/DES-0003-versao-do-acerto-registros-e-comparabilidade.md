@@ -3,7 +3,7 @@ id: DES-0003
 title: Versão do acerto, registros de volta e replay e comparabilidade (API-0002) — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 2.0.0
 sources: [API-0002, RULE-0003, FLOW-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0006-03]
 ---

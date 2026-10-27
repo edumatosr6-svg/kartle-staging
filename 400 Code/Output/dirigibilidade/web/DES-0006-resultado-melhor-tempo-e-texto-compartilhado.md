@@ -3,7 +3,7 @@ id: DES-0006
 title: Resultado com a versão do acerto, melhor tempo comparável e texto compartilhado — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 1.1.0
 sources: [SCR-0002, FLOW-0003, API-0002, FEAT-0005, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-10]
 ---

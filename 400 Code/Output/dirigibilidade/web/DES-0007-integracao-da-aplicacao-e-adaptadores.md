@@ -3,7 +3,7 @@ id: DES-0007
 title: Integração da aplicação — escolha do acerto publicado e adaptadores de controle — implementação
 feature: dirigibilidade
 stage: code
-status: draft
+status: validated
 version: 1.1.0
 sources: [FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0001-07, REQ-FEAT-0003-10, REQ-FEAT-0005-05, REQ-FEAT-0005-09, REQ-FEAT-0006-01, REQ-FEAT-0006-03, NFR-0003, NFR-0005]
 ---
