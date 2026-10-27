@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { initialState, nearest, track, WIDTH, wheelPositions, PUBLISHED_SETUPS, getHandlingTelemetry, type PublishedSetup, type SetupRef } from './physics';
+import { initialState, nearest, track, WIDTH, PUBLISHED_SETUPS, getHandlingTelemetry, type PublishedSetup, type SetupRef } from './physics';
 import { buildLapRecord, compareLapRecords, type LapRecord } from './setupRecords';
 import { formatSharedText, shareLabel } from './handlingMessages';
 import { chargeTier } from './maneuvers';
@@ -9,6 +9,10 @@ import { readTrackData, type TrackReading } from './trackData';
 import { getLapResult, getLapState, offeredLapKinds, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapKind, type LapSession } from './lap';
 import { advanceClock } from './frameClock';
 import { describeLap, formatLapTime, greenSignalVisible, message, resolveLanguage, type Language, type MessageKey } from './lapMessages';
+import { buildKart01Model, updateKart01Pose, KART01_WHEELBASE_M } from './kart01Model';
+import { paintKart01Decals } from './kart01Decals';
+import { getKartPose, advanceWheelSpin, initialWheelSpin, modelOffsetForwardM, simWheelGroundPositions } from './kartPose';
+import { computeCameraView, trackBoundsOf, type CameraView } from './gameCamera';
 import './style.css';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -33,9 +37,12 @@ const sun = new THREE.DirectionalLight('#fff0cc', 3);
 sun.position.set(45, 100, 60);
 sun.castShadow = true;
 sun.shadow.mapSize.set(2048, 2048);
-Object.assign(sun.shadow.camera, { left: -120, right: 120, top: 100, bottom: -100 });
+// The shadow box follows the displayed kart (±60 m, 2048 texels: 5.9 cm per texel), so the kart keeps its shadow on any track (DES-0004).
+Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60 });
+sun.shadow.camera.updateProjectionMatrix();
 sun.shadow.bias = -0.001;
 scene.add(sun);
+scene.add(sun.target);
 
 const material = (color: string) => new THREE.MeshStandardMaterial({ color, roughness: 0.9 });
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), material('#68865b'));
@@ -110,45 +117,34 @@ for (let i = 0; i < 90; i++) {
   tree.add(crown);
   scene.add(tree);
 }
-const kart = new THREE.Group();
-box(kart, [1.3, 0.35, 2.15], [0, 0.45, 0], '#e7a056');
-box(kart, [1.45, 0.25, 0.55], [0, 0.45, 1.1], '#edb45f');
-box(kart, [0.75, 0.5, 0.7], [0, 0.8, -0.25], '#243e35');
-const helmet = new THREE.Mesh(new THREE.SphereGeometry(0.36, 12, 8), material('#f1e7ca'));
-helmet.position.set(0, 1.2, -0.1);
-kart.add(helmet);
-box(kart, [0.53, 0.14, 0.15], [0, 1.22, 0.2], '#263d36');
 // The current setup comes from the published data (DES-0007, ADR-0001); there is no path to the previous version.
 let setup: PublishedSetup = PUBLISHED_SETUPS.ARCADE_ASSISTIDO;
-const wheels: { pivot: THREE.Group; mesh: THREE.Mesh }[] = [];
-for (const position of wheelPositions(setup.config)) {
-  const pivot = new THREE.Group();
-  pivot.position.set(position.left, 0.31, position.forward);
-  const wheel = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.28, 12), material('#202b28'));
-  wheel.rotation.z = Math.PI / 2;
-  wheel.castShadow = true;
-  pivot.add(wheel);
-  kart.add(pivot);
-  wheels.push({ pivot, mesh: wheel });
-}
-scene.add(kart);
+// The Kart 01 (DES-0001, DES-0004): built once per page, decals painted once; kart01.root turned by π so the model
+// front (-Z) faces the simulation front (+Z). kartRoot lives in the simulation frame (front +Z, left +X).
+const kart01 = buildKart01Model();
+paintKart01Decals(kart01);
+kart01.root.rotation.y = Math.PI;
+const kartRoot = new THREE.Group();
+kartRoot.add(kart01.root);
+scene.add(kartRoot);
 
 const skidMarks = new THREE.InstancedMesh(new THREE.BoxGeometry(0.19, 0.012, 1), new THREE.MeshBasicMaterial({ color: '#202b28', transparent: true, opacity: 0.38 }), 320);
 skidMarks.count = 0;
 skidMarks.frustumCulled = false;
 scene.add(skidMarks);
 const skidTransform = new THREE.Object3D();
-let skidIndex = 0, skidClock = 0;
+let skidIndex = 0, lastSkidStepCount = 0;
+// One tyre-mark segment every 5 simulation steps (41.7 ms, today's 40 ms cadence rounded to the step), never by wall clock (DES-0005).
+const SKID_STEP_INTERVAL = 5;
 let previousSkids: THREE.Vector3[] = [];
+// A single jet tied to the Kart 01 exhaust outlet, pointing behind the kart (+Z of the model frame) with its base at the tailpipe (DES-0005).
 const exhaust = new THREE.Group();
-for (const x of [-0.37, 0.37]) {
-  const jet = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 8), new THREE.MeshBasicMaterial({ color: '#a5faff', transparent: true, opacity: 0.9 }));
-  jet.rotation.x = -Math.PI / 2;
-  jet.position.set(x, 0.4, -1.35);
-  exhaust.add(jet);
-}
+const jet = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 8), new THREE.MeshBasicMaterial({ color: '#a5faff', transparent: true, opacity: 0.9 }));
+jet.rotation.x = Math.PI / 2;
+jet.position.set(0, 0, 0.6);
+exhaust.add(jet);
 exhaust.visible = false;
-kart.add(exhaust);
+kart01.anchors.exhaustOutlet.add(exhaust);
 const audio = new RaceAudio();
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -162,6 +158,11 @@ const reading: TrackReading = readTrackData(SYNTHETIC_TRACK_FILE);
 if (reading.trackDataStatus === 'UNREADABLE') console.warn('track-data', 'UNREADABLE');
 else if (reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'UNSUPPORTED_SCHEMA', reading.schemaVersion);
 else if (reading.trackDataStatus === 'INCOMPLETE') console.warn('track-data', 'INCOMPLETE', reading.trackId, reading.trackVersion);
+// The overview fits these bounds (the outer ribbon of the synthetic track); undefined without a track, which means no scene (DES-0003).
+const trackBounds = reading.trackDataStatus === 'COMPLETE' || reading.trackDataStatus === 'INCOMPLETE' ? trackBoundsOf(track, WIDTH / 2 + 1) : undefined;
+// Display state of the feature: wheel spin by simStepCount and the camera of the current frame (DES-0002, DES-0004).
+let spin = initialWheelSpin();
+let cameraView: CameraView | undefined;
 let started = false, accumulatorS = 0, last = performance.now();
 // Lap records of the page (DES-0006, DM-0001 section 2): the last ended lap and the best comparable one; nothing persisted.
 let lastRecord: LapRecord | undefined, bestRecord: LapRecord | undefined;
@@ -228,7 +229,7 @@ function beginLap(kind: LapKind) {
   setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
   lap = r.lap; started = true; accumulatorS = 0; keys.clear(); touch.clear();
   touchFallback = coarsePointer.matches && !tilt;
-  skidMarks.count = 0; skidIndex = 0; previousSkids = []; skidClock = 0;
+  skidMarks.count = 0; skidIndex = 0; previousSkids = [];
   resultLang = undefined; lastPhase = undefined;
   $('welcome').classList.add('hidden');
   $('lap-result').classList.add('hidden');
@@ -390,11 +391,17 @@ function renderResult() {
 }
 new ResizeObserver(() => {
   renderer.setSize(host.clientWidth, host.clientHeight);
-  camera.aspect = host.clientWidth / host.clientHeight; camera.updateProjectionMatrix();
 }).observe(host);
-camera.position.set(125, 130, 145);
-camera.lookAt(0, 0, 0);
-const cameraTarget = new THREE.Vector3();
+// Writes the camera of the frame (API-0003) to the Three.js camera: position, aim, vertical fov, aspect and a far plane that holds the overview.
+function applyCameraView(target: THREE.PerspectiveCamera, view: CameraView): void {
+  target.position.set(view.cameraXM, view.cameraHeightM, view.cameraZM);
+  target.up.set(0, 1, 0);
+  target.lookAt(view.aimXM, view.aimHeightM, view.aimZM);
+  target.fov = view.verticalFovDeg;
+  target.aspect = view.viewWidthPx / view.viewHeightPx;
+  target.far = Math.max(500, 3 * view.cameraHeightM);
+  target.updateProjectionMatrix();
+}
 function frame(now: number) {
   requestAnimationFrame(frame);
   const dt = Math.min((now - last) / 1000, 0.1); last = now;
@@ -439,20 +446,30 @@ function frame(now: number) {
     }
   }
   lastPhase = lap?.phase;
-  kart.position.set(state.x, 0, state.z); kart.rotation.y = state.heading;
+  // The displayed kart is the state of the last completed step (API-0001); nothing is interpolated or estimated.
+  const pose = getKartPose(state);
+  if ('code' in pose) kartRoot.visible = false;
+  else {
+    kartRoot.visible = true;
+    kartRoot.position.set(pose.xM, 0, pose.zM); kartRoot.rotation.y = pose.headingRad;
+    // The reference point of RULE-0003 sits at (xM, zM): the model mid-wheelbase is offset ahead by the frontWeight fraction.
+    kart01.root.position.z = modelOffsetForwardM((lap?.config ?? config).frontWeight, KART01_WHEELBASE_M);
+    spin = advanceWheelSpin(spin, pose);
+    updateKart01Pose(kart01, { steerAngleRad: pose.steerAngleRad, wheelSpinRevs: spin.revs });
+    sun.position.set(pose.xM + 45, 100, pose.zM + 60);
+    sun.target.position.set(pose.xM, 0, pose.zM);
+  }
   const tricks = state.maneuvers;
   audio.update(state.speed, state.throttle, running);
   exhaust.visible = tricks.boost > 0;
   exhaust.scale.z = 1 + (reducedMotion ? 0 : Math.sin(state.elapsed * 35) * 0.12);
-  if (running && tricks.drifting && state.speed > 6 && Math.abs(state.telemetry.sideslip) > 0.055) {
-    skidClock += dt;
-    if (skidClock >= 0.04) {
-      skidClock = 0;
-      const rear = wheelPositions(config).slice(2).map(p => new THREE.Vector3(
-        state.x + p.forward * Math.sin(state.heading) + p.left * Math.cos(state.heading),
-        0.055,
-        state.z + p.forward * Math.cos(state.heading) - p.left * Math.sin(state.heading),
-      ));
+  // A counter that went backwards (new lap, reposition) restarts the segment chain without touching the marks already drawn.
+  if (!('code' in pose) && pose.simStepCount < lastSkidStepCount) { previousSkids = []; lastSkidStepCount = pose.simStepCount; }
+  if (lap && lap.phase === 'RUNNING' && !('code' in pose) && tricks.drifting && state.speed > 6 && Math.abs(state.telemetry.sideslip) > 0.055) {
+    if (pose.simStepCount - lastSkidStepCount >= SKID_STEP_INTERVAL) {
+      lastSkidStepCount = pose.simStepCount;
+      // The rear simulation wheel positions of the lap's frozen config, carried by the pose: never the model's wheel centres (NFR-0007).
+      const rear = simWheelGroundPositions(pose, lap.config).slice(2).map(p => new THREE.Vector3(p.xM, 0.055, p.zM));
       rear.forEach((p, i) => {
         const previous = previousSkids[i];
         if (!previous) return;
@@ -469,21 +486,16 @@ function frame(now: number) {
       skidMarks.instanceMatrix.needsUpdate = true;
       previousSkids = rear;
     }
-  } else { previousSkids = []; skidClock = 0; }
-  for (let i = 0; i < wheels.length; i++) {
-    wheels[i].pivot.rotation.y = state.telemetry.wheels[i]?.steerAngle ?? 0;
-    // Visual spin follows traveled speed; wheel angular dynamics are not simulated.
-    if (running) wheels[i].mesh.rotateY(state.speed * dt / 0.31);
-  }
-  if (started) {
-    cameraTarget.set(state.x - Math.sin(state.heading) * 18, 14, state.z - Math.cos(state.heading) * 18);
-    camera.position.lerp(cameraTarget, 1 - Math.exp(-dt * 5));
-    camera.lookAt(state.x + Math.sin(state.heading) * 9, 0.5, state.z + Math.cos(state.heading) * 9);
-  }
-  const targetFov = 48 + (config.drivingAssists && !reducedMotion ? Math.min(5, state.speed * 0.15) + (tricks.boost > 0 ? 4 : 0) : 0);
-  if (Math.abs(camera.fov - targetFov) > 0.01) {
-    camera.fov = THREE.MathUtils.lerp(camera.fov, targetFov, 1 - Math.exp(-dt * 5));
-    camera.updateProjectionMatrix();
+  } else { previousSkids = []; }
+  // The camera is a pure function of the frame (ADR-0002): lap state, pose, play-area shape read this frame and the turbo condition.
+  const viewWidthPx = host.clientWidth, viewHeightPx = host.clientHeight;
+  if (viewWidthPx > 0 && viewHeightPx > 0) {
+    const view = computeCameraView({
+      lapState: getLapState(lap), kartPose: pose, viewWidthPx, viewHeightPx,
+      turboActive: config.drivingAssists && !reducedMotion && tricks.boost > 0, trackBounds,
+    });
+    cameraView = 'code' in view ? undefined : view;
+    if (cameraView) applyCameraView(camera, cameraView);
   }
   renderHud();
   if (lap?.phase === 'ENDED') renderResult();
@@ -535,6 +547,7 @@ function frame(now: number) {
   }
   if (now > notificationUntil) $('message').textContent = '';
   minimap();
-  renderer.render(scene, camera);
+  // Without a camera of the frame (no track loaded) nothing is drawn: no scene and no provisional kart (SCR-0001).
+  if (cameraView) renderer.render(scene, camera); else renderer.clear();
 }
 requestAnimationFrame(frame);

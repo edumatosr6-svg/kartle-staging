@@ -9,6 +9,7 @@
     "test": "tsx --test tests/*.test.ts",
     "bench:physics": "tsx scripts/physics-bench.ts",
     "bench:handling": "tsx scripts/keyboard-lap.ts",
+    "baseline:kart01": "tsx scripts/kart01-baseline.ts",
     "preview": "vite preview --host 127.0.0.1"
   },
   "dependencies": { "three": "^0.186.1" },

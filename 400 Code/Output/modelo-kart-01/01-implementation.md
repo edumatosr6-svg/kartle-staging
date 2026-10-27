@@ -1,0 +1,76 @@
+---
+title: Registro de implementação — modelo Kart 01 e câmera de jogo
+feature: modelo-kart-01
+stage: code
+status: draft
+version: 1.0.0
+sources: []
+---
+
+# Registro de implementação
+
+Rodada 1, Mode A (2026-10-27): o projeto validado de `300 Specs/330 D-Specs/Output/modelo-kart-01/` (1.2.0,
+`dspec-validation-20261027-1624`; DES-0001 1.0.0, DES-0002 1.0.0, DES-0003 1.1.0, DES-0004 1.2.0, DES-0005 1.1.0, DES-0006 1.2.0,
+DES-0007 1.0.0, DM-0001 1.2.0, ADR-0001 a ADR-0004) foi implementado por inteiro sobre a árvore do commit `b86b200` (código da
+`dirigibilidade` validado em `code-validation-20261027-1824`, precondição de ADR-0003). Ordem de construção: dado (DM-0001: gravador
+e fixture da linha de base, antes de qualquer outra mudança), aplicação (DES-0001 a DES-0005: quatro módulos novos e `src/main.ts`),
+verificações do estágio (DES-0006: a medição do modelo montado por programa em Node e o portão determinístico). `src/physics.ts`,
+`src/lap.ts`, `src/track.ts`, `src/trackData.ts`, `src/maneuvers.ts`, `src/lapTiming.ts`, `src/setupRecords.ts`, os presets, `Input`
+e o contrato de passo não foram tocados (REQ-FEAT-0006-06: 0 linhas de diferença); `index.html`, `src/style.css` e `src/audio.ts`
+inalterados (SCR-0001); nenhuma dependência de execução acrescentada (`three` `^0.186.1` continua a única; `mergeGeometries` vem de
+`three/addons/utils/BufferGeometryUtils.js`, parte do pacote); `tsconfig.json` inalterado; nenhum arquivo de `tests/*.test.ts` nem
+`tests/helpers/` escrito (estágio de testes).
+
+Resultado medido sobre o modelo montado em Node (programa descartável com o `three` do projeto, como `NOTES.md` do seed descreve;
+os números entram nos registros `web/DES-0001` e `98-divergences.md`): **27 malhas, 27 chamadas de desenho, 5.128 triângulos**
+(≤ 30; forma inalterada); caixa envolvente dos 15 grupos sem piloto de z −0,990 a +0,9365 (1,9265 m) e x ±0,725 (1,45 m); com
+piloto, altura 0,9497 m; entre-eixos 1,05 m; bitolas 1,00 m e 1,14 m; as 15 cores distintas do atributo `color` mais `#F4F3EF` do
+material da placa contêm as quatro da ficha; saída do escapamento em (0,39, 0,33, 0,77) m. **Achado:** a extensão em Y da geometria
+mesclada de cada roda é 0,2535 m (dianteiras) e 0,273 m (traseiras) — o pneu é um `LatheGeometry` de 14 segmentos e nenhum vértice
+cai em ±Y —, o que, pela regra de medida que DES-0001 e DES-0006 escrevem ("extensão em Y … arredondada ao centímetro igual a 0,26 e
+0,28"), reprovaria `WHEELS_AND_TRACKS` sobre a geometria inalterada do Cowork; reportado em
+`300 Specs/330 D-Specs/Output/modelo-kart-01/reports/feedback/feedback-20261027-1928.md` (SPEC-ISSUE-01, FAIL SPEC). Nada no
+código depende dessa regra: a geometria é a da fonte e `wheels[nome].diameterM` carrega 0,26 e 0,28.
+
+Verificação em tela (navegador embutido da sessão, `vite preview`, 908 × 560 px, paisagem): visão geral com a pista inteira antes
+da contagem; descida durante a contagem com o primeiro quadro ainda na visão geral; no verde, câmera atrás do piloto com o Kart 01
+inteiro no quadro, placa `01` legível no para-choque, motor à direita do piloto, piloto esterçando com a tecla `a`; nenhum erro de
+console. Taxa de quadros não medida (o painel roda em segundo plano, como no registro da `race-lap-validation`): fica para o
+registro em `docs/kart-01/device-log.md` nos aparelhos de referência.
+
+## Arquivos tocados nesta rodada (D-CD-01)
+
+| Arquivo | Situação | Camada | Itens de projeto |
+|---|---|---|---|
+| `src/kart01Model.ts` | novo (555 linhas) | aplicação | DES-0001, ADR-0001 |
+| `src/kart01Decals.ts` | novo (91 linhas) | aplicação (único módulo do modelo com DOM) | DES-0001 |
+| `src/kartPose.ts` | novo (77 linhas) | aplicação, puro | DES-0002 |
+| `src/gameCamera.ts` | novo (186 linhas) | aplicação, puro | DES-0003, ADR-0002 |
+| `src/main.ts` | alterado (540 → 553 linhas): importações, caixa de sombra e `sun.target`, Kart 01 no lugar do kart de caixas, jato no escapamento, `trackBounds`/`spin`/`cameraView`, `beginLap` sem `skidClock`, `ResizeObserver` só com `setSize`, `applyCameraView`, laço de quadro (pose, giro, luz, marcas por passo, câmera por quadro, `render` só com câmera) | aplicação | DES-0004, DES-0005 |
+| `scripts/kart01-baseline.ts` | novo (85 linhas) | aplicação (programa em Node) | DM-0001, ADR-0004, DES-0006 |
+| `tests/fixtures/kart01-sim-baseline.json` | novo (gravado por `npm run baseline:kart01 -- --commit b86b200d14f950baa1a902f56b6f6fbfff5082ba` sobre a árvore anterior às mudanças de código) | dado de teste | DM-0001, ADR-0004 |
+| `package.json` | alterado: script `baseline:kart01` (`tsx scripts/kart01-baseline.ts`); dependências inalteradas | tooling | DES-0006 |
+| `docs/kart-01/device-log.md` | novo: molde do registro em tela com a entrada do build desta rodada e os roteiros marcados como não executados | registro | DM-0001, DES-0004 |
+
+Inalterados: `docs/kart-01/kart.js` (fonte, `DOMAIN/DEC-00`), `src/physics.ts`, `src/lap.ts`, `src/track.ts`, `src/trackData.ts`,
+`src/maneuvers.ts`, `src/lapTiming.ts`, `src/frameClock.ts`, `src/lapMessages.ts`, `src/handlingMessages.ts`, `src/setupRecords.ts`,
+`src/audio.ts`, `src/style.css`, `index.html`, `tsconfig.json`, `tests/*`, `scripts/handlingBench.ts`, `scripts/keyboard-lap.ts`,
+`scripts/physics-bench.ts`.
+
+## Portão determinístico desta rodada
+
+| Passo | Resultado |
+|---|---|
+| `npx tsc --noEmit -p .` | saída 0 |
+| `npx vite build` | saída 0; `dist/assets/index-D0RarhFV.js` 631 352 bytes (gzip 165 033) e `index-dgojskay.css` 11 407 bytes (gzip 3 244): 642 759 bytes sem compressão, abaixo de 3 MB (REQ-FEAT-0006-01, NFR-0002); nenhum recurso novo (textura, modelo ou fonte) |
+| `npx tsx --test tests/*.test.ts` | 237 testes, 237 aprovados, 0 reprovados (`race-lap-validation-layering` e `race-lap-validation-hud-css` verdes sem alteração) |
+| `npm run baseline:kart01` | fixture gravado; `ARCADE_ASSISTIDO` `arcade-assistido-v5`: 3 531 passos, `VALID`, 29 419 ms, setores 7 851/7 753/7 464/6 351 ms, 143 corridas de `Input`; `REALISTA_ALUGUEL_4T` `realista-aluguel-4t-v4`: 5 272 passos, `VALID`, 43 932 ms, setores 11 574/12 613/12 922/6 823 ms, 112 corridas; `trackId` `synthetic`, `trackVersion` 2; segunda execução sem `--force` recusada |
+| Medição do modelo em Node | 27 malhas, 27 chamadas, 5 128 triângulos; medidas acima |
+| `lint_artifacts.py --stage code --emit` | saída 0 |
+
+## Rastreabilidade
+
+A matriz `99-traceability.md` é gerada pelo gate a partir dos campos `sources` dos registros `web/`, `data/` e `security/`; cada
+registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. O índice `00-index.md` também é gerado. As divergências herdadas
+do D-Spec 1.2.0 estão em `98-divergences.md`: das 21 linhas abertas do projeto, 15 `resolved` com `arquivo:linha` e 6 `open` com o
+motivo (a parte de `npm test` do estágio de testes; o registro em aparelho; e a medida das rodas, reportada em FAIL SPEC).
