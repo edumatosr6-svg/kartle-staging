@@ -3,7 +3,7 @@ id: TEST-0002
 title: Leitura do esquema 3 e geometria do arquivo usada como declarada — API-0001, cópias ilegíveis, padrões neutros e regra de superfície
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0002-08, AC-US-0002-04, AC-US-0005-04, AC-US-0005-02, NFR-0006]
 ---

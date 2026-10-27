@@ -1,7 +1,7 @@
 ---
 stage: test
 feature: pista-kart-park
-status: draft
+status: validated
 generated: 2026-10-27T23:06:38Z
 files: 14
 ---

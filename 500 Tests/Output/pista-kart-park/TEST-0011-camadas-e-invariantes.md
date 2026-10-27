@@ -3,7 +3,7 @@ id: TEST-0011
 title: Camadas e invariantes — simulação sem renderizador, DOM, relógio, sorteio, rede ou armazenamento; regra de tela fora da sessão; contrato de passo; pista sintética dos ensaios; dependências
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009, NFR-0010]
 ---

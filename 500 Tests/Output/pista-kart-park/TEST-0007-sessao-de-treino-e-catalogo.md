@@ -3,7 +3,7 @@ id: TEST-0007
 title: Sessão de treino e catálogo de pistas — API-0002 campo a campo, Kart Park na abertura, volta da pista escolhida, troca que descarta a volta e reposiciona o kart, códigos de falha
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09]
 ---

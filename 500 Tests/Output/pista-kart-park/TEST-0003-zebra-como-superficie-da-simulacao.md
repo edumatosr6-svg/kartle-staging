@@ -3,7 +3,7 @@ id: TEST-0003
 title: Zebra como superfície da simulação — 85 % de aderência por pneu, rodas na zebra sem saída de pista e o contato de API-0003
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0005-04, AC-US-0005-06]
 ---

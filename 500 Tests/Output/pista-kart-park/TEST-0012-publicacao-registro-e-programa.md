@@ -3,7 +3,7 @@ id: TEST-0012
 title: Publicação — trackVersion 1, resumo e tamanho no registro, reprodução byte a byte pelo preparo, recusas do programa numa cópia temporária (promoção sem decisão Esri, regeneração, argumentos)
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [NFR-0006, NFR-0012, NFR-0001, AC-US-0002-06]
 ---

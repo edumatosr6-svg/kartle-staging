@@ -3,7 +3,7 @@ id: TEST-0006
 title: Determinismo na Kart Park — mesma sequência de entradas, mesmo tempo, mesmos setores e mesmo estado; reprodução pela sessão de treino
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [NFR-0003]
 ---

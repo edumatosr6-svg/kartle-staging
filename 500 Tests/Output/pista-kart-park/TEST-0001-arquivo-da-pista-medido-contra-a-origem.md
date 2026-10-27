@@ -3,7 +3,7 @@ id: TEST-0001
 title: Arquivo da pista publicado medido contra a origem e contra si mesmo — V01 a V18 rederivados, verifyTrackFile e cópias com um desvio
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0005-01, AC-US-0005-02, AC-US-0006-09, NFR-0001, NFR-0006]
 ---

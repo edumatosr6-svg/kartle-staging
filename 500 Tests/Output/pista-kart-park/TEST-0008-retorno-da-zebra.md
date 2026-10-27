@@ -3,7 +3,7 @@ id: TEST-0008
 title: Retorno da zebra — pulsos de 20 ms a cada 30 passos em web-mobile, som a cada 12 passos em web-desktop, nada sem roda na zebra nem em passo já tratado, som da zebra distinto construído num AudioContext de substituição
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12]
 ---

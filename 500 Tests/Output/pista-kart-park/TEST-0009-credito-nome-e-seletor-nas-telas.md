@@ -3,7 +3,7 @@ id: TEST-0009
 title: Crédito, nome, comprimento e seletor nas telas — regras puras de src/lapMessages.ts e os textos de DOM que src/main.ts e index.html emitem
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0003-06, NFR-0005]
 ---

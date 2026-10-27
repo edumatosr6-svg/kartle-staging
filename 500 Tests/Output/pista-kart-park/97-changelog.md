@@ -2,7 +2,7 @@
 title: Changelog do estágio de testes
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 ---
 

@@ -2,7 +2,7 @@
 title: Registro de divergências, verificação reprovada e critérios não verificados em npm test
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 ---
 

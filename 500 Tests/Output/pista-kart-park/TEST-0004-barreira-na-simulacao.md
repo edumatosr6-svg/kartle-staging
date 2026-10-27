@@ -3,7 +3,7 @@ id: TEST-0004
 title: Barreira na simulação — único obstáculo do ambiente do arquivo, intransponível, com a resposta do muro, contato só no passo de entrada
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 1.0.0
 sources: [AC-US-0004-02, AC-US-0004-04, AC-US-0004-05]
 ---
