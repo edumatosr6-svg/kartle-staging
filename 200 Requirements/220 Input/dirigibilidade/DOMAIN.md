@@ -66,3 +66,8 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   entrando a 50 km/h **com acelerador zero**, o único critério é "sem `understeer` por mais de 200 ms
   consecutivos"; **permanecer na faixa enquanto desacelera não é exigido**. A variante com acelerador
   cheio continua exigindo permanência na faixa e ausência de `understeer`/`oversteer`.
+- 2026-10-22 — **Leitura de "sem subesterço" (redator, coerente com OPEN-03; o dono pode reverter):**
+  em todos os ensaios desta feature, "sem `understeer`" e "nenhum patamar reporta `understeer`"
+  significam **nenhuma sequência de `understeer` com mais de 200 ms consecutivos** (o limiar de
+  OPEN-03), e não tolerância zero. Assim, um patamar com `understeer` de até 200 ms seguido da saída da
+  faixa acima de 50 km/h conta como "sem início de subesterço", e V1 é a velocidade mantida desse patamar.
