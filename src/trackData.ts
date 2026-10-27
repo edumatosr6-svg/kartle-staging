@@ -1,8 +1,18 @@
-// Track-data layer: reads and classifies a versioned track file (DM-0001, DES-0006).
-// Pure: no DOM, no clock, no random; imports only src/track.ts.
-import { crossLine, nearest, track, WIDTH, type Line, type Point } from './track';
+// Track-data layer: reads and classifies a versioned track file (DM-0001, DES-0006; schema 3: DES-0001 and DM-0001 of
+// pista-kart-park). Pure: no DOM, no clock, no random; imports only src/track.ts and src/trackGeometry.ts.
+import { crossLine, nearest, sideOf, track, WIDTH, type Line, type Point } from './track';
+import {
+  buildTrackGeometry, centerlineCrossings as geometryCrossings, classifySurface, nearestOnCenterline, windingSumOf,
+  type BarrierLine, type CurbSpan, type TrackGeometry, type TrackPoint,
+} from './trackGeometry';
+export type { BarrierLine, CurbSpan, TrackPoint } from './trackGeometry';
 
-export const TRACK_SCHEMA_VERSION = 2;
+// The highest schema version this reader knows (ADR-0001 of pista-kart-park): 1, 2 and 3 are read; above is unsupported.
+export const TRACK_SCHEMA_VERSION = 3;
+const SCHEMA_WITH_GEOMETRY = 3;
+const MIN_CENTERLINE_POINTS = 3;
+const MIN_BARRIER_POINTS = 2;
+const CURB_END_TOLERANCE_M = 0.001;
 export const DEFAULT_CUT_DISTANCE_M = 3;
 export const DEFAULT_CUT_DURATION_MS = 1000;
 export const BARRIER_REACH_M = WIDTH / 2 + 9;
@@ -24,9 +34,11 @@ export type DeclaredTrack = {
 };
 export type CompleteTrack = Required<Pick<DeclaredTrack, 'direction' | 'startPosition' | 'finishLine' | 'sectorLimits' | 'markers'>>
   & Pick<DeclaredTrack, 'cutDistanceM' | 'cutDurationMs'>;
+// The four fields of a schema-3 reading (API-0001 of pista-kart-park): present together, only in a schema-3 reading.
+export type Schema3Fields = { centerline: TrackPoint[]; curbs: CurbSpan[]; barriers: BarrierLine[]; osmDerived: boolean };
 export type TrackReading =
-  | ({ trackDataStatus: 'COMPLETE'; trackId: string; trackVersion: TrackVersion } & CompleteTrack)
-  | ({ trackDataStatus: 'INCOMPLETE'; trackId: string; trackVersion: TrackVersion } & DeclaredTrack)
+  | ({ trackDataStatus: 'COMPLETE'; trackId: string; trackVersion: TrackVersion } & CompleteTrack & Partial<Schema3Fields>)
+  | ({ trackDataStatus: 'INCOMPLETE'; trackId: string; trackVersion: TrackVersion } & DeclaredTrack & Partial<Schema3Fields>)
   | { trackDataStatus: 'UNSUPPORTED_SCHEMA'; schemaVersion: number }
   | { trackDataStatus: 'UNREADABLE' };
 export type TrackDataSource = string | object | null | undefined;
@@ -77,7 +89,51 @@ function readDeclared(file: Record<string, unknown>): { declared: DeclaredTrack;
   return { declared, wellFormed };
 }
 
-// Classification order 1 to 7 of DM-0001, followed literally. Never throws, never mutates `source`.
+const centerlineLengthOf = (points: TrackPoint[]) => {
+  let l = 0;
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i], b = points[(i + 1) % points.length];
+    l += Math.hypot(b.xM - a.xM, b.zM - a.zM);
+  }
+  return l;
+};
+// Orders 6 and 7 of DM-0001 (schema 3): the geometry fields, copied into new objects; undefined when out of form.
+function readSchema3Fields(file: Record<string, unknown>): Schema3Fields | undefined {
+  const rawCenterline = file.centerline;
+  if (!Array.isArray(rawCenterline) || rawCenterline.length < MIN_CENTERLINE_POINTS) return undefined;
+  const centerline: TrackPoint[] = [];
+  for (const p of rawCenterline) {
+    if (!isRecord(p) || !isFinite(p.xM) || !isFinite(p.zM) || !isFinite(p.widthM) || p.widthM <= 0) return undefined;
+    centerline.push({ xM: p.xM, zM: p.zM, widthM: p.widthM });
+  }
+  const lapLengthM = centerlineLengthOf(centerline);
+  const curbs: CurbSpan[] = [];
+  if (file.curbs !== undefined) {
+    if (!Array.isArray(file.curbs)) return undefined;
+    for (const c of file.curbs) {
+      if (!isRecord(c) || (c.side !== 'LEFT' && c.side !== 'RIGHT') || !isFinite(c.fromLapM) || !isFinite(c.toLapM) || !isFinite(c.widthM)) return undefined;
+      if (!(c.fromLapM >= 0 && c.fromLapM < c.toLapM && c.toLapM <= lapLengthM + CURB_END_TOLERANCE_M) || c.widthM <= 0) return undefined;
+      curbs.push({ side: c.side, fromLapM: c.fromLapM, toLapM: c.toLapM, widthM: c.widthM });
+    }
+  }
+  const barriers: BarrierLine[] = [];
+  if (file.barriers !== undefined) {
+    if (!Array.isArray(file.barriers)) return undefined;
+    for (const b of file.barriers) {
+      if (!isRecord(b) || !Array.isArray(b.points) || b.points.length < MIN_BARRIER_POINTS) return undefined;
+      const points: { xM: number; zM: number }[] = [];
+      for (const p of b.points) {
+        if (!isRecord(p) || !isFinite(p.xM) || !isFinite(p.zM)) return undefined;
+        points.push({ xM: p.xM, zM: p.zM });
+      }
+      barriers.push({ points });
+    }
+  }
+  if (file.osmDerived !== undefined && typeof file.osmDerived !== 'boolean') return undefined;
+  return { centerline, curbs, barriers, osmDerived: file.osmDerived === true };
+}
+
+// Classification order 1 to 9 of DM-0001, followed literally. Never throws, never mutates `source`.
 export function readTrackData(source: TrackDataSource): TrackReading {
   let file: unknown = source;
   if (typeof source === 'string') {
@@ -93,6 +149,17 @@ export function readTrackData(source: TrackDataSource): TrackReading {
     return { trackDataStatus: 'UNREADABLE' };
   }
   if (schemaVersion === 1) return { trackDataStatus: 'INCOMPLETE', trackId, trackVersion };
+  if (schemaVersion === SCHEMA_WITH_GEOMETRY) {
+    const fields = readSchema3Fields(file);
+    if (!fields) return { trackDataStatus: 'UNREADABLE' };
+    const geometry = buildTrackGeometry(fields.centerline, fields.curbs, fields.barriers);
+    const { declared, wellFormed } = readDeclared(file);
+    if (!wellFormed || checkConsistencyV3(declared, geometry).length > 0) {
+      return { trackDataStatus: 'INCOMPLETE', trackId, trackVersion, ...declared, ...fields };
+    }
+    return { trackDataStatus: 'COMPLETE', trackId, trackVersion, ...(declared as CompleteTrack), ...fields };
+  }
+  // Schema 2: the path of race-lap-validation, over the synthetic geometry, unchanged.
   const { declared, wellFormed } = readDeclared(file);
   if (!wellFormed || checkConsistency(declared).length > 0) {
     return { trackDataStatus: 'INCOMPLETE', trackId, trackVersion, ...declared };
@@ -212,6 +279,89 @@ export function checkConsistency(declared: DeclaredTrack): string[] {
     const arcs = [...markerArcs, ...limitArcs, finishArc].map(a => a as number).sort((a, b) => a - b);
     for (let i = 1; i < arcs.length; i++) if (arcs[i] - arcs[i - 1] < MIN_LINE_SPACING_M) c7 = false;
     for (const a of arcs) if (Math.min(a, centerlineLength - a) < MIN_LINE_SPACING_M) c7 = false;
+  }
+  if (!c7) failed.push('C7');
+
+  return failed;
+}
+
+// C1 to C7 of schema 3 (DM-0001 of pista-kart-park): the same purposes as C1 to C7, over the geometry of the file
+// itself, never over the synthetic track. Returns the identifiers of the failed checks; a check whose inputs are absent fails.
+export function checkConsistencyV3(declared: DeclaredTrack, geometry: TrackGeometry): string[] {
+  const failed: string[] = [];
+  const { direction, startPosition, finishLine, sectorLimits, markers } = declared;
+  const L = geometry.lapLengthM;
+
+  // C1 v3: direction equals the winding of the declared centerline in index order.
+  const s = windingSumOf(geometry.centerline);
+  const winding: TrackDirection | undefined = s > 0 ? 'CLOCKWISE' : s < 0 ? 'COUNTER_CLOCKWISE' : undefined;
+  if (!direction || direction !== winding) failed.push('C1');
+
+  // C2 v3: the closed centerline crosses each line exactly once, in the track sense.
+  const named: Line[] = [];
+  if (finishLine) named.push(finishLine);
+  for (const l of sectorLimits ?? []) named.push(l);
+  for (const l of markers ?? []) named.push(l);
+  const crossingOf = new Map<Line, number>();
+  let c2 = Boolean(finishLine && sectorLimits && markers);
+  for (const line of named) {
+    const crossings = geometryCrossings(geometry, line);
+    if (crossings.length === 1 && crossings[0].forward) crossingOf.set(line, crossings[0].lapM);
+    else c2 = false;
+  }
+  if (!c2) failed.push('C2');
+
+  // C3 v3: start on the track (not grass), heading within 90 degrees of the travel tangent of the nearest segment.
+  let startArc: number | undefined;
+  if (startPosition) {
+    const p = { x: startPosition.xM, z: startPosition.zM };
+    const near = nearestOnCenterline(geometry, p);
+    const heading = startPosition.headingDeg * Math.PI / 180;
+    const diff = Math.atan2(Math.sin(heading - near.headingRad), Math.cos(heading - near.headingRad));
+    if (classifySurface(geometry, p) !== 'grass' && Math.abs(diff) < Math.PI / 2) {
+      const at = geometry.centerline[near.index];
+      startArc = geometry.cumulativeM[near.index] + Math.hypot(near.position.x - at.xM, near.position.z - at.zM);
+    }
+  }
+  if (startArc === undefined) failed.push('C3');
+
+  const relative = (line: Line) => {
+    const c = crossingOf.get(line);
+    if (c === undefined || startArc === undefined) return undefined;
+    return ((c - startArc) % L + L) % L;
+  };
+  const markerArcs = (markers ?? []).map(relative);
+  const limitArcs = (sectorLimits ?? []).map(relative);
+  const finishArc = finishLine ? relative(finishLine) : undefined;
+  const allKnown = finishArc !== undefined && markerArcs.every(a => a !== undefined) && limitArcs.every(a => a !== undefined)
+    && markerArcs.length > 0 && limitArcs.length === 3;
+  const increasing = (arcs: (number | undefined)[]) => arcs.every((a, i) => i === 0 || (a as number) > (arcs[i - 1] as number));
+
+  // C4 v3: markers in order, limits in order, finish after all of them.
+  const c4 = allKnown && increasing(markerArcs) && increasing(limitArcs)
+    && [...markerArcs, ...limitArcs].every(a => (a as number) < (finishArc as number));
+  if (!c4) failed.push('C4');
+
+  // C5 v3: every limit has a marker before and after it; the last marker precedes the finish.
+  const c5 = allKnown && limitArcs.every(l => markerArcs.some(m => (m as number) < (l as number)) && markerArcs.some(m => (m as number) > (l as number)))
+    && (markerArcs[markerArcs.length - 1] as number) < (finishArc as number);
+  if (!c5) failed.push('C5');
+
+  // C6 v3: both ends of every line lie on the grass, so the line spans the track edge to edge (no wall in schema 3).
+  let c6 = Boolean(finishLine && sectorLimits && markers);
+  for (const line of named) {
+    if (classifySurface(geometry, { x: line.fromXM, z: line.fromZM }) !== 'grass' || classifySurface(geometry, { x: line.toXM, z: line.toZM }) !== 'grass') c6 = false;
+  }
+  if (!c6) failed.push('C6');
+
+  // C7 v3: consecutive lines at least 2 m apart; the start at least 2 m from every marker and limit, and on the
+  // side after the finish line (the start sits about 0.5 m after it, so no distance to the finish is required).
+  let c7 = allKnown && startPosition !== undefined && finishLine !== undefined
+    && sideOf(finishLine, { x: startPosition.xM, z: startPosition.zM }) > 0;
+  if (allKnown) {
+    const arcs = [...markerArcs, ...limitArcs, finishArc].map(a => a as number).sort((a, b) => a - b);
+    for (let i = 1; i < arcs.length; i++) if (arcs[i] - arcs[i - 1] < MIN_LINE_SPACING_M) c7 = false;
+    for (const a of [...markerArcs, ...limitArcs].map(a => a as number)) if (Math.min(a, L - a) < MIN_LINE_SPACING_M) c7 = false;
   }
   if (!c7) failed.push('C7');
 

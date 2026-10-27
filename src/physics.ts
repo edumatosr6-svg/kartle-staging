@@ -1,12 +1,16 @@
 import { nearest, track, WIDTH, type Point } from './track';
 import { advanceManeuvers, cancelManeuver, initialManeuvers, type Maneuvers } from './maneuvers';
 export { nearest, track, WIDTH, LapTracker } from './track';
+import { BARRIER_HALF_WIDTH_M, BARRIER_TOUCH_TOLERANCE_M, beyondTrackEdgeM, classifySurface, closestOnSegment, nearestBarrier, type TrackGeometry } from './trackGeometry';
 
 export const STEP = 1 / 120;
 export const GRAVITY = 9.81;
 export const PHYSICS_VERSION = 'rental-4t-v4';
 export type Input = { throttle: number; brake: number; steer: number; drift?: boolean };
-export type Surface = 'asphalt' | 'grass';
+// 'curb' exists only in an environment with a track that declares curbs (ADR-0004 of pista-kart-park).
+export type Surface = 'asphalt' | 'curb' | 'grass';
+// Fraction of the asphalt grip of the same tyre on a curb (RULE-0001 of pista-kart-park, DOMAIN/DEC-05).
+export const CURB_GRIP_PC = 0.85;
 export type Handling = 'grip' | 'understeer' | 'oversteer' | 'sliding';
 export type Wheel = {
   load: number; slipAngle: number; utilization: number;
@@ -18,6 +22,8 @@ export type Telemetry = {
   wheels: Wheel[]; longitudinalG: number; lateralG: number;
   frontSlip: number; rearSlip: number; sideslip: number; handling: Handling;
   forcing: boolean; surface: Surface; wallContact: boolean; assistActive: boolean;
+  // Barrier of a schema-3 track (DES-0003 of pista-kart-park): touching at the end of the step, and the step of entering contact.
+  barrierTouching: boolean; barrierContact: boolean;
 };
 export type State = Point & {
   heading: number; vx: number; vz: number; yawRate: number;
@@ -103,6 +109,7 @@ const approach = (v: number, target: number, change: number) => v + clamp(target
 const emptyTelemetry = (): Telemetry => ({
   wheels: [], longitudinalG: 0, lateralG: 0, frontSlip: 0, rearSlip: 0, sideslip: 0, handling: 'grip',
   forcing: false, surface: 'asphalt', wallContact: false, assistActive: false,
+  barrierTouching: false, barrierContact: false,
 });
 export function initialState(): State {
   return {
@@ -141,9 +148,13 @@ export function wheelLoads(config: KartConfig, ax: number, ay: number) {
   const rearTransfer = clamp(transfer * (1 - config.frontWeight), -rear / 2, rear / 2);
   return [front / 2 - frontTransfer, front / 2 + frontTransfer, rear / 2 - rearTransfer, rear / 2 + rearTransfer];
 }
+// Friction coefficient of a tyre by surface: the curb gives CURB_GRIP_PC of the (already scaled) asphalt friction.
+export function surfaceMu(config: KartConfig, surface: Surface): number {
+  return surface === 'grass' ? config.grassFriction : surface === 'curb' ? config.friction * CURB_GRIP_PC : config.friction;
+}
 export function tireForce(load: number, slip: number, requestedFx: number, stiffness: number, surface: Surface, config: KartConfig) {
   if (load <= 0) return { fx: 0, fy: 0, capacity: 0, utilization: 0 };
-  const mu = surface === 'grass' ? config.grassFriction : config.friction;
+  const mu = surfaceMu(config, surface);
   const capacity = mu * load * Math.pow(550 / Math.max(load, 25), config.loadSensitivity);
   const requestedFy = -stiffness * load * slip;
   const demand = Math.hypot(requestedFx, requestedFy), utilization = demand / capacity;
@@ -161,8 +172,19 @@ function handling(front: number, rear: number, sideslip: number, speed: number):
   if (front > 0.2 && rear > 0.2) return 'sliding';
   return 'grip';
 }
-export type Environment = { surfaceAt: (point: Point) => Surface; walls: boolean };
+// `track` is present only for a schema-3 track (DES-0003 of pista-kart-park); absent, nothing of the step changes.
+export type Environment = { surfaceAt: (point: Point) => Surface; walls: boolean; track?: TrackGeometry };
 export const CIRCUIT: Environment = { surfaceAt: p => nearest(p).distance > WIDTH / 2 ? 'grass' : 'asphalt', walls: true };
+// Environment of a track declared in its file: surfaces from the file geometry, no wall derived from the centerline
+// (REQ-FEAT-0004-04 of pista-kart-park); the only obstacles are the barriers of the file.
+export function trackEnvironment(geometry: TrackGeometry): Environment {
+  return { surfaceAt: p => classifySurface(geometry, p), walls: false, track: geometry };
+}
+// Distance of a point beyond the track edge, in metres, 0 on the track: the file geometry with `track`, otherwise the
+// expression of edgeDistanceM of src/lap.ts over the synthetic track.
+export function trackEdgeDistanceM(environment: Environment, point: Point): number {
+  return environment.track ? beyondTrackEdgeM(environment.track, point) : Math.max(0, nearest(point).distance - WIDTH / 2);
+}
 export const TEST_PAD: Environment = { surfaceAt: () => 'asphalt', walls: false };
 // Test pad of the handling benches (DES-0001, ADR-0005): a straight lane along z and a ring of radius arcRadiusM,
 // both laneWidthM wide, without walls; outside the lane the surface is 'grass' in the sense of "off the asphalt".
@@ -207,7 +229,7 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
     ? limit * (returning ? (config.steerReturnRatePerS ?? 10) : (config.steerApplyRatePerS ?? 5)) : config.steerRate;
   const forcingScale = config.drivingAssists && forcing ? 1 + ((config.forcingRearFrictionScale ?? 1) - 1) * forcingRamp : 1;
   const rearFrictionScale = (drifting ? 0.86 : 1) * forcingScale;
-  let assistActive = false, wallContact = false;
+  let assistActive = false, wallContact = false, barrierHit = false;
   const steering = approach(state.steering, targetSteer, steerRate * dt);
   const throttle = approach(state.throttle, clamp(input.throttle, 0, 1), config.throttleRate * dt);
   const brake = approach(state.brake, clamp(input.brake, 0, 1), 6 * dt);
@@ -235,7 +257,7 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
     // Rental keeps its original rear-only braking.
     const brakeShare = config.drivingAssists ? (front ? 0.4 : 0.6) / 2 : (front ? 0 : 0.5);
     const brakeDemand = brake * config.brakeForce * brakeShare;
-    const mu = surface === 'grass' ? config.grassFriction : config.friction;
+    const mu = surfaceMu(config, surface);
     const braking = config.drivingAssists ? Math.min(brakeDemand, loads[i] * mu * 0.65) : brakeDemand;
     const requestedFx = -rolling - braking * Math.tanh(tireU / 0.5)
       + (front ? 0 : drive / 2 - coastBrake / 2 * Math.tanh(tireU / 0.5) + scrub);
@@ -250,7 +272,10 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
   if (config.drivingAssists && state.speed > 0.5) {
     assistActive = true;
     const asphaltFraction = wheels.filter(w => w.surface === 'asphalt').length / 4;
-    const mu = config.grassFriction + (config.friction - config.grassFriction) * asphaltFraction;
+    const curbFraction = wheels.filter(w => w.surface === 'curb').length / 4;
+    const grassFraction = wheels.filter(w => w.surface === 'grass').length / 4;
+    // Without a curb the added term is exactly 0 and k / 4 is exact, so the synthetic track keeps the same bits (ADR-0004).
+    const mu = config.grassFriction + (config.friction - config.grassFriction) * asphaltFraction + (CURB_GRIP_PC * config.friction - config.grassFriction) * curbFraction;
     // Arcade lateral damping removes excess sliding, while retaining small tire slip.
     const allowedSlipVelocity = Math.abs(u) * (drifting ? 0.18 : 0.035);
     const excessV = Math.sign(v) * Math.max(0, Math.abs(v) - allowedSlipVelocity);
@@ -272,7 +297,7 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
       moment += clamp(inertia * (intendedYaw - state.yawRate) * (config.yawTrackingGainPerS ?? 0), -140, 140);
     }
     // Grass speed loss proportional to the fraction of wheels on the grass (DES-0001).
-    if ((config.grassSpeedLossPerS ?? 0) > 0) fx -= mass * u * (config.grassSpeedLossPerS ?? 0) * (1 - asphaltFraction);
+    if ((config.grassSpeedLossPerS ?? 0) > 0) fx -= mass * u * (config.grassSpeedLossPerS ?? 0) * grassFraction;
     if (boosting) fx += mass * (2.2 + state.maneuvers.boostTier * 0.4) * governor * throttle;
   }
   const ax = fx / mass, ay = fy / mass;
@@ -311,18 +336,59 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
       next.speed = Math.hypot(next.vx, next.vz);
     }
   }
+  // Barrier block (ADR-0003 of pista-kart-park), only with a track and in the file order of its segments: contact on the
+  // substep trajectory, else by proximity; the response is the wall's, with the normal pointing at the barrier.
+  if (environment.track && environment.track.barrierSegments.length > 0) {
+    const start: Point = { x: state.x, z: state.z };
+    for (const seg of environment.track.barrierSegments) {
+      const contact = barrierContactPoint(seg.a, seg.b, start, next);
+      if (!contact) continue;
+      next.x = contact.q.x + contact.m.x * BARRIER_HALF_WIDTH_M; next.z = contact.q.z + contact.m.z * BARRIER_HALF_WIDTH_M;
+      const nx = -contact.m.x, nz = -contact.m.z;
+      const outgoing = next.vx * nx + next.vz * nz;
+      if (outgoing > 0) {
+        next.vx -= outgoing * 1.12 * nx; next.vz -= outgoing * 1.12 * nz;
+        next.yawRate *= 0.65;
+        next.maneuvers = cancelManeuver(next.maneuvers);
+        barrierHit = true;
+      }
+      next.speed = Math.hypot(next.vx, next.vz);
+    }
+  }
   next.telemetry = { wheels, longitudinalG: ax / GRAVITY, lateralG: ay / GRAVITY,
     frontSlip, rearSlip, sideslip, handling: label,
-    forcing, surface: environment.surfaceAt(next), wallContact, assistActive };
+    forcing, surface: environment.surfaceAt(next), wallContact, assistActive, barrierTouching: barrierHit, barrierContact: false };
   return next;
+}
+// Sign of c relative to the directed segment ab (left positive).
+const orientation = (a: Point, b: Point, c: Point) => (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
+// Contact of the substep trajectory s -> e with barrier segment ab: the crossing point on s's side (step 1), or the
+// closest point when e lies within the contact surface (step 2); `m` is the unit normal pointing away from the barrier.
+function barrierContactPoint(a: Point, b: Point, s: Point, e: Point): { q: Point; m: Point } | undefined {
+  const lengthAB = Math.hypot(b.x - a.x, b.z - a.z);
+  if (lengthAB === 0) return undefined;
+  const leftOfAB: Point = { x: (b.z - a.z) / lengthAB, z: -(b.x - a.x) / lengthAB };
+  const sSide = orientation(a, b, s);
+  const startSideNormal: Point = sSide >= 0 ? leftOfAB : { x: -leftOfAB.x, z: -leftOfAB.z };
+  const eSide = orientation(a, b, e);
+  const aSide = orientation(s, e, a), bSide = orientation(s, e, b);
+  if (sSide * eSide < 0 && aSide * bSide < 0) {
+    const fraction = Math.abs(sSide) / Math.abs(eSide - sSide);
+    return { q: { x: s.x + (e.x - s.x) * fraction, z: s.z + (e.z - s.z) * fraction }, m: startSideNormal };
+  }
+  const near = closestOnSegment(a, b, e);
+  if (near.distanceM >= BARRIER_HALF_WIDTH_M) return undefined;
+  if (near.distanceM === 0) return { q: near.point, m: startSideNormal };
+  return { q: near.point, m: { x: (e.x - near.point.x) / near.distanceM, z: (e.z - near.point.z) / near.distanceM } };
 }
 export function step(state: State, input: Input, dt = STEP, config: KartConfig = RENTAL_KART, environment: Environment = CIRCUIT): State {
   if (!Number.isFinite(dt) || dt <= 0 || dt > 0.1) throw new RangeError('Physics dt must be in (0, 0.1].');
   const count = Math.ceil(dt / (STEP / SOLVER_SUBSTEPS));
   const sin = Math.sin(state.heading), cos = Math.cos(state.heading);
+  // On the road: no wheel on the grass (a curb counts as track for the drift, RULE-0001 of pista-kart-park).
   const onRoad = wheelPositions(config).every(p => environment.surfaceAt({
     x: state.x + p.forward * sin + p.left * cos, z: state.z + p.forward * cos - p.left * sin,
-  }) === 'asphalt');
+  }) !== 'grass');
   // Forcing and its ramp are decided once per call, on the state at the start of the step (RULE-0001).
   const forcing = isForcing(state, input);
   const forcingRamp = forcingRampFraction(state.speed, config);
@@ -331,16 +397,46 @@ export function step(state: State, input: Input, dt = STEP, config: KartConfig =
     throttle: input.throttle, brake: input.brake, speed: state.speed,
     slip: state.telemetry.sideslip, yaw: state.yawRate, onRoad,
   }, dt) };
-  let wallContact = false, assistActive = false;
+  let wallContact = false, assistActive = false, barrierHit = false;
   for (let i = 0; i < count; i++) {
     next = integrate(next, input, dt / count, config, environment, forcing, forcingRamp);
     wallContact ||= next.telemetry.wallContact;
     assistActive ||= next.telemetry.assistActive;
+    barrierHit ||= next.telemetry.barrierTouching;
   }
-  next.telemetry = { ...next.telemetry, wallContact, assistActive };
+  // Touching: a barrier response in some substep, or the centre ending the step within the contact surface plus the
+  // tolerance; nothing is consulted without a track or without barriers. Contact is the step touching begins.
+  const barrierTouching = barrierHit || (environment.track !== undefined && environment.track.barrierSegments.length > 0
+    && (nearestBarrier(environment.track, next)?.distanceM ?? Infinity) <= BARRIER_HALF_WIDTH_M + BARRIER_TOUCH_TOLERANCE_M);
+  const barrierContact = barrierTouching && !state.telemetry.barrierTouching;
+  next.telemetry = { ...next.telemetry, wallContact, assistActive, barrierTouching, barrierContact };
   next.stepCount = state.stepCount + 1;
-  if (next.telemetry.wheels.some(w => w.surface !== 'asphalt')) next.maneuvers = cancelManeuver(next.maneuvers);
+  if (next.telemetry.wheels.some(w => w.surface === 'grass')) next.maneuvers = cancelManeuver(next.maneuvers);
   return next;
+}
+export type WheelSurface = 'ASPHALT' | 'CURB' | 'GRASS';
+export type TrackContact = {
+  simStepCount: number; wheelSurfaces: [WheelSurface, WheelSurface, WheelSurface, WheelSurface];
+  curbWheelCount: number; wheelGripPc: [number, number, number, number]; beyondTrackEdgeM: number; barrierContact: boolean;
+};
+const WHEEL_SURFACE_LABEL: Record<Surface, WheelSurface> = { asphalt: 'ASPHALT', curb: 'CURB', grass: 'GRASS' };
+// API-0003 of pista-kart-park (DES-0003): a pure reading of the state at the end of its step; the wheel surfaces are
+// those of the wheel positions the next step will start from, by the wheel-position formula of integrate.
+export function getTrackContact(state: State | undefined, environment: Environment, config: KartConfig): TrackContact | { code: 'NO_STATE' } {
+  if (!state) return { code: 'NO_STATE' };
+  const sin = Math.sin(state.heading), cos = Math.cos(state.heading);
+  const surfaces = wheelPositions(config).map(p => environment.surfaceAt({
+    x: state.x + p.forward * sin + p.left * cos, z: state.z + p.forward * cos - p.left * sin,
+  }));
+  const grip = (surface: Surface) => surface === 'asphalt' ? 1 : surface === 'curb' ? CURB_GRIP_PC : config.grassFriction / config.friction;
+  return {
+    simStepCount: state.stepCount,
+    wheelSurfaces: surfaces.map(s => WHEEL_SURFACE_LABEL[s]) as TrackContact['wheelSurfaces'],
+    curbWheelCount: surfaces.filter(s => s === 'curb').length,
+    wheelGripPc: surfaces.map(grip) as TrackContact['wheelGripPc'],
+    beyondTrackEdgeM: trackEdgeDistanceM(environment, state),
+    barrierContact: state.telemetry.barrierContact === true,
+  };
 }
 export type HandlingTelemetry = {
   simStepCount: number; setupId: SetupId; setupVersion: string;

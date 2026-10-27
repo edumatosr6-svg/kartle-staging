@@ -1,8 +1,9 @@
 // Simulation layer: the lap state machine over the unchanged physics step (DES-0001, DES-0003, DES-0004,
 // DES-0005, DM-0002, ADR-0002). Pure functions over an immutable LapSession; rejections are values.
-import { CIRCUIT, initialState, STEP, step, type Environment, type Input, type KartConfig, type SetupId, type State } from './physics';
+import { CIRCUIT, initialState, STEP, step, trackEdgeDistanceM, type Environment, type Input, type KartConfig, type SetupId, type State } from './physics';
 import { crossLine, nearest, track, WIDTH, type Line, type Point } from './track';
-import { DEFAULT_CUT_DISTANCE_M, DEFAULT_CUT_DURATION_MS, type TrackReading, type TrackVersion } from './trackData';
+import { DEFAULT_CUT_DISTANCE_M, DEFAULT_CUT_DURATION_MS, type StartPosition, type TrackReading, type TrackVersion } from './trackData';
+import { nearestOnCenterline } from './trackGeometry';
 import { COUNTDOWN_MS, COUNTDOWN_STEPS, interpolateMs, isCutExceeded, toMs } from './lapTiming';
 
 export type LapKind = 'OFFICIAL' | 'RECON' | 'TRAINING';
@@ -110,10 +111,7 @@ export function startLap(
   const lines: LapLines = reading.trackDataStatus === 'COMPLETE'
     ? { finishLine: reading.finishLine, sectorLimits: reading.sectorLimits, markers: reading.markers, cutDistanceM: cut.distanceM, cutDurationMs: cut.durationMs }
     : { sectorLimits: [], markers: [], cutDistanceM: cut.distanceM, cutDurationMs: cut.durationMs };
-  const start = reading.startPosition;
-  const kart: State = start
-    ? { ...initialState(), x: start.xM, z: start.zM, heading: start.headingDeg * Math.PI / 180 }
-    : initialState();
+  const kart = kartAtStart(reading.startPosition);
   const lap: LapSession = {
     lapKind: request.lapKind,
     trackId: reading.trackId,
@@ -138,6 +136,11 @@ export function startLap(
   return accept(lap);
 }
 
+// The kart at rest on the declared start, or on the synthetic start without one (DES-0004 of pista-kart-park).
+export function kartAtStart(start: StartPosition | undefined): State {
+  return start ? { ...initialState(), x: start.xM, z: start.zM, heading: start.headingDeg * Math.PI / 180 } : initialState();
+}
+
 export function pauseLap(lap: LapSession | undefined, cause: PauseCause): LapCommandResult<PauseLapRejection> {
   if (!lap) return reject('NO_ACTIVE_LAP');
   if (lap.phase === 'ENDED') return reject('LAP_ENDED');
@@ -159,16 +162,23 @@ export function repositionKart(lap: LapSession | undefined): LapCommandResult<Re
   if (lap.phase !== 'RUNNING') return reject('NOT_RUNNING');
   if (lap.lapKind === 'OFFICIAL') return accept(invalidate(lap, 'REPOSITION'));
   // Destination (ADR-0004): nearest centerline point, heading along the centerline in travel sense, speed 0.
+  // The centerline is the one of the lap's track file when the environment carries it, else the synthetic one.
   const from: Point = { x: lap.kart.x, z: lap.kart.z };
-  const near = nearest(from);
-  const a = track[near.index], b = track[(near.index + 1) % track.length];
-  const kart: State = {
-    ...initialState(), x: near.position.x, z: near.position.z,
-    heading: Math.atan2(b.x - a.x, b.z - a.z), elapsed: lap.kart.elapsed,
-  };
+  const destination = nearestOnTrack(lap.environment, from);
+  const kart: State = { ...initialState(), x: destination.position.x, z: destination.position.z, heading: destination.headingRad, elapsed: lap.kart.elapsed };
   const moved: LapSession = { ...lap, kart, offTrackSteps: 0 };
   // Every displacement of the kart is evaluated for line crossings, this one at the instant of the request.
-  return accept(evaluateDisplacement(moved, from, near.position, () => toMs(lap.stepCount)));
+  return accept(evaluateDisplacement(moved, from, destination.position, () => toMs(lap.stepCount)));
+}
+
+function nearestOnTrack(environment: Environment, from: Point): { position: Point; headingRad: number } {
+  if (environment.track) {
+    const near = nearestOnCenterline(environment.track, from);
+    return { position: near.position, headingRad: near.headingRad };
+  }
+  const near = nearest(from);
+  const a = track[near.index], b = track[(near.index + 1) % track.length];
+  return { position: near.position, headingRad: Math.atan2(b.x - a.x, b.z - a.z) };
 }
 
 export function stepLap(lap: LapSession, input: Input): LapSession {
@@ -249,8 +259,9 @@ function evaluateDisplacement(session: LapSession, from: Point, to: Point, insta
 }
 
 // Cut accumulator after the line crossings of a RUNNING step (DES-0004); strict comparisons, integer time.
+// The edge is the one of the lap's environment: the track file geometry (curbs included) or the synthetic track.
 function evaluateCut(session: LapSession, kart: Point): LapSession {
-  if (edgeDistanceM(kart) <= session.lines.cutDistanceM) {
+  if (trackEdgeDistanceM(session.environment, kart) <= session.lines.cutDistanceM) {
     return session.offTrackSteps === 0 ? session : { ...session, offTrackSteps: 0 };
   }
   const offTrackSteps = session.offTrackSteps + 1;

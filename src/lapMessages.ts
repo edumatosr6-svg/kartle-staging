@@ -74,3 +74,22 @@ export function describeLap(view: LapStateView, lang: Language): LapDescription 
 export function greenSignalVisible(view: LapStateView): boolean {
   return view.lapPhase === 'RUNNING' && view.stepCount < 120;
 }
+
+// Credit of the OpenStreetMap-derived data (DES-0007 of pista-kart-park): literal in both languages, outside MESSAGES,
+// never through message() or resolveLanguage (REQ-FEAT-0006-11).
+export const OSM_CREDIT = Object.freeze({
+  text: '© colaboradores do OpenStreetMap',
+  license: 'licença ODbL',
+  url: 'https://openstreetmap.org/copyright',
+});
+export type OsmCredit = typeof OSM_CREDIT;
+
+// Screen rule of the credit: only for a catalogue entry that declares osmCredit; none for an absent entry.
+export function creditFor(option: { readonly osmCredit: boolean } | undefined): OsmCredit | undefined {
+  return option?.osmCredit ? OSM_CREDIT : undefined;
+}
+
+// Label of a catalogue entry: the display name, then " · <length> m" when a display length exists.
+export function optionLabel(option: { readonly displayName: string; readonly displayLengthM?: number }): string {
+  return option.displayLengthM !== undefined ? `${option.displayName} · ${option.displayLengthM} m` : option.displayName;
+}

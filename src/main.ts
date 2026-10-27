@@ -1,18 +1,24 @@
 import * as THREE from 'three';
-import { initialState, nearest, track, WIDTH, PUBLISHED_SETUPS, getHandlingTelemetry, type PublishedSetup, type SetupRef } from './physics';
+import { initialState, nearest, track, WIDTH, PUBLISHED_SETUPS, getHandlingTelemetry, getTrackContact, type PublishedSetup, type SetupRef } from './physics';
 import { buildLapRecord, compareLapRecords, type LapRecord } from './setupRecords';
 import { formatSharedText, shareLabel } from './handlingMessages';
 import { chargeTier } from './maneuvers';
 import { RaceAudio } from './audio';
 import { SYNTHETIC_TRACK_FILE } from './track';
-import { readTrackData, type TrackReading } from './trackData';
-import { getLapResult, getLapState, offeredLapKinds, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapKind, type LapSession } from './lap';
+import type { TrackReading } from './trackData';
+import type { TrackGeometry } from './trackGeometry';
+import { getLapResult, getLapState, offeredLapKinds, pauseLap, repositionKart, resumeLap, stepLap, type LapKind, type LapSession } from './lap';
 import { advanceClock } from './frameClock';
-import { describeLap, formatLapTime, greenSignalVisible, message, resolveLanguage, type Language, type MessageKey } from './lapMessages';
+import { creditFor, describeLap, formatLapTime, greenSignalVisible, message, optionLabel, resolveLanguage, type Language, type MessageKey } from './lapMessages';
+// The published Kart Park file, bundled as text (ADR-0002 of pista-kart-park): no request between the choice and the lap.
+import kartParkV1Text from './tracks/kart-park-v1.json?raw';
+import { getTrainingTrackOptions, initialTrainingSession, OPENING_TRACK_ID, selectTrainingTrack, startTrainingLap, trainingIdleKart, type TrainingSession, type TrainingTrackId, type TrainingTrackSources } from './trainingSession';
+import { buildTrackScene, minimapTransform } from './trackScene';
+import { CURB_PULSE_MS, decideCurbFeedback, initialCurbFeedback, type CurbFeedbackState } from './curbFeedback';
 import { buildKart01Model, updateKart01Pose, KART01_WHEELBASE_M } from './kart01Model';
 import { paintKart01Decals } from './kart01Decals';
 import { getKartPose, advanceWheelSpin, initialWheelSpin, modelOffsetForwardM, simWheelGroundPositions } from './kartPose';
-import { computeCameraView, trackBoundsOf, type CameraView } from './gameCamera';
+import { computeCameraView, trackBoundsOf, type CameraView, type TrackBounds } from './gameCamera';
 import './style.css';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
@@ -49,6 +55,10 @@ const ground = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), material('#68
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
+// The synthetic track scene, the same objects as before this feature, grouped so the session can show or hide it (DES-0008).
+const syntheticScene = new THREE.Group();
+syntheticScene.name = 'synthetic';
+scene.add(syntheticScene);
 
 function ribbon(inner: number, outer: number, color: string, y: number) {
   const vertices: number[] = [];
@@ -68,7 +78,7 @@ function ribbon(inner: number, outer: number, color: string, y: number) {
   mat.side = THREE.DoubleSide;
   const mesh = new THREE.Mesh(geometry, mat);
   mesh.receiveShadow = true;
-  scene.add(mesh);
+  syntheticScene.add(mesh);
 }
 ribbon(-WIDTH / 2 - 1, WIDTH / 2 + 1, '#e8e2cb', 0.015);
 ribbon(-WIDTH / 2, WIDTH / 2, '#434d48', 0.03);
@@ -88,12 +98,12 @@ for (let i = 0; i < track.length; i++) {
   const angle = Math.atan2(b.x - p.x, b.z - p.z);
   if (i % 2 === 0) {
     for (const side of [-1, 1]) {
-      const curb = box(scene, [0.85, 0.12, Math.hypot(b.x - p.x, b.z - p.z) * 1.8], [p.x + Math.cos(angle) * side * 5.9, 0.07, p.z - Math.sin(angle) * side * 5.9], i % 4 === 0 ? '#e39173' : '#f0e9d5');
+      const curb = box(syntheticScene, [0.85, 0.12, Math.hypot(b.x - p.x, b.z - p.z) * 1.8], [p.x + Math.cos(angle) * side * 5.9, 0.07, p.z - Math.sin(angle) * side * 5.9], i % 4 === 0 ? '#e39173' : '#f0e9d5');
       curb.rotation.y = angle;
     }
   }
   if (i % 4 === 0) {
-    const barrier = box(scene, [1.1, 0.8, 2.6], [p.x + Math.cos(angle) * 14.1, 0.4, p.z - Math.sin(angle) * 14.1], i % 8 ? '#e6dfc9' : '#3e594b');
+    const barrier = box(syntheticScene, [1.1, 0.8, 2.6], [p.x + Math.cos(angle) * 14.1, 0.4, p.z - Math.sin(angle) * 14.1], i % 8 ? '#e6dfc9' : '#3e594b');
     barrier.rotation.y = angle;
   }
 }
@@ -102,7 +112,7 @@ const line = new THREE.Group();
 line.position.set(start.x, 0.055, start.z);
 line.rotation.y = start.heading;
 for (let x = 0; x < 10; x++) for (let z = 0; z < 2; z++) box(line, [1.1, 0.02, 0.7], [(x - 4.5) * 1.1, 0, z * 0.7], (x + z) % 2 ? '#eff0df' : '#25362f');
-scene.add(line);
+syntheticScene.add(line);
 
 // Deterministic scenery placement, clear of the driveable course.
 for (let i = 0; i < 90; i++) {
@@ -115,7 +125,7 @@ for (let i = 0; i < 90; i++) {
   crown.position.y = 5;
   crown.castShadow = true;
   tree.add(crown);
-  scene.add(tree);
+  syntheticScene.add(tree);
 }
 // The current setup comes from the published data (DES-0007, ADR-0001); there is no path to the previous version.
 let setup: PublishedSetup = PUBLISHED_SETUPS.ARCADE_ASSISTIDO;
@@ -149,17 +159,23 @@ const audio = new RaceAudio();
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Lap state: the simulation (src/lap.ts) is the single source; this layer only forwards commands and reads views.
-const idleKart = initialState();
 let lap: LapSession | undefined;
 let config = { ...setup.config, driverMass: 75 };
 // The setup identity of the lap, fixed with its config in beginLap and read by the HUD and the lap record (DES-0002).
 let setupRef: SetupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
-const reading: TrackReading = readTrackData(SYNTHETIC_TRACK_FILE);
-if (reading.trackDataStatus === 'UNREADABLE') console.warn('track-data', 'UNREADABLE');
-else if (reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'UNSUPPORTED_SCHEMA', reading.schemaVersion);
-else if (reading.trackDataStatus === 'INCOMPLETE') console.warn('track-data', 'INCOMPLETE', reading.trackId, reading.trackVersion);
-// The overview fits these bounds (the outer ribbon of the synthetic track); undefined without a track, which means no scene (DES-0003).
-const trackBounds = reading.trackDataStatus === 'COMPLETE' || reading.trackDataStatus === 'INCOMPLETE' ? trackBoundsOf(track, WIDTH / 2 + 1) : undefined;
+// Training session (DES-0005, DES-0007 of pista-kart-park): the track data of each catalogue entry comes bundled; the
+// session, its reading and its environment are replaced only by what selectTrainingTrack returns. Nothing is stored.
+const TRACK_SOURCES: TrainingTrackSources = { 'kart-park': kartParkV1Text, synthetic: SYNTHETIC_TRACK_FILE };
+let training: TrainingSession = initialTrainingSession();
+let reading: TrackReading = { trackDataStatus: 'UNREADABLE' };
+// The overview fits these bounds: the file geometry of the session's track, or the outer ribbon of the synthetic track;
+// undefined without a ready session, which means no scene (DES-0003 of modelo-kart-01).
+let trackBounds: TrackBounds | undefined;
+let trackGeometry: TrackGeometry | undefined;
+const trackScenes: Partial<Record<TrainingTrackId, THREE.Group>> = {};
+// Curb feedback state (DES-0009): reset on every lap start and every session (the simStepCount restarts at 0).
+let curbState: CurbFeedbackState = initialCurbFeedback();
+const vibrationAvailable = typeof navigator.vibrate === 'function';
 // Display state of the feature: wheel spin by simStepCount and the camera of the current frame (DES-0002, DES-0004).
 let spin = initialWheelSpin();
 let cameraView: CameraView | undefined;
@@ -194,23 +210,78 @@ function emitReposition() {
   if (r.ok) lap = r.lap;
 }
 const OFFER_KEY: Record<LapKind, MessageKey> = { TRAINING: 'startTraining', OFFICIAL: 'startOfficial', RECON: 'startRecon' };
-let offerLang: Language | undefined;
+const selectedOption = (trackId: string) => getTrainingTrackOptions(training).options.find(o => o.trackId === trackId);
+// The credit line, identical in both screens: text, licence mention and link built with textContent and setAttribute (DES-0007).
+function renderCredit(container: HTMLElement, credit: ReturnType<typeof creditFor>) {
+  container.replaceChildren();
+  if (!credit) { container.classList.add('hidden'); return; }
+  const link = document.createElement('a');
+  link.setAttribute('href', credit.url);
+  link.setAttribute('target', '_blank');
+  link.setAttribute('rel', 'noopener noreferrer');
+  link.textContent = 'openstreetmap.org/copyright';
+  container.append(document.createTextNode(`${credit.text} · ${credit.license} · `), link);
+  container.classList.remove('hidden');
+}
+// Selecting a track ends the session and discards its lap (RULE-0003); the scene and the minimap follow the session (DES-0008).
+function chooseTrack(trackId: string) {
+  const r = selectTrainingTrack(training, lap, trackId, TRACK_SOURCES);
+  if (!r.ok && r.code === 'UNKNOWN_TRACK') return;
+  training = r.session; lap = r.lap;
+  reading = training.reading ?? { trackDataStatus: 'UNREADABLE' };
+  if (reading.trackDataStatus === 'UNREADABLE') console.warn('track-data', 'UNREADABLE');
+  else if (reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'UNSUPPORTED_SCHEMA', reading.schemaVersion);
+  else if (reading.trackDataStatus === 'INCOMPLETE') console.warn('track-data', 'INCOMPLETE', reading.trackId, reading.trackVersion);
+  curbState = initialCurbFeedback();
+  resultLang = undefined; lastPhase = undefined;
+  skidMarks.count = 0; skidIndex = 0; previousSkids = [];
+  const ready = training.sessionState === 'READY';
+  trackGeometry = training.environment?.track;
+  syntheticScene.visible = ready && !trackGeometry;
+  for (const group of Object.values(trackScenes)) if (group) group.visible = false;
+  if (ready && trackGeometry) {
+    const id = training.selectedTrackId;
+    let group = trackScenes[id];
+    if (!group) { group = buildTrackScene(trackGeometry); trackScenes[id] = group; scene.add(group); }
+    group.visible = true;
+    trackBounds = { minXM: trackGeometry.bounds.minX, maxXM: trackGeometry.bounds.maxX, minZM: trackGeometry.bounds.minZ, maxZM: trackGeometry.bounds.maxZ };
+  } else trackBounds = ready ? trackBoundsOf(track, WIDTH / 2 + 1) : undefined;
+  const option = selectedOption(training.selectedTrackId);
+  $('track-name').textContent = option ? optionLabel(option) : '';
+  renderBest();
+}
+let offerKey: string | undefined;
 function renderOffer() {
-  if (offerLang === lang) return;
-  offerLang = lang;
+  const view = getTrainingTrackOptions(training);
+  const key = `${lang}:${view.sessionState}:${view.selectedTrackId}:${view.trackDataStatus ?? ''}`;
+  if (offerKey === key) return;
+  offerKey = key;
+  const selector = $('track-selector');
+  selector.replaceChildren(...view.options.map(option => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.trackId = option.trackId;
+    button.textContent = optionLabel(option);
+    button.setAttribute('aria-pressed', String(option.trackId === view.selectedTrackId));
+    button.onclick = () => chooseTrack(option.trackId);
+    return button;
+  }));
+  renderCredit($('track-credit'), creditFor(selectedOption(view.selectedTrackId)));
   const status = $('track-status');
   const offer = $('lap-offer');
   offer.replaceChildren();
-  if (reading.trackDataStatus === 'UNREADABLE' || reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') {
+  if (view.sessionState === 'NO_SESSION' || view.sessionState === 'LOADING') { status.textContent = message('loadingTrack', lang); return; }
+  if (view.sessionState === 'FAILED' || reading.trackDataStatus === 'UNREADABLE' || reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') {
     status.textContent = message('trackDataError', lang);
     return;
   }
   status.textContent = reading.trackId;
+  // A training session offers TRAINING only (REQ-FEAT-0001-11): the challenge kinds are another feature's.
   for (const kind of offeredLapKinds(reading, [])) {
     const button = document.createElement('button');
     button.className = 'primary';
     button.textContent = message(OFFER_KEY[kind], lang);
-    button.onclick = () => beginLap(kind);
+    button.onclick = () => beginLap();
     offer.appendChild(button);
   }
 }
@@ -222,11 +293,11 @@ function renderBest() {
   if ('code' in compared) { console.warn('lap-record', compared.code); el.textContent = '—'; return; }
   el.textContent = compared.comparability === 'COMPARABLE' ? formatLapTime(bestRecord.lapMs) : '—';
 }
-function beginLap(kind: LapKind) {
-  if (reading.trackDataStatus !== 'COMPLETE' && reading.trackDataStatus !== 'INCOMPLETE') return;
-  const r = startLap(lap, { lapKind: kind, trackId: reading.trackId, trackVersion: reading.trackVersion, setupId: setup.setupId, setupVersion: setup.setupVersion }, reading, config);
+function beginLap() {
+  const r = startTrainingLap(training, lap, config, { setupId: setup.setupId, setupVersion: setup.setupVersion });
   if (!r.ok) return;
   setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
+  curbState = initialCurbFeedback();
   lap = r.lap; started = true; accumulatorS = 0; keys.clear(); touch.clear();
   touchFallback = coarsePointer.matches && !tilt;
   skidMarks.count = 0; skidIndex = 0; previousSkids = [];
@@ -317,14 +388,20 @@ window.addEventListener('deviceorientation', e => {
 screen.orientation?.addEventListener('change', () => { neutral = null; tiltSteer = 0; });
 const mini = $('minimap') as unknown as HTMLCanvasElement;
 const ctx = mini.getContext('2d')!;
+// The centerline of the session's track: the file geometry fitted into the canvas, or the synthetic track with its
+// literal transform (* 1.1 + 110, * 1.1 + 75); without a ready session the canvas is only cleared (DES-0008).
 function minimap() {
   ctx.clearRect(0, 0, 220, 150);
+  if (training.sessionState !== 'READY') return;
+  const t = trackGeometry ? minimapTransform(trackGeometry.bounds) : { scale: 1.1, offsetX: 110, offsetY: 75 };
+  const points = trackGeometry ? trackGeometry.centerline.map(p => ({ x: p.xM, z: p.zM })) : track;
   ctx.lineWidth = 9; ctx.strokeStyle = '#e5ecd54d'; ctx.lineJoin = 'round';
   ctx.beginPath();
-  track.forEach((p, i) => { const x = p.x * 1.1 + 110, y = p.z * 1.1 + 75; if (!i) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
+  points.forEach((p, i) => { const x = p.x * t.scale + t.offsetX, y = p.z * t.scale + t.offsetY; if (!i) ctx.moveTo(x, y); else ctx.lineTo(x, y); });
   ctx.closePath(); ctx.stroke();
-  const kartState = lap?.kart ?? idleKart;
-  ctx.fillStyle = '#def39a'; ctx.beginPath(); ctx.arc(kartState.x * 1.1 + 110, kartState.z * 1.1 + 75, 5, 0, Math.PI * 2); ctx.fill();
+  const kartState = lap?.kart ?? trainingIdleKart(training);
+  if (!kartState) return;
+  ctx.fillStyle = '#def39a'; ctx.beginPath(); ctx.arc(kartState.x * t.scale + t.offsetX, kartState.z * t.scale + t.offsetY, 5, 0, Math.PI * 2); ctx.fill();
 }
 // HUD and result screens: they display what the simulation reports and decide nothing (I2).
 let shownStateText = '', shownSectorsKey = '', resultLang: Language | undefined, lastPhase: LapSession['phase'] | undefined;
@@ -385,6 +462,7 @@ function renderResult() {
     list.replaceChildren();
   }
   $('lap-new-lap').textContent = message('newLap', lang);
+  renderCredit($('lap-result-credit'), creditFor(selectedOption(result.trackId)));
   $('lap-result-setup').textContent = lastRecord?.setupVersion ?? '';
   $('lap-share').textContent = shareLabel(lang);
   panel.classList.remove('hidden');
@@ -426,9 +504,22 @@ function frame(now: number) {
         notify(`${['', 'Boa curva!', 'Drift perfeito!', 'Super drift!'][tier]} +${tier * 100 * lap.kart.maneuvers.chain} estilo`, 1800);
         audio.reward(tier);
       }
+      // Curb feedback (RULE-0004, DES-0009): decided per advanced step from the contact reading, never from wall time.
+      const contact = getTrackContact(lap.kart, lap.environment, lap.config);
+      if (!('code' in contact)) {
+        const feedback = decideCurbFeedback(curbState, {
+          simStepCount: contact.simStepCount, curbWheelCount: contact.curbWheelCount,
+          channel: coarsePointer.matches ? 'web-mobile' : 'web-desktop', vibrationAvailable, soundOn: audio.soundOn(),
+        });
+        curbState = feedback.state;
+        if (feedback.pulse) navigator.vibrate(CURB_PULSE_MS);
+        if (feedback.sound) audio.curb();
+      }
     }
   }
-  const state = lap?.kart ?? idleKart;
+  // Without a ready session there is no kart to display (DES-0007); the HUD readouts fall back to a kart at rest.
+  const idleKart = trainingIdleKart(training);
+  const state = lap?.kart ?? idleKart ?? initialState();
   const running = lap?.phase === 'RUNNING';
   if (lap?.phase === 'ENDED' && lastPhase !== 'ENDED') {
     const result = getLapResult(lap);
@@ -447,7 +538,7 @@ function frame(now: number) {
   }
   lastPhase = lap?.phase;
   // The displayed kart is the state of the last completed step (API-0001); nothing is interpolated or estimated.
-  const pose = getKartPose(state);
+  const pose = getKartPose(lap?.kart ?? idleKart);
   if ('code' in pose) kartRoot.visible = false;
   else {
     kartRoot.visible = true;
@@ -550,4 +641,6 @@ function frame(now: number) {
   // Without a camera of the frame (no track loaded) nothing is drawn: no scene and no provisional kart (SCR-0001).
   if (cameraView) renderer.render(scene, camera); else renderer.clear();
 }
+// The game always opens on the Kart Park (REQ-FEAT-0001-02): no stored choice is read (ADR-0005).
+chooseTrack(OPENING_TRACK_ID);
 requestAnimationFrame(frame);
