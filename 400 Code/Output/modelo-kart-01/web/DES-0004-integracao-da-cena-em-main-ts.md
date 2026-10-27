@@ -3,7 +3,7 @@ id: DES-0004
 title: Integração da cena em src/main.ts — Kart 01 na cena, sombra que acompanha o kart, câmera aplicada por quadro e taxa de quadros — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FLOW-0001, FLOW-0002, SCR-0001, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0001-17, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-11, REQ-FEAT-0003-15, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-05, REQ-FEAT-0006-01, NFR-0001, NFR-0002]
 ---

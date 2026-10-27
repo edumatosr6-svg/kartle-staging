@@ -3,8 +3,8 @@ id: DES-0001
 title: Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento por material, decalques e pose das peças — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0004, FEAT-0006, RULE-0001, RULE-0003, FLOW-0003, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-17, REQ-FEAT-0002-01, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-10, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0006-02, REQ-FEAT-0006-03, NFR-0003, NFR-0004]
 ---
 
@@ -23,7 +23,7 @@ que o DOM exige (decalques em módulo separado).
 |---|---|
 | REQ-FEAT-0001-01, -17 | `src/kart01Model.ts` `buildKart01Model` (um modelo por chamada; duas chamadas dão dois modelos iguais); `src/main.ts` `kart01` (montado uma vez por página, `:124`) |
 | REQ-FEAT-0001-02, -03, -05, -06, -07, -08 | `src/kart01Model.ts` `KART01_WHEELBASE_M` 1,05, `FRONT_WHEEL_DIAMETER_M` 0,26, `REAR_WHEEL_DIAMETER_M` 0,28, `defRodas` (±0,5/±0,57 em x; ∓0,525 em z), `buildWheel` (perfil até `raio`); medido no modelo montado: comprimento 1,9265 m, largura 1,45 m, entre-eixos 1,05 m, bitolas 1,00 m e 1,14 m, altura com piloto 0,9497 m |
-| REQ-FEAT-0001-04 | `src/kart01Model.ts` `buildWheel` (`LatheGeometry` de 14 segmentos, raio 0,13/0,14, largura 0,13/0,19), `wheels[nome].diameterM` (0,26/0,28). Medida da extensão em Y 0,2535/0,273 m: ver `98-divergences.md` linha 21 e o feedback SPEC-ISSUE-01 |
+| REQ-FEAT-0001-04 | `src/kart01Model.ts` `buildWheel` (`LatheGeometry` de 14 segmentos girada em Z, raio 0,13/0,14, largura 0,13/0,19), `wheels[nome].spin` (nó público do eixo de rolamento), `wheels[nome].diameterM` (0,26/0,28, valor declarado que o giro usa); medido na rodada 2 pela regra de DES-0001 1.1.0: extensão em Z da geometria mesclada de cada roda no referencial local do `spin` 0,26 m (dianteiras) e 0,28 m (traseiras), exatas (a extensão em Y, 0,2535/0,273 m, não é a medida); `98-divergences.md` linha 21, `resolved` |
 | REQ-FEAT-0001-09, -10 | `src/kart01Model.ts` `KART01_GROUP_NAMES` (15), `PILOT_GROUP_NAME`, `peca` (grupo nomeado filho de `root`), `groups` (16 entradas; `piloto` filho direto de `root`); medido: os 16 grupos com triângulos (`chassi` 516, `eixoTraseiro` 332, rodas 324 cada, `nariz` 104, `painelFrontal` 46, sidepods 54 cada, `paraChoqueTraseiro` 78, `banco` 220, `direcao` 544, `pedais` 160, `motor` 708, `piloto` 1 016) |
 | REQ-FEAT-0001-11, -12, -13, -14 | `src/kart01Model.ts` `KART01_PALETTE` (`carenagem` `#FF6A13`, `chassi` `#2B2E34`, `placa` `#F4F3EF`, `macacao` `#2F55D4` e as demais de `CORES`), `bake` (cor gravada no atributo `color`, `THREE.Color.set` sRGB → linear), `decalMaterial(C.placa)` (`materials.plate.color`); medido: 15 cores distintas no atributo `color` mais `#F4F3EF` do material da placa; `chassi` contém `#2B2E34`; `piloto` contém `#2F55D4` |
 | REQ-FEAT-0001-15 | `src/kart01Model.ts` `decal` (`placaNumero` no `suporte` do painel; `placaTraseira` = `anchors.bumperPlate`); `src/kart01Decals.ts` `plateTexture` (512 × 352 px, fundo branco, `fillText(KART01_NUMBER)` na cor `borracha`), `sidepodTexture` (1024 × 192 px, número e `KARTLE`), `paintKart01Decals` |

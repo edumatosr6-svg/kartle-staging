@@ -2,8 +2,8 @@
 title: Registro de implementação — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: []
 ---
 
@@ -21,16 +21,30 @@ inalterados (SCR-0001); nenhuma dependência de execução acrescentada (`three`
 `three/addons/utils/BufferGeometryUtils.js`, parte do pacote); `tsconfig.json` inalterado; nenhum arquivo de `tests/*.test.ts` nem
 `tests/helpers/` escrito (estágio de testes).
 
+Rodada 2, Mode B (2026-10-27): o projeto foi corrigido e revalidado em 1.3.0 (`dspec-validation-20261027-1941`; DES-0001 1.1.0,
+DES-0006 1.3.0, `test-strategy.md` 1.3.0; os demais registros nas versões acima) em resposta ao FAIL SPEC desta feature
+(`feedback-20261027-1928.md`, SPEC-ISSUE-01): os diâmetros das rodas são a **extensão em Z da caixa envolvente da geometria mesclada
+de cada roda, no referencial local do nó público `spin`** (o eixo de rolamento, onde a revolução de 14 segmentos põe um vértice em
+±`raio`), arredondada ao centímetro, com a tolerância inalterada; não `wheels[nome].diameterM`; nenhuma geometria muda; nenhum campo
+novo. Nenhuma linha de código mudou nesta rodada (o código de `b29278b` já realizava o projeto; a regra antiga vivia só neste
+registro, em `web/DES-0001`, `web/DES-0006` e `98-divergences.md` linha 21). Re-medição pela regra nova, por programa descartável
+em Node com o `three` do projeto (caixa envolvente da única malha sob cada `spin`, levada ao referencial do `spin` pela inversa de
+`spin.matrixWorld` vezes `mesh.matrixWorld`): extensão em Z **0,26 m** nas duas dianteiras e **0,28 m** nas duas traseiras (exatas;
+ao centímetro 0,26 e 0,28); extensão em Y 0,2535/0,273 m (não é mais a medida); extensão em X 0,1313/0,1919 m (largura); **27
+malhas, 27 chamadas, 5 128 triângulos** inalterados. O programa descartável `scripts/_measure-kart01.ts` da rodada 1 foi apagado
+(não referenciado por `package.json`, pelos testes nem por registro). `scripts/kart01-baseline.ts` fica (`baseline:kart01`).
+
 Resultado medido sobre o modelo montado em Node (programa descartável com o `three` do projeto, como `NOTES.md` do seed descreve;
 os números entram nos registros `web/DES-0001` e `98-divergences.md`): **27 malhas, 27 chamadas de desenho, 5.128 triângulos**
 (≤ 30; forma inalterada); caixa envolvente dos 15 grupos sem piloto de z −0,990 a +0,9365 (1,9265 m) e x ±0,725 (1,45 m); com
 piloto, altura 0,9497 m; entre-eixos 1,05 m; bitolas 1,00 m e 1,14 m; as 15 cores distintas do atributo `color` mais `#F4F3EF` do
-material da placa contêm as quatro da ficha; saída do escapamento em (0,39, 0,33, 0,77) m. **Achado:** a extensão em Y da geometria
-mesclada de cada roda é 0,2535 m (dianteiras) e 0,273 m (traseiras) — o pneu é um `LatheGeometry` de 14 segmentos e nenhum vértice
-cai em ±Y —, o que, pela regra de medida que DES-0001 e DES-0006 escrevem ("extensão em Y … arredondada ao centímetro igual a 0,26 e
-0,28"), reprovaria `WHEELS_AND_TRACKS` sobre a geometria inalterada do Cowork; reportado em
-`300 Specs/330 D-Specs/Output/modelo-kart-01/reports/feedback/feedback-20261027-1928.md` (SPEC-ISSUE-01, FAIL SPEC). Nada no
-código depende dessa regra: a geometria é a da fonte e `wheels[nome].diameterM` carrega 0,26 e 0,28.
+material da placa contêm as quatro da ficha; saída do escapamento em (0,39, 0,33, 0,77) m. **Achado da rodada 1 (fechado na rodada 2):** a
+extensão em Y da geometria mesclada de cada roda é 0,2535 m (dianteiras) e 0,273 m (traseiras) — o pneu é um `LatheGeometry` de 14
+segmentos e nenhum vértice cai em ±Y —, o que, pela regra de medida que DES-0001 1.0.0 e DES-0006 1.2.0 escreviam ("extensão em Y …
+arredondada ao centímetro igual a 0,26 e 0,28"), reprovaria `WHEELS_AND_TRACKS` sobre a geometria inalterada do Cowork; reportado em
+`300 Specs/330 D-Specs/Output/modelo-kart-01/reports/feedback/feedback-20261027-1928.md` (SPEC-ISSUE-01, FAIL SPEC) e resolvido pelo
+projeto 1.3.0 com a regra da extensão em Z no referencial do `spin` (rodada 2 acima). Nada no código dependia dessa regra: a geometria
+é a da fonte e `wheels[nome].diameterM` carrega 0,26 e 0,28.
 
 Verificação em tela (navegador embutido da sessão, `vite preview`, 908 × 560 px, paisagem): visão geral com a pista inteira antes
 da contagem; descida durante a contagem com o primeiro quadro ainda na visão geral; no verde, câmera atrás do piloto com o Kart 01
@@ -68,9 +82,14 @@ Inalterados: `docs/kart-01/kart.js` (fonte, `DOMAIN/DEC-00`), `src/physics.ts`, 
 | Medição do modelo em Node | 27 malhas, 27 chamadas, 5 128 triângulos; medidas acima |
 | `lint_artifacts.py --stage code --emit` | saída 0 |
 
+Rodada 2 (sem mudança de código): `npx tsc --noEmit -p .` saída 0; `npx tsx --test tests/*.test.ts` 237 testes, 237 aprovados,
+0 reprovados; medição do modelo em Node pela regra do projeto 1.3.0: extensão em Z no referencial do `spin` 0,26/0,26/0,28/0,28 m,
+27 malhas, 27 chamadas, 5 128 triângulos; `lint_artifacts.py --stage code --emit` saída 0.
+
 ## Rastreabilidade
 
 A matriz `99-traceability.md` é gerada pelo gate a partir dos campos `sources` dos registros `web/`, `data/` e `security/`; cada
 registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. O índice `00-index.md` também é gerado. As divergências herdadas
-do D-Spec 1.2.0 estão em `98-divergences.md`: das 21 linhas abertas do projeto, 15 `resolved` com `arquivo:linha` e 6 `open` com o
-motivo (a parte de `npm test` do estágio de testes; o registro em aparelho; e a medida das rodas, reportada em FAIL SPEC).
+do D-Spec (1.2.0, mantidas em 1.3.0) estão em `98-divergences.md`: das 21 linhas abertas do projeto, 18 `resolved` com
+`arquivo:linha` (a linha 21, a medida das rodas, fechada na rodada 2 pela regra do projeto 1.3.0) e 3 `open` com o motivo (a parte de
+`npm test` do estágio de testes e o registro em aparelho).

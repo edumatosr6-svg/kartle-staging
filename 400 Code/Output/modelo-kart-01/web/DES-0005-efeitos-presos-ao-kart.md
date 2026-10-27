@@ -3,7 +3,7 @@ id: DES-0005
 title: Efeitos presos ao kart — marcas de pneu em wheelPositions por passo, fumaça no escapamento do Kart 01 e indicação de drift — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [FEAT-0005, RULE-0003, FLOW-0001, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-07, REQ-FEAT-0005-08, NFR-0007]
 ---

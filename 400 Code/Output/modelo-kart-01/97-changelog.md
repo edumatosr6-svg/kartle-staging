@@ -2,8 +2,8 @@
 title: Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de código)
 feature: modelo-kart-01
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: []
 ---
 
@@ -96,3 +96,31 @@ feedback de outra feature nesta feature).
 
 **Proposta ao autor** (de ADR-0002, Consequências): uma pista cuja visão geral exigir altura próxima de 300 m fica esbatida pela
 névoa de `src/main.ts` (160–350 m); assunto da feature que trouxer essa pista.
+
+## 2026-10-27 — rodada 2, Mode B (projeto corrigido em 1.3.0, `dspec-validation-20261027-1941`, após o FAIL SPEC `feedback-20261027-1928.md`)
+
+**O que mudou**
+
+- Nenhum arquivo de código: o projeto 1.3.0 (DES-0001 1.1.0, DES-0006 1.3.0, `test-strategy.md` 1.3.0) resolveu SPEC-ISSUE-01 mudando
+  só a regra de medida — os diâmetros são a extensão em Z da caixa envolvente da geometria mesclada de cada roda no referencial local
+  do nó `spin` (eixo de rolamento), ao centímetro, tolerância inalterada, sem mudança de geometria e sem campo novo — e o código de
+  `b29278b` já realiza o projeto (`src/kart01Model.ts` `buildWheel`, `wheels[nome].spin`, `wheels[nome].diameterM` inalterados).
+- Re-medição pela regra nova, por programa descartável em Node (`01-implementation.md`, rodada 2): extensão em Z no referencial do
+  `spin` 0,26 m (dianteiras) e 0,28 m (traseiras), exatas; 27 malhas, 27 chamadas, 5 128 triângulos. Registrada em
+  `01-implementation.md` (1.1.0), `web/DES-0001` (1.1.0, linha REQ-FEAT-0001-04) e `web/DES-0006` (1.1.0, linha das medidas).
+- `98-divergences.md` (1.1.0): linha 21 (`WHEELS_AND_TRACKS`) passa de `open` a `resolved`, com a medida e o `arquivo:linha`.
+- `scripts/_measure-kart01.ts`, programa descartável da rodada 1 que ficou fora do commit: apagado (nenhuma referência em
+  `package.json`, `tests/` ou registro). `scripts/kart01-baseline.ts` mantido (`baseline:kart01`).
+- Portão: `npx tsc --noEmit -p .` 0; `npx tsx --test tests/*.test.ts` 237/237; `lint_artifacts.py --stage code --emit` 0.
+
+**Itens fechados**: SPEC-ISSUE-01 (`feedback-20261027-1928.md`), pela correção do projeto 1.3.0; `98-divergences.md` linha 21.
+
+**Itens recusados, com motivo**
+
+- Escrever `measureKart01Model` (`tests/helpers/kart01Report.ts`) com a regra nova: é arquivo do estágio de testes
+  (`test-strategy.md`; a frase de DES-0006 "a rodada de código seguinte toca só a medida em `tests/helpers/kart01Report.ts`" nomeia
+  o arquivo que aquele estágio escreve) e este estágio não escreve teste nem helper.
+- Expor a medida no modelo (campo `measuredDiameterM` ou função de medição em `src/kart01Model.ts`): o projeto 1.3.0 diz "nenhum
+  campo novo, nenhum símbolo novo"; a medida nasce no helper de testes.
+- Mudar a geometria da roda ou `wheels[nome].diameterM`: o projeto diz que nada muda e a medida já dá 0,26/0,28.
+- Nenhum limiar afrouxado, nenhum requisito enfraquecido, nenhuma dependência acrescentada, nenhum arquivo de `src/` tocado.

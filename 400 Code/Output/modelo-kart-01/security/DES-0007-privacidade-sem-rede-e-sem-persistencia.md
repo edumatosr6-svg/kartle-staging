@@ -3,7 +3,7 @@ id: DES-0007
 title: Privacidade — sem rede, sem persistência, sem dado pessoal no modelo, nos registros de teste e na linha de base — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0001, API-0002, API-0003, FEAT-0006, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-06, NFR-0002, NFR-0003, NFR-0005, NFR-0006]
 ---

@@ -3,7 +3,7 @@ id: DM-0001
 title: Linha de base da simulação anterior à feature (fixture versionado) e registro dos testes em tela — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0002, FLOW-0003, FEAT-0004, FEAT-0005, FEAT-0006, REQ-FEAT-0004-05, REQ-FEAT-0005-05, REQ-FEAT-0006-07, REQ-FEAT-0006-08, NFR-0001, NFR-0006, NFR-0007]
 ---

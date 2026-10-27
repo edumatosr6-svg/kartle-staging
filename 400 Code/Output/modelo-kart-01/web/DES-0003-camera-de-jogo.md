@@ -3,7 +3,7 @@ id: DES-0003
 title: Câmera de jogo (API-0003) — modos, pose de corrida, visão geral, descida, forma da área de jogo e campo de visão — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0003, RULE-0002, FEAT-0003, FLOW-0001, FLOW-0002, SCR-0001, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15]
 ---

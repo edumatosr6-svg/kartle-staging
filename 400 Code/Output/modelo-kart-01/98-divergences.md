@@ -2,8 +2,8 @@
 title: Divergências — modelo Kart 01 e câmera de jogo (estágio de código)
 feature: modelo-kart-01
 stage: code
-status: draft
-version: 1.0.0
+status: validated
+version: 1.1.0
 sources: []
 ---
 
@@ -11,7 +11,8 @@ sources: []
 
 Registro contra `300 Specs/330 D-Specs/Output/modelo-kart-01/98-divergences.md` 1.2.0 (projeto validado em
 `dspec-validation-20261027-1624`; D-CD-07): as 21 linhas que o projeto mantém abertas, cada uma `resolved` com o `arquivo:linha` da
-mudança desta rodada (1, Mode A) ou `open` com o motivo. Caminhos relativos à raiz do repositório; as medidas são as de
+mudança desta rodada (1, Mode A; linha 21 fechada na rodada 2, Mode B, contra o projeto 1.3.0, `dspec-validation-20261027-1941`,
+que manteve as 21 linhas) ou `open` com o motivo. Caminhos relativos à raiz do repositório; as medidas são as de
 `01-implementation.md` (modelo montado em Node, build e portão desta rodada). Linhas de `src/main.ts` são as desta rodada (553 linhas).
 
 | # | Requisito | O que exige | Etapa devedora | Item de projeto | Estado | Resolução |
@@ -36,7 +37,7 @@ mudança desta rodada (1, Mode A) ou `open` com o motivo. Caminhos relativos à 
 | 18 | REQ-FEAT-0005-03 | indicação de drift junto às rodas traseiras do Kart 01 exibido | código | DES-0005 | resolved | realizada pela ancoragem das marcas sob os pneus traseiros exibidos (`src/main.ts:468-487`); nenhum efeito novo; condições `drifting`, `speed > 6`, `sideslip` inalteradas (`:468`) |
 | 19 | REQ-FEAT-0005-05, -06 | `WHEEL_POSITIONS` e `TELEMETRY_WHEEL_POSITIONS` em `npm test` contra a linha de base | código (linha de base, leitura); testes (registros) | DES-0006, DM-0001, ADR-0004 | open | a linha de base existe (`tests/fixtures/kart01-sim-baseline.json`, `wheelPositions` por acerto, `recordedOnCommit` `b86b200…`) e `simWheelGroundPositions` (`src/kartPose.ts:70-76`) é a leitura; os registros em `npm test` (`tests/helpers/kart01Report.ts`, `tests/modelo-kart-01-pose.test.ts`, `-contract.test.ts`) são do estágio de testes |
 | 20 | REQ-FEAT-0006-04, -05, -07, -08 | `LAYERING`, `RENDER_NEUTRAL`, `SIM_CONTRACT` e `DETERMINISM` em `npm test` contra a linha de base | código (camadas, linha de base); testes (registros) | DES-0006, DM-0001, ADR-0004 | open | camadas: nenhum módulo da simulação importa `./kart01Model`, `./kart01Decals`, `./kartPose` ou `./gameCamera` (0 linhas alteradas em `src/physics.ts`, `src/lap.ts`, `src/track.ts`, `src/trackData.ts`, `src/maneuvers.ts`, `src/lapTiming.ts`); `src/kartPose.ts` importa só `./physics` (e o tipo `WheelName`), `src/gameCamera.ts` só `./lapTiming` e tipos; linha de base com `stepS`, `inputTypeLine`, `simWheelbaseM`/`simTrackWidthM` e duas `referenceRuns` `VALID`; os registros em `npm test` são do estágio de testes |
-| 21 | REQ-FEAT-0001-04 (`WHEELS_AND_TRACKS`: diâmetros 0,26 m e 0,28 m) | diâmetros das rodas exibidas medidos como extensão em Y da geometria mesclada de cada roda, arredondados ao centímetro iguais a 0,26 e 0,28 (DES-0001, DES-0006) | projeto (FAIL SPEC) | DES-0001, DES-0006, RULE-0001 | open | a geometria é a do Cowork sem alteração (`src/kart01Model.ts:244-269`, `buildWheel`: `LatheGeometry` de 14 segmentos com perfil até `raio`); medido: extensão em Y 0,2535 m (dianteiras) e 0,273 m (traseiras), extensão em Z 0,26 e 0,28, `wheels[nome].diameterM` 0,26 e 0,28 (`:426`); pela regra do projeto a verificação reprovaria com `OUT_OF_TOLERANCE` sobre a forma inalterada; reportado em `300 Specs/330 D-Specs/Output/modelo-kart-01/reports/feedback/feedback-20261027-1928.md` (SPEC-ISSUE-01) |
+| 21 | REQ-FEAT-0001-04 (`WHEELS_AND_TRACKS`: diâmetros 0,26 m e 0,28 m) | diâmetros das rodas exibidas medidos como extensão em Z da caixa envolvente da geometria mesclada de cada roda, no referencial local do nó `spin` (eixo de rolamento), arredondados ao centímetro iguais a 0,26 e 0,28 (DES-0001 1.1.0, DES-0006 1.3.0; projeto 1.3.0) | código | DES-0001, DES-0006, RULE-0001 | resolved | a geometria é a do Cowork sem alteração (`src/kart01Model.ts:244-269`, `buildWheel`: `LatheGeometry` de 14 segmentos com perfil até `raio`, revolução girada em Z, vértices em ±`raio` no eixo Z local), nó `spin` público em `wheels[nome].spin` (`:426`); medido na rodada 2 pela regra do projeto 1.3.0: extensão em Z no referencial do `spin` 0,26 m (as duas dianteiras) e 0,28 m (as duas traseiras), exatas, iguais a `wheels[nome].diameterM` sem que este seja a medida; a rodada 1 reportou a regra anterior (extensão em Y, 0,2535/0,273 m) em `feedback-20261027-1928.md` (SPEC-ISSUE-01), resolvido pelo projeto 1.3.0 sem mudança de geometria; o registro `WHEELS_AND_TRACKS` em `npm test` é do estágio de testes (linha 20) |
 
 Satisfeitos hoje e protegidos, como o projeto lista (sem divergência): o rumo exibido (`src/main.ts:454`), o estado do último passo
 (`:431`, `:450`), kart parado na pausa e nova posição no primeiro quadro depois do reposicionamento (`src/lap.ts`, inalterado),

@@ -3,7 +3,7 @@ id: DES-0002
 title: Estado do kart para exibição (API-0001), velocidade de rolamento, giro das rodas e ponto de referência — implementação
 feature: modelo-kart-01
 stage: code
-status: draft
+status: validated
 version: 1.0.0
 sources: [API-0001, RULE-0003, FEAT-0002, FEAT-0005, FLOW-0001, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0005-01, REQ-FEAT-0005-06, NFR-0005, NFR-0006, NFR-0007]
 ---

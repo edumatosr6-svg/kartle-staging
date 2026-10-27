@@ -1,8 +1,8 @@
 ---
 stage: code
 feature: modelo-kart-01
-status: draft
-generated: 2026-10-27T19:37:13Z
+status: validated
+generated: 2026-10-27T19:50:41Z
 files: 11
 ---
 
@@ -12,14 +12,14 @@ files: 11
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-implementation.md` | - | Registro de implementação — modelo Kart 01 e câmera de jogo | draft | 1.0.0 |
-| `97-changelog.md` | - | Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de código) | draft | 1.0.0 |
-| `98-divergences.md` | - | Divergências — modelo Kart 01 e câmera de jogo (estágio de código) | draft | 1.0.0 |
+| `01-implementation.md` | - | Registro de implementação — modelo Kart 01 e câmera de jogo | draft | 1.1.0 |
+| `97-changelog.md` | - | Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de código) | draft | 1.1.0 |
+| `98-divergences.md` | - | Divergências — modelo Kart 01 e câmera de jogo (estágio de código) | draft | 1.1.0 |
 | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` | DM-0001 | Linha de base da simulação anterior à feature (fixture versionado) e registro dos testes em tela — implementação | draft | 1.0.0 |
 | `security/DES-0007-privacidade-sem-rede-e-sem-persistencia.md` | DES-0007 | Privacidade — sem rede, sem persistência, sem dado pessoal no modelo, nos registros de teste e na linha de base — implementação | draft | 1.0.0 |
-| `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` | DES-0001 | Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento por material, decalques e pose das peças — implementação | draft | 1.0.0 |
+| `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` | DES-0001 | Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento por material, decalques e pose das peças — implementação | draft | 1.1.0 |
 | `web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md` | DES-0002 | Estado do kart para exibição (API-0001), velocidade de rolamento, giro das rodas e ponto de referência — implementação | draft | 1.0.0 |
 | `web/DES-0003-camera-de-jogo.md` | DES-0003 | Câmera de jogo (API-0003) — modos, pose de corrida, visão geral, descida, forma da área de jogo e campo de visão — implementação | draft | 1.0.0 |
 | `web/DES-0004-integracao-da-cena-em-main-ts.md` | DES-0004 | Integração da cena em src/main.ts — Kart 01 na cena, sombra que acompanha o kart, câmera aplicada por quadro e taxa de quadros — implementação | draft | 1.0.0 |
 | `web/DES-0005-efeitos-presos-ao-kart.md` | DES-0005 | Efeitos presos ao kart — marcas de pneu em wheelPositions por passo, fumaça no escapamento do Kart 01 e indicação de drift — implementação | draft | 1.0.0 |
-| `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` | DES-0006 | Verificações de npm test e relatório do modelo montado (API-0002) — gravador da linha de base, medição desta rodada e o que fica para o estágio de testes | draft | 1.0.0 |
+| `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` | DES-0006 | Verificações de npm test e relatório do modelo montado (API-0002) — gravador da linha de base, medição desta rodada e o que fica para o estágio de testes | draft | 1.1.0 |
