@@ -3,13 +3,19 @@ title: Registro de divergências e de critérios não verificados em npm test
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 98 — Divergências
 
 Nenhuma verificação derivada de um critério falha contra a implementação atual: a execução de 2026-10-21 (`npm test`, totais do
 próprio runner) coletou as 138 verificações novas e todas passaram. Não há divergência código-versus-especificação aberta neste estágio.
+
+## Divergência entre especificações validadas, resolvida na rodada 4 (2026-10-27)
+
+| Id | Estado | O que a especificação desta feature diz | O que o projeto validado de outra feature manda | Resolução no teste | Quem deve |
+|---|---|---|---|---|---|
+| CHK-TEST-0009-02 (NFR-0012; DES-0006 1.1.0 "Determinismo", `test-strategy.md` 1.1.1 linha NFR-0012) | resolved | o arquivo sintético declara `schemaVersion` **igual a** `TRACK_SCHEMA_VERSION`, maior que a da forma anterior | ADR-0001 de `pista-kart-park` (validado): `TRACK_SCHEMA_VERSION` sobe a 3 e a pista sintética fica em 2 (REQ-FEAT-0002-15); o leitor lê 1, 2 e 3 (`src/trackData.ts:10-11`, `:145`); a igualdade é inalcançável sem reescrever a pista sintética, que é dado daquela feature | a verificação afirma a regra que NFR-0012 exige e que DES-0006 descreve como "maior versão que o leitor conhece": `TRACK_SCHEMA_VERSION` maior que a versão da forma anterior; `SYNTHETIC_TRACK_FILE.schemaVersion` maior que a da forma anterior e não maior que `TRACK_SCHEMA_VERSION`; o sintético lido (`COMPLETE` ou `INCOMPLETE`), nunca `UNSUPPORTED_SCHEMA` nem `UNREADABLE`. Sem literal de versão. Reprova para um sintético em versão igual ou inferior à anterior, ou acima da que o leitor conhece | D-Spec de `race-lap-validation` (DES-0006, estratégia): trocar "igual a `TRACK_SCHEMA_VERSION`" por "na faixa que o leitor aceita" na próxima rodada que toque o conjunto; registrado aqui, não editado por este estágio (conventions §14) |
 
 ## Critérios cuja metade de tela, aparelho ou navegador só é verificável pelo roteiro registrado
 

@@ -15,12 +15,18 @@ test('CHK-TEST-0009-01 a track file in the previous schema version is read witho
   assert.equal(reading.markers, undefined, 'NFR-0012: a schema 1 file declares no markers');
 });
 
-test('CHK-TEST-0009-02 the declared schema version is greater than the previous one and the synthetic file carries it', () => {
-  // NFR-0012 — no schema-version literal: the previous version is read from the previous-form fixture and the
-  // current one from the export, so raising the schema in another feature does not fail this check (FB-01 of pista-kart-park)
+test('CHK-TEST-0009-02 the schema version the reader knows is greater than the previous one and the published synthetic file declares a version the reader accepts', () => {
+  // NFR-0012 — no schema-version literal: the previous version is read from the previous-form fixture and the highest
+  // version the reader knows from the export. The synthetic file must sit in the accepted range (above the previous
+  // form, not above the reader) and be read, never UNSUPPORTED_SCHEMA or UNREADABLE: a feature that raises the reader's
+  // schema while keeping the synthetic file at its own version (ADR-0001 of pista-kart-park) does not fail this check;
+  // a synthetic file at or below the previous form, or above what the reader knows, does.
   const previous = (JSON.parse(trackV1Text()) as { schemaVersion: number }).schemaVersion;
-  assert.ok(Number.isInteger(TRACK_SCHEMA_VERSION) && TRACK_SCHEMA_VERSION > previous, `NFR-0012: the schema version (${TRACK_SCHEMA_VERSION}) must be greater than the previous (${previous})`);
-  assert.equal(SYNTHETIC_TRACK_FILE.schemaVersion, TRACK_SCHEMA_VERSION, 'NFR-0012: the published synthetic file must declare the current schema version');
+  const declared = SYNTHETIC_TRACK_FILE.schemaVersion;
+  assert.ok(Number.isInteger(TRACK_SCHEMA_VERSION) && TRACK_SCHEMA_VERSION > previous, `NFR-0012: the schema version the reader knows (${TRACK_SCHEMA_VERSION}) must be greater than the previous (${previous})`);
+  assert.ok(Number.isInteger(declared) && declared > previous && declared <= TRACK_SCHEMA_VERSION, `NFR-0012: the published synthetic file declares schema ${declared}; it must be greater than the previous (${previous}) and not greater than the version the reader knows (${TRACK_SCHEMA_VERSION})`);
+  const status = readTrackData(syntheticFile()).trackDataStatus;
+  assert.ok(status === 'COMPLETE' || status === 'INCOMPLETE', `NFR-0012: the published synthetic file must be read by the reader, not rejected as ${status}`);
 });
 
 test('CHK-TEST-0009-03 a file with a later schema version is reported as UNSUPPORTED_SCHEMA and left untouched', () => {

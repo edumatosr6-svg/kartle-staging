@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.2.0
+version: 1.3.0
 ---
 
 # 97 — Changelog
@@ -192,3 +192,58 @@ depende de ordem.
   toque esses arquivos; ISSUE-03, -04, -05, -07, -09 e -10 têm "nenhuma ação" como esperado no próprio relatório; ISSUE-06
   (reconciliação de `98-divergences.md` com `docs/lap-validation-device-log.md`) depende do dono do registro humano e fica
   aberto.
+
+## 2026-10-27 — rodada 4, Modo B (verificação reprovada por mudança de projeto de `pista-kart-park`, CHK-TEST-0009-02)
+
+### Entrada
+
+- `400 Code/Output/pista-kart-park/98-divergences.md`, linha de CHK-TEST-0009-02: a segunda asserção exigia
+  `SYNTHETIC_TRACK_FILE.schemaVersion === TRACK_SCHEMA_VERSION`; o projeto validado daquela feature (ADR-0001, decisão 2;
+  REQ-FEAT-0002-15) sobe `TRACK_SCHEMA_VERSION` a 3 em `src/trackData.ts:11` e mantém a pista sintética em 2
+  (`src/track.ts:43`), que o leitor continua a ler (`src/trackData.ts:145`: só `schemaVersion` acima da constante é
+  `UNSUPPORTED_SCHEMA`; 1, 2 e 3 são lidos). A previsão estava em `01-architecture.md` daquela feature, "Consequências para
+  outras features".
+- D-Spec desta feature (DES-0006 1.1.0, estratégia 1.1.1, DM-0001 1.0.1, ADR-0003 1.0.1), alinhado em 2026-10-22 a "sem
+  literal de versão": a constante é "a maior versão que o leitor conhece"; `TRACK_SCHEMA_VERSION + 1` é a versão
+  posterior. A sua frase "sintético igual a `TRACK_SCHEMA_VERSION`" conflita com o projeto validado da outra feature:
+  registrada em `98-divergences.md` como divergência entre especificações, resolvida aqui pela regra de NFR-0012.
+
+### O que mudou
+
+- `tests/race-lap-validation-track-data.test.ts`, CHK-TEST-0009-02 (único bloco tocado): título e asserções passam a
+  afirmar (1) `TRACK_SCHEMA_VERSION` inteira e maior que a `schemaVersion` lida de `track-v1.json` (como estava);
+  (2) `SYNTHETIC_TRACK_FILE.schemaVersion` inteira, maior que a da forma anterior e não maior que `TRACK_SCHEMA_VERSION`;
+  (3) `readTrackData(syntheticFile()).trackDataStatus` é `COMPLETE` ou `INCOMPLETE`: o sintético é lido, nunca
+  `UNSUPPORTED_SCHEMA` nem `UNREADABLE`. Nenhum literal de versão. Nenhuma outra linha do arquivo, fixture ou helper mudou;
+  CHK-TEST-0009-03 continua com `TRACK_SCHEMA_VERSION + 1`.
+- `TEST-0009-dado-de-pista.md` 1.2.0: linha de fixtures e linha de CHK-TEST-0009-02 na tabela de verificações.
+- `98-divergences.md` 1.1.0: seção nova com a divergência entre especificações e a sua resolução.
+- Nada em `src/`, `index.html`, `scripts/` ou `package.json`. `00-index.md` e `99-traceability.md` reemitidos por
+  `lint_artifacts.py --emit`.
+
+### Superfície da rodada
+
+Nenhum requisito, campo, parâmetro ou chave acrescentado (conventions §16): a verificação decide o mesmo NFR-0012 com
+a mesma interface (`TRACK_SCHEMA_VERSION`, `readTrackData`, `SYNTHETIC_TRACK_FILE`) já listada no registro.
+
+### Migração de verificações existentes
+
+140 ids `CHK-TEST-*` antes, 140 depois: 139 carregados sem mudança, 1 modificado (CHK-TEST-0009-02), 0 fundidos,
+0 removidos, 0 acrescentados.
+
+### Prova de que a verificação modificada pode falhar
+
+CHK-TEST-0009-02 reprova se `TRACK_SCHEMA_VERSION` descer até a versão da forma anterior; se `SYNTHETIC_TRACK_FILE`
+declarar versão igual ou inferior à forma anterior (1) ou superior à que o leitor conhece (`TRACK_SCHEMA_VERSION + 1`
+ou mais); ou se o leitor rejeitar o sintético (`UNSUPPORTED_SCHEMA`, `UNREADABLE`). Não baixa o critério: NFR-0012
+pede versão declarada maior que a anterior e versão desconhecida intacta; a igualdade com a constante era um literal
+disfarçado (a constante da outra feature), não uma exigência do critério.
+
+### Itens declinados, com o motivo
+
+- Reescrever a pista sintética (`src/track.ts`) para a versão 3, restaurando a igualdade: recusado; é dado de
+  `pista-kart-park` e este estágio não edita `src/` (skill, "Never edit <source>").
+- Editar DES-0006 / `test-strategy.md` desta feature para a frase "na faixa aceita": recusado neste estágio (fora do
+  write fence, conventions §14); registrado em `98-divergences.md` para a próxima rodada do D-Spec.
+- CHK-TEST-0004-13 (`modelo-kart-01`, mesma tabela da divergência de origem): não é desta feature; fica com a etapa de
+  testes de `modelo-kart-01`.
