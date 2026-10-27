@@ -4,7 +4,7 @@ title: HUD de velocidade e estado de aderência
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [SCR-0001, FLOW-0001, API-0001, FEAT-0004, FEAT-0006, REQ-FEAT-0004-06, REQ-FEAT-0004-09, REQ-FEAT-0006-01]
 ---
 
@@ -19,23 +19,24 @@ sinal verde e o fim da volta, nos dois canais, sem remover nem ocultar os dois e
 
 ## Posicionamento
 
-`src/main.ts`, camada **Aplicação**, alterado em dois trechos; `index.html` e `src/style.css` **não** mudam
-para este item: os elementos `#speed` (`index.html:29`) e `#handling` (`index.html:28`) já existem e
-continuam no mesmo lugar, com o mesmo estilo.
+`src/main.ts`, camada **Aplicação**, **existente** (escrito pela rodada de código 2 segundo este item;
+as-built, commit `0068a57`); `index.html` e `src/style.css` **não** mudam para este item: os elementos
+`#speed` (`index.html:29`) e `#handling` (`index.html:28`) já existiam e continuam no mesmo lugar, com o
+mesmo estilo. Esta rodada não muda o item; só recita as linhas do as-built.
 
 ## Interface
 
-| Trecho atual de `src/main.ts` | Mudança |
+| Trecho atual de `src/main.ts` | O que faz |
 |---|---|
-| `:458` `$('speed').textContent = Math.round(state.speed * 3.6)` | lê `const t = getHandlingTelemetry(state, setupRef)`; com `'code' in t` (nunca ocorre, porque `state` é `lap.kart` ou `idleKart`) os dois elementos não exibem valor; senão `Math.round(t.speedMps * 3.6)` |
-| `:473-476` `labels[t.handling]` | `labels[telemetria.handling]` com a mesma tabela de rótulos de hoje (`:474`), inalterada; `data-state` igual |
+| `:502` `const telemetry = getHandlingTelemetry(state, setupRef)` | lê a telemetria do contrato; com `'code' in telemetry` (nunca ocorre, porque `state` é `lap.kart` ou `idleKart`) os dois elementos não exibem valor (`:504`); senão `$('speed')` recebe `Math.round(telemetry.speedMps * 3.6)` (`:506`) |
+| `:503`, `:507-508` `labels[telemetry.handling]` | a tabela de rótulos (`:503`) é a de antes da feature, inalterada; `data-state` recebe `telemetry.handling` (`:508`) |
 
-`state` continua sendo `lap?.kart ?? idleKart` (`:392`): na pausa, perda de foco ou perda do sensor
+`state` é `lap?.kart ?? idleKart` (`:424`): na pausa, perda de foco ou perda do sensor
 `stepLap` devolve a mesma sessão, logo o `kart` e a telemetria não mudam e o HUD mantém o último valor por
 construção. Antes do sinal verde a leitura devolve o estado inicial (0 km/h, `grip`): o estado "Vazio" de
 SCR-0001. Ao fim da volta o `kart` é o do último passo: estado "Fim da volta". O estado "Erro" (dado de
-pista ilegível) já não cria volta (`beginLap`, `:209`) e o HUD mostra o estado inicial, como hoje. As
-leituras de G lateral, G longitudinal, deriva por eixo e carga por roda (`:477-487`) continuam lendo
+pista ilegível) não cria volta (`beginLap`, `:225`) e o HUD mostra o estado inicial. As leituras de G
+lateral, G longitudinal, deriva por eixo e carga por roda (a partir de `:524`) continuam lendo
 `state.telemetry` diretamente: não são elementos desta feature e não mudam.
 
 Conversão: `km/h = speedMps × 3,6`, arredondada ao inteiro para exibição; nenhuma outra transformação. O

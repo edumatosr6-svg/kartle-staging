@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.2.0
+version: 3.3.0
 sources: []
 ---
 
@@ -557,3 +557,169 @@ valores antes e depois.
 - Saída da faixa exatamente a 50 km/h e fim da varredura sem saída da faixa: seguem não decididos, pelos
   motivos da rodada 7 (Lacunas deliberadas de `01-overview.md`); `v1Mps` ausente nesses casos não é julgado.
 - Os itens recusados das rodadas 1, 5, 6 e 7 continuam recusados pelos mesmos motivos.
+
+## 2026-10-22 — rodada 9, Mode B (fspec-validation-20261022-1837: 10 erros, 1 aviso; requisitos 3.3.0)
+
+**Gatilho**: o relatório FAIL `fspec-validation-20261022-1837` (`ISSUE-01` a `ISSUE-10`, erros, F4 e F3;
+`ISSUE-11`, aviso, F4): o conjunto realizava US-0002 na versão 3.2.0 e os requisitos passaram a 3.3.0
+(US-0002, `01-context.md` e `02-glossary.md` dos requisitos), com AC-US-0002-01, AC-US-0002-02 e
+AC-US-0002-03 mudados de conteúdo. Decisões do dono do produto recebidas para esta rodada e carregadas sem
+redescoberta (2026-10-22, após o FAIL SPEC do código, `feedback-20261022-1803` da etapa D-Spec): (1)
+`DOMAIN/DEC-12` — quando a varredura em patamares no arco de 18 m termina pela saída da faixa acima de
+50 km/h sem a telemetria ter reportado `understeer` em nenhum patamar, V1 é a velocidade mantida do patamar
+interrompido pela saída, "V1 ≥ 1,15 × V0" é avaliado com esse valor, nunca sair de frente até sair da faixa
+cumpre o critério e o rótulo `understeer` não muda; (2) `DOMAIN/DEC-13` — na curva de referência entrando a
+50 km/h com acelerador 0, o único critério é "sem `understeer` por mais de 200 ms consecutivos", permanecer
+na faixa enquanto desacelera não é exigido, e a variante com acelerador cheio continua exigindo permanência
+na faixa e ausência de `understeer`/`oversteer`; mais a leitura do redator `DOMAIN/REF-05` ("sem
+`understeer`" é nenhuma sequência acima de 200 ms, não tolerância zero). Nenhum outro limiar muda; o autor
+pediu o ajuste de `RULE-0002` e `API-0003` (definição de V1 e veredito do ensaio com acelerador zero: sem
+`OFF_ASPHALT` nessa variante; o resultado traz o motivo "sem início de subesterço até a saída da faixa"
+quando for o caso) e declarou a superfície congelada. Todo o conteúdo especificado vem de US-0002 3.3.0,
+que já carrega as três entradas; `DOMAIN.md` foi lido só para conferir os rótulos. O código na raiz do
+repositório (`src/physics.ts`, `scripts/handlingBench.ts`) não foi lido (conventions §12). O seed segue em
+`revision: 3`.
+
+**O que mudou**
+
+- `ISSUE-01` (erro, F4 — permanência na faixa exigida nas duas condições de acelerador): `FEAT-0002`,
+  `REQ-FEAT-0002-03` restrito à condição de acelerador cheio mantido, citando AC-US-0002-02 e
+  `DOMAIN/DEC-13`; a condição de acelerador 0 é julgada só por `REQ-FEAT-0002-01`. Resumo, tabela
+  Comportamento (a linha única da curva de referência dividida em uma por `throttleCondition`) e o primeiro
+  critério de aceite (`offAsphaltStepCount` 0 só com `THROTTLE_FULL`; com `THROTTLE_ZERO` informativo)
+  alinhados.
+- `ISSUE-02` (erro, F4 — saída da faixa reprova `REFERENCE_CORNER` sem distinguir a condição): `FEAT-0002`,
+  `REQ-FEAT-0002-09` restrito a `THROTTLE_FULL` para o `FAIL` com `OFF_ASPHALT`; com `THROTTLE_ZERO` o
+  registro reporta `offAsphaltStepCount`, `offAsphaltFirstStep` e a posição sem reprovar e `maxUndersteerMs`
+  continua medido em todos os passos do arco, dentro e fora da faixa, como o caso anormal de US-0002
+  determina; linha de Comportamento e quarto critério de aceite alinhados.
+- `ISSUE-03` (erro, F4 — V1 só por patamar completo com `understeer`, `MEASUREMENT_MISSING` por "V1 não
+  medida"): `FEAT-0002`, `REQ-FEAT-0002-04` define V1 como o glossário dos requisitos 3.3.0: a menor
+  velocidade medida (patamar completo) em cujo patamar `understeer` dura mais de 200 ms consecutivos ou,
+  sem nenhum patamar — completo ou interrompido — assim até a saída da faixa acima de 50 km/h, a velocidade
+  mantida do patamar interrompido pela saída, com o veredito avaliado com esse valor e `v1Mps` reportado
+  igual a ele (AC-US-0002-03; `DOMAIN/DEC-12`, `DOMAIN/REF-05`). As duas linhas de Comportamento da
+  varredura e o segundo critério de aceite deixam de prever `MEASUREMENT_MISSING` por V1 não medida; a
+  linha "sem V1 medida" passou a ser a linha do acerto que não sai de frente.
+- `ISSUE-04` (erro, F4 — `RULE-0002`, linha `TEST_PAD` e linha `REFERENCE_CORNER`): a linha `TEST_PAD` da
+  tabela Ambientes diz que em `REFERENCE_CORNER` a saída da faixa falha o ensaio só com acelerador cheio e,
+  com acelerador 0, é reportada (passo e posição) sem reprovar, com `maxUndersteerMs` medido em todo o arco;
+  `REAR_RECOVERY` continua a falhar com `OFF_ASPHALT`, com a sua fonte (AC-US-0003-07) separada. A linha
+  `REFERENCE_CORNER` da tabela Ensaios: Medição com `maxUndersteerMs` medido em todos os passos do arco
+  (com acelerador 0, também fora da faixa) e `offAsphaltStepCount` nas duas condições; Veredito com
+  `maxUndersteerMs` ≤ 200 ms nas duas condições e, só com `THROTTLE_FULL`, 0 passos fora da faixa e
+  `handling` só `grip` ou `understeer`; fonte `DOMAIN/DEC-13` via AC-US-0002-01 e AC-US-0002-02 (F7).
+- `ISSUE-05` (erro, F4 — `RULE-0002`, V1 e fim da varredura): a linha `UNDERSTEER_ONSET` da tabela Ensaios
+  define `v1Mps` nos dois casos e o veredito "V1 ≥ 1,15 × V0 com V1 definida nos dois casos", sem
+  `MEASUREMENT_MISSING` por falta de V1; a linha de Limiares da velocidade de início do subesterço diz a
+  definição de V1 e cita `DOMAIN/DEC-12` e `DOMAIN/REF-05`; a seção "Fim da varredura de início do
+  subesterço": a prosa deixa de dizer que o patamar interrompido nunca entra em V1 e passa a dizer que ele
+  não é velocidade medida (não entra em `maxUndersteerMsBySpeed`, AC-US-0002-04) e entra em V1 só no caso de
+  `DOMAIN/DEC-12`, com a leitura de `DOMAIN/REF-05`; a segunda linha da tabela traz V1 nos dois casos,
+  `v1Mps` sempre reportado no fim natural e o motivo apresentado; a nota depois da tabela diz que
+  `MEASUREMENT_MISSING` nunca decorre do fim natural (restrito à terceira linha, AC-US-0002-06, inalterada) e
+  que neste ensaio nenhum critério de subesterço é medido fora do asfalto porque a varredura termina na
+  saída. A frase "Nenhum limiar mudou" ganha `DOMAIN/DEC-12` e `DOMAIN/DEC-13`.
+- `ISSUE-06` (erro, F4 — `API-0003`, `offAsphaltStepCount` e `OFF_ASPHALT` em `REFERENCE_CORNER`): a linha
+  `offAsphaltStepCount` de `REFERENCE_CORNER` diz "0 para `PASS` com `THROTTLE_FULL`; com `THROTTLE_ZERO`,
+  informativo, não altera `verdict`"; `offAsphaltFirstStep` e a posição continuam reportados nas duas
+  condições; a linha `maxUndersteerMs` de `REFERENCE_CORNER` diz "em todos os passos do arco" (com
+  `THROTTLE_ZERO`, também fora da faixa); a linha `OFF_ASPHALT` da tabela Erros tem a condição "em
+  `REFERENCE_CORNER` só com `THROTTLE_FULL`"; parágrafo novo depois da tabela Erros para `REFERENCE_CORNER`
+  com `THROTTLE_ZERO`; a Compatibilidade (versão 3.3.0) registra a mudança de condição do veredito sob o
+  mesmo nome.
+- `ISSUE-07` (erro, F4 — `API-0003`, `v1Mps` condicional e `MEASUREMENT_MISSING` caso (b)): `v1Mps` passa a
+  obrigatório sempre que a varredura chega ao fim natural (saída acima de 50 km/h depois de pelo menos dois
+  patamares completos acima de 50 km/h), com o valor definido nos dois casos e, no caso de `DOMAIN/DEC-12`,
+  o motivo "sem início de subesterço até a saída da faixa" apresentado ao lado (apresentação, não campo,
+  como o km/h); nos desfechos em que a saída reprova, continua presente só se algum patamar completo teve
+  `understeer` por mais de 200 ms consecutivos, como na versão 3.2.0. `MEASUREMENT_MISSING` restrito ao caso
+  (a); o caso (b) deixa de existir. O parágrafo depois da tabela Erros diz o registro completo do fim natural
+  (`v1Mps` nos dois casos; `PASS`, ou `FAIL` com `THRESHOLD_EXCEEDED` quando V1 ≥ 1,15 × V0 ou a não
+  diminuição não são atendidos). A Compatibilidade (versão 3.3.0) registra a mudança de significado e de
+  obrigatoriedade de `v1Mps` e o estreitamento de `MEASUREMENT_MISSING` sob o mesmo nome, com a declaração
+  de que nenhum registro foi publicado sob a forma anterior e nenhum consumidor lê o contrato como entrada
+  (I3, F5). `sources:` ganha AC-US-0002-01 e AC-US-0002-02.
+- `ISSUE-08` (erro, F4 — `FLOW-0002`, saída da faixa em `REFERENCE_CORNER`): a linha da tabela Alternativas
+  dividida por `throttleCondition`: `THROTTLE_FULL` reprova com `OFF_ASPHALT`, passo e posição;
+  `THROTTLE_ZERO` reporta passo e posição sem reprovar e mantém `maxUndersteerMs` julgado em todo o arco.
+  `sources:` ganha AC-US-0002-01 e AC-US-0002-02.
+- `ISSUE-09` (erro, F4 — `FLOW-0002`, fim natural sem V1 medida): a linha de `UNDERSTEER_ONSET` diz que, no
+  fim natural, `v1Mps` é reportado nos dois casos (menor patamar completo com `understeer` por mais de
+  200 ms consecutivos; senão, velocidade mantida do patamar interrompido, com o motivo apresentado), o
+  veredito de V1 ≥ 1,15 × V0 é avaliado com esse valor e `MEASUREMENT_MISSING` só ocorre antes do segundo
+  patamar completo acima de 50 km/h.
+- `ISSUE-10` (erro, F3 — `02-glossary.md`): a linha "Velocidade de início do subesterço" passa a ter os dois
+  casos e a leitura de `DOMAIN/REF-05`, na redação do glossário dos requisitos 3.3.0; a linha `failReason`
+  restringe `MEASUREMENT_MISSING` à saída acima de 50 km/h antes do segundo patamar completo acima de
+  50 km/h. Como sítios do mesmo fato, a linha "Curva de referência" diz as duas execuções e o critério único
+  com acelerador 0 (`DOMAIN/DEC-13`), e a linha `throttleCondition` diz o que cada valor exige.
+- `ISSUE-11` (aviso, F4 — `01-overview.md`): a base declarada passa a ser os requisitos 3.3.0 com
+  `DOMAIN/DEC-01` a `DOMAIN/DEC-13` e `DOMAIN/REF-01` a `DOMAIN/REF-05`, com uma frase dizendo que as
+  decisões de 2026-10-22 fixam como os dois ensaios terminam e são julgados sem mudar nenhum limiar.
+- Versões: `FEAT-0002`, `RULE-0002`, `API-0003` e `FLOW-0002` em 3.3.0; `02-glossary.md` e `01-overview.md`
+  em 3.2.0; este changelog em 3.3.0; todos de volta a `status: draft` por terem mudado. Intocados:
+  `FEAT-0001`, `FEAT-0003` a `FEAT-0006`, `FLOW-0001`, `FLOW-0003`, `API-0001`, `API-0002`, `RULE-0001`,
+  `RULE-0003`, `SCR-0001`, `SCR-0002`, `98-divergences.md` (nenhuma divergência: esta etapa não lê o código
+  para derivar comportamento). `00-index.md` e `99-traceability.md` não foram escritos: o gate os regenera.
+
+**Leituras registradas** (para o validador e para o autor; nenhuma é limiar novo)
+
+- Patamar interrompido pela saída que é o primeiro em que `understeer` passa de 200 ms consecutivos (nenhum
+  patamar completo chegou a isso): os requisitos nomeiam só os dois casos — patamar completo com
+  `understeer` acima de 200 ms, ou nenhum patamar, completo ou interrompido, com isso. `RULE-0002` ("Fim da
+  varredura") registra que nesse terceiro caso o subesterço começou no patamar interrompido e V1 é a sua
+  velocidade mantida — o mesmo valor que o caso de `DOMAIN/DEC-12` dá —, de modo que V1 tem valor em todo
+  fim natural da varredura e `v1Mps` nunca falta nele. As duas leituras dão o mesmo número; nenhuma
+  contradiz um critério. Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-22 fspec-loop rodada 9 — se só
+  o patamar interrompido pela saída reportou `understeer` por mais de 200 ms consecutivos, V1 é a velocidade
+  mantida desse patamar (leitura registrada em `RULE-0002`) ou outra?"
+- Com acelerador 0, `maxUndersteerMs` é medido em todos os passos do arco, dentro e fora da faixa: é o que
+  o caso anormal de US-0002 diz ("o critério 01 continua a ser julgado em todo o arco") e o que o changelog
+  dos requisitos (rodada 9, Leituras registradas) fixa — a posição do kart em relação à faixa não tira um
+  passo do arco. A extensão do arco (quantos passos o ensaio percorre) segue como parâmetro de ensaio não
+  fixado em número (Lacunas deliberadas de `01-overview.md`, "comprimento do arco").
+- O motivo "sem início de subesterço até a saída da faixa", pedido pelo autor, é apresentação na saída
+  serializada e em `docs/physics.md`, ao lado de `v1Mps`, do mesmo modo que o km/h: não é campo nem valor de
+  enum (conventions §16). Ele é derivável do contrato — `v1Mps` maior que todo `plateauSpeedMps` de
+  `maxUndersteerMsBySpeed` e nenhum par com `maxUndersteerMs` acima de 200 —, por isso nada se perde sem um
+  campo.
+- `v1Mps` nos desfechos em que a saída da faixa reprova (`OFF_ASPHALT` abaixo de 50 km/h;
+  `MEASUREMENT_MISSING` antes do segundo patamar completo): mantido como na versão 3.2.0 — presente só se
+  algum patamar completo teve `understeer` por mais de 200 ms consecutivos. `DOMAIN/DEC-12` fala só do fim
+  natural da varredura, e nenhuma issue pede outra coisa.
+
+**Superfície (conventions §16)**: nenhum requisito, campo, valor de enum, endpoint, tela ou configuração
+acrescentado. Requisitos funcionais: 62 antes e depois. `failReason`: sete valores antes e depois.
+`throttleCondition` já existia com os dois valores. As linhas novas das tabelas Comportamento de
+`FEAT-0002` e Alternativas de `FLOW-0002` dividem linhas que já existiam por `throttleCondition`, e o
+parágrafo novo de `API-0003` descreve um desfecho de `REQ-FEAT-0002-09`.
+
+**Tabela de migração** (conventions §17): nenhum requisito, contrato, campo, tela, regra ou ensaio retirado.
+Modificados: `REQ-FEAT-0002-03` (restrito a acelerador cheio), `REQ-FEAT-0002-04` (definição de V1 nos dois
+casos), `REQ-FEAT-0002-09` (dividido por `throttleCondition`). Campo que muda de obrigatoriedade e de
+significado sob o mesmo nome: `v1Mps` (registrado em Compatibilidade). Condição de veredito que muda sob o
+mesmo nome: `offAsphaltStepCount` em `REFERENCE_CORNER` (só `THROTTLE_FULL`). Caso removido: o caso (b) de
+`MEASUREMENT_MISSING` (fim natural sem V1 medida), por decisão do dono do produto (`DOMAIN/DEC-12`) passada
+a esta rodada — V1 ≥ 1,15 × V0 continua julgado em todo fim natural, agora com o valor de `DOMAIN/DEC-12`;
+nenhuma verificação se perde. Critérios `AC-*` realizados: 32 antes e depois.
+
+**Itens fechados**: `ISSUE-01` a `ISSUE-11` de `fspec-validation-20261022-1837`. Nenhum `FB-<nn>` pendente
+para esta feature (o `feedback-20261022-1803` do D-Spec foi respondido pelo dono do produto em `DOMAIN.md`
+e absorvido pelos requisitos 3.3.0, que esta rodada realiza). Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Um campo ou valor de `failReason` próprio para "sem início de subesterço até a saída da faixa", ou um
+  campo que diga de onde V1 veio: não acrescentado — seria superfície numa rodada de correção (§16), e o
+  autor declarou a superfície congelada; o motivo é apresentado (Leituras registradas). A proposta de
+  `SCOPE-BACKLOG.md` da rodada 9 dos requisitos ("a saída do ensaio deve dizer se V1 é a velocidade do
+  primeiro patamar com `understeer` ou a do patamar interrompido pela saída?") segue valendo.
+- Recuo de V0 (linha de base que não reporta `understeer` em nenhum patamar até a saída da faixa): não
+  fixado; `DOMAIN/DEC-12` nomeia V1, e a proposta de `SCOPE-BACKLOG.md` da rodada 9 dos requisitos segue
+  valendo. `BASELINE_MISSING` continua a ser o resultado de uma linha de base sem V0 registrado.
+- Saída da faixa exatamente a 50 km/h e fim da varredura sem saída da faixa: seguem não decididos, pelos
+  motivos das rodadas 7 e 8 (Lacunas deliberadas de `01-overview.md`).
+- Ordem entre `BASELINE_MISSING` e os demais motivos de `UNDERSTEER_ONSET` quando ambos se aplicam: não
+  decidida; nenhuma issue a aponta.
+- Os itens recusados das rodadas 1, 5, 6, 7 e 8 continuam recusados pelos mesmos motivos.

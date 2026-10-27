@@ -1,8 +1,8 @@
 ---
 stage: dspec
 feature: dirigibilidade
-generated: 2026-10-22T16:16:49Z
-rows: 248
+generated: 2026-10-27T15:45:50Z
+rows: 254
 ---
 
 # Traceability
@@ -121,11 +121,17 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0001-09 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
 | REQ-FEAT-0001-09 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | REQ-FEAT-0001-09 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
+| REQ-FEAT-0002-01 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
 | REQ-FEAT-0002-01 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | REQ-FEAT-0002-01 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
+| REQ-FEAT-0002-01 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
+| REQ-FEAT-0002-02 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | REQ-FEAT-0002-02 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
+| REQ-FEAT-0002-02 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
+| REQ-FEAT-0002-03 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
 | REQ-FEAT-0002-03 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | REQ-FEAT-0002-03 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |
+| REQ-FEAT-0002-03 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0002-04 | ADR-0003 | - | `adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md` |
 | REQ-FEAT-0002-04 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
 | REQ-FEAT-0002-04 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` |

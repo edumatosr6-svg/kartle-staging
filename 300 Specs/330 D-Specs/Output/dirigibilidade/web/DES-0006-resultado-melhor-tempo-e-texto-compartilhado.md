@@ -4,7 +4,7 @@ title: Resultado com a versão do acerto, melhor tempo comparável e texto compa
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [SCR-0002, FLOW-0003, API-0002, FEAT-0005, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-10]
 ---
 
@@ -20,11 +20,13 @@ equivalente (REQ-FEAT-0005-10). Tela: SCR-0002.
 
 ## Posicionamento
 
-- `src/handlingMessages.ts`, camada **Aplicação**, **novo**, puro (sem DOM). Motivo de ser novo: o texto
-  compartilhado precisa de prova em `npm test`; `src/main.ts` não carrega lá e `src/lapMessages.ts` (de
-  `race-lap-validation`) só pode importar tipos de `./lap`.
-- `src/main.ts`, camada **Aplicação**, alterado: resultado, melhor tempo, compartilhar.
-- `index.html`, camada **Aplicação**, alterado: dois elementos no painel `#lap-result` (`index.html:25`).
+- `src/handlingMessages.ts`, camada **Aplicação**, **existente** (rodada de código 2, `:1-14`), puro (sem
+  DOM). Motivo de ser módulo próprio: o texto compartilhado precisa de prova em `npm test`; `src/main.ts`
+  não carrega lá e `src/lapMessages.ts` (de `race-lap-validation`) só pode importar tipos de `./lap`.
+- `src/main.ts`, camada **Aplicação**, **existente** (rodada de código 2): resultado, melhor tempo,
+  compartilhar. Esta rodada não muda o item; só recita as linhas do as-built e a leitura de
+  `buildLapRecord` sob o FB-01 de `race-lap-validation`.
+- `index.html`, camada **Aplicação**, **existente**: dois elementos no painel `#lap-result` (`index.html:25`).
 
 ## Interface
 
@@ -46,12 +48,12 @@ Elementos novos em `index.html`, dentro de `#lap-result`, com a classe `lap-chip
 
 | Trecho atual | Mudança |
 |---|---|
-| `:159` `best = Infinity` | passa a `bestRecord: LapRecord \| undefined` e `lastRecord: LapRecord \| undefined`, na memória da página |
-| `:394-397` ao entrar em `ENDED` | `lastRecord = buildLapRecord(result, setupRef)`; se `lapValidity` `VALID`: `bestRecord` passa a `lastRecord` quando não há `bestRecord` ou quando `compareLapRecords(bestRecord, lastRecord)` é `COMPARABLE` e `lastRecord.lapMs < bestRecord.lapMs`; qualquer outro valor de `comparability` (ou `INCOMPLETE_RECORD`) deixa `bestRecord` como está e **não** exibe comparação |
-| `$('best')` | mostra `formatLapTime(bestRecord.lapMs)` só quando `bestRecord` existe e `compareLapRecords(bestRecord, {trackId, trackVersion, setupId, setupVersion do acerto corrente})` é `COMPARABLE`; senão `—` (a tela nunca mostra como "melhor" um tempo de outra versão) |
-| `:226`, `:233` (peso e acerto) | continuam zerando o melhor tempo: `bestRecord = undefined` |
-| `renderResult` (`:331-358`) | além do que já faz, escreve `#lap-result-setup` = `lastRecord.setupVersion` e o rótulo de `#lap-share` |
-| `#lap-share` | `onclick`: `text = formatSharedText(lastRecord, lang)`; se `navigator.share` existe, `navigator.share({text})`; senão `navigator.clipboard.writeText(text)`; ambas em `try`/`catch` com `notify` de falha; nada é gravado |
+| `:167` `lastRecord`, `bestRecord: LapRecord \| undefined` | os dois registros da página, na memória |
+| `:426-438` ao entrar em `ENDED` | `lastRecord = buildLapRecord(result, setupRef)` (`:429`); como `beginLap` informa `setupId` e `setupVersion` no pedido de `startLap` ([DES-0007](DES-0007-integracao-da-aplicacao-e-adaptadores.md); FB-01 de `race-lap-validation`), o `result` já os carrega e `buildLapRecord` só os copia — o `setupRef` é o recuo para um resultado sem os campos ([DES-0003](../core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)); se `lapValidity` `VALID`: `bestRecord` passa a `lastRecord` quando não há `bestRecord` ou quando `compareLapRecords(bestRecord, lastRecord)` é `COMPARABLE` e `lastRecord.lapMs < bestRecord.lapMs` (`:431-435`); qualquer outro valor de `comparability` (ou `INCOMPLETE_RECORD`, `:434`) deixa `bestRecord` como está e **não** exibe comparação |
+| `renderBest` (`:217-222`) | mostra `formatLapTime(bestRecord.lapMs)` só quando `bestRecord` existe e `compareLapRecords(bestRecord, {trackId, trackVersion, setupId, setupVersion do acerto corrente})` é `COMPARABLE`; senão `—` (a tela nunca mostra como "melhor" um tempo de outra versão) |
+| `:243`, `:254` (peso e acerto) | zeram o melhor tempo: `bestRecord = undefined` |
+| `renderResult` (`:361-390`) | escreve `#lap-result-setup` = `lastRecord.setupVersion` (`:387`) e o rótulo de `#lap-share` (`:388`) |
+| `#lap-share` (`:272-279`) | `onclick`: `text = formatSharedText(lastRecord, lang)`; se `navigator.share` existe, `navigator.share({text})`; senão `navigator.clipboard.writeText(text)`; ambas em `try`/`catch` com `notify` de falha; nada é gravado |
 
 A decisão de comparabilidade é de `compareLapRecords` ([DES-0003](../core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md));
 a tela só recebe o resultado (I2). Não existe tela de abertura de registro gravado nem reprodução de replay
@@ -71,7 +73,7 @@ manipuladores de `src/main.ts`.
 ## Estado e concorrência
 
 Estado local: `lastRecord`, `bestRecord`, ambos derivados de `getLapResult` uma vez por volta encerrada
-(`lastPhase !== 'ENDED'`, `:394`), o que absorve quadros repetidos em `ENDED`: o registro é construído uma
+(`lastPhase !== 'ENDED'`, `:426`), o que absorve quadros repetidos em `ENDED`: o registro é construído uma
 vez. Clicar duas vezes em compartilhar compartilha duas vezes o mesmo texto, sem efeito sobre registro
 algum. Nada é persistido (a proibição de gravação local de `race-lap-validation` continua valendo).
 

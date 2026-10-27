@@ -1,8 +1,8 @@
 ---
 stage: fspec
 feature: dirigibilidade
-generated: 2026-10-22T15:43:08Z
-rows: 192
+generated: 2026-10-22T19:04:19Z
+rows: 196
 ---
 
 # Traceability
@@ -34,10 +34,14 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | AC-US-0001-06 | FLOW-0002 | - | `flows/FLOW-0002-ensaio-deterministico-e-piloto-de-teste.md` |
 | AC-US-0001-06 | RULE-0002 | - | `rules/RULE-0002-ensaios-e-limiares.md` |
 | AC-US-0002-01 | API-0001 | - | `api/API-0001-telemetria-de-dirigibilidade.md` |
+| AC-US-0002-01 | API-0003 | - | `api/API-0003-saida-dos-ensaios.md` |
 | AC-US-0002-01 | FEAT-0002 | REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10 | `features/FEAT-0002-aderencia-em-curva.md` |
 | AC-US-0002-01 | FLOW-0001 | - | `flows/FLOW-0001-passo-de-simulacao-e-hud.md` |
+| AC-US-0002-01 | FLOW-0002 | - | `flows/FLOW-0002-ensaio-deterministico-e-piloto-de-teste.md` |
 | AC-US-0002-01 | RULE-0002 | - | `rules/RULE-0002-ensaios-e-limiares.md` |
+| AC-US-0002-02 | API-0003 | - | `api/API-0003-saida-dos-ensaios.md` |
 | AC-US-0002-02 | FEAT-0002 | REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10 | `features/FEAT-0002-aderencia-em-curva.md` |
+| AC-US-0002-02 | FLOW-0002 | - | `flows/FLOW-0002-ensaio-deterministico-e-piloto-de-teste.md` |
 | AC-US-0002-02 | RULE-0002 | - | `rules/RULE-0002-ensaios-e-limiares.md` |
 | AC-US-0002-03 | API-0003 | - | `api/API-0003-saida-dos-ensaios.md` |
 | AC-US-0002-03 | FEAT-0002 | REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10 | `features/FEAT-0002-aderencia-em-curva.md` |

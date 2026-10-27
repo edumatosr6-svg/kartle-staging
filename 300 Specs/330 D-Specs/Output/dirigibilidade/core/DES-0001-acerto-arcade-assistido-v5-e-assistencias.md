@@ -4,7 +4,7 @@ title: Acerto Arcade assistido v5, assistências, pista de teste e classificaç�
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 3.2.0
+version: 3.3.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0006, RULE-0001, RULE-0002, FLOW-0001, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-08, REQ-FEAT-0002-10, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-08, REQ-FEAT-0004-10, REQ-FEAT-0005-07, REQ-FEAT-0005-09, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04]
 ---
 
@@ -25,14 +25,17 @@ construídos aqui. Decisões: [ADR-0001](../adr/ADR-0001-versao-do-acerto-como-r
 
 ## Posicionamento
 
-`src/physics.ts`, camada **Simulação**, alterado; parte do item já está escrita (rodada de código 1) e é
-lida aqui como as-built. Nenhum módulo novo: o modelo do veículo, os seus presets e os ambientes
-(`Environment`, `CIRCUIT`, `TEST_PAD`, `:161-163`) já vivem aqui (decisão do autor: presets em
-`src/physics.ts`). O que **não** muda: `STEP` (`:5`), `PHYSICS_VERSION` (`:7`), `Input` (`:8`),
-`RENTAL_KART` (`:48-57`), `ARCADE_KART` (`:60-67`), `KART_PRESETS` (`:68`), a assinatura de `step`
-(`:296`), a constante `TEST_PAD` (`:163`, asfalto sem limite, usada por `tests/physics.test.ts:7` e por
-`scripts/physics-bench.ts:4`) e a linha 3 — tudo afirmado por `tests/race-lap-validation-frozen.test.ts:31-60`
-ou usado pelos testes existentes. `src/maneuvers.ts` não muda.
+`src/physics.ts`, camada **Simulação**, **existente**: o item está escrito pelas rodadas de código 1 e 2
+(as-built, 385 linhas, commit `0068a57`) e é lido aqui como descrição do que o sistema faz; nenhuma
+interface deste item muda nesta rodada — só a leitura das alavancas de `UNDERSTEER_ONSET` e da curva de
+referência com acelerador 0 à luz de `DOMAIN/DEC-12` e `DOMAIN/DEC-13` (F-Spec 3.3.0). Nenhum módulo novo:
+o modelo do veículo, os seus presets e os ambientes (`Environment`, `CIRCUIT`, `TEST_PAD`, `:164-166`) vivem
+aqui (decisão do autor: presets em `src/physics.ts`). O que **não** muda: `STEP` (`:5`), `PHYSICS_VERSION`
+(`:7`), `Input` (`:8`), `RENTAL_KART` (`:50-58`), `ARCADE_KART` (`:61-68`), `KART_PRESETS` (`:69`), a
+assinatura de `step` (`:319`), a constante `TEST_PAD` (`:166`, asfalto sem limite, usada por
+`tests/physics.test.ts:7` e por `scripts/physics-bench.ts:1`) e a linha 3 — tudo afirmado por
+`tests/race-lap-validation-frozen.test.ts:31-60` ou usado pelos testes existentes. `src/maneuvers.ts` não
+muda.
 
 ## Interface
 
@@ -40,106 +43,111 @@ ou usado pelos testes existentes. `src/maneuvers.ts` não muda.
 
 | Símbolo | Tipo | Situação | Descrição |
 |---|---|---|---|
-| `ARCADE_ASSISTIDO_V5` | `Readonly<KartConfig>` | existente, `:71-80` (candidato) | `{...ARCADE_KART, <parâmetros existentes retunados>, <parâmetros opcionais de assistência>}`, congelado. Os valores em `:73-79` são o candidato da rodada de código 1, medido contra ensaios que a revisão 3 do seed corrigiu; os valores finais são escolhidos na etapa de código pelos ensaios de [DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md) na pista de teste; a tabela de alavancas abaixo diz o que cada um move |
-| `PUBLISHED_SETUPS` | `Readonly<Record<SetupId, PublishedSetup>>` | existente, `:89-97` | o dado publicado de [DM-0001](../data/DM-0001-dado-publicado-registros-e-linha-de-base.md), seção 1 |
-| `SetupId`, `PublishedSetup`, `SetupRef` | tipos | existentes, `:82-87` | `SetupRef = {setupId, setupVersion}` |
-| `SOLVER_SUBSTEPS` | `4` | existente, `:81`; usado em `:298` | subpassos por `STEP`: `step` usa `Math.ceil(dt / (STEP / SOLVER_SUBSTEPS))`, mesmo valor de antes da feature; 120 × 4 = 480 Hz (REQ-FEAT-0005-07) |
+| `ARCADE_ASSISTIDO_V5` | `Readonly<KartConfig>` | existente, `:73-83` (entregue pela rodada de código 2) | `{...ARCADE_KART, <parâmetros existentes retunados>, <parâmetros opcionais de assistência>}`, congelado. Os valores em `:75-82` são os escolhidos pela etapa de código pelos ensaios de [DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md) na pista de teste e registrados em `docs/physics.md:221-237`; dois registros ainda reprovam sob o projeto anterior (`UNDERSTEER_ONSET`, `REFERENCE_CORNER` com acelerador 0) e são julgados de novo pela rodada de código seguinte sob este; a tabela de alavancas abaixo diz o que cada um move |
+| `PUBLISHED_SETUPS` | `Readonly<Record<SetupId, PublishedSetup>>` | existente, `:92-100` | o dado publicado de [DM-0001](../data/DM-0001-dado-publicado-registros-e-linha-de-base.md), seção 1 |
+| `SetupId`, `SetupRef`, `PublishedSetup` | tipos | existentes, `:85-90` | `SetupRef = {setupId, setupVersion}` |
+| `SOLVER_SUBSTEPS` | `4` | existente, `:84`; usado em `:321` | subpassos por `STEP`: `step` usa `Math.ceil(dt / (STEP / SOLVER_SUBSTEPS))`, mesmo valor de antes da feature; 120 × 4 = 480 Hz (REQ-FEAT-0005-07) |
 
-`KartConfig` (`:31-45`) tem campos **opcionais**, lidos apenas dentro do ramo `config.drivingAssists` de
+`KartConfig` (`:31-46`) tem campos **opcionais**, lidos apenas dentro do ramo `config.drivingAssists` de
 `integrate` e de `steeringLimit`; ausente, cada um vale o literal que o código usava antes da feature, de
 modo que `RENTAL_KART` e `ARCADE_KART`, que não os declaram, se comportam exatamente como antes (I4;
 `REALISTA_UNCHANGED` prova). Unidade no sufixo (D-FS-06):
 
 | Campo opcional | Unidade | Padrão (comportamento anterior) | Onde atua (as-built) | Alavanca para |
 |---|---|---|---|---|
-| `steerApplyRatePerS` | múltiplo do limite por s (1/s) | 5 | `:184-185` taxa de aproximação do esterço ao alvo | subida a 90 % em ≤ 180 ms (REQ-FEAT-0001-01, -03) |
-| `steerReturnRatePerS` | múltiplo do limite por s (1/s) | 10 | `:184-185` taxa de retorno ao soltar ou inverter | queda a 10 % em ≤ 250 ms (REQ-FEAT-0001-02, -04) |
-| `assistLateralG` | g | `friction` | `:169-172` aceleração lateral que o limite de esterço por velocidade pede | raio de 18 m a 50 km/h sem saturar a frente (REQ-FEAT-0002-01 a -03): a 13,89 m/s o raio de 18 m pede 10,7 m/s² (1,09 g) de aceleração lateral |
-| `assistSteerAllowanceRad` | rad | 0,045 | `:170-172` folga além do limite cinemático | saturação progressiva da frente acima de V1 (REQ-FEAT-0002-04, -05, -10): com `assistLateralG`, decide a velocidade de patamar, na varredura em patamares de velocidade mantida no arco, a partir da qual a frente satura e a telemetria reporta `understeer` no asfalto antes de o kart sair da faixa. Medido em 2026-10-22 com o arco e a varredura deste projeto: `ARCADE_KART` (0,045 rad, `friction` 1,10) reporta `understeer` por 808 ms consecutivos já no patamar de 50 km/h e sai da faixa a 51,7 km/h; o candidato (0,012 rad, 1,12 g) não reporta `understeer` no patamar de 50 km/h e sai da faixa a 49,3 km/h durante a subida para o patamar seguinte (ver `forcingRampMps`) — `UNDERSTEER_ONSET` reprova com `OFF_ASPHALT` ([DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md)); o par é escolhido na etapa de código pelos ensaios |
-| `yawTrackingGainPerS` | 1/s | 0 (termo inexistente fora do drift; no drift o ganho 4 de `:246` não muda) | `:247-250` momento `clamp(inertia × (intendedYaw − yawRate) × ganho, ±140 N·m)` fora do drift | rapidez da guinada ao aplicar e ao soltar (REQ-FEAT-0001-01 a -04) |
-| `yawCorrectGainPerS` | 1/s | 9 | `:243` amortecimento do excesso de guinada ao soltar | recuperação em ≤ 400 ms (REQ-FEAT-0003-04, -09) |
-| `slipDampingGainPerS` | 1/s | 4 | `:235` amortecimento da velocidade lateral excedente | `sideslipRad` ≤ 0,65 em condução normal e na recuperação (REQ-FEAT-0003-05, -06) |
-| `slipDampingCapG` | g | 0,45 | `:234` teto da força de amortecimento | idem |
-| `forcingRearFrictionScale` | adimensional | 1 (sem efeito) | `:186`, `:219` multiplicador do atrito dos pneus traseiros só nos passos com `forcing` verdadeiro (como o 0,86 do drift) | traseira viva ao forçar, nunca em condução normal (REQ-FEAT-0003-01, -03) |
-| `forcingRampMps` | m/s | 0 (degrau: a escala vale inteira a partir de 50 km/h, comportamento as-built) | **novo**: a escala aplicada aos pneus traseiros (`:186`, `:219`) passa a `1 + (forcingRearFrictionScale − 1) × r`, com `r = clamp((state.speed − 50 / 3.6) / forcingRampMps, 0, 1)` calculado uma vez por passo em `step`, sobre o mesmo `state.speed` (início do passo) de `isForcing`, e entregue a `integrate` junto com `forcing`; `r = 1` quando o campo é 0 ou ausente (o degrau as-built) | margem entre a curva de referência com acelerador cheio, em que `forcing` passa a verdadeiro assim que a velocidade excede 50 km/h e `handling` ainda tem de ser `grip` ou `understeer` (REQ-FEAT-0003-02), e o ensaio de recuperação, que entra bem acima de 50 km/h e precisa da traseira solta (REQ-FEAT-0003-04); a mesma margem vale para a varredura de `UNDERSTEER_ONSET`, cujos passos de acelerador 1 acima de 50 km/h, com esterço cheio, também são "Forçando" (REQ-FEAT-0002-05, -10); `forcing` em si continua binário (RULE-0001). Medido em 2026-10-22 com o arco deste projeto sobre o candidato (degrau, escala 0,55): 257 dos 300 passos da curva de referência com acelerador cheio em `oversteer`, e a saída da faixa a 49,3 km/h na subida do segundo patamar da varredura — a falha que a alavanca existe para fechar |
-| `grassSpeedLossPerS` | 1/s | 0 (sem efeito) | `:252` força longitudinal extra `−massa × u × k × fração de rodas na grama` | ≥ 30 % de perda em 1 s na grama (REQ-FEAT-0004-03, -04, -08) |
+| `steerApplyRatePerS` | múltiplo do limite por s (1/s) | 5 | `:206-207` taxa de aproximação do esterço ao alvo | subida a 90 % em ≤ 180 ms (REQ-FEAT-0001-01, -03); entregue 14 |
+| `steerReturnRatePerS` | múltiplo do limite por s (1/s) | 10 | `:206-207` taxa de retorno ao soltar ou inverter | queda a 10 % em ≤ 250 ms (REQ-FEAT-0001-02, -04); entregue 24 |
+| `assistLateralG` | g | `friction` | `:184-187` aceleração lateral que o limite de esterço por velocidade pede | raio de 18 m a 50 km/h sem saturar a frente (REQ-FEAT-0002-01 a -03): a 13,89 m/s o raio de 18 m pede 10,7 m/s² (1,09 g) de aceleração lateral; entregue 1,48 g. Com acelerador 0 a velocidade cai, o limite de esterço cresce e o raio natural aperta (sai do anel pelo lado interno, [ADR-0005](../adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md)): por `DOMAIN/DEC-13` isso não reprova, e a alavanca só precisa manter `understeer` ≤ 200 ms consecutivos em todos os 300 passos; com acelerador cheio a permanência na faixa continua exigida |
+| `assistSteerAllowanceRad` | rad | 0,045 | `:185-187` folga além do limite cinemático | saturação progressiva da frente acima de V1 (REQ-FEAT-0002-04, -05, -10): com `assistLateralG`, decide se, e em que patamar, a frente satura e a telemetria reporta `understeer` no asfalto. Por `DOMAIN/DEC-12` (F-Spec 3.3.0) a frente **não precisa** avisar antes da saída da faixa: V1 ≥ 1,15 × V0 (57,5 km/h) é cumprido por um patamar completo com `understeer` acima de 200 ms consecutivos de alvo ≥ 59,0 km/h, **ou** pela saída da faixa acima de 50 km/h depois de pelo menos dois patamares completos acima de 50 km/h com o patamar interrompido de alvo ≥ 59,0 km/h, sem subesterço em patamar algum (V1 = velocidade mantida do patamar interrompido; [ADR-0004](../adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md), decisão 8). Medido pela rodada de código 2 (`docs/physics.md:252`; feedback de 2026-10-22): `ARCADE_KART` (0,045 rad, `friction` 1,10) reporta 808 ms no patamar de 50 km/h e sai a 51,7 km/h (V0 = 50 km/h); o acerto entregue (0,004 rad, 1,48 g, `:78`) chega ao limite com os dois eixos derivando por igual (dianteira 0,075–0,130 rad, traseira 0,088–0,122 rad), o rótulo `understeer` de `handling()` (`:156-163`: deriva dianteira > 0,09 rad **e** > 1,2 × a traseira; inalterado por decisão do dono) fica em `grip`, o kart completa 7 patamares acima de 50 km/h sem `understeer` e sai da faixa a 56,1 km/h com o patamar interrompido em 64,4 km/h — `MEASUREMENT_MISSING` pelo projeto anterior, fim natural com V1 = 64,4 km/h por este; folga ≥ 0,016 rad reporta `understeer` já a 50 km/h com acelerador 0 (REQ-FEAT-0002-01 reprova) e ≤ 0,012 rad nunca. Nenhuma alavanca dependente da velocidade é acrescentada |
+| `yawTrackingGainPerS` | 1/s | 0 (termo inexistente fora do drift; no drift o ganho 4 de `:268` não muda) | `:270-272` momento `clamp(inertia × (intendedYaw − yawRate) × ganho, ±140 N·m)` fora do drift | rapidez da guinada ao aplicar e ao soltar (REQ-FEAT-0001-01 a -04); entregue 5,8 |
+| `yawCorrectGainPerS` | 1/s | 9 | `:266` amortecimento do excesso de guinada ao soltar | recuperação em ≤ 400 ms (REQ-FEAT-0003-04, -09); entregue 33 |
+| `slipDampingGainPerS` | 1/s | 4 | `:258` amortecimento da velocidade lateral excedente | `sideslipRad` ≤ 0,65 em condução normal e na recuperação (REQ-FEAT-0003-05, -06); entregue 18 |
+| `slipDampingCapG` | g | 0,45 | `:257` teto da força de amortecimento | idem; entregue 0,8 |
+| `forcingRearFrictionScale` | adimensional | 1 (sem efeito) | `:208`, `:242` multiplicador do atrito dos pneus traseiros só nos passos com `forcing` verdadeiro (como o 0,86 do drift) | traseira viva ao forçar, nunca em condução normal (REQ-FEAT-0003-01, -03); entregue 0,67 |
+| `forcingRampMps` | m/s | 0 (degrau: a escala vale inteira a partir de 50 km/h, comportamento anterior) | existente, `:46`, `:192-195` (`forcingRampFraction`), `:328`, `:208`: a escala aplicada aos pneus traseiros passa a `1 + (forcingRearFrictionScale − 1) × r`, com `r = clamp((state.speed − 50 / 3.6) / forcingRampMps, 0, 1)` calculado uma vez por passo em `step` (`:328`), sobre o mesmo `state.speed` (início do passo) de `isForcing` (`:327`), e entregue a `integrate` junto com `forcing` (`:336`); `r = 1` quando o campo é 0 ou ausente (o degrau anterior) | margem entre a curva de referência com acelerador cheio, em que `forcing` passa a verdadeiro assim que a velocidade excede 50 km/h e `handling` ainda tem de ser `grip` ou `understeer` (REQ-FEAT-0003-02), e o ensaio de recuperação, que entra bem acima de 50 km/h e precisa da traseira solta (REQ-FEAT-0003-04); a mesma margem vale para a varredura de `UNDERSTEER_ONSET`, cujos passos de acelerador 1 acima de 50 km/h, com esterço cheio, também são "Forçando" (REQ-FEAT-0002-05, -10); `forcing` em si continua binário (RULE-0001). Entregue 2,4 m/s com escala 0,67: a curva de referência com acelerador cheio fica na faixa sem `oversteer`/`sliding` e a recuperação volta a `grip` em 8 ms (`docs/physics.md:245-248`) |
+| `grassSpeedLossPerS` | 1/s | 0 (sem efeito) | `:275` força longitudinal extra `−massa × u × k × fração de rodas na grama` | ≥ 30 % de perda em 1 s na grama (REQ-FEAT-0004-03, -04, -08); entregue 0,7 (48 % e 55 % medidos, `docs/physics.md:253`) |
 
 Parâmetros existentes retunados no v5 (mesmas unidades de hoje): `enginePower` (W), `driveForce` (N),
 `governorSpeed` (m/s), `throttleRate` (1/s), `friction`, `rearStiffness`, `frontStiffness`, `maxSteer`
 (rad). `kartMass`, `driverMass` (75 kg no ensaio), `wheelbase`, `trackWidth`, `frontWeight`, `cgHeight`,
 `yawRadius` e `grassFriction` não mudam de nome nem de unidade. Os valores respeitam as restrições numéricas
-do acerto agressivo (`DOMAIN/REF-02`, F-Spec 3.0.0): para 0–60 km/h em 2,5 s com 228 kg a força líquida
-média precisa ser ≥ 1 520 N (16,67 m/s ÷ 2,5 s × 228 kg); para 105 km/h estabilizados (29,17 m/s)
-`governorSpeed` precisa superar 29,17 m/s mais a rampa de 1,5 m/s do governador (`:193`); a curva de
+do acerto agressivo (`DOMAIN/REF-02`, F-Spec 3.0.0 e seguintes): para 0–60 km/h em 2,5 s com 228 kg a força
+líquida média precisa ser ≥ 1 520 N (16,67 m/s ÷ 2,5 s × 228 kg); para 105 km/h estabilizados (29,17 m/s)
+`governorSpeed` precisa superar 29,17 m/s mais a rampa de 1,5 m/s do governador (`:216`); a curva de
 referência de 18 m a 50 km/h exige que o limite de esterço por velocidade (`assistLateralG`) admita ao
 menos 1,09 g de aceleração lateral sem saturar a frente; e, na pista de teste em reta, a guinada que o
-limite de esterço pede a 50 km/h com esterço cheio é `u × tan(limite) / wheelbase` (com `assistLateralG`
-1,12 e folga 0,012 rad, cerca de 0,95 rad/s; a guinada real fica abaixo, 0,72 rad/s medidos no candidato),
-o que limita o deslocamento lateral do kart durante o ensaio de resposta e, por isso, a duração do ensaio
-que cabe na faixa de 11 m ([DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md), `holdMs`). As
-restrições se contrariam e a escolha dos valores é da etapa de código: força motriz alta para 0–60 km/h faz
-o kart ganhar velocidade na curva de referência com acelerador cheio, onde ele tem de ficar na faixa e em
-`grip`/`understeer`, e a traseira tem de soltar no ensaio de recuperação a 60 km/h — `forcingRampMps`,
-`forcingRearFrictionScale` e `driveForce` são as alavancas desse compromisso.
+limite de esterço pede a 50 km/h com esterço cheio é `u × tan(limite) / wheelbase` (com o acerto entregue,
+`assistLateralG` 1,48 e folga 0,004 rad, cerca de 1,1 rad/s de teto; a guinada real fica abaixo, e a subida
+medida é de 117 ms), o que limita o deslocamento lateral do kart durante o ensaio de resposta e, por isso, a
+duração do ensaio que cabe na faixa de 11 m ([DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md),
+`holdMs`). As restrições se contrariam e a escolha dos valores é da etapa de código: força motriz alta para
+0–60 km/h faz o kart ganhar velocidade na curva de referência com acelerador cheio, onde ele tem de ficar na
+faixa e em `grip`/`understeer`, e a traseira tem de soltar no ensaio de recuperação a 60 km/h —
+`forcingRampMps`, `forcingRearFrictionScale` e `driveForce` são as alavancas desse compromisso. Medido na
+rodada de código 2: 0–60 km/h em 2 383 ms, 110,2 km/h estabilizados, volta do piloto de teste em 21 340 ms
+sem sair do asfalto (`docs/physics.md:250-255`).
 
-### Pista de teste (novo)
+### Pista de teste (existente, as-built)
 
-Dois geradores de `Environment` (`:161`), puros, sem importação nova, ao lado de `CIRCUIT` e `TEST_PAD`
-(`:162-163`). A pista de teste não é dado de pista: não tem `trackId`, linhas, setores nem marcadores, e
-nenhum adaptador ou tela a alcança (RULE-0002, Ambientes; `SEED/RD-06`).
+Dois geradores de `Environment` (`:164`), puros, sem importação nova, ao lado de `CIRCUIT` e `TEST_PAD`
+(`:165-166`), escritos pela rodada de código 2 (`:167-178`). A pista de teste não é dado de pista: não tem
+`trackId`, linhas, setores nem marcadores, e nenhum adaptador ou tela a alcança (RULE-0002, Ambientes;
+`SEED/RD-06`).
 
 | Símbolo | Assinatura | Descrição |
 |---|---|---|
-| `testPadLane(laneWidthM)` | `(laneWidthM: number /* m */) => Environment` | reta: `surfaceAt(p)` é `'asphalt'` se `\|p.x\| <= laneWidthM / 2`, senão `'grass'`; sem limite em z; `walls: false`. O kart entra em `(0, 0)` com `heading` 0 (sentido +z, `src/physics.ts:119`) |
-| `testPadArc(arcRadiusM, laneWidthM)` | `(arcRadiusM: number /* m */, laneWidthM: number /* m */) => Environment` | arco: anel centrado na origem; `surfaceAt(p)` é `'asphalt'` se `\|hypot(p.x, p.z) − arcRadiusM\| <= laneWidthM / 2`, senão `'grass'`; `walls: false`. O anel não tem fim: "o arco" de um ensaio é o trecho percorrido na sua janela, e a entrada é o ponto `(arcRadiusM, 0)` com `heading` 0, tangente ao anel, com o centro à direita do kart (esquerda do corpo é `+x` em `heading` 0, `:119`), de modo que `input.steer` +1 pede a curva para dentro (`targetSteer = −steer × limite`, `:182`) |
+| `testPadLane(laneWidthM)` | `(laneWidthM: number /* m */) => Environment` (`:170-172`) | reta: `surfaceAt(p)` é `'asphalt'` se `\|p.x\| <= laneWidthM / 2`, senão `'grass'`; sem limite em z; `walls: false`. O kart entra em `(0, 0)` com `heading` 0 (sentido +z, `src/physics.ts:122`) |
+| `testPadArc(arcRadiusM, laneWidthM)` | `(arcRadiusM: number /* m */, laneWidthM: number /* m */) => Environment` (`:173-178`) | arco: anel centrado na origem; `surfaceAt(p)` é `'asphalt'` se `\|hypot(p.x, p.z) − arcRadiusM\| <= laneWidthM / 2`, senão `'grass'`; `walls: false`. O anel não tem fim: "o arco" de um ensaio é o trecho percorrido na sua janela, e a entrada é o ponto `(arcRadiusM, 0)` com `heading` 0, tangente ao anel, com o centro à direita do kart (esquerda do corpo é `+x` em `heading` 0, `:122`), de modo que `input.steer` +1 pede a curva para dentro (`targetSteer = −steer × limite`, `:204`) |
 
 `laneWidthM` é sempre `WIDTH` (`src/track.ts:2`, 11 m): "faixa da largura da pista". `arcRadiusM` é 18
 (`DOMAIN/REF-03`). Fora da faixa `surface` é `GRASS` no sentido de "fora do asfalto" (API-0001): a
 telemetria não distingue grama de ensaio de grama de pista, e nenhum critério de grama é medido na pista
-de teste. `wallContact` nunca é verdadeiro ali porque `walls` é falso (`:276`). A constante `TEST_PAD`
-(asfalto sem limite) permanece para os usos existentes e para `DRIFT_MANEUVER`, cujo ambiente é o da
-verificação existente (`tests/maneuvers.test.ts:63-67`).
+de teste; a curva de referência com acelerador 0 continua a ser medida fora da faixa, nessa condição
+(REQ-FEAT-0002-09; ADR-0005). `wallContact` nunca é verdadeiro ali porque `walls` é falso (`:299`). A
+constante `TEST_PAD` (asfalto sem limite) permanece para os usos existentes e para `DRIFT_MANEUVER`, cujo
+ambiente é o da verificação existente (`tests/maneuvers.test.ts:63-67`).
 
 ### Condição de forçar e telemetria por passo (existentes, as-built)
 
-`step(state, input, dt, config, environment)` (assinatura inalterada, `:296`):
+`step(state, input, dt, config, environment)` (assinatura inalterada, `:319`):
 
-1. Calcula `forcing` uma vez por chamada (`isForcing`, `:114-117`): `clamp(input.throttle, 0, 1) >= 1`
+1. Calcula `forcing` uma vez por chamada (`isForcing`, `:118-120`, em `:327`): `clamp(input.throttle, 0, 1) >= 1`
    **e** `|clamp(input.steer, −1, 1)| >= 1` **e** `state.speed > 50 / 3.6` (13,888… m/s, 50 km/h,
-   `DOMAIN/DEC-02`; o literal `FORCING_SPEED_MPS` vive só em `src/physics.ts:114` e não é configurável;
+   `DOMAIN/DEC-02`; o literal `FORCING_SPEED_MPS` vive só em `src/physics.ts:117` e não é configurável;
    `state` é o estado no início do passo). Esterço parcial nunca satisfaz a condição (RULE-0001). A
-   saturação na faixa de `Input` ocorre em `:116`, `:182`, `:189-190`; `forcing` usa o valor saturado
+   saturação na faixa de `Input` ocorre em `:119`, `:204`, `:212-213`; `forcing` usa o valor saturado
    (REQ-FEAT-0001-07).
-2. Passa `forcing` a `integrate` (`:312`), que aplica `forcingRearFrictionScale` — com a rampa
-   `forcingRampMps`, novo — aos pneus traseiros quando `config.drivingAssists && forcing` (`:186`, `:219`).
-3. Incrementa `stepCount` (`:317`; inteiro, +1 por chamada de `step`, 0 em `initialState()`, `:109`).
-4. Preenche a telemetria do passo (`Telemetry`, `:17-21`; `:291-293`, `:316`):
+2. Calcula a fração da rampa (`forcingRampFraction`, `:328`) e passa `forcing` e a fração a `integrate`
+   (`:336`), que aplica `forcingRearFrictionScale` com a rampa aos pneus traseiros quando
+   `config.drivingAssists && forcing` (`:208`, `:242`).
+3. Incrementa `stepCount` (`:341`; inteiro, +1 por chamada de `step`, 0 em `initialState()`, `:112`).
+4. Preenche a telemetria do passo (`Telemetry`, `:17-21`; `:314-316`):
 
 | Campo de `Telemetry` | Tipo | Definição |
 |---|---|---|
 | `forcing` | booleano | o valor calculado em 1 |
-| `surface` | `'asphalt' \| 'grass'` | `environment.surfaceAt({x, z})` no centro do kart **depois** do passo (`:293`); em `CIRCUIT` é o critério `nearest(p).distance > WIDTH / 2` (`:162`); na pista de teste, o da faixa |
-| `wallContact` | booleano | verdadeiro se, neste passo, o ramo `environment.walls` (`:276-290`) encontrou `outgoing > 0` e removeu a componente normal da velocidade; falso nos demais, inclusive no kart encostado com velocidade 0 |
-| `assistActive` | booleano | verdadeiro se o ramo `config.drivingAssists && state.speed > 0.5` (`:227`) executou neste passo |
+| `surface` | `'asphalt' \| 'grass'` | `environment.surfaceAt({x, z})` no centro do kart **depois** do passo (`:316`); em `CIRCUIT` é o critério `nearest(p).distance > WIDTH / 2` (`:165`); na pista de teste, o da faixa |
+| `wallContact` | booleano | verdadeiro se, neste passo, o ramo `environment.walls` (`:299-312`) encontrou `outgoing > 0` e removeu a componente normal da velocidade; falso nos demais, inclusive no kart encostado com velocidade 0 |
+| `assistActive` | booleano | verdadeiro se o ramo `config.drivingAssists && state.speed > 0.5` (`:250`) executou neste passo |
 
-No estado inicial (`emptyTelemetry`, `:100-103`) `surface` é o literal `'asphalt'`: `initialState()` não
+No estado inicial (`emptyTelemetry`, `:103-106`) `surface` é o literal `'asphalt'`: `initialState()` não
 recebe ambiente e a telemetria inicial é literal ([DES-0002](DES-0002-telemetria-de-dirigibilidade.md)).
 Os campos existentes (`handling`, `sideslip`, `frontSlip`, `rearSlip`, `wheels`, G) e o classificador
-`handling()` (`:153-160`) não mudam: `oversteer` e `sliding` continuam sendo leituras das forças; a
-assistência garante que em condução normal (sem `forcing`, sem drift, fora de recuperação) a traseira não
-satura e `|sideslip|` fica ≤ 0,65 rad, por amortecimento (`slipDampingGainPerS`, `slipDampingCapG`,
-`yawCorrectGainPerS`), e que ao forçar o atrito traseiro reduzido deixa a traseira soltar. A parede já
-reduz a velocidade a cada contato com `outgoing > 0` (`:281-284`: a componente normal passa a −0,12 ×
-`outgoing`, a tangencial fica, logo o módulo diminui), o que realiza REQ-FEAT-0004-05 sem alteração; esta
-feature só o reporta.
+`handling()` (`:156-163`) não mudam — nem por `DOMAIN/DEC-12`, que fixa V1 em vez de mudar o rótulo:
+`oversteer` e `sliding` continuam sendo leituras das forças; a assistência garante que em condução normal
+(sem `forcing`, sem drift, fora de recuperação) a traseira não satura e `|sideslip|` fica ≤ 0,65 rad, por
+amortecimento (`slipDampingGainPerS`, `slipDampingCapG`, `yawCorrectGainPerS`), e que ao forçar o atrito
+traseiro reduzido deixa a traseira soltar. A parede já reduz a velocidade a cada contato com `outgoing > 0`
+(`:305-308`: a componente normal passa a −0,12 × `outgoing`, a tangencial fica, logo o módulo diminui), o
+que realiza REQ-FEAT-0004-05 sem alteração; esta feature só o reporta.
 
-### Classificação do passo (novo; RULE-0001)
+### Classificação do passo (existente, as-built; RULE-0001)
 
 | Símbolo | Assinatura | Descrição |
 |---|---|---|
-| `StepClass` | `'NORMAL' \| 'FORCING' \| 'DRIFT' \| 'RECOVERY'` | as quatro classes de RULE-0001 |
-| `RECOVERY_MAX_STEPS` | `48` (= `Math.round(0.4 / STEP)`; 400 ms de `DOMAIN/DEC-04`) | teto da recuperação em passos; `toMs(48)` = 400 (inclusivo) |
-| `classifyHandlingSteps(steps)` | `(steps: readonly {input: Input; telemetry: HandlingTelemetry}[]) => StepClass[]` | classifica cada passo a partir do `Input` aplicado nele e da telemetria **depois** dele, na ordem de `simStepCount`, sem estado além da sequência |
+| `StepClass` | `'NORMAL' \| 'FORCING' \| 'DRIFT' \| 'RECOVERY'` (`:363`) | as quatro classes de RULE-0001 |
+| `RECOVERY_MAX_STEPS` | `48` (= `Math.round(0.4 / STEP)`, `:364`; 400 ms de `DOMAIN/DEC-04`) | teto da recuperação em passos; `toMs(48)` = 400 (inclusivo) |
+| `classifyHandlingSteps(steps)` | `(steps: readonly {input: Input; telemetry: HandlingTelemetry}[]) => StepClass[]` (`:366-385`) | classifica cada passo a partir do `Input` aplicado nele e da telemetria **depois** dele, na ordem de `simStepCount`, sem estado além da sequência |
 
 Regra, passo `k` (0 ≤ k < n):
 - `DRIFT` se `telemetry[k].driftActive`; senão `FORCING` se `telemetry[k].forcing`;
@@ -181,7 +189,7 @@ Nenhuma importação de `three`, DOM, `src/audio.ts` ou `src/main.ts`.
 ## Comportamento em falha
 
 Sem dependência externa, sem tempo-limite, sem escrita parcial. `dt` fora de (0, 0,1] continua lançando
-`RangeError` (`:297`), como hoje. Um campo opcional ausente vale o padrão; um campo presente com valor não
+`RangeError` (`:320`), como hoje. Um campo opcional ausente vale o padrão; um campo presente com valor não
 finito não é validado em tempo de execução (os presets são literais congelados, verificados por
 `tests/dirigibilidade-contract.test.ts`). `testPadLane`/`testPadArc` com largura ou raio não positivos
 devolvem um ambiente todo `grass` (nenhum ensaio os chama assim; `tests/dirigibilidade-telemetry.test.ts`
@@ -191,10 +199,11 @@ Nada é registrado em log pela simulação.
 ## Observabilidade
 
 Os limiares são observados pelos registros de API-0003 ([DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md)):
-`riseToNinetyPctMs`, `fallToTenPctMs`, `speedMinMps`/`speedMaxMps`, `maxUndersteerMs`, `v1Mps`,
-`recoveryMs`/`gripReached`, `maxSideslipRad`, `oversteerOrSlidingStepCount`, `excludedRecoveryStepCount`,
-`zeroToSixtyKmhMs`, `topSpeedMps`, `speedAfterOneSMps`, `contacts`. Uma regressão aparece como `FAIL` com
-`THRESHOLD_EXCEEDED`, `OFF_ASPHALT`, `MEASUREMENT_MISSING` ou `SPEED_NOT_HELD` no registro correspondente.
+`riseToNinetyPctMs`, `fallToTenPctMs`, `speedMinMps`/`speedMaxMps`, `maxUndersteerMs`, `v1Mps` (com a
+linha `#` dizendo de onde veio), `recoveryMs`/`gripReached`, `maxSideslipRad`,
+`oversteerOrSlidingStepCount`, `excludedRecoveryStepCount`, `zeroToSixtyKmhMs`, `topSpeedMps`,
+`speedAfterOneSMps`, `contacts`. Uma regressão aparece como `FAIL` com `THRESHOLD_EXCEEDED`, `OFF_ASPHALT`,
+`MEASUREMENT_MISSING` ou `SPEED_NOT_HELD` no registro correspondente.
 
 ## Determinismo (D-DS-07)
 
@@ -210,7 +219,7 @@ teste duas vezes e afirma `deepEqual` dos estados por passo (`DETERMINISM`);
 Nenhuma chave: a versão corrente é dado publicado ([RULE-0003](../../../../320%20F-Specs/Output/dirigibilidade/rules/RULE-0003-versao-do-acerto-e-comparabilidade.md))
 e o F-Spec proíbe configuração para escolher entre o acerto antigo e o novo (FEAT-0005, Configuração). O
 "padrão sem mudança" (I4) está nos campos opcionais: ausentes em `RENTAL_KART` e `ARCADE_KART`, cada um vale
-o literal anterior — `forcingRampMps` ausente é o degrau as-built —, e o Realista e a versão anterior não
+o literal anterior — `forcingRampMps` ausente é o degrau anterior —, e o Realista e a versão anterior não
 mudam de comportamento; o motivo está em
 [ADR-0001](../adr/ADR-0001-versao-do-acerto-como-registro-novo-no-codigo.md). Os geradores da pista de
 teste e o classificador não alteram nenhum passo do jogo: só são chamados pelos ensaios.

@@ -4,8 +4,8 @@ title: Pista de teste como geradores de Environment em src/physics.ts; velocidad
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.1.0
-sources: [RULE-0001, RULE-0002, FLOW-0002, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-09, REQ-FEAT-0002-01, REQ-FEAT-0002-03, REQ-FEAT-0002-09, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-10, REQ-FEAT-0003-12, REQ-FEAT-0004-03, REQ-FEAT-0006-02, NFR-0003, NFR-0005, NFR-0008]
+version: 1.2.0
+sources: [RULE-0001, RULE-0002, FLOW-0002, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-09, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-09, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-10, REQ-FEAT-0003-12, REQ-FEAT-0004-03, REQ-FEAT-0006-02, NFR-0003, NFR-0005, NFR-0008]
 ---
 
 # ADR-0005 — Pista de teste como geradores de Environment em src/physics.ts; velocidade mantida por acelerador regulado; classificador de passo na simulação
@@ -22,7 +22,13 @@ do volante e arco de raio 18 m para curva, início do subesterço e recuperaçã
 50 km/h pelo acelerador no ensaio de resposta; e a classe de passo "Recuperação" fora da condução normal.
 Deixa ao projeto: o modo de manter a velocidade (constante ou regulado), a faixa tolerada, a janela do
 regime, a largura numérica da faixa e o comprimento do arco. Em `BINARY` o acelerador só assume 0 ou 1, e 1
-com esterço cheio acima de 50 km/h é a condição de forçar (RULE-0001).
+com esterço cheio acima de 50 km/h é a condição de forçar (RULE-0001). O F-Spec 3.3.0 (`DOMAIN/DEC-13`, após
+o feedback da etapa de código de 2026-10-22) acrescenta que, na curva de referência com acelerador 0,
+permanecer na faixa enquanto o kart desacelera não é exigido: medido pela rodada de código 2 sobre o acerto
+entregue, o kart entra a 50 km/h, desacelera a 34 km/h em 2 s, o limite de esterço por velocidade cresce com
+a queda da velocidade (`steeringLimit`, `src/physics.ts:180-188`: `atan(wheelbase × G × g / u²)` mais a folga)
+e o raio natural aperta de 18 m para menos de 12,5 m, de modo que ele deixa o anel pelo lado **interno** no
+passo 240 de 300 (`docs/physics.md:244`).
 
 ## Decisão
 
@@ -32,8 +38,14 @@ com esterço cheio acima de 50 km/h é a condição de forçar (RULE-0001).
    `surface` é `grass` no sentido de "fora do asfalto". A constante `TEST_PAD` (asfalto sem limite) fica
    intacta para os usos existentes. A largura é `WIDTH` (`src/track.ts:2`, 11 m); o raio é 18 m. O anel
    não tem fim: "o arco" de um ensaio é o trecho percorrido na sua janela, e a entrada é tangente em
-   `(18, 0)`. A pista de teste não é dado de pista (sem `trackId`, linhas, setores ou marcadores), não
-   passa por `src/lap.ts` e não altera a validação de volta (NFR-0008).
+   `(18, 0)`. Os ensaios que exigem permanência na faixa (`REFERENCE_CORNER` com acelerador cheio,
+   `UNDERSTEER_ONSET`, `REAR_RECOVERY`) param no primeiro passo fora dela e nada medem fora do asfalto; a
+   curva de referência com acelerador 0, que não a exige (`DOMAIN/DEC-13`), percorre a janela inteira
+   esteja o kart onde estiver — o anel continua a dizer `GRASS` fora da faixa e a telemetria continua a
+   ser lida, porque `maxUndersteerMs` é medido em todos os passos do arco
+   ([ADR-0004](ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md), decisão 9). A pista de teste
+   não é dado de pista (sem `trackId`, linhas, setores ou marcadores), não passa por `src/lap.ts` e não
+   altera a validação de volta (NFR-0008).
 2. **Velocidade mantida por acelerador regulado por passo** (`speedHoldMode` `THROTTLE_REGULATED`): o
    acelerador do passo `k` é 1 se a velocidade do passo `k−1` está abaixo de `targetSpeedMps` e 0 caso
    contrário. É binário por construção (vale em `BINARY` e `PROPORTIONAL`), nunca satisfaz a condição de
@@ -75,11 +87,24 @@ com esterço cheio acima de 50 km/h é a condição de forçar (RULE-0001).
   lugar que a conhece, verificável pelo teste de contrato. Recusada.
 - **Faixa mais larga que `WIDTH` para a reta.** O F-Spec fixa "faixa da largura da pista". Recusada; a
   duração do ensaio é que se ajusta à faixa.
+- **Velocidade mantida também na curva de referência com acelerador 0, janela menor que 2 500 ms, acelerador
+  parcial, ou um anel mais largo**, para que o kart que desacelera fique na faixa. REQ-FEAT-0002-01 fixa o
+  acelerador em 0 durante todo o arco, a faixa é "da largura da pista" e `DOMAIN/DEC-13` dispensa a
+  permanência na faixa nessa execução. Recusadas; a execução continua fora da faixa e só `understeer` é
+  julgado.
+- **Interromper a execução com acelerador 0 no primeiro passo fora da faixa** (o as-built,
+  `scripts/handlingBench.ts:273`). REQ-FEAT-0002-09 manda continuar a medir `maxUndersteerMs` em todos os
+  passos do arco, dentro e fora da faixa. Recusada.
 
 ## Consequências
 
-- `src/physics.ts` ganha dois geradores, um classificador e um campo opcional (`forcingRampMps`); nenhum
-  deles é chamado pelo jogo, e `RENTAL_KART`/`ARCADE_KART` continuam intactos.
+- `src/physics.ts` ganhou (rodada de código 2, as-built) dois geradores (`testPadLane`, `testPadArc`,
+  `:170-178`), um classificador (`classifyHandlingSteps`, `:363-385`) e um campo opcional (`forcingRampMps`,
+  `:46`, `:192-195`); nenhum deles é chamado pelo jogo, e `RENTAL_KART`/`ARCADE_KART` continuam intactos.
+- Fora da faixa do anel a telemetria reporta `GRASS` e a física aplica `grassFriction` às rodas fora do
+  asfalto: na curva de referência com acelerador 0 os passos depois da saída são medidos nessa condição,
+  o que o F-Spec aceita ("em todos os passos do arco, dentro e fora da faixa"); nenhum outro ensaio mede
+  passo algum fora do asfalto.
 - Toda linha de base do arco e da reta é medida na pista de teste; as medidas da rodada de código 1 na
   pista sintética não são comparáveis (ADR-0003).
 - Os ensaios da pista de teste não passam por `src/lap.ts`: `simStepCount` é o `stepCount` do `State`,

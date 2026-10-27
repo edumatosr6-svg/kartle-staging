@@ -3,7 +3,7 @@ title: Visão geral — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.1.0
+version: 3.2.0
 sources: []
 ---
 
@@ -17,11 +17,14 @@ de frente, tenha a traseira viva mas controlável, acelere e transmita velocidad
 continue justo: mesma sequência de `Input`, mesmo tempo; passo, solver e `Input` inalterados; acerto
 declarado como nova versão, com tempos e replays antigos legíveis mas nunca comparáveis. A base é o
 conjunto de requisitos validado em `200 Requirements/230 Output/dirigibilidade/` (US-0001 a US-0005,
-NFR-0001 a NFR-0009, versão 3.0.0), que já carrega as decisões do dono do produto (`DOMAIN/DEC-01` a
-`DOMAIN/DEC-10`, `DOMAIN/REF-01` a `DOMAIN/REF-03`, rótulos definidos em `01-context.md` daquele conjunto).
-Os limites são os do **acerto agressivo** da revisão 2 do seed (`DOMAIN/REF-02`): 180 ms / 250 ms de
-resposta do volante, 50 km/h na curva de referência, 0–60 km/h em 2,5 s, 105 km/h estabilizada, volta do
-piloto de teste em 25 s; os valores da revisão 1 não permanecem como critério alternativo nem como piso.
+NFR-0001 a NFR-0009, versão 3.3.0), que já carrega as decisões do dono do produto e os esclarecimentos do
+redator (`DOMAIN/DEC-01` a `DOMAIN/DEC-13`, `DOMAIN/REF-01` a `DOMAIN/REF-05`, rótulos definidos em
+`01-context.md` daquele conjunto). Os limites são os do **acerto agressivo** da revisão 2 do seed
+(`DOMAIN/REF-02`): 180 ms / 250 ms de resposta do volante, 50 km/h na curva de referência, 0–60 km/h em
+2,5 s, 105 km/h estabilizada, volta do piloto de teste em 25 s; os valores da revisão 1 não permanecem como
+critério alternativo nem como piso. As decisões de 2026-10-22 (`DOMAIN/DEC-11` a `DOMAIN/DEC-13`,
+`DOMAIN/REF-04`, `DOMAIN/REF-05`) fixam como os ensaios de curva de referência e de início do subesterço
+terminam e são julgados, sem mudar nenhum limiar ([RULE-0002](rules/RULE-0002-ensaios-e-limiares.md)).
 
 **Onde cada ensaio roda (revisão 3 do seed, `SEED/RD-06`, `DOMAIN/REF-03`).** A pista sintética **não tem**
 curva de raio 18 m: os seus raios mínimos são 24 m e 25 m, com um grampo de 4 m. Por isso os ensaios de

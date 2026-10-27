@@ -4,7 +4,7 @@ title: Linha de base legível por máquina dentro de docs/physics.md, resolvida 
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.3.0
+version: 1.4.0
 sources: [API-0003, RULE-0002, FEAT-0002, FEAT-0006, REQ-FEAT-0002-04, REQ-FEAT-0002-07, REQ-FEAT-0002-10, REQ-FEAT-0006-06, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0002, NFR-0004, NFR-0007]
 ---
 
@@ -17,9 +17,14 @@ registrar em `docs/physics.md` (NFR-0004), com `FAIL` `BASELINE_MISSING` quando 
 inventada nem extrapolada. A revisão 3 do seed acrescenta que só conta como linha de base a entrada do
 **mesmo ensaio, no mesmo ambiente e na mesma geometria** (`arcRadiusM`): uma linha de base medida em curva
 da pista sintética não serve para o arco da pista de teste (RULE-0002, Linha de base; REQ-FEAT-0002-07).
-`docs/physics.md` hoje é prosa com tabelas (`docs/physics.md:116-178`), sem bloco legível por máquina. O
-custo por passo só é comparável na mesma máquina e runtime (NFR-0002), e o repositório não pode carregar
-nome de máquina nem de usuário (I6).
+`docs/physics.md` era prosa com tabelas (`docs/physics.md:116-178`), sem bloco legível por máquina; a rodada
+de código 2 acrescentou a entrada datada (`docs/physics.md:196-262`) e o bloco `handling-baseline`
+(`docs/physics.md:265-412`) com as entradas `arcade-assistido-v4`, `realista-aluguel-4t-v4` e
+`arcade-assistido-v5`, na forma desta decisão. O custo por passo só é comparável na mesma máquina e runtime
+(NFR-0002), e o repositório não pode carregar nome de máquina nem de usuário (I6). O F-Spec 3.3.0
+(`DOMAIN/DEC-12`) define V1 em dois casos — patamar completo com `understeer` acima de 200 ms consecutivos
+ou, sem nenhum, a velocidade mantida do patamar interrompido pela saída da faixa — e deixa sem decisão o
+recuo de V0 para uma linha de base que não reporta subesterço em patamar algum.
 
 ## Decisão
 
@@ -38,14 +43,19 @@ nome de máquina nem de usuário (I6).
    linha de base nunca é julgada contra outra, e os seus registros saem com `BASELINE_MISSING` onde a
    linha de base é exigida, salvo quando outro motivo vem antes na ordem do ensaio. O `verdict` e o
    `failReason` de um registro de linha de base não decidem se ele serve: em `UNDERSTEER_ONSET`, serve de
-   V0 o registro com `v1Mps` presente — V1 medida num patamar completo da varredura da linha de base; o
-   campo é condicional em API-0003 —, qualquer que seja o motivo com que a execução da linha de base o
-   julgou, porque RULE-0002 aplica o fim da varredura só ao novo acerto e a linha de base só fornece V0
-   ([DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md),
-   [ADR-0004](ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md), decisão 8). Medido em 2026-10-22
-   sobre a árvore da rodada de código 1 (prova de método): `ARCADE_KART` reporta 808 ms de `understeer` no
-   patamar de 50 km/h e sai da faixa a 51,7 km/h, antes do segundo patamar completo acima de 50 km/h; o seu
-   registro sai com `MEASUREMENT_MISSING` e `v1Mps` `50 / 3.6`, que é o V0.
+   V0 o registro cujo `v1Mps` é a velocidade de um **patamar completo com `understeer` por mais de 200 ms
+   consecutivos** na varredura da linha de base — `|v1Mps − 50 / 3.6| < 1e-9` (patamar k = 0, que não
+   entra na lista) ou um par `[plateauSpeedMps, maxUndersteerMs]` de `maxUndersteerMsBySpeed` com
+   `|plateauSpeedMps − v1Mps| < 1e-9` e `maxUndersteerMs > 200` —, qualquer que seja o motivo com que a
+   execução da linha de base o julgou, porque RULE-0002 aplica o fim da varredura só ao novo acerto e a
+   linha de base só fornece V0 ([DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md),
+   [ADR-0004](ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md), decisões 8 e 10). Um `v1Mps`
+   que veio do patamar interrompido pela saída (fim natural de uma linha de base que nunca saiu de frente)
+   **não** serve de V0: o F-Spec define esse caso para V1 e deixa o recuo de V0 em aberto, e um V0 tirado
+   dali seria estimativa. Medido pela rodada de código 2 (`docs/physics.md:252`; bloco `handling-baseline`,
+   entrada `arcade-assistido-v4`): `ARCADE_KART` reporta 808 ms de `understeer` no patamar de 50 km/h e sai
+   da faixa a 51,7 km/h, antes do segundo patamar completo acima de 50 km/h; o seu registro sai com
+   `MEASUREMENT_MISSING`, lista vazia e `v1Mps` `50 / 3.6`, que é o V0 (patamar k = 0 com subesterço).
 3. A resolução de um registro da linha de base exige igualdade de `benchId`, `benchEnvironment`,
    `inputMode`, variante e, quando o registro os carrega, `arcRadiusM` e `laneWidthM`
    (`baselineRecord`, [DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md)); em
@@ -58,9 +68,10 @@ nome de máquina nem de usuário (I6).
    camada Aplicação) e passado à biblioteca como argumento: `scripts/handlingBench.ts` não importa
    `node:os`. `STEP_COST` só compara entradas com `runtimeId` igual.
 5. A ausência de bloco, de entrada, de registro igual ou de `runtimeId` igual — e, em `UNDERSTEER_ONSET`,
-   um registro de linha de base sem `v1Mps` — dá `baselineAvailable` falso e `BASELINE_MISSING` onde a
-   linha de base é exigida; nada é estimado. Um V0 nunca é tirado de uma velocidade que a varredura da
-   linha de base não mediu.
+   um registro de linha de base sem `v1Mps`, ou cujo `v1Mps` não é a velocidade de um patamar completo com
+   subesterço (decisão 2) — dá `baselineAvailable` falso e `BASELINE_MISSING` onde a linha de base é
+   exigida; nada é estimado. Um V0 nunca é tirado de uma velocidade em que a varredura da linha de base
+   não reportou subesterço.
 
 ## Alternativas consideradas
 
@@ -78,12 +89,18 @@ nome de máquina nem de usuário (I6).
   proíbe. Recusada: a linha de base é medida de novo no arco.
 - **`os.hostname()` como identidade de máquina.** Identificador potencialmente pessoal num repositório
   público. Recusada.
+- **Aceitar como V0 qualquer `v1Mps` numérico da linha de base** (o as-built, `scripts/handlingBench.ts:311`),
+  inclusive o do patamar interrompido de uma linha de base que nunca saiu de frente. Seria decidir o recuo
+  de V0 que o F-Spec deixou ao autor, e tomar como "velocidade de início do subesterço" uma velocidade em
+  que não houve subesterço. Recusada (decisão 2); com a linha de base medida o caso não ocorre.
 
 ## Consequências
 
-- A etapa de código começa por produzir e registrar as linhas de base (Arcade anterior na pista de teste e
-  na pista sintética, Realista, custo por passo na máquina de referência) antes de retunar o acerto; sem
-  isso `npm test` reporta `BASELINE_MISSING`.
+- As linhas de base (Arcade anterior na pista de teste e na pista sintética, Realista, custo por passo na
+  máquina de referência) foram produzidas e registradas pela rodada de código 2 antes do retune do acerto;
+  cada rodada seguinte do ciclo em staging acrescenta a entrada do acerto novo, e a entrada
+  `arcade-assistido-v5` é refeita pela rodada de código seguinte, porque o veredito de `UNDERSTEER_ONSET` e
+  os campos de `REFERENCE_CORNER` com acelerador 0 mudam de significado nesta versão do projeto.
 - `docs/physics.md` passa a ser lido por `scripts/handlingBench.ts` com `node:fs`; o caminho é relativo à
   raiz do repositório e nunca é impresso.
 - Uma mudança futura de `arcRadiusM` ou `laneWidthM` invalida a linha de base do arco por construção e

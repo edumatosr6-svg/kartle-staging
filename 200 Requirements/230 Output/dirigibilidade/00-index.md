@@ -2,7 +2,7 @@
 stage: req
 feature: dirigibilidade
 status: validated
-generated: 2026-10-22T15:06:57Z
+generated: 2026-10-22T18:37:00Z
 files: 18
 ---
 
@@ -12,9 +12,9 @@ files: 18
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-context.md` | - | Contexto — dirigibilidade do Arcade assistido | validated | 3.2.0 |
-| `02-glossary.md` | - | Glossário — dirigibilidade do Arcade assistido | validated | 3.2.0 |
-| `97-changelog.md` | - | Changelog — dirigibilidade do Arcade assistido | validated | 3.2.0 |
+| `01-context.md` | - | Contexto — dirigibilidade do Arcade assistido | validated | 3.3.0 |
+| `02-glossary.md` | - | Glossário — dirigibilidade do Arcade assistido | validated | 3.3.0 |
+| `97-changelog.md` | - | Changelog — dirigibilidade do Arcade assistido | validated | 3.3.1 |
 | `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido | validated | 1.0.0 |
 | `nfr/NFR-0001-determinismo-preservado.md` | NFR-0001 | Determinismo preservado | validated | 1.0.0 |
 | `nfr/NFR-0002-custo-por-passo.md` | NFR-0002 | Custo por passo da simulação | validated | 2.0.0 |
@@ -26,7 +26,7 @@ files: 18
 | `nfr/NFR-0008-validacao-de-volta-inalterada.md` | NFR-0008 | Validação de volta inalterada | validated | 1.0.0 |
 | `nfr/NFR-0009-acerto-versionado.md` | NFR-0009 | Acerto declarado como versão | validated | 1.0.0 |
 | `stories/US-0001-resposta-do-volante.md` | US-0001 | Resposta imediata do volante | validated | 3.0.0 |
-| `stories/US-0002-aderencia-em-curva.md` | US-0002 | Aderência em curva sem sair de frente | validated | 3.2.0 |
+| `stories/US-0002-aderencia-em-curva.md` | US-0002 | Aderência em curva sem sair de frente | validated | 3.3.0 |
 | `stories/US-0003-traseira-viva-e-controlavel.md` | US-0003 | Traseira viva mas controlável | validated | 3.0.0 |
 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` | US-0004 | Sensação de velocidade e risco | validated | 2.0.0 |
 | `stories/US-0005-jogo-continua-justo.md` | US-0005 | Jogo continua justo com o novo acerto | validated | 3.0.0 |

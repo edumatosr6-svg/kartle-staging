@@ -3,7 +3,7 @@ title: Glossário — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.1.1
+version: 3.2.0
 sources: []
 ---
 
@@ -48,8 +48,8 @@ glossário dos requisitos; as linhas de enum e de campo são as dos contratos de
 | Condição de forçar | Acelerador cheio e esterço cheio com velocidade acima de 50 km/h; fora da manobra de drift e da recuperação, único contexto em que `oversteer` ou `sliding` podem ocorrer |
 | Recuperação | Os passos entre o passo em que o esterço é levado de 1 (ou −1) a 0 com a traseira solta sob a condição de forçar e o primeiro passo em que a telemetria volta a `grip`; dura no máximo 400 ms; classe de passo própria, não é condução normal |
 | Condução normal | Passo em que a condição de forçar não se mantém, a manobra de drift não está em andamento **e** que não pertence a uma recuperação |
-| Curva de referência | Ensaio na pista de teste: arco de raio 18 m, faixa da largura da pista, sem paredes, percorrido a 50 km/h com esterço cheio. Não é segmento da pista sintética |
-| Velocidade de início do subesterço | Menor velocidade medida, no ensaio de início do subesterço — arco de raio 18 m da pista de teste, esterço cheio, a velocidade do kart subindo no arco em patamares de velocidade mantida, numa varredura que a saída da faixa encerra (`DOMAIN/DEC-11`); cada patamar completo é uma velocidade medida, e o tamanho do patamar em km/h e a sua duração são parâmetros de ensaio registrados em `docs/physics.md` (`DOMAIN/REF-04`) —, em cujo patamar a telemetria reporta `understeer` por mais de 200 ms consecutivos; V0 na linha de base, V1 no novo acerto |
+| Curva de referência | Ensaio na pista de teste: arco de raio 18 m, faixa da largura da pista, sem paredes, percorrido a 50 km/h com esterço cheio, numa execução com acelerador 0 mantido e noutra com acelerador cheio mantido; com acelerador 0 o único critério é o de 200 ms de `understeer`, e permanecer na faixa enquanto o kart desacelera não é exigido (`DOMAIN/DEC-13`). Não é segmento da pista sintética |
+| Velocidade de início do subesterço | Menor velocidade medida, no ensaio de início do subesterço — arco de raio 18 m da pista de teste, esterço cheio, a velocidade do kart subindo no arco em patamares de velocidade mantida, numa varredura que a saída da faixa encerra (`DOMAIN/DEC-11`); cada patamar completo é uma velocidade medida, e o tamanho do patamar em km/h e a sua duração são parâmetros de ensaio registrados em `docs/physics.md` (`DOMAIN/REF-04`) —, em cujo patamar a telemetria reporta `understeer` por mais de 200 ms consecutivos ("sem `understeer`" é nenhuma sequência acima desse limiar, não tolerância zero, `DOMAIN/REF-05`); V0 na linha de base, V1 no novo acerto. Para o novo acerto (V1), quando nenhum patamar, completo ou interrompido, chega a isso antes de a varredura terminar pela saída da faixa acima de 50 km/h, é a velocidade mantida do patamar interrompido pela saída — que não é um patamar completo no sentido de `DOMAIN/REF-04` —, e V1 ≥ 1,15 × V0 é avaliado com esse valor: nunca sair de frente até sair da faixa cumpre o critério (`DOMAIN/DEC-12`) |
 | Drift | Manobra de `requirements/11` que pontua; continua possível e continua pontuando |
 | Direção comum | Pilotar sem a manobra de drift; permanece fácil |
 | Velocidade estabilizada | Velocidade em reta com acelerador cheio mantido, após deixar de crescer |
@@ -81,6 +81,6 @@ glossário dos requisitos; as linhas de enum e de campo são as dos contratos de
 | `speedHoldMode` | `THROTTLE_CONSTANT` (acelerador constante, valor em `throttleInputNorm`), `THROTTLE_REGULATED` (acelerador escolhido por passo pelo ensaio para manter a velocidade) — modo de manter a velocidade em `STEER_RESPONSE`; parâmetro de ensaio | API-0003 |
 | `speedMinMps`, `speedMaxMps`, `speedHoldBandMps`, `targetSpeedMps` | velocidade mínima e máxima observadas durante o ensaio de resposta; faixa tolerada em torno da velocidade alvo (parâmetro de ensaio); velocidade alvo (13,89 m/s = 50 km/h) | API-0003 |
 | `verdict` | `PASS`, `FAIL` | API-0003 |
-| `failReason` | `THRESHOLD_EXCEEDED`, `BASELINE_MISSING`, `OFF_ASPHALT`, `NON_DETERMINISTIC`, `CONTRACT_CHANGED`, `SPEED_NOT_HELD`, `MEASUREMENT_MISSING` (falta de medida, na varredura de início do subesterço: saída da faixa acima de 50 km/h antes do segundo patamar completo acima de 50 km/h; ou fim natural da varredura sem V1 medida) | API-0003 |
+| `failReason` | `THRESHOLD_EXCEEDED`, `BASELINE_MISSING`, `OFF_ASPHALT`, `NON_DETERMINISTIC`, `CONTRACT_CHANGED`, `SPEED_NOT_HELD`, `MEASUREMENT_MISSING` (falta de medida, na varredura de início do subesterço: só a saída da faixa acima de 50 km/h antes do segundo patamar completo acima de 50 km/h; o fim natural da varredura nunca o produz, porque V1 tem valor nos dois casos da sua definição, `DOMAIN/DEC-12`) | API-0003 |
 | `inputMode` | `BINARY`, `PROPORTIONAL` — forma do `Input` usada no ensaio | API-0003 |
-| `throttleCondition` | `THROTTLE_ZERO`, `THROTTLE_FULL` — acelerador mantido durante a curva de referência | API-0003 |
+| `throttleCondition` | `THROTTLE_ZERO`, `THROTTLE_FULL` — acelerador mantido durante a curva de referência; com `THROTTLE_ZERO` o único critério é o de 200 ms de `understeer` e a saída da faixa é reportada sem reprovar; com `THROTTLE_FULL` a permanência na faixa também é exigida (`DOMAIN/DEC-13`) | API-0003 |

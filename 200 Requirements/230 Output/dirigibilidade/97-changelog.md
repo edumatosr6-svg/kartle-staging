@@ -3,7 +3,7 @@ title: Changelog — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.2.0
+version: 3.3.1
 sources: [SEED, DOMAIN]
 ---
 
@@ -458,3 +458,151 @@ nenhuma.
   parâmetro do ensaio (`DOMAIN/REF-04`). Nada foi acrescentado.
 - A proposta de `SCOPE-BACKLOG.md` da rodada 7 (saída da faixa exatamente a 50 km/h) segue valendo, e os
   itens recusados das rodadas 1, 3, 5, 6 e 7 continuam recusados pelos mesmos motivos.
+
+## 2026-10-22 — rodada 9, Mode B (relatório `req-validation-20261022-1817.md`, 5 erros e 2 infos)
+
+**Gatilho**: o relatório de revalidação da rodada 8 (FAIL) após as duas entradas de 2026-10-22 que o dono
+do produto escreveu em `DOMAIN.md` depois do FAIL SPEC do código
+(`300 Specs/330 D-Specs/Output/dirigibilidade/reports/feedback/feedback-20261022-1803.md`): "Início do
+subesterço num acerto que não sai de frente" e "Curva de referência com acelerador zero". Decisão do autor
+carregada sem redescoberta: as duas decisões entram em US-0002 (critérios e casos anormais); nenhum outro
+limiar muda; nada mais muda. Fonte nova lida nesta rodada, além dessas duas: a entrada de 2026-10-22 de
+`DOMAIN.md` "Leitura de 'sem subesterço'" (redator, coerente com o ponto aberto 03 do seed, fechado por
+`DOMAIN/DEC-03`; o dono pode reverter), acrescentada depois do relatório (o relatório conta 17 entradas;
+a pasta tem 18), que fixa a leitura de "sem `understeer`" de que o critério 03 corrigido precisa para ser
+decidível. O seed segue em `revision: 3`.
+
+**O que mudou**
+
+- `ISSUE-01` (R4, `01-context.md`): rótulos novos na chave de rastreabilidade — `DOMAIN/DEC-12` ("Início
+  do subesterço num acerto que não sai de frente"), `DOMAIN/DEC-13` ("Curva de referência com acelerador
+  zero") e `DOMAIN/REF-05` ("Leitura de 'sem subesterço'", redator) —, cada um com o texto da entrada;
+  linhas `DOMAIN/DEC-12`, `DOMAIN/DEC-13` e `DOMAIN/REF-05` na tabela de decisões aplicadas (todas em
+  US-0002 e no glossário); a linha `DOMAIN/DEC-11` deixa de dizer que na curva de referência "toda saída
+  da faixa reprova" e passa a dizer que a saída falha o critério 02 na condição de acelerador cheio
+  (`DOMAIN/DEC-13`); o parágrafo da camada de domínio e a introdução das decisões aplicadas citam as três
+  entradas. Fechada por edição.
+- `ISSUE-02` (R4, AC-US-0002-03): o critério declara o que é a velocidade de início do subesterço (a do
+  glossário) e o caso em que nenhum patamar reporta `understeer` por mais de 200 ms consecutivos até a
+  saída da faixa acima de 50 km/h: V1 é a velocidade mantida do patamar interrompido pela saída, o
+  critério é avaliado com esse valor, a saída do ensaio reporta esse V1 em km/h e nunca sair de frente até
+  sair da faixa cumpre o critério (`DOMAIN/DEC-12`, `DOMAIN/REF-05`); o critério 06 continua a decidir se
+  a varredura terminou sem reprovar. Fechada por edição.
+- `ISSUE-03` (R4, `02-glossary.md`, "Velocidade de início do subesterço"): a definição cita
+  `DOMAIN/DEC-03` e `DOMAIN/REF-05` para os 200 ms e acrescenta o caso de recuo para o novo acerto (V1):
+  velocidade mantida do patamar interrompido pela saída acima de 50 km/h, que não é um patamar completo no
+  sentido de `DOMAIN/REF-04` (`DOMAIN/DEC-12`). Fechada por edição.
+- `ISSUE-04` (R2, AC-US-0002-02): o critério 02 fica restrito à condição de acelerador cheio mantido; a
+  condição de acelerador 0 é julgada só pelo critério 01, que passa a dizer isso ("permanecer na faixa
+  enquanto o kart desacelera não é exigido"); `DOMAIN/DEC-13` citado nos dois. Fechada por edição.
+- `ISSUE-05` (R2, caso anormal "Kart sai da faixa de asfalto do arco"): na curva de referência, a saída
+  falha o critério 02 só na condição de acelerador cheio; com acelerador 0 o ensaio reporta o passo e a
+  posição da saída, não reprova por ela e o critério 01 continua a ser julgado em todo o arco
+  (`DOMAIN/DEC-13`). Fechada por edição.
+- O fato de `DOMAIN/DEC-12` foi levado a todos os seus lugares: critério 03; caso anormal novo "Nenhum
+  patamar reporta `understeer` até a saída da faixa acima de 50 km/h" (V1; critério 05, que já reporta V1
+  em km/h; critérios 04 e 06 inalterados; rótulo `understeer` não muda); remissão a ele no caso anormal de
+  saída da faixa; `sources:`, Fontes e Pontos em aberto de US-0002; glossário; `01-context.md`. O fato de
+  `DOMAIN/DEC-13` foi levado a: critérios 01 e 02, caso anormal de saída da faixa, `sources:`, Fontes e
+  Pontos em aberto de US-0002; linhas `DOMAIN/DEC-11` e `DOMAIN/DEC-13` de `01-context.md`.
+- Versões: US-0002, `01-context.md`, `02-glossary.md` e este changelog em 3.3.0, `status: draft` até o
+  validador. `00-index.md` e `99-traceability.md` não foram escritos: o gate os regenera.
+
+**Leituras registradas** (sem decisão nova):
+
+- "Nenhum patamar reporta `understeer`" em `DOMAIN/DEC-12` é lido com `DOMAIN/REF-05`: nenhuma sequência
+  com mais de 200 ms consecutivos em nenhum patamar, completo ou interrompido; é a leitura que a
+  `ISSUE-07` do relatório já fazia da variante com acelerador cheio.
+- Com acelerador 0, o critério 01 continua medido "em nenhum trecho do arco" (texto anterior, não
+  tocado): o arco é a geometria do ensaio, e a posição do kart em relação à faixa não tira um passo do
+  arco. `DOMAIN/DEC-13` não diz que a medição para na saída da faixa, e o conjunto não inventa isso.
+- A restrição do critério 02 à condição de acelerador cheio não é afrouxamento desta rodada: é a decisão
+  do dono do produto em `DOMAIN/DEC-13` ("permanecer na faixa enquanto desacelera não é exigido"), que
+  prevalece sobre a leitura anterior do conjunto; o critério continua inteiro para a condição de
+  acelerador cheio, a que `SEED/US-2` ("sem depender de soltar o acelerador") se refere.
+
+**Superfície (conventions §16)**: nenhum critério, campo, limiar ou termo novo. O caso anormal novo de
+US-0002 é o caso que `DOMAIN/DEC-12` nomeia, pedido pelo autor ("critérios e casos anormais"); ele não
+exige nada que os critérios 03 a 06 já não exijam. O critério 05 não ganhou campo: V1 em km/h já constava
+da saída do ensaio. Três rótulos de rastreabilidade novos (`DOMAIN/DEC-12`, `DOMAIN/DEC-13`,
+`DOMAIN/REF-05`), exigidos pela `ISSUE-01` e pela cobertura de `DOMAIN.md`.
+
+**Tabela de migração** (conventions §17): nenhum item retirado. Cinco histórias, nove NFRs e 33 critérios
+antes e depois. AC-US-0002-01 ganha a cláusula "único critério com acelerador 0"; AC-US-0002-02 perde a
+condição de acelerador 0, por `DOMAIN/DEC-13`; AC-US-0002-03 ganha a definição de V1 no caso sem
+`understeer`; nenhum termo novo no glossário (uma definição ajustada).
+
+**Itens fechados**: `ISSUE-01`, `ISSUE-02`, `ISSUE-03`, `ISSUE-04`, `ISSUE-05`. Divergências registradas
+em `98-divergences.md`: nenhuma.
+
+**Itens recusados, com motivo**
+
+- `ISSUE-06` (info, separar a cláusula da curva de referência da condução normal em AC-US-0003-01):
+  recusada de novo, pelo mesmo motivo das rodadas 7 e 8. O autor determinou para esta rodada que só as
+  duas decisões entram, em US-0002, e nada mais muda; a issue é `info` e não bloqueia; o validador diz que
+  o critério é decidível e mais estrito que o seed; a mudança seria só de redação e levaria às etapas
+  seguintes uma nova versão de US-0003 sem conteúdo. `DOMAIN/DEC-13` confirma a cláusula como está (com
+  acelerador cheio continuam exigidas a permanência na faixa e a ausência de `understeer`/`oversteer`), o
+  que a linha `DOMAIN/DEC-13` de `01-context.md` registra sem tocar US-0003. Fica para a próxima rodada
+  que tocar US-0003 por motivo de conteúdo.
+- `ISSUE-07` (info, leitura de "ausência de `understeer`" com acelerador cheio): nenhuma mudança, como o
+  próprio relatório espera. A leitura do validador (o limiar de `DOMAIN/DEC-03`, 200 ms consecutivos, não
+  tolerância zero) é a que o redator fixou depois em `DOMAIN.md` (`DOMAIN/REF-05`); se o dono do produto
+  quiser tolerância zero com acelerador cheio, `DOMAIN/DEC-03` muda primeiro em `DOMAIN.md`.
+- O caso de recuo de V0 (linha de base que não reporta `understeer` em nenhum patamar até a saída da
+  faixa) não é fixado: `DOMAIN/DEC-12` nomeia V1, e o seed e `DOMAIN/REF-01` dão o acerto anterior como
+  um que "sai de frente". O glossário aplica o recuo ao novo acerto (V1), como a decisão diz. Proposta ao
+  autor para `SCOPE-BACKLOG.md`: "2026-10-22 req-loop rodada 9 — se a linha de base não reportar
+  `understeer` em nenhum patamar até a saída da faixa, V0 é a velocidade do patamar interrompido ou o
+  ensaio reporta linha de base ausente?"
+- Os passos fora da faixa na condição de acelerador 0 não ganharam regra própria para o critério 01 (ver
+  Leituras registradas). Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-22 req-loop rodada 9 — com
+  acelerador 0, o critério de 200 ms de `understeer` é medido também nos passos depois de o kart sair da
+  faixa?"
+- A saída do ensaio (critério 05) não ganhou um campo que diga se V1 veio de um patamar com `understeer`
+  ou do patamar interrompido pela saída: seria campo novo numa rodada de correção (conventions §16).
+  Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-22 req-loop rodada 9 — a saída do ensaio de início
+  do subesterço deve dizer se V1 é a velocidade do primeiro patamar com `understeer` ou a do patamar
+  interrompido pela saída?"
+- NFR-0004, US-0003 e os demais arquivos não foram tocados; as propostas de `SCOPE-BACKLOG.md` das
+  rodadas 6, 7 e 8 seguem valendo, e os itens recusados das rodadas 1, 3, 5, 6, 7 e 8 continuam recusados
+  pelos mesmos motivos.
+
+## 2026-10-22 — rodada 10, Mode B (gate determinístico, 1 erro G5)
+
+**Gatilho**: o gate determinístico da rodada 9 (`req-loop-phases-20261022-1819.csv`) reprovou o conjunto
+com um único erro, em `97-changelog.md`: um token `OPEN-<nn>` não resolvido, que esta etapa não carrega
+adiante. As decisões do dono do produto de 2026-10-22 (`DOMAIN/DEC-12`, `DOMAIN/DEC-13`) já estão em
+US-0002 (critérios e casos anormais) desde a rodada 9 e não foram tocadas; o seed segue em `revision: 3`.
+
+**Issues desta rodada** (uma por linha de erro do gate)
+
+- ISSUE-01 — `97-changelog.md`: token de ponto em aberto número 03 (forma `OPEN-<nn>`) não resolvido.
+
+**O que mudou**
+
+- `ISSUE-01` (G5): o token era a citação literal do título da entrada de 2026-10-22 de `DOMAIN.md`
+  "Leitura de 'sem subesterço'", cujo parêntese diz "redator, coerente com [o ponto aberto 03 do seed, na
+  forma de token]; o dono pode reverter", na entrada da rodada 9 deste changelog, e não um ponto em aberto
+  do conjunto: o ponto aberto 03 do seed está fechado
+  por `DOMAIN/DEC-03` (200 ms) desde a rodada 1 e US-0002 declara "Pontos em aberto: Nenhum". A citação
+  passou a dizer "coerente com o ponto aberto 03 do seed, fechado por `DOMAIN/DEC-03`", a mesma forma com
+  que `01-context.md` já descreve `DOMAIN/REF-05` (tabela de itens do seed e decisões de domínio). Fechada
+  por edição; nenhum outro arquivo do conjunto carregava o token.
+- Versão deste changelog: 3.3.1. Nenhum outro arquivo tocado; `00-index.md` e `99-traceability.md` não
+  foram escritos: o gate os regenera.
+
+**Superfície (conventions §16)**: nenhum requisito, história, critério, campo, limiar ou termo acrescentado
+ou removido.
+
+**Tabela de migração** (conventions §17): nenhum item retirado. Cinco histórias, nove NFRs e 33 critérios
+antes e depois.
+
+**Itens fechados**: `ISSUE-01`. Divergências registradas em `98-divergences.md`: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Nenhum item desta rodada recusado. Os itens recusados das rodadas 1, 3, 5, 6, 7, 8 e 9 continuam
+  recusados pelos mesmos motivos (entre eles a `ISSUE-06`/`ISSUE-07` info do relatório
+  `req-validation-20261022-1817.md`), e as propostas de `SCOPE-BACKLOG.md` das rodadas 6, 7, 8 e 9 seguem
+  valendo.

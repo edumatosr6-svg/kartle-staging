@@ -1,8 +1,8 @@
 ---
 stage: req
 feature: dirigibilidade
-generated: 2026-10-22T15:06:57Z
-rows: 74
+generated: 2026-10-22T18:37:00Z
+rows: 77
 ---
 
 # Traceability
@@ -24,6 +24,8 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | DOMAIN/DEC-07 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | DOMAIN/DEC-09 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
 | DOMAIN/DEC-11 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-12 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-13 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | DOMAIN/REF-01 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
 | DOMAIN/REF-01 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | DOMAIN/REF-01 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
@@ -40,6 +42,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | DOMAIN/REF-03 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | DOMAIN/REF-03 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | DOMAIN/REF-04 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/REF-05 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
 | SEED/IM-I2 | NFR-0003 | - | `nfr/NFR-0003-paridade-teclado-e-inclinacao.md` |
 | SEED/IM-I2 | NFR-0005 | - | `nfr/NFR-0005-mudanca-na-camada-de-simulacao.md` |
 | SEED/IM-I3I5 | NFR-0009 | - | `nfr/NFR-0009-acerto-versionado.md` |

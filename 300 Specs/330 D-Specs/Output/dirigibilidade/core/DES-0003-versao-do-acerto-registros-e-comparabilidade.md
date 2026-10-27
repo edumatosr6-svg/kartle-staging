@@ -4,7 +4,7 @@ title: Versão do acerto, registros de volta e replay e comparabilidade (API-000
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.1.1
+version: 2.0.0
 sources: [API-0002, RULE-0003, FLOW-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0006-03]
 ---
 
@@ -17,17 +17,44 @@ distinguível da anterior pela leitura do campo (AC-US-0005-04); nenhuma compara
 decidida aqui e só exibida pela tela (AC-US-0005-05); registros anteriores lidos sem erro com
 `RESOLVED_FROM_ABSENCE` (NFR-0009); replay da versão anterior reproduzido passo a passo com o acerto
 corrente e tratado como não comparável (REQ-FEAT-0005-10; AC-US-0005-06); o mesmo replay dá o mesmo tempo
-(AC-US-0005-01). Regra: RULE-0003. Formatos: [DM-0001](../data/DM-0001-dado-publicado-registros-e-linha-de-base.md).
+(AC-US-0005-01). O registro de volta sobre o `LapResult` de `race-lap-validation`, cujos API-0001 e
+API-0002 1.1.0 carregam `setupId?` e `setupVersion?` copiados do pedido `startLap` (FB-01 desta feature,
+aceito lá; feedback cruzado `reports/feedbacks/race-lap-validation/feedback-20261022-1703.md`, aceito aqui):
+`buildLapRecord` preenche só o que o resultado não traz, e toda volta iniciada por esta feature informa os
+dois campos. Regra: RULE-0003. Formatos: [DM-0001](../data/DM-0001-dado-publicado-registros-e-linha-de-base.md).
 Decisão: [ADR-0002](../adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md).
 
 ## Posicionamento
 
 Módulo `src/setupRecords.ts`, camada **Simulação**, **existente** (escrito pela rodada de código 1 segundo
-este item; 127 linhas) e mantido sem mudança nesta rodada. Motivo de ser módulo próprio: reproduzir um
-replay exige `startLap`/`stepLap` de `src/lap.ts`, e `src/physics.ts` não pode importar a volta (sentido
-de dependência); `src/lap.ts` é de `race-lap-validation` e o seu `LapResult` fica intacto. Importa
-`src/physics.ts` (`PUBLISHED_SETUPS`, tipos), `src/lap.ts`, `src/lapTiming.ts` (`COUNTDOWN_STEPS`) e tipos
-de `src/trackData.ts` (`:3-6`).
+este item; 127 linhas; as-built, commit `0068a57`) e **alterado** nesta rodada em `buildLapRecord` e
+`replayLap` **(muda)**. Motivo de ser módulo próprio: reproduzir um replay exige `startLap`/`stepLap` de
+`src/lap.ts`, e `src/physics.ts` não pode importar a volta (sentido de dependência); `src/lap.ts` é de
+`race-lap-validation` e só ganha, por este projeto, os campos opcionais que o contrato daquela feature já
+tem (abaixo, "Campos copiados em `src/lap.ts`"). Importa `src/physics.ts` (`PUBLISHED_SETUPS`, tipos),
+`src/lap.ts`, `src/lapTiming.ts` (`COUNTDOWN_STEPS`) e tipos de `src/trackData.ts` (`:3-6`).
+
+### Campos copiados em `src/lap.ts` (contrato de `race-lap-validation`; FB-01)
+
+Mudança em `src/lap.ts`, camada **Simulação**, módulo de `race-lap-validation`, projetada no D-Spec daquela
+feature (DM-0002, DES-0001: `LapRequest`, `LapSession` e `LapResult` com `setupId?` e `setupVersion?`,
+copiados sem interpretação) e **implementada pelo código desta feature**, por decisão do autor registrada
+no registro de divergências de `race-lap-validation` (rodada de 2026-10-22) e assumida em
+[98-divergences.md](../98-divergences.md):
+
+| Trecho atual de `src/lap.ts` | Mudança |
+|---|---|
+| `:23` `LapRequest` | ganha `setupId?: SetupId; setupVersion?: string` (`SetupId` importado como tipo de `./physics`, `:3`, dependência que já existe) |
+| `:25-46` `LapSession` | ganha os mesmos dois campos opcionais, ao lado de `challengeNumber` (`:29`) |
+| `:48-58` `LapResult` | ganha os mesmos dois campos opcionais, ao lado de `challengeNumber` (`:51`) |
+| `:117` `startLap` | copia `setupId` e `setupVersion` do pedido para a sessão exatamente como copia `challengeNumber`: presentes se e só se o pedido os traz; nenhuma verificação, regra de volta ou rejeição nova (um valor fora do enum não é verificado aqui) |
+| `:270` `buildResult` | copia os dois campos da sessão para o `LapResult` como copia `challengeNumber`: ausentes quando a sessão não os tem |
+
+`src/lap.ts` continua sem importar `src/setupRecords.ts`; nunca resolve um campo ausente: a resolução é de
+`resolveSetupRef`, na leitura. `tests/race-lap-validation-contract.test.ts:36-41` (`CHK-TEST-0012-02`:
+`getLapResult` com exatamente os campos do contrato) continua verde porque as suas voltas são iniciadas sem
+os dois campos e, então, o resultado não os carrega; `tests/race-lap-validation-layering.test.ts` continua
+verde porque `src/lap.ts` só importa de `./physics` (`:3`).
 
 ## Interface
 
@@ -39,9 +66,9 @@ de `src/trackData.ts` (`:3-6`).
 | `MAX_REPLAY_TEXT_CHARS` (`:8`) | constante `4_194_304` (caracteres UTF-16 de `source.length`; 4 Mi) | teto do texto aceito por `readReplay`: 36 000 `Input` serializados ocupam cerca de 2,2 M caracteres | — |
 | `MAX_REPLAY_INPUT_STEPS` (`:9`) | constante `36_000` (passos de `STEP`; 300 s simulados a 120 Hz) | teto de `inputs.length`: nenhuma volta do desafio chega a 5 min, e `replayLap` aplica um `stepLap` por elemento, logo o teto limita o trabalho da reprodução; distinto de `MAX_LAP_STEPS` 6 000 (teto do piloto de teste, [DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md)) | — |
 | `compareLapRecords(a, b)` (`:79-88`) | dois registros com `trackId?`, `trackVersion?`, `setupId?`, `setupVersion?` | `{comparability}` pela tabela de RULE-0003, após `resolveSetupRef` em cada um | `{code: 'INCOMPLETE_RECORD'}` se `trackId` ou `trackVersion` ausente em um deles; nenhuma comparação |
-| `buildLapRecord(result, setup)` (`:91-93`) | `result: LapResult` (de `getLapResult`), `setup: SetupRef` | `LapRecord = {...result, setupId, setupVersion}` | nenhuma |
+| `buildLapRecord(result, setup)` (`:91-93`) **(muda)** | `result: LapResult` (de `getLapResult`, com ou sem `setupId`/`setupVersion`), `setup: SetupRef` | `LapRecord = {...result, setupId: result.setupId ?? setup.setupId, setupVersion: result.setupVersion ?? setup.setupVersion}`: preenche só o que o resultado não traz; sobre um resultado que já traz os dois (toda volta iniciada por esta feature) é uma cópia idempotente e nunca os sobrescreve. O as-built sobrescreve sempre com `setup` (`:92`) | nenhuma |
 | `buildReplayRecord(lap, inputs, setup)` (`:96-104`) | `lap: LapSession` encerrada, `inputs: readonly Input[]` por passo `RUNNING`, `setup: SetupRef` | `ReplayRecord` versão 1 (DM-0001, seção 3) | nenhuma |
-| `replayLap(record, reading, setup, driverMassKg = 75)` (`:107-127`) | `record: ReplayRecord` legível, `reading: TrackReading`, `setup: PublishedSetup` corrente, `driverMassKg` (kg) | `{ok: true, record: LapRecord, comparability}` com `comparability = compareLapRecords(replay, obtido).comparability` | `{ok: false, code}` com `code` de `startLap` (`TRACK_DATA_UNREADABLE`, `TRACK_SCHEMA_UNSUPPORTED`, `OFFICIAL_NOT_AVAILABLE`) ou `NO_RESULT` quando os `Input` acabam antes do fim da volta |
+| `replayLap(record, reading, setup, driverMassKg = 75)` (`:107-127`) **(muda: pedido)** | `record: ReplayRecord` legível, `reading: TrackReading`, `setup: PublishedSetup` corrente, `driverMassKg` (kg) | `{ok: true, record: LapRecord, comparability}` com `comparability = compareLapRecords(replay, obtido).comparability`; o pedido de `startLap` (`:108-111`) leva `setupId` e `setupVersion` do acerto corrente (`setup.setupId`, `setup.setupVersion`), de modo que o `LapResult` obtido já os carrega e `buildLapRecord` só os copia | `{ok: false, code}` com `code` de `startLap` (`TRACK_DATA_UNREADABLE`, `TRACK_SCHEMA_UNSUPPORTED`, `OFFICIAL_NOT_AVAILABLE`) ou `NO_RESULT` quando os `Input` acabam antes do fim da volta |
 
 Ordem das verificações de `readReplay`, para resposta determinística: (1) texto → se
 `source.length > MAX_REPLAY_TEXT_CHARS`, `UNREADABLE` antes de qualquer análise; senão `JSON.parse` em `try`,
@@ -60,17 +87,19 @@ registro de formato desconhecido é "mantido intacto" porque só é lido (I4).
 `setupId` e `setupVersion` comparados depois de `resolveSetupRef` em cada lado; decisão na ordem
 `TRACK_DIFFERS` → `SETUP_DIFFERS` → `SETUP_VERSION_DIFFERS` → `COMPARABLE` (`:79-88`).
 
-`replayLap`: `startLap(undefined, {lapKind, trackId, trackVersion, challengeNumber?}, reading,
-{...setup.config, driverMass: driverMassKg})`; `COUNTDOWN_STEPS` passos com `Input` nulo; um `stepLap` por
-`Input` do replay até a fase `ENDED`; o `LapRecord` obtido carrega o `setup` corrente. O tempo obtido é o da
+`replayLap`: `startLap(undefined, {lapKind, trackId, trackVersion, challengeNumber?, setupId: setup.setupId,
+setupVersion: setup.setupVersion}, reading, {...setup.config, driverMass: driverMassKg})`; `COUNTDOWN_STEPS`
+passos com `Input` nulo; um `stepLap` por `Input` do replay até a fase `ENDED`; o `LapRecord` obtido carrega
+o `setup` corrente, copiado do resultado. O tempo obtido é o da
 reprodução com o acerto corrente, nunca o gravado: um replay de `arcade-assistido-v4` reproduzido dá
 `SETUP_VERSION_DIFFERS` entre o gravado e o obtido, e nenhum chamador o apresenta como equivalente
 (REQ-FEAT-0005-10). O contrato de passo não mudou (NFR-0006), por isso a sequência é aplicável.
 
 ## Colaboradores
 
-Chama `PUBLISHED_SETUPS` (`src/physics.ts`), `startLap`, `stepLap`, `getLapResult` (`src/lap.ts`),
-`COUNTDOWN_STEPS` (`src/lapTiming.ts`). É chamado por `src/main.ts` (resultado, melhor tempo, texto
+Chama `PUBLISHED_SETUPS` (`src/physics.ts`), `startLap`, `stepLap`, `getLapResult` (`src/lap.ts`, que
+passa a aceitar e devolver os dois campos opcionais), `COUNTDOWN_STEPS` (`src/lapTiming.ts`). É chamado por
+`src/main.ts` (resultado, melhor tempo, texto
 compartilhado), por `src/handlingMessages.ts` (tipos), por `scripts/handlingBench.ts` (`SETUP_VERSION`:
 `readReplay`, `compareLapRecords`, `resolveSetupRef`) e pelos testes.
 
@@ -84,7 +113,13 @@ compartilhado), por `src/handlingMessages.ts` (tipos), por `scripts/handlingBenc
   os identificadores são únicos e que `setupVersion ≠ previousSetupVersion` para o Arcade.
 - **Gravação**: esta feature não grava registro algum (API-0002: a gravação é da feature que a possui). Os
   construtores produzem um registro por volta encerrada, na memória da aplicação; chamar `buildLapRecord` duas
-  vezes para o mesmo `LapResult` devolve dois registros iguais e não cria estado.
+  vezes para o mesmo `LapResult` devolve dois registros iguais e não cria estado; aplicá-lo a um resultado
+  que já carrega os campos devolve os mesmos valores (cópia idempotente), e a um resultado de volta iniciada
+  sem eles (registro antigo, testes de `race-lap-validation`) preenche-os com o `setup` recebido.
+- **Pedido da volta**: `beginLap` (`src/main.ts`, [DES-0007](../web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)),
+  `replayLap`, a volta do piloto de teste e a volta cronometrada dos benches ([DES-0004](DES-0004-ensaios-de-dirigibilidade-e-saida.md))
+  informam `setupId` e `setupVersion` no pedido de `startLap`, para que nenhum resultado novo seja lido
+  pelos padrões como um registro anterior (API-0002 1.1.0 de `race-lap-validation`).
 - Contador de sequência da reprodução: o `stepCount` da `LapSession` (`src/lap.ts`).
 
 ## Comportamento em falha

@@ -3,7 +3,7 @@ title: Glossário — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.2.0
+version: 3.3.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -47,7 +47,7 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Curva de referência | Ensaio na pista de teste: arco de raio 18 m, faixa da largura da pista, sem paredes, percorrido a 50 km/h com esterço cheio (`DOMAIN/DEC-02`, `DOMAIN/REF-03`). Não é segmento da pista sintética | nenhum (bench) |
 | Acerto agressivo | Conjunto de limites em vigor após a revisão 2 do seed (`DOMAIN/REF-02`): 180 ms / 250 ms de resposta do volante, 50 km/h na curva de referência, 0–60 km/h em 2,5 s, 105 km/h estabilizada, volta do piloto de teste em 25 s | ambos |
 | Staging | Publicação de uma rodada de código para o teste do dono do produto no ciclo de fechamento humano (`DOMAIN/DEC-10`); não é critério de aceite desta etapa | ambos |
-| Velocidade de início do subesterço | Menor velocidade medida, no ensaio de início do subesterço — curva de referência da pista de teste com velocidade crescente no arco: a velocidade do kart sobe no arco em patamares de velocidade mantida, numa varredura que termina quando o kart sai da faixa (`DOMAIN/DEC-11`); cada patamar completo é uma velocidade medida, e o tamanho do patamar em km/h e a sua duração são parâmetros do ensaio registrados em `docs/physics.md`, NFR-0004 (`DOMAIN/REF-04`) —, em cujo patamar a telemetria reporta `understeer` por mais de 200 ms consecutivos | nenhum (bench) |
+| Velocidade de início do subesterço | Menor velocidade medida, no ensaio de início do subesterço — curva de referência da pista de teste com velocidade crescente no arco: a velocidade do kart sobe no arco em patamares de velocidade mantida, numa varredura que termina quando o kart sai da faixa (`DOMAIN/DEC-11`); cada patamar completo é uma velocidade medida, e o tamanho do patamar em km/h e a sua duração são parâmetros do ensaio registrados em `docs/physics.md`, NFR-0004 (`DOMAIN/REF-04`) —, em cujo patamar a telemetria reporta `understeer` por mais de 200 ms consecutivos (`DOMAIN/DEC-03`; "sem `understeer`" é nenhuma sequência acima desse limiar, não tolerância zero, `DOMAIN/REF-05`). Para o novo acerto (V1), quando nenhum patamar chega a isso antes de a varredura terminar pela saída da faixa acima de 50 km/h, é a velocidade mantida do patamar interrompido pela saída — que não é um patamar completo no sentido de `DOMAIN/REF-04` —, e V1 ≥ 1,15 × V0 é avaliado com esse valor: nunca sair de frente até sair da faixa cumpre o critério (`DOMAIN/DEC-12`) | nenhum (bench) |
 | Drift | Manobra de `requirements/11` que pontua; continua possível e continua pontuando com o novo acerto | ambos |
 | Direção comum | Pilotar a volta sem usar a manobra de drift; permanece fácil (`SEED/RD-01`) | ambos |
 | Velocidade estabilizada | Velocidade em reta com acelerador cheio mantido, após deixar de crescer; medida no estado da simulação | ambos |

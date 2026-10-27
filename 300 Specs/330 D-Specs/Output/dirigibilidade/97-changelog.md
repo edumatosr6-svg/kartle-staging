@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 2.2.0
+version: 3.0.0
 sources: []
 ---
 
@@ -582,3 +582,198 @@ a velocidade-alvo máxima de patamar; nenhum outro valor muda.
   e `REAR_RECOVERY`" (agora campos de API-0003, servidos acima).
 - Nenhum requisito foi enfraquecido; nenhuma divergência resolvida ou acrescentada; nenhum feedback a outra
   feature (`race-lap-validation` não muda).
+
+## 2026-10-27 — rodada 8, Mode C (feedback do código `reports/feedback/feedback-20261022-1803.md`, SPEC-ISSUE-01 e SPEC-ISSUE-02; feedback cruzado `reports/feedbacks/race-lap-validation/feedback-20261022-1703.md`, FB-01; F-Spec 3.3.0)
+
+**Gatilho**: o FAIL SPEC da rodada de código 2 (`feedback-20261022-1803`: SPEC-ISSUE-01, V1 não medida por um
+acerto que nunca sai de frente até sair da faixa; SPEC-ISSUE-02, a curva de referência com acelerador 0 sai
+do anel pelo lado interno) e o feedback cruzado pendente de `race-lap-validation` (`feedback-20261022-1703`,
+FB-01, mais novo que `dspec-validation-20261022-1615`), resolvidos numa única rodada Mode C (conventions
+§14). O loop `dspec-loop-phases-20261022-1904` começou em 2026-10-22 e foi interrompido antes de registrar
+esta entrada; retomado em 2026-10-27, o conjunto escrito na primeira tentativa foi conferido de novo contra o
+F-Spec 3.3.0 (`status: validated`) e contra a árvore (commit `0068a57`), com uma correção (o número desta
+rodada em `ADR-0002`).
+
+**Decisões do autor recebidas para esta rodada e carregadas sem redescoberta** (dono do produto, 2026-10-22,
+após o FAIL SPEC do código; chegam a este estágio por FEAT-0002, RULE-0002, API-0003 e FLOW-0002 3.3.0):
+(1) `DOMAIN/DEC-12` — quando a varredura em patamares no arco de 18 m termina pela saída da faixa acima de
+50 km/h sem a telemetria ter reportado `understeer` em nenhum patamar, V1 é a velocidade mantida do patamar
+interrompido pela saída e "V1 ≥ 1,15 × V0" é avaliado com esse valor; nunca sair de frente até sair da faixa
+cumpre o critério; o rótulo `understeer` não muda. (2) `DOMAIN/DEC-13` — na curva de referência entrando a
+50 km/h com acelerador 0, o único critério é "sem `understeer` por mais de 200 ms consecutivos"; permanecer
+na faixa enquanto desacelera não é exigido; a variante com acelerador cheio continua exigindo permanência na
+faixa e ausência de `understeer`/`oversteer`. `DOMAIN/REF-05` — "sem `understeer`" é nenhuma sequência acima
+de 200 ms consecutivos, não tolerância zero. Nenhum outro limiar muda. Código na raiz do repositório;
+presets em `src/physics.ts`; benches em `scripts/handlingBench.ts`. FB-01: **aceitar** — o `LapResult` de
+`race-lap-validation` carrega `setupId?` e `setupVersion?` copiados do pedido `startLap` (API-0001 e
+API-0002 1.1.0 daquela feature); `buildLapRecord` preenche só o que o resultado não traz; `beginLap` em
+`src/main.ts` informa os dois campos; a linha de divergência correspondente é assumida aqui. O código da
+rodada 2 (`src/physics.ts` com `ARCADE_ASSISTIDO_V5`, `scripts/handlingBench.ts`, `src/setupRecords.ts`,
+`src/handlingMessages.ts`, `src/main.ts`) é o as-built; o projeto vence.
+
+**O que mudou**
+
+- SPEC-ISSUE-01 (V1 num acerto que não sai de frente; `DOMAIN/DEC-12`):
+  - `DES-0004` (5.0.0): `UNDERSTEER_ONSET` — `v1Mps` definido em todo fim natural da varredura: o menor
+    `plateauSpeedMps` de patamar completo com `understeer` por mais de 200 ms consecutivos ou, sem nenhum
+    patamar assim, o alvo do patamar interrompido pela saída; `v1Mps` ausente só nos desfechos em que a
+    saída reprova por si (`OFF_ASPHALT`, `MEASUREMENT_MISSING`) sem patamar completo em subesterço; ordem do
+    veredito: `OFF_ASPHALT` (por `observed`) → `MEASUREMENT_MISSING` (menos de 2 pares, único caso desse
+    motivo) → `BASELINE_MISSING` → limiares; o fim natural nunca produz `MEASUREMENT_MISSING` (o caso (b) de
+    API-0003 3.2.0 deixa de existir) e um registro de fim natural sem `v1Mps` faz `judge` lançar
+    (malformado); `baselineRecord`/`understeerBaselineRecord` só aceitam como V0 um `v1Mps` que é velocidade
+    de patamar completo com subesterço (`50 / 3.6`, ou um par com `maxUndersteerMs > 200`), nunca o do
+    patamar interrompido; a linha `#` diz de onde `v1Mps` veio, em três textos, inclusive "sem início de
+    subesterço até a saída da faixa" (apresentação, não campo); tabela de falha e Observabilidade
+    correspondentes.
+  - `ADR-0004` (4.0.0): Contexto com os fatos medidos pela rodada de código 2 (3 103 acertos avaliados; o
+    rótulo `understeer` exige deriva dianteira > 0,09 rad e > 1,2 × a traseira e o kart assistido chega ao
+    limite com os dois eixos derivando por igual; a folga de esterço não depende da velocidade; 7 patamares
+    completos sem `understeer`, saída a 56,1 km/h, patamar interrompido de 64,4 km/h); decisão 8 reescrita
+    (V1 nos dois casos; ordem dos motivos); decisão 10 nova (V0 nunca tirado de velocidade sem subesterço);
+    alternativas recusadas; consequências com os dois caminhos de `PASS` — patamar completo de 59,0 km/h ou
+    mais com subesterço, ou saída acima de 50 km/h com o patamar interrompido de alvo ≥ 59,0 km/h depois de
+    pelo menos dois patamares completos — e o acerto entregue no segundo.
+  - `ADR-0003` (1.4.0): decisões 2 e 5 — V0 só de patamar completo com subesterço; o `v1Mps` do patamar
+    interrompido não serve de V0; Contexto com o bloco `handling-baseline` escrito pela rodada de código 2.
+  - `DM-0001` (2.0.0): seção 4 (`v1Mps` presente em todo fim natural) e seção 5 (resolução de V0 com a
+    condição acima; V0 de hoje = 13,89 m/s, da entrada `arcade-assistido-v4`).
+  - `DES-0001` (3.3.0): as alavancas `assistSteerAllowanceRad`, `assistLateralG` e `forcingRampMps` lidas
+    à luz de `DEC-12` — a frente não precisa avisar antes da saída da faixa; `handling()` (`:156-163`) não
+    muda; nenhuma alavanca dependente da velocidade acrescentada; linhas as-built da rodada de código 2
+    (`:73-83`, `:170-178`, `:363-385`) e as medidas de `docs/physics.md:250-255`.
+  - `98-divergences.md` (3.0.0): linha de REQ-FEAT-0002-04, -05, -07, -10 reescrita contra
+    `scripts/handlingBench.ts:311`, `:344`, `:355`, `:363-367`, `:672`.
+  - `test-strategy.md` (5.0.0): caminhos de AC-US-0002-03, -05 e -06 (registros sintéticos de fim natural
+    com V1 do patamar interrompido e com V1 de patamar completo; `judge` lança no malformado;
+    `baselineMarkdown()` com registro cujo `v1Mps` veio do patamar interrompido dá `BASELINE_MISSING`).
+- SPEC-ISSUE-02 (curva de referência com acelerador 0; `DOMAIN/DEC-13`):
+  - `DES-0004`: `REFERENCE_CORNER` com `THROTTLE_ZERO` percorre os 300 passos da janela esteja o kart onde
+    estiver; `maxUndersteerMs` medido em todos os passos, dentro e fora da faixa; `offAsphaltStepCount`
+    informativo (0 a 300), com `offAsphaltFirstStep` e a posição da primeira saída; `OFF_ASPHALT` nunca
+    nessa condição; `THROTTLE_FULL` inalterado (para no primeiro passo fora da faixa, `OFF_ASPHALT`, sem
+    `oversteer`/`sliding`); `NORMAL_DRIVING` só toma os passos no asfalto; `judge` com a ordem de cada
+    condição; tabela de falha.
+  - `ADR-0004`: decisão 9 nova e decisão 3; alternativas recusadas (manter a velocidade, janela menor,
+    acelerador parcial, piloto retunado; parar no primeiro passo fora da faixa — o as-built, `:273`).
+  - `ADR-0005` (1.2.0): Contexto com a medida (saída pelo lado interno no passo 240 de 300; `steeringLimit`,
+    `src/physics.ts:180-188`); decisão 1 — a curva com acelerador 0 continua fora da faixa com a telemetria
+    lida; alternativas recusadas; consequência (grama fora da faixa aplicada aos passos após a saída, o que
+    o F-Spec aceita); REQ-FEAT-0002-02 nas fontes.
+  - `DES-0001`: alavanca `assistLateralG` sob `DEC-13`. `DM-0001` seção 4 (`offAsphaltStepCount` de
+    `REFERENCE_CORNER` informativo com `THROTTLE_ZERO`).
+  - `98-divergences.md`: linha de REQ-FEAT-0002-01, -03, -09 contra `scripts/handlingBench.ts:273` e `:663`.
+  - `test-strategy.md`: caminhos de AC-US-0002-01 e -02 (traço de 300 passos; registro sintético com
+    `offAsphaltStepCount` 60 e `maxUndersteerMs` 125 é `PASS`; com 204, `THRESHOLD_EXCEEDED`, nunca
+    `OFF_ASPHALT`).
+- FB-01 (`race-lap-validation`, aceito):
+  - `DES-0003` (2.0.0): seção "Campos copiados em `src/lap.ts`" (`LapRequest` `:23`, `LapSession` `:25-46`,
+    `LapResult` `:48-58`, cópias em `startLap` `:117` e `buildResult` `:270`, como `challengeNumber`; sem
+    verificação nem resolução em `src/lap.ts`); `buildLapRecord` passa a preencher só o que o resultado não
+    traz (`result.setupId ?? setup.setupId`, `result.setupVersion ?? setup.setupVersion`), cópia idempotente
+    sobre um resultado que já os traz; `replayLap` informa os dois campos no pedido; "Pedido da volta" em
+    Estado e concorrência.
+  - `DM-0001`: seção 2 (`LapResult` 1.1.0 com os campos opcionais; `LapRecord` com os dois obrigatórios) e
+    passo M4 do plano de migração, com downgrade.
+  - `ADR-0002` (2.0.0): decisão 1 reescrita; a decisão anterior (`LapResult` intacto, identidade anexada só
+    por `buildLapRecord`) e "recusar o FB-01" como alternativas recusadas; consequência sobre `src/lap.ts` e
+    a linha de divergência assumida.
+  - `01-architecture.md` (3.0.0): tabela de camadas (`src/lap.ts` alterado nos campos copiados;
+    `src/setupRecords.ts`, `scripts/handlingBench.ts`, `scripts/keyboard-lap.ts` e `src/main.ts` alterados
+    num ponto cada), seção "A restrição que molda o projeto" (o `LapResult` carrega os campos opcionais;
+    `CHK-TEST-0012-02` continua verde porque as suas voltas são iniciadas sem eles), diagrama do fluxo
+    alterado, tabela de compatibilidade, linha de ADR-0002 em Rastros de decisão.
+  - `DES-0007` (1.1.0): `beginLap` (`src/main.ts:226`) informa `setupId` e `setupVersion` no pedido de
+    `startLap`. `DES-0006` (1.1.0): leitura de `buildLapRecord` (`src/main.ts:429`) sob o FB-01 — o
+    `setupRef` é o recuo para um resultado sem os campos.
+  - `DES-0004`: a volta do piloto de teste (`scripts/handlingBench.ts:468`) e a volta cronometrada de
+    `measureStepCost` (`scripts/keyboard-lap.ts:25`) informam os dois campos no pedido.
+  - `98-divergences.md`: linha nova de REQ-FEAT-0005-05, -06, -08 com API-0002 (FB-01), assumida do
+    registro de `race-lap-validation`, etapa devedora: código desta feature, contra `src/lap.ts:23`,
+    `:25-46`, `:48-58`, `:117`, `:270`, `src/setupRecords.ts:91-93`, `:108-112`, `src/main.ts:226`,
+    `scripts/handlingBench.ts:468`, `scripts/keyboard-lap.ts:25`.
+  - `test-strategy.md`: AC-US-0005-04 (volta iniciada com e sem os campos; `buildLapRecord` idempotente
+    sobre `newResult()` e preenchendo `oldResult()`; `replayLap` com a `setupVersion` vinda do resultado) e
+    NFR-0008 (`CHK-TEST-0012-02`; em `src/lap.ts` os dois campos só aparecem como cópia do pedido).
+- As-built da rodada de código 2 recitado, sem mudança de interface, em `DES-0002` (1.1.1) e `DES-0005`
+  (1.0.2) e nas seções de posicionamento de `DES-0001`, `DES-0003`, `DES-0004`, `DES-0006` e `DES-0007`
+  (linhas de `src/physics.ts`, `src/main.ts`, `scripts/handlingBench.ts`, `scripts/keyboard-lap.ts`,
+  `scripts/physics-bench.ts`, `index.html`, `docs/physics.md:196-262` e `:265-412`). `98-divergences.md`: as
+  17 linhas abertas recitadas contra a árvore da rodada de código 2 — 4 ficam abertas (as duas reescritas
+  acima, a do FB-01 e a prova em `npm test` com `docs/handling-device-log.md`) e 16 linhas passam à tabela
+  "Linhas resolvidas pela rodada de código 2", cada uma com o `arquivo:linha` que a resolve; nenhum
+  requisito saiu do registro.
+- Intocados (validados): `ADR-0001` (1.0.1), `DES-0008` (1.0.2). `00-index.md` e `99-traceability.md` não
+  foram escritos: o gate os regenera com `lint_artifacts.py --emit`.
+
+**Superfície (conventions §16)**: Mode C acrescenta superfície só com item a montante que a autorize.
+Acrescentado: os campos opcionais `setupId?` e `setupVersion?` em `LapRequest`, `LapSession` e `LapResult`
+de `src/lap.ts`, autorizados por API-0001/API-0002 1.1.0 de `race-lap-validation` (FB-01) e projetados no
+D-Spec daquela feature (DM-0002, DES-0001) — esta rodada só os põe no código desta feature. Nenhum campo,
+valor de enum ou parâmetro de ensaio novo em API-0003; nenhuma alavanca nova em `KartConfig`; nenhum
+módulo, tela ou configuração novos. Mudam de significado sob API-0003 3.3.0, com o mesmo nome e a mesma
+unidade: `v1Mps` (obrigatório no fim natural; a definição de V1 nos dois casos) e `offAsphaltStepCount` de
+`REFERENCE_CORNER` com `THROTTLE_ZERO` (informativo, 0 a 300).
+
+**Tabela de migração** (conventions §17): 8 DES, 1 DM e 5 ADR antes e depois; 62 requisitos `REQ-*`, 32
+critérios `AC-*` e 9 NFR realizados antes e depois; divergências: 17 linhas abertas antes; depois, 4 abertas
+e 16 resolvidas pela rodada de código 2 (commit `0068a57`), com o `arquivo:linha` de hoje; nenhum item de
+projeto, ensaio, fixture, critério ou verificação retirado. Interfaces que mudam: `buildLapRecord`
+(preenche só o que falta), `replayLap` (pedido com os campos), `judge` em `REFERENCE_CORNER` `THROTTLE_ZERO`
+e em `UNDERSTEER_ONSET`, `baselineRecord`/`understeerBaselineRecord` (condição de V0), `serialize` (linha
+`#` de `UNDERSTEER_ONSET`), os pedidos de `startLap` em `src/main.ts`, `scripts/handlingBench.ts` e
+`scripts/keyboard-lap.ts`; `src/lap.ts` ganha os campos opcionais copiados. Parâmetros de ensaio: nenhum
+valor muda. Ramos retirados: o caso (b) de `MEASUREMENT_MISSING` (fim natural sem V1) e a parada no
+primeiro passo fora da faixa com `THROTTLE_ZERO`.
+
+**Itens fechados**: SPEC-ISSUE-01 e SPEC-ISSUE-02 de `reports/feedback/feedback-20261022-1803.md`; FB-01 de
+`reports/feedbacks/race-lap-validation/feedback-20261022-1703.md` (aceito por inteiro, nos quatro sítios que
+nomeia — `DES-0003`, `01-architecture.md`, `ADR-0002`, `DM-0001` — e nos demais sítios do mesmo fato:
+`DES-0004`, `DES-0006`, `DES-0007`, `98-divergences.md`, `test-strategy.md`); `ISSUE-01` e `ISSUE-02` (info)
+de `dspec-validation-20261022-1615`: nada a mudar (sem chave mestra por proibição do F-Spec, ADR-0001;
+abertura de registro gravado fica com a feature que persistir registros, ADR-0002). Nenhum outro feedback
+pendente para esta feature.
+
+**Itens recusados, com motivo**
+
+- As três saídas que o feedback do código ofereceu para SPEC-ISSUE-01 — alavanca de folga de esterço
+  dependente da velocidade em `DES-0001`, outro rótulo de subesterço em `handling()` (deriva dianteira acima
+  de um limiar sem a razão com a traseira) ou outro limiar de deriva: não tomadas. O dono do produto decidiu
+  de outro modo (`DOMAIN/DEC-12`, via F-Spec 3.3.0): o rótulo não muda e V1 é a velocidade mantida do
+  patamar interrompido; nenhuma alavanca é acrescentada (ADR-0004, Alternativas).
+- As saídas oferecidas para SPEC-ISSUE-02 — velocidade mantida na curva com acelerador 0, janela menor que
+  2 500 ms, acelerador parcial, ou piloto de teste com entrada no grampo compatível com o acerto: não
+  tomadas. `DOMAIN/DEC-13` dispensa a permanência na faixa nessa execução; REQ-FEAT-0002-01 mantém o
+  acelerador em 0 durante todo o arco e o piloto é parâmetro fixo (ADR-0004, decisão 2 e Alternativas;
+  ADR-0005, Alternativas).
+- Recusar o FB-01 e manter o `LapResult` intacto (a decisão das rodadas 1 a 7; "acrescentar
+  `setupId`/`setupVersion` ao `LapResult` de `src/lap.ts`" recusado nas rodadas 1 e 5): superado. O contrato
+  daquela feature já carrega os campos (API-0001/API-0002 1.1.0) e duas descrições do mesmo contrato não
+  podem valer ao mesmo tempo; a decisão do autor para esta rodada é aceitar (ADR-0002, Alternativas).
+- Aceitar como V0 o `v1Mps` do patamar interrompido de uma linha de base que nunca sai de frente (o
+  as-built, `scripts/handlingBench.ts:311`, aceita qualquer `v1Mps` numérico): não tomado. O F-Spec define
+  o caso de `DEC-12` para o novo acerto (V1) e deixa o recuo de V0 sem decisão; aceitá-lo seria estimar V0
+  — `BASELINE_MISSING`, nada estimado (ADR-0003, decisão 2; ADR-0004, decisão 10). Com a linha de base
+  medida (`ARCADE_KART`, 808 ms a 50 km/h) o caso não ocorre. Proposta ao autor para `SCOPE-BACKLOG.md`:
+  "2026-10-27 dspec-loop rodada 8 — `UNDERSTEER_ONSET`: que V0 vale quando a linha de base nunca sai de
+  frente até sair da faixa (a velocidade do patamar interrompido também para V0, ou `BASELINE_MISSING`)?"
+- Campo que diga de onde `v1Mps` veio, ou valor de `failReason` para "sem início de subesterço": não
+  acrescentados; API-0003 3.3.0 diz que o motivo é apresentação, e o caso é derivável do contrato (`v1Mps`
+  maior que todo `plateauSpeedMps` da lista e nenhum par acima de 200 ms); vai para a linha `#`.
+- Velocidade do kart no passo da saída como campo de `UNDERSTEER_ONSET`: continua não acrescentada
+  (API-0003 não a tem); vai para a linha `#` e chega a `judge` por `observed`.
+- Editar os valores de `ARCADE_ASSISTIDO_V5` (`src/physics.ts:75-82`) ou refazer a entrada
+  `arcade-assistido-v5` de `docs/physics.md` neste estágio: são da etapa de código. Sob este projeto os dois
+  registros reprovados mudam de veredito (fim natural com V1 = 64,4 km/h ≥ 57,5 km/h; curva com acelerador
+  0 julgada só pelos 125 ms de `understeer`) e a rodada de código seguinte os refaz, em Mode B/C sobre
+  `scripts/handlingBench.ts`, `src/lap.ts`, `src/setupRecords.ts`, `src/main.ts` e `scripts/keyboard-lap.ts`.
+- Veredito para os dois casos que RULE-0002 não decide (saída exatamente a 50 km/h; varredura sem saída da
+  faixa): continuam sem veredito; a biblioteca lança (ADR-0004, decisão 8). As propostas de
+  `SCOPE-BACKLOG.md` das rodadas anteriores seguem com o autor.
+- Nenhum requisito foi enfraquecido, removido ou dividido; nenhuma divergência `waived-pending`; nenhum
+  feedback a outra feature (`race-lap-validation` já carrega o contrato 1.1.0 e o seu registro já declara a
+  linha devida a esta feature; nada mais a pedir). `DOMAIN.md` foi lido só para conferir as entradas de
+  2026-10-22 (conventions §15); todo conteúdo projetado vem do F-Spec 3.3.0; o restante da pasta do seed e
+  `200 Requirements/230 Output/` não foram lidos (§12).
+- Os itens recusados das rodadas 1, 3, 5, 6 e 7 continuam recusados pelos mesmos motivos, salvo o de
+  "campos no `LapResult`" (rodadas 1 e 5), superado acima.

@@ -4,7 +4,7 @@ title: Telemetria de dirigibilidade por passo (API-0001)
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [API-0001, FLOW-0001, RULE-0001, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, REQ-FEAT-0001-05, REQ-FEAT-0003-03, REQ-FEAT-0003-10, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0006-01, REQ-FEAT-0006-02]
 ---
 
@@ -21,16 +21,17 @@ simulação (REQ-FEAT-0003-10, REQ-FEAT-0006-01, -02).
 
 ## Posicionamento
 
-`src/physics.ts`, camada **Simulação**, **existente** (escrito pela rodada de código 1 em `:321-336`;
-estende [DES-0001](DES-0001-acerto-arcade-assistido-v5-e-assistencias.md)); não há módulo novo: a
-telemetria é leitura do `State` que este módulo produz, sem dependência de `src/lap.ts`. Esta rodada não
-muda a função; fixa o valor inicial de `surface`.
+`src/physics.ts`, camada **Simulação**, **existente** (escrito pela rodada de código 1; as-built em
+`:345-360` depois da rodada de código 2; estende
+[DES-0001](DES-0001-acerto-arcade-assistido-v5-e-assistencias.md)); não há módulo novo: a telemetria é
+leitura do `State` que este módulo produz, sem dependência de `src/lap.ts`. Esta rodada não muda a função;
+só recita as linhas do as-built.
 
 ## Interface
 
 | Função | Entradas | Saída |
 |---|---|---|
-| `getHandlingTelemetry(state, setup)` (`:327`) | `state: State \| undefined` (o `kart` da `LapSession`, ou o estado de um ensaio); `setup: SetupRef = {setupId, setupVersion}` do acerto em uso, passado por quem iniciou a volta ou o ensaio | `HandlingTelemetry` (`:321-325`), ou `{code: 'NO_STATE'}` quando `state` é ausente |
+| `getHandlingTelemetry(state, setup)` (`:351`) | `state: State \| undefined` (o `kart` da `LapSession`, ou o estado de um ensaio); `setup: SetupRef = {setupId, setupVersion}` do acerto em uso, passado por quem iniciou a volta ou o ensaio | `HandlingTelemetry` (`:345-349`), ou `{code: 'NO_STATE'}` quando `state` é ausente |
 
 `HandlingTelemetry`, exatamente os campos de API-0001 e nenhum outro:
 
@@ -48,11 +49,11 @@ muda a função; fixa o valor inicial de `surface`.
 | `forcing` | booleano | — | `state.telemetry.forcing` |
 | `driftActive` | booleano | — | `state.maneuvers.drifting` |
 
-Estado inicial (`initialState()`, `:104-111`): `simStepCount` 0, `speedMps` 0, `handling` `grip`,
+Estado inicial (`initialState()`, `:107-114`): `simStepCount` 0, `speedMps` 0, `handling` `grip`,
 `sideslipRad` 0, `yawRateRadPerS` 0, `surface` **`ASPHALT`** — o literal `'asphalt'` de `emptyTelemetry`
-(`:102`): `initialState()` não recebe ambiente e `getHandlingTelemetry` não avalia `surfaceAt`; o valor é
+(`:105`): `initialState()` não recebe ambiente e `getHandlingTelemetry` não avalia `surfaceAt`; o valor é
 correto por construção porque a largada da pista sintética (`startPosition` de `src/track.ts:47`, ou
-`track[0]` em `:106`) e toda entrada de ensaio estão no asfalto, e o primeiro `step` substitui a
+`track[0]` em `:109`) e toda entrada de ensaio estão no asfalto, e o primeiro `step` substitui a
 telemetria pela medida —, `wallContact`, `forcing` e `driftActive` falsos. São os valores de "Vazio" de
 SCR-0001; o critério 06 de US-0004 só exige a exibição a partir do sinal verde, depois do primeiro passo.
 
@@ -64,8 +65,8 @@ leitura. Em `src/main.ts` o `setup` e o `config` da volta são fixados no mesmo 
 
 ## Colaboradores
 
-Chamado por `src/main.ts` (HUD, por quadro), por `scripts/handlingBench.ts` (por passo, `telemetryOf`,
-`scripts/handlingBench.ts:104`) e pelos testes. Não chama nada além dos campos do `State`.
+Chamado por `src/main.ts` (HUD, por quadro, `src/main.ts:502`), por `scripts/handlingBench.ts` (por passo,
+`telemetryOf`, `scripts/handlingBench.ts:121`) e pelos testes. Não chama nada além dos campos do `State`.
 
 ## Estado e concorrência
 
@@ -75,7 +76,7 @@ passo (o `kart` da sessão pausada). Não há chave de deduplicação porque nã
 
 ## Comportamento em falha
 
-`state` ausente devolve `{code: 'NO_STATE'}` sem lançar (`:328`). Não há dependência, tempo-limite nem
+`state` ausente devolve `{code: 'NO_STATE'}` sem lançar (`:352`). Não há dependência, tempo-limite nem
 escrita. Nada é registrado em log.
 
 ## Observabilidade
