@@ -9,7 +9,7 @@ import { buildKart01Model } from '../src/kart01Model';
 import { syntheticReading } from './fixtures/trackFiles';
 import { autopilot, completeLap } from './helpers/autopilot';
 import {
-  BASELINE_PATH, CHECK_IDS, countForbiddenImports, determinismCheck, expandRuns, importsOf, inputTypeLineOf, judgeModelCheck, layeringCheck,
+  BASELINE_PATH, CHECK_IDS, countForbiddenImports, determinismCheck, expandRuns, importsOf, inputTypeLineOf, judgeModelCheck, layeringCheck, recordedFieldsOf,
   measureKart01Model, parseSimBaseline, readSimBaseline, renderNeutralCheck, serializeRecord, SIMULATION_FILES, simContractCheck, sourceText,
   stripComments, telemetryWheelPositionsCheck, wheelPositionsCheck, wheelSpinCheck, type CheckRecord, type SimBaseline,
 } from './helpers/kart01Report';
@@ -164,6 +164,19 @@ test('CHK-TEST-0004-13 the two reference laps of the baseline replay to the same
   assert.equal(determinism.comparedRunCount, 2, 'NFR-0006: both published setups are compared');
   assert.equal(determinism.differingRunCount, 0, 'NFR-0006: no run may differ from the baseline');
   if ('ok' in baseline) for (const run of baseline.baseline.referenceRuns) assert.equal(run.lapValidity, 'VALID', `NFR-0006: the ${run.setupId} reference lap is valid`);
+  // The final State is compared on the fields the baseline recorded (DM-0001, field by field): every recorded value still
+  // decides, and a recorded field the simulation no longer has decides too; only a field the baseline never recorded is not compared.
+  const kart = 'ok' in baseline ? baseline.baseline.referenceRuns[0].finalKart : undefined;
+  const current = { ...kart, telemetry: { ...kart?.telemetry, addedLater: true } };
+  assert.deepEqual(recordedFieldsOf(kart, current), kart, 'NFR-0006: a field the baseline never recorded is not compared');
+  assert.notDeepEqual(recordedFieldsOf(kart, { ...current, telemetry: { ...current.telemetry, wallContact: undefined } }), kart, 'NFR-0006: a recorded field missing from the state differs');
+  assert.notDeepEqual(recordedFieldsOf(kart, { ...current, telemetry: { ...current.telemetry, wheels: [] } }), kart, 'NFR-0006: a recorded array of another length differs');
+  const movedX = determinismCheck(altered(b => { b.referenceRuns[0].finalKart.x += 0.01; return b; }), reading);
+  assert.equal(movedX.verdict === 'FAIL' && movedX.checkFailReason, 'NON_DETERMINISTIC', 'NFR-0006: a recorded final x moved by 1 cm is NON_DETERMINISTIC');
+  assert.equal('differingRunCount' in movedX && movedX.differingRunCount, 1, 'NFR-0006: exactly the altered run differs');
+  const ghostField = determinismCheck(altered(b => { (b.referenceRuns[1].finalKart.telemetry as Record<string, unknown>).recordedButGone = true; return b; }), reading);
+  assert.equal(ghostField.verdict === 'FAIL' && ghostField.checkFailReason, 'NON_DETERMINISTIC', 'NFR-0006: a recorded field the state does not carry is NON_DETERMINISTIC');
+  assert.equal('differingRunCount' in ghostField && ghostField.differingRunCount, 1, 'NFR-0006: exactly the run with the recorded-only field differs');
 });
 
 test('CHK-TEST-0004-14 without a usable baseline the three comparisons are BASELINE_MISSING and nothing is compared', () => {

@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: modelo-kart-01
 stage: test
 status: validated
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 97 — Changelog
@@ -137,3 +137,72 @@ mutações, uma de cada vez; a cópia foi descartada. Durante a escrita, uma ver
   Nenhuma verificação chama `git` (o estágio não o executa).
 - **`checkFailReason` de `BASELINE_MISSING` para `TELEMETRY_WHEEL_POSITIONS`:** não existe; o registro não depende da linha de
   base (compara a telemetria com `wheelPositions` do mesmo passo), como API-0002 lista só três registros com esse motivo.
+
+## 2026-10-27 — rodada 2, Modo B (uma verificação reprovada por mudança de projeto de outra feature)
+
+### Entrada
+
+- `400 Code/Output/pista-kart-park/98-divergences.md` (seção "Verificações de outras features reprovadas por esta rodada", linha
+  `CHK-TEST-0004-13`): DES-0003 de `pista-kart-park` acrescenta `barrierTouching` e `barrierContact` a `Telemetry`
+  (`src/physics.ts:26`); `runDiffers` comparava o `State` final por `isDeepStrictEqual` com `finalKart` gravado em `b86b200`, cuja
+  `telemetry` não tem os dois campos. Evidência da etapa de código: retirados os dois campos, os dois `finalKart` são iguais e
+  `lapMs` 29 419 / 43 932 ms iguais.
+- Projeto de `modelo-kart-01`: DM-0001 (`finalKart` comparado "campo a campo, inclui `telemetry` e `maneuvers`"; janela de
+  compatibilidade: regravação só quando outra feature publica **outro acerto ou outra pista**), ADR-0004, DES-0006; REQ-FEAT-0006-07/-08.
+
+### O que mudou (correção a — comparar os campos gravados)
+
+- `tests/helpers/kart01Report.ts`: nova `recordedFieldsOf(recorded, current)` — projeção do `State` corrente sobre os campos que
+  a linha de base gravou, recursiva em objetos e vetores (vetores mantêm o comprimento corrente, logo outro comprimento difere;
+  um campo gravado ausente do estado fica `undefined` e difere). `runDiffers` compara `recordedFieldsOf(run.finalKart, kart)`
+  com `run.finalKart` por `isDeepStrictEqual`; `lapValidity`, `lapMs` e `sectorMs` como antes. O registro `DETERMINISM` de
+  API-0002 não ganhou campo.
+- `tests/modelo-kart-01-contract.test.ts`, CHK-TEST-0004-13: além das asserções anteriores, prova que a verificação ainda pode
+  falhar — `recordedFieldsOf` ignora um campo nunca gravado (`addedLater`), nota um campo gravado ausente (`wallContact`
+  `undefined`) e um vetor de outro comprimento (`wheels` vazio); `determinismCheck` sobre uma cópia da linha de base com
+  `finalKart.x` + 0,01 é `NON_DETERMINISTIC` com `differingRunCount` 1, e com um campo gravado que o estado não tem
+  (`recordedButGone`) também. Custo: duas reproduções a mais (~3 s na verificação).
+- `TEST-0004` 1.0.0 → 1.1.0: coluna "o que a faria falhar" de CHK-TEST-0004-13, fixtures e interface (`recordedFieldsOf`).
+- `tests/fixtures/kart01-sim-baseline.json` **não** foi regravado: `recordedOnCommit` continua `b86b200`.
+
+### Por que (a) e não (b) — regravar com `--force`
+
+- A janela de compatibilidade de DM-0001 manda regravar quando outra feature publica outro acerto ou outra pista; aqui
+  `setupVersion` (`arcade-assistido-v5`, `realista-aluguel-4t-v4`) e `trackVersion` 2 são os mesmos, e cada valor gravado é
+  idêntico ao reproduzido — a simulação não mudou, só a forma da `telemetry` ganhou dois campos sem valor gravado.
+- Regravar aceitaria silenciosamente qualquer mudança da simulação da árvore corrente (a rodada de `pista-kart-park`, ainda sem
+  commit, sem sha para `--commit`), e DM-0001 proíbe comparar contra uma linha de base de outro estado. A projeção mantém cada
+  um dos valores gravados como decisor (REQ-FEAT-0006-07/-08: mesma entrada, mesma volta, mesmo estado gravado).
+- Quando `pista-kart-park` for committed, a regravação permanece opcional e só mudaria `recordedOnCommit`; os valores são os mesmos.
+
+### Migração de verificações existentes
+
+| Id | Mudança | Por que o critério continua coberto |
+|---|---|---|
+| CHK-TEST-0004-13 | modified: comparação de `finalKart` pelos campos gravados (`recordedFieldsOf`) em vez do objeto inteiro; cinco asserções de capacidade de falha acrescentadas | todos os campos gravados (`State` completo da revisão `b86b200`, com `telemetry` e `maneuvers`) continuam comparados valor a valor; só um campo que a linha de base nunca gravou deixa de decidir — e para ele não há valor esperado |
+
+Nenhuma verificação removida, renomeada ou fundida; as outras 58 carried.
+
+### Execução
+
+`npx tsx --test tests/*.test.ts` com os repórteres `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`),
+2026-10-27: 296 verificações, 296 aprovadas, 0 reprovadas, 0 puladas, ~40 s. CHK-TEST-0004-13 passa com `DETERMINISM`
+`comparedRunCount` 2, `differingRunCount` 0; `CHK-TEST-0009-02` (`race-lap-validation`, em edição por outro agente) passou nesta
+execução.
+
+### Prova de que a verificação pode falhar
+
+Cópia temporária de `src/`, `tests/`, `scripts/` e `package.json` no diretório de rascunho da sessão (`node_modules` por junção),
+mutação E de novo (`clamp(input.throttle, 0, 0.8)` em `src/physics.ts:234`), `tests/modelo-kart-01-contract.test.ts` só: 14
+aprovadas, 2 reprovadas — CHK-TEST-0004-11 (`SIM_CONTRACT`, `inputContractUnchanged` falso) e CHK-TEST-0004-13 (`DETERMINISM`
+`differingRunCount` 2, `NON_DETERMINISTIC`). A cópia foi descartada. Em memória, dentro da própria verificação: `finalKart.x` +
+0,01 e um campo gravado inexistente no estado reprovam (acima).
+
+### Itens declinados, com o motivo
+
+- **Regravar a linha de base (`npm run baseline:kart01 -- --force --commit <sha>`), a primeira alternativa do encaminhamento de
+  `pista-kart-park`:** declinada, pelos motivos da seção "Por que (a)". A segunda alternativa do mesmo encaminhamento ("comparar
+  `finalKart` só nos campos da versão gravada") é a adotada.
+- **Acrescentar ao registro `DETERMINISM` um campo com os campos não comparados:** declinado; API-0002 fixa os campos do
+  registro e CHK-TEST-0004-16 os confere campo a campo (superfície congelada em rodada de correção, conventions §16). A lista
+  fica nesta entrada e na coluna de TEST-0004.

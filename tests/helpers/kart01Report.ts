@@ -418,12 +418,29 @@ export function replayBaseline(baseline: SimBaseline, reading: TrackReading): Re
 
 const jsonClone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
+// The projection of `current` onto the fields the baseline recorded (DM-0001: finalKart compared field by field).
+// Every recorded field is taken from `current` — missing there, it stays undefined and the comparison fails; a field
+// `current` carries that the baseline never recorded (telemetry added by a later feature) is not compared, because the
+// baseline holds no value for it. Arrays keep the length of `current`, so a longer or shorter array still differs.
+const isPlainObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
+export function recordedFieldsOf(recorded: unknown, current: unknown): unknown {
+  if (Array.isArray(recorded)) return Array.isArray(current) ? current.map((item, i) => recordedFieldsOf(recorded[i], item)) : current;
+  if (isPlainObject(recorded)) {
+    if (!isPlainObject(current)) return current;
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(recorded)) out[key] = recordedFieldsOf(recorded[key], current[key]);
+    return out;
+  }
+  return current;
+}
+
 export function runDiffers(replayed: Replay): boolean {
   const { run, lap } = replayed;
   const result = getLapResult(lap);
   const lapMs = 'code' in result ? undefined : result.lapMs;
   const sectorMs = 'code' in result ? undefined : result.sectorMs;
-  return lap.validity !== run.lapValidity || lapMs !== run.lapMs || !isDeepStrictEqual(jsonClone(sectorMs), run.sectorMs) || !isDeepStrictEqual(jsonClone(lap.kart), run.finalKart);
+  return lap.validity !== run.lapValidity || lapMs !== run.lapMs || !isDeepStrictEqual(jsonClone(sectorMs), run.sectorMs)
+    || !isDeepStrictEqual(recordedFieldsOf(run.finalKart, jsonClone(lap.kart)), run.finalKart);
 }
 
 export function determinismCheck(reading: BaselineReading, track: TrackReading = syntheticReading()): DeterminismRecord | BaselineMissingRecord {

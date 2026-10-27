@@ -2,7 +2,7 @@
 stage: test
 feature: modelo-kart-01
 status: validated
-generated: 2026-10-27T20:27:48Z
+generated: 2026-10-27T21:31:20Z
 files: 6
 ---
 
@@ -12,9 +12,9 @@ files: 6
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.0.0 |
-| `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | draft | 1.0.0 |
-| `TEST-0001-modelo-montado-medidas-grupos-cores-e-custo.md` | TEST-0001 | Modelo montado em Node — medidas, rodas e bitolas, 16 grupos, cores da ficha, custo de desenho, nós animados e âncoras | draft | 1.0.0 |
-| `TEST-0002-estado-para-exibicao-giro-das-rodas-e-posicoes-das-rodas.md` | TEST-0002 | Estado do kart para exibição (API-0001), giro das rodas por passos conhecidos (WHEEL_SPIN), ponto de referência e posições das rodas da telemetria | draft | 1.0.0 |
-| `TEST-0003-camera-de-jogo-quadro-a-quadro.md` | TEST-0003 | Câmera de jogo quadro a quadro sobre sessões reais — pose de corrida, campo de visão por forma, turbo, visão geral, descida e fim da volta | draft | 1.0.0 |
-| `TEST-0004-contratos-transversais.md` | TEST-0004 | Contratos transversais — símbolos de main.ts, decalques, dependências, LAYERING, RENDER_NEUTRAL, SIM_CONTRACT, DETERMINISM, WHEEL_POSITIONS, BASELINE_MISSING e API-0002 campo a campo | draft | 1.0.0 |
+| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.1.0 |
+| `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | draft | 1.1.0 |
+| `TEST-0001-modelo-montado-medidas-grupos-cores-e-custo.md` | TEST-0001 | Modelo montado em Node — medidas, rodas e bitolas, 16 grupos, cores da ficha, custo de desenho, nós animados e âncoras | validated | 1.0.0 |
+| `TEST-0002-estado-para-exibicao-giro-das-rodas-e-posicoes-das-rodas.md` | TEST-0002 | Estado do kart para exibição (API-0001), giro das rodas por passos conhecidos (WHEEL_SPIN), ponto de referência e posições das rodas da telemetria | validated | 1.0.0 |
+| `TEST-0003-camera-de-jogo-quadro-a-quadro.md` | TEST-0003 | Câmera de jogo quadro a quadro sobre sessões reais — pose de corrida, campo de visão por forma, turbo, visão geral, descida e fim da volta | validated | 1.0.0 |
+| `TEST-0004-contratos-transversais.md` | TEST-0004 | Contratos transversais — símbolos de main.ts, decalques, dependências, LAYERING, RENDER_NEUTRAL, SIM_CONTRACT, DETERMINISM, WHEEL_POSITIONS, BASELINE_MISSING e API-0002 campo a campo | draft | 1.1.0 |

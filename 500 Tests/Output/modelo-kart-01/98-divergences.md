@@ -3,7 +3,7 @@ title: Registro de divergências e de critérios não verificados em npm test
 feature: modelo-kart-01
 stage: test
 status: validated
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 98 — Divergências
@@ -14,6 +14,12 @@ próprio runner, `reports/npm-test-latest.log` e `reports/junit-latest.xml`) col
 linhas 19 e 20 de `400 Code/Output/modelo-kart-01/98-divergences.md` (registros `WHEEL_POSITIONS`, `TELEMETRY_WHEEL_POSITIONS`,
 `LAYERING`, `RENDER_NEUTRAL`, `SIM_CONTRACT` e `DETERMINISM` em `npm test`) são atendidas por `tests/modelo-kart-01-pose.test.ts` e
 `tests/modelo-kart-01-contract.test.ts`; a linha 15 (taxa de quadros nos aparelhos) continua humana, abaixo.
+
+## Divergência de outra feature resolvida nesta rodada (rodada 2, Modo B)
+
+| Id | Origem | Estado | Causa | Resolução | Evidência |
+|---|---|---|---|---|---|
+| CHK-TEST-0004-13 | `400 Code/Output/pista-kart-park/98-divergences.md`, linha `CHK-TEST-0004-13` | resolved | DES-0003 de `pista-kart-park` acrescenta `barrierTouching` e `barrierContact` a `Telemetry`; `runDiffers` comparava o `State` final inteiro com `finalKart` gravado em `b86b200`, que não tem os dois campos, e reprovava com cada valor gravado idêntico (`lapMs` 29 419 / 43 932 ms) | `runDiffers` compara `finalKart` pelos campos gravados (`recordedFieldsOf`, campo a campo como DM-0001 descreve); a linha de base não foi regravada, porque a janela de DM-0001 só a regrava para outro acerto ou outra pista e aqui `setupVersion` e `trackVersion` são os mesmos (`97-changelog.md`, rodada 2) | `DETERMINISM` `comparedRunCount` 2, `differingRunCount` 0 na execução de 2026-10-27 (296/296); mutação E reprova a verificação com `differingRunCount` 2 na cópia de rascunho; `finalKart.x` + 0,01 e um campo gravado ausente reprovam em memória |
 
 ## Interpretação registrada da estratégia (sem verificação reprovada)
 
