@@ -1,2 +1,7 @@
 # Workflow scripts must stay LF: the Workflow tool rejects CR as a hidden control character.
 *.js text eol=lf
+
+# Track data files are byte-exact: their SHA-256 is recorded in tracks/registry.json and verified in CI.
+tracks/sources/*.json -text
+src/tracks/*.json -text
+tracks/registry.json -text
