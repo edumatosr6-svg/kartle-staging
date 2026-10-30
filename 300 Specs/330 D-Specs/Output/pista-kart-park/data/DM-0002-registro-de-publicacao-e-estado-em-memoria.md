@@ -4,7 +4,7 @@ title: Registro de publicação das pistas e estado em memória da sessão de tr
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0007-13, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
 ---
 
@@ -90,7 +90,9 @@ retirada nem reescrita; a regra "só acrescida" vale a partir daí.
 | `startKart` | `State` | o kart parado na `startPosition` da pista da sessão `READY` |
 
 A volta (`LapSession` de `race-lap-validation`) é guardada ao lado da sessão pela aplicação, como hoje, e só
-substituída pelo valor que `selectTrainingTrack` e os comandos da volta devolvem.
+substituída pelo valor que `selectTrainingTrack` e os comandos da volta devolvem. Numa sessão de treino ela é o
+treino inteiro (uma sessão `TRAINING` de voltas seguidas, com a lista de resultados `results` de DM-0002 1.2.0
+daquela feature): a sessão de treino desta feature não guarda resultado, contador de voltas nem melhor volta.
 
 ## Estado em memória — retorno da zebra ([DES-0009](../web/DES-0009-retorno-da-zebra-vibracao-e-som.md))
 
@@ -100,8 +102,10 @@ substituída pelo valor que `selectTrainingTrack` e os comandos da volta devolve
 | `lastPulseStep` | inteiro ou ausente | passos | passo em que começou o último pulso de vibração |
 | `lastSoundStep` | inteiro ou ausente | passos | passo em que começou a última repetição do som |
 
-Zerado (os três ausentes) a cada volta iniciada e a cada sessão nova, porque o `simStepCount` recomeça em 0
-com o kart de cada volta (RULE-0004: "uma sessão nova começa sem início registrado").
+Zerado (os três ausentes) a cada treino iniciado (`startTrainingLap`) e a cada sessão nova, porque o
+`simStepCount` recomeça em 0 com o kart de cada treino (RULE-0004: "uma sessão nova começa sem início
+registrado"). Não é zerado no fim de uma volta do treino: as voltas seguidas de um treino de
+`race-lap-validation` (ADR-0006 daquela feature) continuam com o mesmo kart e o mesmo `simStepCount`.
 
 ## Plano de migração
 

@@ -4,7 +4,7 @@ title: Colisão com a barreira — superfície de contato de meia espessura, res
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [RULE-0001, FEAT-0004, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0004-07]
 ---
 
@@ -15,7 +15,8 @@ sources: [RULE-0001, FEAT-0004, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-000
 O muro existente (`src/physics.ts:276-290`) é uma restrição de um lado só, derivada da linha central sintética:
 depois de cada subpasso, se o centro do kart está a mais de `WIDTH / 2 + 8` da linha central, é projetado
 sobre esse limite e a componente da velocidade para fora é refletida com fator 1,12, `yawRate` multiplicado por
-0,65, a manobra cancelada e `wallContact` marcado. A barreira da Kart Park é uma poligonal na grama entre dois
+0,65 e `wallContact` marcado (até a retirada do drift e do turbo por `dirigibilidade`, seed `revision: 5`, a
+resposta também cancelava a manobra de drift; a retirada tira esse cancelamento do muro e da barreira). A barreira da Kart Park é uma poligonal na grama entre dois
 trechos, que bloqueia **dos dois lados**, em qualquer velocidade, com a mesma resposta do muro no referencial
 local do obstáculo (REQ-FEAT-0004-05, -06), e marca o passo da entrada em contato (REQ-FEAT-0004-07). Uma
 linha de espessura zero com o centro projetado exatamente sobre ela deixa o lado do kart indefinido no
@@ -28,8 +29,8 @@ subpasso seguinte.
 2. A cada subpasso, depois do muro e na ordem do arquivo: se o trajeto do centro no subpasso cruza o segmento,
    o contato é no cruzamento, do lado de origem; senão, se o centro está a menos de 0,1 m do segmento, o
    contato é no ponto mais próximo, do lado em que o centro está. O centro vai para a superfície de contato.
-3. A resposta é a do muro, com as mesmas operações e constantes (1,12; 0,65; cancelar a manobra) e a normal
-   apontando para a barreira; o bloco do muro não é alterado.
+3. A resposta é a do muro, com as mesmas operações e constantes (1,12; 0,65) e a normal apontando para a
+   barreira; o bloco do muro não é alterado por esta feature. Sem drift, nenhuma das duas cancela manobra.
 4. `barrierContact` é verdadeiro só no passo em que o kart passa a tocar (contato ou centro a até 0,01 m além
    da superfície) sem ter tocado no passo anterior; raspar ou ficar encostado não o renova.
 5. Na Kart Park não há muro (`walls: false`); os únicos obstáculos são as barreiras do arquivo.

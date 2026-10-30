@@ -4,7 +4,7 @@ title: Superfície por roda, aderência na zebra, colisão com a barreira e cont
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: [API-0003, RULE-0001, FLOW-0002, FEAT-0002, FEAT-0004, FEAT-0005, REQ-FEAT-0002-12, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0004-07, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0007-09]
 ---
 
@@ -48,12 +48,12 @@ Mudanças dentro de `integrate` e `step` (o resto do modelo não muda):
 
 | Trecho atual | Mudança |
 |---|---|
-| `tireForce`, `:143` | `const mu = surfaceMu(config, surface)`; no pneu traseiro com escala de forçar ou de drift, `tireConfig.friction` já vem escalado (`:219`), então a zebra dá `0,85` do asfalto escalado do mesmo pneu |
+| `tireForce`, `:143` | `const mu = surfaceMu(config, surface)`; no pneu traseiro com escala de forçar, `tireConfig.friction` já vem escalado (`:219`), então a zebra dá `0,85` do asfalto escalado do mesmo pneu |
 | freio assistido, `:215` | `const mu = surfaceMu(config, surface)` |
 | rolamento, `:208` | inalterado: `grass ? 0.18 : 0.018` já trata a zebra como asfalto |
 | fração de rodas, `:229-230` | `asphaltFraction` continua `asfalto / 4`; acrescenta `curbFraction = zebra / 4` e `grassFraction = grama / 4`; `mu = grassFriction + (friction − grassFriction) * asphaltFraction + (CURB_GRIP_PC * friction − grassFriction) * curbFraction` |
 | perda na grama, `:252` | `(1 − asphaltFraction)` passa a `grassFraction`: a zebra não perde velocidade como a grama |
-| manobra, `:300-302` e `:318` | `onRoad` passa a "nenhuma roda em `grass`" e o cancelamento a "alguma roda em `grass`": a zebra conta como pista para o drift |
+| manobra (hoje `:388-391` e `:414`) | **sem mudança desta feature**: o drift e o turbo saem do jogo (`dirigibilidade`, seed `revision: 5`, ADR-0006 e DES-0001 4.0.0 daquela feature), que retira do passo o cálculo de `onRoad`, o avanço e os cancelamentos da manobra; a zebra não tem regra de manobra a seguir e nenhum efeito de drift ou de turbo. A linha que esta feature tinha acrescentado ali ("a zebra conta como pista para o drift") deixa de existir com a retirada |
 | depois do bloco do muro, `:290` | bloco novo da barreira, só com `environment.track` (abaixo) |
 | `step`, `:310-316` | contrato dos dois campos no fim do passo: `barrierTouching` é verdadeiro quando algum subpasso do passo teve a resposta da barreira (passo 3 do bloco abaixo) ou quando o centro do kart termina o passo a até `BARRIER_HALF_WIDTH_M + BARRIER_TOUCH_TOLERANCE_M` de um segmento de barreira; é falso sem `environment.track` e com uma geometria que não declara barreira (`barriers` vazio, o padrão neutro de API-0001, em que `nearestBarrier` devolve `undefined`), e nesses dois casos nenhuma distância à barreira é consultada; `barrierContact` é verdadeiro só no passo em que `barrierTouching` passa de falso, no estado recebido, a verdadeiro |
 
@@ -72,7 +72,10 @@ e `E` a posição depois da integração:
    `Q + m * BARRIER_HALF_WIDTH_M`.
 3. **Resposta**, idêntica à do muro (`:281-288`) com `n = −m` (apontando para a barreira): `outgoing =
    vx * n.x + vz * n.z`; se `outgoing > 0`, `vx −= outgoing * 1.12 * n.x`, `vz −= outgoing * 1.12 * n.z`,
-   `yawRate *= 0.65`, `maneuvers = cancelManeuver(maneuvers)` e `barrierHit = true`; `speed` é recalculada.
+   `yawRate *= 0.65` e `barrierHit = true`; `speed` é recalculada. Sem drift não há manobra a cancelar: a
+   resposta do muro de `dirigibilidade` (DES-0001 4.0.0, retirada de `cancelManeuver` na parede e na barreira)
+   não a cancela, e a da barreira segue a do muro; durante a janela de compatibilidade daquela feature,
+   `State.maneuvers` passa pelo bloco sem mudança.
 
 ## Colaboradores
 

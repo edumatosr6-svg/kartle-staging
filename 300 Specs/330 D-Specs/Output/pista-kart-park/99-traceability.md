@@ -1,8 +1,8 @@
 ---
 stage: dspec
 feature: pista-kart-park
-generated: 2026-10-27T21:48:15Z
-rows: 311
+generated: 2026-10-30T13:34:27Z
+rows: 321
 ---
 
 # Traceability
@@ -33,6 +33,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0002 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | FEAT-0002 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | FEAT-0002 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
+| FEAT-0003 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | FEAT-0003 | DES-0001 | - | `core/DES-0001-leitura-do-dado-de-pista-em-esquema-3.md` |
 | FEAT-0003 | DES-0002 | - | `core/DES-0002-geometria-da-pista-declarada-no-arquivo.md` |
 | FEAT-0003 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
@@ -59,6 +60,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0005 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
 | FEAT-0006 | ADR-0005 | - | `adr/ADR-0005-kart-park-sem-chave-e-producao-bloqueada.md` |
 | FEAT-0006 | ADR-0006 | - | `adr/ADR-0006-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| FEAT-0006 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | FEAT-0006 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
 | FEAT-0006 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | FEAT-0006 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
@@ -193,7 +195,9 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0003-12 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0003-13 | DES-0001 | - | `core/DES-0001-leitura-do-dado-de-pista-em-esquema-3.md` |
 | REQ-FEAT-0003-13 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
+| REQ-FEAT-0003-14 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0003-14 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0003-15 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0003-15 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
 | REQ-FEAT-0004-01 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0004-01 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
@@ -253,8 +257,11 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0006-02 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-03 | ADR-0006 | - | `adr/ADR-0006-lacunas-do-f-spec-resolvidas-no-projeto.md` |
 | REQ-FEAT-0006-03 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0006-04 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0006-04 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0006-05 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0006-05 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0006-06 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0006-06 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-07 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
 | REQ-FEAT-0006-07 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
@@ -269,8 +276,10 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0006-10 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-11 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
 | REQ-FEAT-0006-11 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0006-12 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0006-12 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-12 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
+| REQ-FEAT-0006-13 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | REQ-FEAT-0006-13 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-14 | ADR-0005 | - | `adr/ADR-0005-kart-park-sem-chave-e-producao-bloqueada.md` |
 | REQ-FEAT-0006-14 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
@@ -321,6 +330,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | RULE-0005 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
 | RULE-0005 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
 | SCR-0001 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| SCR-0002 | ADR-0007 | - | `adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md` |
 | SCR-0002 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | SCR-0003 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
 | SCR-0003 | DES-0009 | - | `web/DES-0009-retorno-da-zebra-vibracao-e-som.md` |

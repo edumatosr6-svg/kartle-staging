@@ -3,7 +3,7 @@ title: Divergências — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: []
 ---
 
@@ -30,6 +30,8 @@ quase todo requisito diverge porque a Kart Park, o seletor, a zebra e a barreira
 | REQ-FEAT-0006-01 a -08, -10 a -13 | crédito OSM/ODbL no seletor e no resultado, nome e "687 m" da Kart Park | `index.html:19` e `:25` não têm crédito; `index.html:17` exibe o texto fixo "Circuito Aurora" no rótulo da pista | código | DES-0005, DES-0007, DES-0012 | open |
 | REQ-FEAT-0007-03, -04, -06, -07 | verificações de `npm test` na Kart Park: determinismo, camadas, critérios de US-0002 a US-0005 | não existe `tests/pista-kart-park-*.test.ts`; `tests/race-lap-validation-layering.test.ts:9-10` não lista os módulos novos | testes | DES-0006 e a estratégia de testes | open |
 | REQ-FEAT-0007-13, REQ-FEAT-0006-14 | promoção a produção com a Kart Park só com a decisão Esri registrada | `package.json:6-13` não tem script de publicação nem de promoção de pista e a raiz não tem `tracks/registry.json`, de modo que não há registro de publicação nem passo de promoção que o consulte; `index.html:19` (tela inicial) e `:25` (`#lap-result`) não têm crédito algum, nem o da Esri | código, deploy | DES-0011, DES-0012, ADR-0005 | open |
+| REQ-FEAT-0006-04, -05, -06; REQ-FEAT-0003-14 (rodada de 2026-10-30) | crédito OSM no resultado de cada volta na Kart Park, que no treino de voltas seguidas de `race-lap-validation` é o painel do resultado da volta do treino | `index.html:25` põe o crédito do resultado em `#lap-result` (`#lap-result-credit`); `src/main.ts:465` o desenha só em `renderResult`, chamado em `:592` quando a fase é `ENDED`; não existe `#lap-training-result` em `index.html` nem em `src/main.ts` (o painel é da rodada de código de `race-lap-validation`, ainda não entregue) | código | DES-0007, ADR-0007 | open |
+| REQ-FEAT-0003-08, -10, -12, -13, -15; REQ-FEAT-0001-05 (rodada de 2026-10-30) | volta na Kart Park pelas regras de `race-lap-validation`, cujo treino é uma sequência de voltas que só chega a `ENDED` por `endTraining` | as verificações esperam `ENDED` numa volta `TRAINING` na chegada (`tests/pista-kart-park-lap.test.ts:47`, `:100`, `:152`, `:227`) e no corte (`:120`; `tests/pista-kart-park-session.test.ts:103`); `tests/helpers/kartParkPilot.ts:114` interrompe o laço de `drive` só em `ENDED`, que a volta `TRAINING` iniciada em `:100` deixa de alcançar na chegada | testes | DES-0004, DES-0005 e a estratégia de testes | open |
 
 Satisfeitos hoje, sem divergência, e protegidos pelo projeto: leitura da versão 2 como hoje
 (REQ-FEAT-0002-15: `src/trackData.ts:81-101`, caminho mantido por DES-0001); contrato de passo

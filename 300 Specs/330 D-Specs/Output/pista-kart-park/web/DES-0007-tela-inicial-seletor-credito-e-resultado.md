@@ -4,7 +4,7 @@ title: Tela inicial com seletor e crédito, crédito na tela de resultado e nome
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
 ---
 
@@ -23,13 +23,25 @@ comprimento da Kart Park em toda tela que exibe o nome, iguais nos dois idiomas 
 nenhum recorde (REQ-FEAT-0006-09); o motivo "marcador pulado" e a tela de resultado com o tempo total e os 4
 setores, de `race-lap-validation`, sem mudança, também na Kart Park (REQ-FEAT-0003-09, -14).
 
+**Tela de resultado de uma volta de treino.** A sessão desta feature só inicia treinos
+([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)), e no F-Spec revalidado de
+`race-lap-validation` o resultado de cada volta do treino não usa a tela de resultado da volta (SCR-0003 1.2.1
+daquela feature, só de volta oficial e de reconhecimento): aparece, sem parar o jogo, no **painel do resultado da
+volta do treino** da tela de corrida (SCR-0001 1.1.0, estado "Resultado da volta do treino"; elemento
+`#lap-training-result` de DES-0008 1.1.0 daquela feature), com validade, motivo, tempo total, os quatro tempos de
+setor em `m:ss.mmm` e "não oficial". É esse o resultado de `race-lap-validation`, "nomeado e não redefinido", a que
+SCR-0002 desta feature acrescenta o crédito: a linha de crédito OSM passa a ficar dentro desse painel, exibida com
+o resultado de cada volta concluída na Kart Park, válida ou inválida
+([ADR-0007](../adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)).
+
 ## Posicionamento
 
 Camada **aplicação**:
 
 - `src/main.ts`, alterado: estado da sessão, seletor, crédito, nome da pista, início da volta.
-- `index.html`, alterado: dois contêineres em `#welcome` (`index.html:19`), um em `#lap-result` (`:25`) e o
-  identificador `#track-name` no rótulo da pista (`:17`).
+- `index.html`, alterado: dois contêineres em `#welcome` (`index.html:19`), um dentro de `#lap-training-result`
+  (o painel que `race-lap-validation` acrescenta à coluna direita da tela de corrida), que substitui o de
+  `#lap-result` (`:25`), e o identificador `#track-name` no rótulo da pista (`:17`).
 - `src/style.css`, alterado: regras `.track-selector` e `.track-credit`.
 - `src/lapMessages.ts`, alterado (aplicação pura, de `race-lap-validation`): recebe os textos do crédito
   (`OSM_CREDIT`), a regra de tela do crédito (`creditFor`) e a formatação do rótulo da opção (`optionLabel`).
@@ -55,7 +67,7 @@ catálogo com `osmCredit`, `displayName` e `displayLengthM`; o crédito e o rót
 | Símbolo | Assinatura | Descrição |
 |---|---|---|
 | `OSM_CREDIT` | `{text: '© colaboradores do OpenStreetMap', license: 'licença ODbL', url: 'https://openstreetmap.org/copyright'}`, congelado | os textos do crédito, sem tradução (REQ-FEAT-0006-01 a -06, -11) |
-| `creditFor(option)` | `({readonly osmCredit: boolean} \| undefined) => typeof OSM_CREDIT \| undefined` | `OSM_CREDIT` só quando a entrada do catálogo recebida declara `osmCredit` verdadeiro (REQ-FEAT-0006-10); `undefined` para a entrada da pista sintética e para entrada ausente (`trackId` fora do catálogo). A entrada é a de `getTrainingTrackOptions(training).options` com o `trackId` da tela: `selectedTrackId` no seletor (SCR-0001), `result.trackId` no resultado (SCR-0002) |
+| `creditFor(option)` | `({readonly osmCredit: boolean} \| undefined) => typeof OSM_CREDIT \| undefined` | `OSM_CREDIT` só quando a entrada do catálogo recebida declara `osmCredit` verdadeiro (REQ-FEAT-0006-10); `undefined` para a entrada da pista sintética e para entrada ausente (`trackId` fora do catálogo). A entrada é a de `getTrainingTrackOptions(training).options` com o `trackId` da tela: `selectedTrackId` no seletor (SCR-0001), o `trackId` do resultado exibido no painel do resultado da volta do treino (`getLapResult(lap)`, o último item de `listLapResults`) no resultado (SCR-0002) |
 | `optionLabel(option)` | `({readonly displayName: string; readonly displayLengthM?: number}) => string` | `displayName`, seguido de `' · '`, `displayLengthM` e `' m'` quando `displayLengthM` existe; só `displayName` sem ele (REQ-FEAT-0006-07, -08) |
 
 Elementos novos ou alterados em `index.html` ("entrada de `X`" é a entrada de `getTrainingTrackOptions(training).options` com `trackId` `X`):
@@ -64,7 +76,8 @@ Elementos novos ou alterados em `index.html` ("entrada de `X`" é a entrada de `
 |---|---|---|
 | `#track-selector` | dentro de `#welcome`, antes de `#track-status` | `div` com `role="group"` e `aria-label="Pista"`; dois `button type="button"` com `data-track-id` (`kart-park`, `synthetic`), texto `optionLabel(opção)` e `aria-pressed` `true` na opção de `selectedTrackId` |
 | `#track-credit` | dentro de `#welcome`, depois de `#track-selector` | `p` com a classe `lap-chip track-credit`, oculto (`hidden`) salvo quando `creditFor` da entrada de `selectedTrackId` existe: `OSM_CREDIT.text`, ` · `, `OSM_CREDIT.license`, ` · ` e um `a` com `href` `OSM_CREDIT.url`, `target="_blank"`, `rel="noopener noreferrer"` e texto `openstreetmap.org/copyright`, na mesma linha |
-| `#lap-result-credit` | dentro de `#lap-result`, antes de `#lap-new-lap` | o mesmo conteúdo, visível só quando `creditFor` da entrada de `result.trackId` existe |
+| `#lap-training-result-credit` | último filho de `#lap-training-result`, depois do título, da linha do total e da lista de setores que `race-lap-validation` desenha | `p` com a classe `lap-chip track-credit` e o mesmo conteúdo de `#track-credit`, visível só quando o painel está visível e `creditFor` da entrada do `trackId` do resultado exibido existe; o `a` recebe `pointer-events: auto` (a coluna da tela de corrida não captura o ponteiro em todos os blocos) e é acionável por clique em `web-desktop` e por toque em `web-mobile` |
+| `#lap-result-credit` | **retirado** de `#lap-result` | o elemento sai de `index.html` e `renderResult` deixa de chamar `renderCredit`: `#lap-result` só exibe volta oficial e de reconhecimento (DES-0007 1.1.0 de `race-lap-validation`), que a sessão de treino não oferece, de modo que o contêiner nunca seria exibido; o crédito do resultado passa a `#lap-training-result-credit`, na mesma entrega |
 | `#track-name` | o `strong` de `.track-label` (`index.html:17`) | `optionLabel` da opção de `selectedTrackId`; substitui o texto fixo "Circuito Aurora", que nomeia a pista sintética e, com a Kart Park na sessão, a nomearia errado |
 
 O crédito é construído por uma função local de `src/main.ts`, `renderCredit(container, credit)`, que cria o
@@ -82,13 +95,21 @@ menção e o link são idênticos (REQ-FEAT-0006-13).
 | `chooseTrack(trackId)` | nova função local: `r = selectTrainingTrack(training, lap, trackId, TRACK_SOURCES)`; guarda `r.session` e `r.lap`; zera o estado do retorno da zebra ([DES-0009](DES-0009-retorno-da-zebra-vibracao-e-som.md)); troca a cena ([DES-0008](DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)); ligada ao `onclick` de cada botão de `#track-selector` |
 | `:187-207` `renderOffer` | a guarda de redesenho passa de `offerLang === lang` a uma chave com `lang`, `sessionState`, `selectedTrackId` e `trackDataStatus`; desenha o seletor e o crédito a partir de `getTrainingTrackOptions(training)`; `#track-status` mostra `loadingTrack` com `NO_SESSION`/`LOADING`, `trackDataError` com `FAILED` (textos de `race-lap-validation`) e o `trackId` com `READY`, como hoje; a oferta de volta é `offeredLapKinds(reading, [])`, que numa sessão de treino é só `TRAINING`, e não aparece sem sessão `READY` |
 | `:208-218` `beginLap` | `startTrainingLap(training, lap, config, {setupId: setup.setupId, setupVersion: setup.setupVersion})` no lugar de `startLap(...)`; o tipo de volta deixa de ser argumento e a referência do acerto, que `beginLap` já copiava ao pedido (FB-01 de `dirigibilidade`), passa pelo quarto argumento ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md) 1.2.0) |
-| `:331-358` `renderResult` | além do que já faz, `renderCredit($('lap-result-credit'), creditFor(<entrada de result.trackId>))`; a guarda `resultLang === lang` continua e é zerada a cada volta, como hoje |
+| `renderResult` (`:439-469`; a chamada ao crédito em `:465`) | a chamada `renderCredit($('lap-result-credit'), ...)` sai com o elemento; o resto é de `race-lap-validation` |
+| desenho do painel do resultado da volta do treino (`renderHud`, `:408-438`, acrescido por DES-0007 e DES-0008 1.1.0 de `race-lap-validation`) | no mesmo ramo em que o painel é redesenhado — resultado novo (muda o `lapSequenceCount` do último resultado) ou idioma novo —, logo depois do desenho do painel: `renderCredit($('lap-training-result-credit'), creditFor(<entrada do trackId de getLapResult(lap)>))`; o redesenho do painel atualiza os seus próprios elementos por identificador e `textContent`, como `renderResult` faz hoje (`:446-464`), e não remove `#lap-training-result-credit`. Com o painel oculto (sem resultado, treino encerrado ou sem volta), o crédito fica oculto com ele |
 | rótulo `.track-label` | `#track-name` recebe `optionLabel` da opção selecionada a cada mudança de sessão |
 
 Os textos do crédito vêm de `OSM_CREDIT` e o nome e "Pista sintética" do `displayName` das entradas do
 catálogo, formatados por `optionLabel`; nenhum passa por `message()`/`resolveLanguage` (REQ-FEAT-0006-11). Os
-demais textos continuam as chaves de `MESSAGES` de `src/lapMessages.ts`, inalteradas. A navegação continua a de `race-lap-validation`: o seletor é alcançado na abertura e por "nova
-volta" (`#lap-new-lap`, `:249`), sem volta em andamento.
+demais textos continuam as chaves de `MESSAGES` de `src/lapMessages.ts`, inalteradas. A navegação continua a de
+`race-lap-validation`: o seletor é alcançado na abertura e depois de "encerrar treino" (`#lap-end-training`,
+`emitEndTraining` de DES-0007 1.1.0 daquela feature, que mostra `#welcome`), sem treino em andamento; o fim de
+uma volta do treino não sai da tela de corrida.
+
+O link do crédito no painel fica acionável durante o treino. Acioná-lo abre o destino em outra aba
+([ADR-0006](../adr/ADR-0006-lacunas-do-f-spec-resolvidas-no-projeto.md)); a perda de foco da aba pausa o treino pela
+regra de `race-lap-validation` (`pauseLap` com `FOCUS_LOST`), e nada do resultado, da sessão ou da pista muda nem é
+gravado.
 
 `src/style.css`: `.track-selector` (linha flexível de dois botões, com o estado `aria-pressed="true"`
 destacado pela cor de `.primary`) e `.track-credit a` (cor `#d5ef91` sobre `--lap-chip-bg`, sublinhado). O
@@ -106,8 +127,9 @@ clique e pelo laço de quadros. `creditFor` e `optionLabel` não chamam nada: re
 
 Estado local: `training` (sessão) e `lap` (volta), substituídos só pelos valores que `selectTrainingTrack` e os
 comandos da volta devolvem. Clicar duas vezes na mesma opção pronta não tem efeito (idempotência de
-API-0002); clicar em outra durante uma volta não acontece pelas telas (o seletor fica em `#welcome`, oculto
-durante a volta) e, por qualquer outro caminho, a volta é descartada pela sessão. Nada é gravado: nenhum
+API-0002); clicar em outra durante um treino não acontece pelas telas (o seletor fica em `#welcome`, oculto
+durante o treino) e, por qualquer outro caminho, o treino é descartado pela sessão, sem resultado para a volta em
+andamento. O crédito do painel é redesenhado só quando o painel é: o mesmo resultado lido de novo não o refaz. Nada é gravado: nenhum
 `localStorage`, `sessionStorage`, IndexedDB nem cookie (REQ-FEAT-0001-03).
 
 ## Comportamento em falha
@@ -127,8 +149,9 @@ identificadores de `console.warn('track-data', ...)`.
 `creditFor` da entrada `synthetic` e de entrada ausente é `undefined`; `optionLabel` da entrada `kart-park` é
 exatamente `Kart Park — São José dos Pinhais (traçado aproximado) · 687 m` e o da entrada `synthetic` é
 `Pista sintética`; nenhuma das duas funções recebe idioma, e nenhum desses textos é valor de `MESSAGES`. O mesmo
-teste lê `index.html` e `src/main.ts` como texto e afirma: os três contêineres e `#track-name`; `renderCredit`
-chamado com `creditFor(...)` nos dois pontos; nenhum uso de `innerHTML` para o crédito; nenhum texto "41,45",
+teste lê `index.html` e `src/main.ts` como texto e afirma: `#track-selector` e `#track-credit` em `#welcome`,
+`#lap-training-result-credit` dentro de `#lap-training-result`, `#track-name`, e nenhum `lap-result-credit`;
+`renderCredit` chamado com `creditFor(...)` nos dois pontos (`#track-credit` e `#lap-training-result-credit`); nenhum uso de `innerHTML` para o crédito; nenhum texto "41,45",
 "41.45" nem "Circuito Aurora"; `startLap(` não é chamado diretamente (só `startTrainingLap`). A apresentação
 real é provada no roteiro E2E-01 a E2E-03, E2E-05, E2E-07
 e E2E-08 ([test-strategy](../test-strategy.md)).

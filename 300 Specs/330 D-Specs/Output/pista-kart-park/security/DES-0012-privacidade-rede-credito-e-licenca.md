@@ -4,7 +4,7 @@ title: Privacidade, rede, crédito OSM/ODbL e licença Esri
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [FEAT-0001, FEAT-0006, FEAT-0007, RULE-0005, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0006-12, REQ-FEAT-0006-14, REQ-FEAT-0007-05, REQ-FEAT-0007-13]
 ---
 
@@ -74,7 +74,8 @@ seleciona `OPENING_TRACK_ID` na carga, não porque algo foi lembrado.
 ## Crédito e licenças (I6, RNF09)
 
 O dado derivado do OpenStreetMap leva, nas duas telas em que a Kart Park é vista (o seletor com ela
-selecionada e o resultado de uma volta nela), o crédito "© colaboradores do OpenStreetMap", a menção "licença
+selecionada e o resultado de uma volta nela, que no treino de voltas seguidas é o painel do resultado de cada
+volta do treino, [ADR-0007](../adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)), o crédito "© colaboradores do OpenStreetMap", a menção "licença
 ODbL" e o link para `https://openstreetmap.org/copyright` ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md));
 o arquivo declara `osmDerived` `true`. A licença Esri, que ainda não tem decisão do dono do produto, bloqueia
 só a produção:

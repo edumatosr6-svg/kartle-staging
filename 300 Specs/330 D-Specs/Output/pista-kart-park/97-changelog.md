@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: []
 ---
 
@@ -237,3 +237,114 @@ comprimento de onda.
   `src/trainingSession.ts:83`, `src/physics.ts:91-92`, `src/lap.ts:24`, `src/main.ts:165-299`,
   `src/trackGeometry.ts` (assinaturas) e `scripts/trackPrep.ts:1-60, 80-175, 275-370` foram lidos para
   posicionamento; `DOMAIN.md`, `NOTES.md` e `SEED.md` só nos trechos que o chamador nomeou.
+
+## 2026-10-30 — rodada 4, Mode C (feedback de `race-lap-validation`, `reports/feedbacks/race-lap-validation/feedback-20261030-1256.md`, FB-01; retirada do drift e do turbo, `dirigibilidade` seed `revision: 5`)
+
+Entrada: o FB-01 pendente de `race-lap-validation` (F-Spec revalidado com seed `revision: 3`: API-0001 1.2.0,
+API-0002 1.2.1, RULE-0002 1.1.1; D-Spec revalidado: ADR-0006, DM-0002 1.2.0 INV-1, DES-0001 1.2.0, DES-0003 1.1.0,
+DES-0004 1.1.0, DES-0007 e DES-0008 1.1.0) — o treino é uma sequência de voltas numa sessão, o fim de cada volta é
+lido pelo crescimento de `listLapResults` e o treino só termina por `endTraining` —; e a nota do chamador de que o
+drift e o turbo saíram do jogo (`dirigibilidade`, seed `revision: 5`; ADR-0006, DES-0001 4.0.0 e DES-0005 2.0.0
+daquela feature, em rodada). Os requisitos e o escopo do F-Spec desta feature não mudam.
+
+**O que mudou**
+
+- FB-01, volta na Kart Park (`core/DES-0004` 1.0.0 → 1.1.0): a volta da sessão de treino é uma volta de um treino de
+  voltas seguidas de `race-lap-validation`; seção nova "Volta de treino na Kart Park" com o efeito de cada evento
+  (chegada no sentido da pista, corte, contramão, chegada de novo, pausa, reposicionamento, `endTraining`); o
+  atalho da curva 4 recebe o resultado `MISSED_MARKER` na chegada ou fica `INVALID` com `CUT` no passo e recebe o
+  resultado na chegada seguinte; `NOT_TRAINING` entra na lista dos códigos; as provas leem o fim de cada volta pelo
+  crescimento de `listLapResults` e nenhuma espera `ENDED` na chegada ou no corte. `src/lap.ts` continua sem
+  mudança de modelo por esta feature.
+- FB-01, sessão e seletor (`core/DES-0005` 1.2.0 → 1.3.0): `startTrainingLap` inicia o treino inteiro (as voltas
+  seguintes começam em `stepLap`, sem nova chamada); a troca de pista descarta o treino, sem resultado para a volta
+  em andamento, e as voltas já concluídas não mudam (a frase "uma volta já `ENDED` já teve o resultado exibido" sai);
+  provas de troca com o treino em `RUNNING` antes e depois de uma volta concluída e de cada item de `listLapResults`
+  `TRAINING`, sem `challengeNumber`, `official` falso; `endTraining` sem item novo.
+- FB-01, resultado e crédito (`web/DES-0007` 1.2.0 → 1.3.0; `adr/ADR-0007` 1.0.0, novo): a "tela de resultado" de
+  uma volta de treino é o painel do resultado da volta do treino de `race-lap-validation` (`#lap-training-result`);
+  a linha de crédito OSM passa a `#lap-training-result-credit`, último filho do painel, desenhada no mesmo ramo do
+  redesenho do painel; `#lap-result-credit` é retirado de `#lap-result` (que só exibe volta oficial e de
+  reconhecimento) na mesma entrega (I3); o seletor é alcançado na abertura e depois de "encerrar treino"; o link do
+  crédito no painel abre outra aba e o treino pausa por `FOCUS_LOST`. ADR-0007 registra a decisão, as alternativas e
+  a dependência do painel de `race-lap-validation`.
+- FB-01, retorno da zebra (`web/DES-0009` 1.1.0 → 1.2.0; `data/DM-0002` 1.1.0 → 1.2.0): o estado do retorno é
+  zerado a cada treino iniciado e a cada sessão nova, nunca no fim de uma volta do treino, porque o kart e o
+  `simStepCount` continuam; DM-0002 diz que a volta guardada pela aplicação é o treino inteiro e que a sessão desta
+  feature não guarda resultado, contador nem melhor volta.
+- FB-01, estratégia de testes (`test-strategy.md` 1.0.1 → 1.1.0): fixture `drive` (para no crescimento de
+  `listLapResults` ou em `ENDED`, que numa volta `TRAINING` só vem de `endTraining`); caminhos de AC-US-0001-05,
+  AC-US-0001-07, AC-US-0003-05, -07, -09, -10, -11, AC-US-0005-05, AC-US-0006-04, REQ-FEAT-0003-15, E2E-02, E2E-03
+  e o nível Web E2E reescritos para o treino de voltas seguidas; parágrafo em "Testes de outras features".
+- FB-01, arquitetura e demais sítios do mesmo fato (`01-architecture.md` 1.0.2 → 1.1.0; `core/DES-0006` 1.0.1 →
+  1.1.0; `security/DES-0012` 1.0.1 → 1.0.2; `adr/ADR-0006` 1.1.0 → 1.2.0; `98-divergences.md` 1.0.1 → 1.1.0):
+  diagrama da volta de treino com o laço de voltas, `endTraining` e a volta à tela inicial; linha de compatibilidade
+  de `LapSession`/`listLapResults`/`endTraining` e das telas; consequência e ordem de entrega com a rodada de código
+  de `race-lap-validation` (o painel existe antes do crédito mudar; as provas migram junto); DES-0006 acrescenta
+  `listLapResults` às leituras da aplicação; DES-0012 e a linha "Aba do link" de ADR-0006 dizem onde o crédito do
+  resultado aparece agora; duas linhas novas de divergência (crédito em `#lap-result`, `index.html:25`,
+  `src/main.ts:465`, `:592`; verificações e `drive` que esperam `ENDED`, nas linhas que o FB-01 cita).
+- Drift e turbo (`core/DES-0003` 1.0.1 → 1.1.0; `adr/ADR-0003` 1.0.0 → 1.1.0; `adr/ADR-0004` 1.0.0 → 1.1.0;
+  `web/DES-0009`; `adr/ADR-0006`; `01-architecture.md`; `core/DES-0006`): a escala de drift sai da linha de
+  `tireForce` (fica a de forçar); a linha "manobra" (zebra como pista para o drift) passa a "sem mudança desta
+  feature", retirada com a manobra por `dirigibilidade`; a resposta da barreira deixa de citar o cancelamento da
+  manobra (segue a do muro, que `dirigibilidade` também deixa de cancelar); ADR-0004 tira a condição de pista da
+  manobra e a consequência sobre o drift; DES-0009 registra que a recompensa (som do prêmio do drift) deixa de
+  tocar e que a zebra não tem efeito de drift nem de turbo; ADR-0006 anota o mesmo no timbre; `01-architecture.md`
+  separa `src/maneuvers.ts` (não usado por esta feature) e o `import` de `physics.ts`; DES-0006 tira
+  `src/maneuvers.ts` da lista do teste de camada desta feature, condição da retirada final do módulo em
+  `dirigibilidade`. O HUD e o retorno da zebra desta feature não mencionavam drift nem turbo.
+- Upstream: `300 Specs/320 F-Specs/Output/pista-kart-park/reports/feedback/FEEDBACK-01.md` pergunta ao autor do
+  F-Spec pelo alinhamento do texto que ainda descreve a volta de treino terminando em `ENDED` (SCR-0002, RULE-0003,
+  FEAT-0003, FEAT-0001, `01-overview.md`). Nenhum `REQ-*` muda.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate (`lint_artifacts.py --emit`).
+
+**Itens fechados**: FB-01 de `race-lap-validation` (feedback de 2026-10-30 12:56).
+
+**Migração de verificações planejadas** (nenhuma removida)
+
+| Verificação | Antes | Agora |
+|---|---|---|
+| CHK-TEST-0005-01 (`tests/pista-kart-park-lap.test.ts:44-54`) | a volta do piloto termina `ENDED` e `VALID` | o item novo de `listLapResults` no cruzamento da chegada é `VALID`; a fase continua `RUNNING` |
+| CHK-TEST-0005-03 (`:78-107`) | `ENDED` na chegada, `INVALID` com `MISSED_MARKER` | item novo `INVALID` com `MISSED_MARKER`; fase `RUNNING` |
+| CHK-TEST-0005-04 (`:109-123`) | o passo 121 encerra a volta (`ENDED`) com `CUT` | o passo 121 dá `INVALID` com `CUT`, fase `RUNNING`, nenhum item novo |
+| CHK-TEST-0005-06 (`:141-156`) | o atalho termina a volta `INVALID` | o item novo, no cruzamento seguinte da chegada, é `INVALID` |
+| CHK-TEST-0005-08 (`:182-192`) | depois do fim, nenhum passo, nenhum tempo, mesmo resultado, kart parado | a chegada cruzada de novo encerra a segunda volta com o seu resultado (`lapSequenceCount` 2); o primeiro resultado não muda e não há segundo resultado para ele |
+| CHK-TEST-0005-10 (`:208-230`) | `ENDED` e `VALID` depois da retomada | item novo `VALID` no cruzamento depois da retomada, com os marcadores de antes da pausa |
+| CHK-TEST-0007-05 (`tests/pista-kart-park-session.test.ts:90-118`) | voltas concluída e cortada chegam a `ENDED`; resultado por `getLapResult` | itens de `listLapResults` (concluída, cortada com resultado na chegada seguinte, marcador pulado) `TRAINING`, sem `challengeNumber`, `official` falso; a cortada segue `RUNNING`; troca de pista e `endTraining` sem item novo |
+| CHK-TEST-0007-07 (`:136`) | troca com volta em `COUNTDOWN`, `RUNNING`, `PAUSED`: nenhum resultado | o mesmo, mais `RUNNING` depois de uma volta concluída: a lista do treino descartado continua com os itens já concluídos e nenhum novo |
+| `drive` (`tests/helpers/kartParkPilot.ts:112-122`) | para em `ENDED` | para no crescimento de `listLapResults` ou em `ENDED` |
+| CHK-TEST-0009-04 (`tests/pista-kart-park-screens.test.ts:47-56`) | `#lap-result-credit` em `#lap-result`, `renderCredit` com `result.trackId` | `#lap-training-result-credit` em `#lap-training-result`, `renderCredit` com o `trackId` do resultado exibido; nenhum `lap-result-credit` |
+| CHK-TEST-0011-01 (`tests/pista-kart-park-layering.test.ts:18`, lista de simulação) | inclui `src/maneuvers.ts` | sem `src/maneuvers.ts`; as demais proibições e módulos iguais |
+| E2E-02, E2E-03 | tela de resultado ao fim da volta; troca de pista depois da tela de resultado | painel do resultado de cada volta com o crédito, sem parar o kart; "encerrar treino" volta ao seletor; 60 fps num treino de ao menos duas voltas |
+
+**Itens recusados ou não aplicados, com motivo**
+
+- FB-01, alternativa "volta `OFFICIAL`/`RECON` de fixture onde a prova precisa de `ENDED`": não adotada. A sessão
+  de treino desta feature só oferece `TRAINING` (REQ-FEAT-0001-11) e REQ-FEAT-0003-15 aplica na Kart Park as regras
+  que o Jogador vive; com o fim de cada volta lido pelo crescimento de `listLapResults`, nenhuma prova desta feature
+  precisa de `ENDED`.
+- Manter `#lap-result-credit` ao lado do crédito novo: não adotado; `#lap-result` não exibe volta de treino
+  (DES-0007 1.1.0 de `race-lap-validation`) e o elemento ficaria sem caminho em que aparecer (ADR-0007).
+- Tela de resultado própria ao encerrar o treino, ou crédito só em `#welcome` depois de "encerrar treino": não
+  adotados (ADR-0007, alternativas).
+- Unificar o "Melhor" (`#best`) com a melhor volta válida do treino: não tratado; é de `race-lap-validation` e de
+  `dirigibilidade` (proposta já registrada no changelog de `race-lap-validation`), e nenhum requisito desta feature
+  o cobre.
+- Mudança de código desta feature pelo drift: nenhuma. O cancelamento da manobra na barreira (`src/physics.ts:352`),
+  o cálculo de `onRoad` e o comentário que cita RULE-0001 desta feature (`:388-391`) saem pela rodada de código de
+  `dirigibilidade` (DES-0001 4.0.0 daquela feature); não é divergência desta feature, porque nenhum requisito dela
+  trata de drift.
+- `REWARD_SOUND` e a verificação do sinal de `reward()`: mantidos enquanto o método existir em `src/audio.ts`; a
+  retirada do método, se vier, é de `dirigibilidade` e chega como feedback.
+- Alinhar o texto do F-Spec desta feature (SCR-0002 "Pontos de entrada" em `ENDED`, RULE-0003, FEAT-0003,
+  FEAT-0001, `01-overview.md`): não é escrita deste estágio; perguntado ao autor em `FEEDBACK-01.md` do F-Spec. Os
+  requisitos são realizados como estão.
+- Sem mudança, carregados na versão corrente: `core/DES-0001`, `core/DES-0002`, `web/DES-0008`,
+  `pipeline/DES-0010`, `pipeline/DES-0011`, `data/DM-0001`, `adr/ADR-0001`, `adr/ADR-0002`, `adr/ADR-0005`; as
+  linhas de `98-divergences.md` anteriores a esta rodada não são rejulgadas.
+- Leituras fora da lista de entrada, declaradas: de `race-lap-validation`, o F-Spec (FEAT-0010, SCR-0001, SCR-0003,
+  API-0002) e o D-Spec (ADR-0006, DM-0002, DES-0001, DES-0007, DES-0008, changelog), para os nomes e o contrato do
+  treino; de `dirigibilidade`, ADR-0006 e as linhas de DES-0001 e DES-0005 sobre a retirada do drift; da árvore,
+  `src/main.ts`, `index.html`, `src/style.css`, `src/physics.ts` (linhas da manobra) e os testes nas linhas que o
+  FB-01 cita, só para posicionamento.

@@ -3,7 +3,7 @@ title: Arquitetura — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.2
+version: 1.1.0
 sources: []
 ---
 
@@ -49,7 +49,8 @@ relógio do aparelho ou no nome da pista, e nada é gravado no navegador
 | Simulação | `src/physics.ts` | alterado | superfície `curb` com 85 % da aderência por pneu; zebra como pista nas demais regras; colisão com barreira; `trackEnvironment`; `trackEdgeDistanceM`; `getTrackContact` ([DES-0003](core/DES-0003-superficie-por-roda-zebra-e-barreira.md)) |
 | Simulação | `src/lap.ts` | alterado | corte medido da borda da pista do ambiente da volta; reposicionamento na linha central do ambiente; `kartAtStart` ([DES-0004](core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md)) |
 | Simulação | `src/trainingSession.ts` | **novo** | catálogo do treino (entradas de API-0002: `trackId`, `displayName`, `displayLengthM`, `osmCredit`), estado `sessionState`, `getTrainingTrackOptions`, `selectTrainingTrack`, `startTrainingLap` (API-0002, RULE-0003) ([DES-0005](core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)); nenhum texto de crédito nem regra de tela |
-| Simulação | `src/lapTiming.ts`, `src/maneuvers.ts` | inalterados | tempo inteiro em ms e manobra de drift não mudam |
+| Simulação | `src/lapTiming.ts` | inalterado | tempo inteiro em ms não muda |
+| Simulação | `src/maneuvers.ts` | não usado por esta feature | o drift e o turbo saem do jogo (`dirigibilidade`, seed `revision: 5`, ADR-0006 daquela feature): o passo deixa de avançar a manobra e o módulo tem retirada projetada lá; nada desta feature depende dele (zebra, barreira e retorno da zebra não têm efeito de drift ou de turbo) |
 | Adaptadores de controle | em `src/main.ts` | inalterados | teclado, inclinação e toque continuam entregando o `Input` normalizado; nenhum campo novo (NFR-0008) |
 | Aplicação | `src/main.ts` | alterado | seletor, crédito, nome da pista, sessões, troca de cena, retorno da zebra ([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md), [DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md), [DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
 | Aplicação | `src/trackScene.ts` | **novo** | constrói o grupo Three.js de uma pista em esquema 3 (asfalto, zebras, barreiras, linha de largada) e a transformação do minimapa ([DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)) |
@@ -86,8 +87,9 @@ Por que módulos novos (I10):
   em `src/tracks/` porque é empacotado no cliente.
 
 Sentido das dependências (permitido): `trackGeometry.ts` importa só `src/track.ts` (tipos `Point`, `Line` e
-`crossLine`); `trackData.ts` importa `track.ts` e `trackGeometry.ts`; `physics.ts` importa `track.ts`,
-`maneuvers.ts` e `trackGeometry.ts`; `lap.ts` importa `physics.ts`, `track.ts`, `trackData.ts`,
+`crossLine`); `trackData.ts` importa `track.ts` e `trackGeometry.ts`; `physics.ts` importa `track.ts` e
+`trackGeometry.ts` (e, durante a janela de compatibilidade de `dirigibilidade`, `maneuvers.ts` só pelo valor
+constante de `State.maneuvers`); `lap.ts` importa `physics.ts`, `track.ts`, `trackData.ts`,
 `lapTiming.ts` e `trackGeometry.ts`; `trainingSession.ts` importa `trackData.ts`, `trackGeometry.ts`,
 `physics.ts` e `lap.ts`; `curbFeedback.ts` não importa nada além de tipos de `physics.ts`; `lapMessages.ts`
 continua importando só tipos de `lap.ts` (`creditFor` e `optionLabel` recebem a entrada do catálogo por tipo
@@ -115,13 +117,27 @@ sequenceDiagram
     J->>M: escolhe a pista sintetica
     M->>T: selectTrainingTrack(sessao, volta, synthetic, fontes)
     T-->>M: READY, sessao nova com CIRCUIT, volta descartada
-    J->>M: volta de treino
+    J->>M: treino
     M->>T: startTrainingLap(sessao, volta, acerto, referencia do acerto)
     T->>L: startLap TRAINING, trackId e trackVersion da sessao, setupId e setupVersion copiados, sem challengeNumber, ambiente da sessao
-    L-->>M: COUNTDOWN
-    L-->>M: ENDED e LapResult
-    M-->>J: resultado de race-lap-validation e credito OSM se a pista tem osmCredit
+    L-->>M: COUNTDOWN, depois RUNNING
+    loop cada cruzamento da chegada no sentido da pista
+        L-->>M: listLapResults cresce um item, fase segue RUNNING, volta seguinte no mesmo instante
+        M-->>J: painel do resultado da volta do treino e credito OSM nele se a pista tem osmCredit
+    end
+    J->>M: encerrar treino
+    M->>L: endTraining
+    L-->>M: ENDED, nenhum resultado para a volta em andamento
+    M-->>J: tela inicial com o seletor, a sessao e a pista inalteradas
 ```
+
+O treino de voltas seguidas é de `race-lap-validation` (F-Spec revalidado, FEAT-0010; projeto: ADR-0006, DM-0002
+1.2.0, DES-0001 1.2.0, DES-0007 e DES-0008 1.1.0): esta feature o inicia pela sessão
+([DES-0005](core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)), lê o fim de cada volta pelo
+crescimento de `listLapResults` ([DES-0004](core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md)) e põe o
+crédito no painel do resultado da volta do treino
+([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md),
+[ADR-0007](adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)).
 
 ## Fluxo alterado — passo na Kart Park e retorno da zebra
 
@@ -190,10 +206,10 @@ D-DS-03). O link do crédito é navegação iniciada pelo Jogador, que o jogo nu
 | `STEP`, `step(state, input, dt, config, environment)`, `Input` | inalterados; `Environment` ganha o campo opcional `track`; objetos `{surfaceAt, walls}` existentes continuam válidos |
 | `Surface` | ganha o valor `curb`, que só aparece num ambiente com zebra; na pista sintética as superfícies continuam `asphalt` e `grass` e todo cálculo é idêntico bit a bit ([ADR-0004](adr/ADR-0004-zebra-como-superficie-na-fisica.md)) |
 | `getHandlingTelemetry` (`dirigibilidade`) | inalterado: `surface` continua `ASPHALT` ou `GRASS` (o centro do kart sobre a zebra é pista, `ASPHALT`); `wallContact` não é usado pela barreira |
-| `LapSession`, `LapResult`, `getLapState` | inalterados; o ambiente da volta já é parâmetro de `startLap` |
+| `LapSession`, `LapResult`, `getLapState`, `listLapResults`, `endTraining` | de `race-lap-validation`, não alterados por esta feature; o ambiente da volta já é parâmetro de `startLap`. Pelo projeto revalidado daquela feature (ADR-0006, DM-0002 1.2.0), uma sessão `TRAINING` é um treino de voltas seguidas, com um resultado por volta concluída e `ENDED` só por `endTraining`; os itens e as provas desta feature leem o fim de cada volta pelo crescimento de `listLapResults` |
 | `edgeDistanceM` (`src/lap.ts:218`) | inalterado e ainda exportado; o corte passa a usar `trackEdgeDistanceM`, que na pista sintética é a mesma expressão |
 | Dado persistido do jogador | nenhum campo novo, nenhuma leitura ou gravação |
-| Telas de `race-lap-validation` | acrescidas do seletor, das linhas de crédito e do nome da pista da sessão; textos existentes inalterados |
+| Telas de `race-lap-validation` | acrescidas do seletor, das linhas de crédito e do nome da pista da sessão; textos existentes inalterados. A linha de crédito do resultado fica dentro do painel do resultado da volta do treino (`#lap-training-result-credit`), e `#lap-result-credit` sai de `#lap-result`, que só exibe volta oficial e de reconhecimento ([ADR-0007](adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)) |
 
 ## Ordem de entrega — dependência de `dirigibilidade` (REQ-FEAT-0007-12)
 
@@ -237,7 +253,20 @@ na etapa de testes, `tests/pista-kart-park-*.test.ts`, `tests/helpers/kartParkPi
 - `dirigibilidade`: nenhum campo de API-0001 daquela feature muda; os ensaios dela continuam na pista
   sintética e na pista de teste, cujos cálculos não mudam (ambiente sem `track`); o custo por passo na pista
   sintética não ganha chamada de `surfaceAt` (o bloco de barreira e o cálculo de toque só existem com
-  `environment.track`), de modo que `STEP_COST` daquela feature não é afetado.
+  `environment.track`), de modo que `STEP_COST` daquela feature não é afetado. Com a retirada do drift e do turbo
+  (seed `revision: 5` daquela feature), as linhas que esta feature tinha acrescentado à manobra (a zebra como pista
+  para o drift) e o cancelamento da manobra na barreira saem com a manobra, pela rodada de código de
+  `dirigibilidade`; esta feature não tem mudança de código própria por isso, e o seu teste de camada deixa de
+  nomear `src/maneuvers.ts` ([DES-0006](core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md)).
+- `race-lap-validation`, treino de voltas seguidas (FB-01 daquela feature, rodada de 2026-10-30): a mudança do
+  crédito do resultado para o painel `#lap-training-result` depende do painel, que a rodada de código de
+  `race-lap-validation` cria em `index.html` e `src/main.ts`; a rodada de código desta feature que move o crédito
+  entra junto com ela ou depois dela, e até lá `#lap-result-credit` continua onde está. As provas desta feature que
+  esperam `ENDED` na chegada ou no corte de uma volta `TRAINING` e o piloto de testes que para em `ENDED`
+  (`tests/pista-kart-park-lap.test.ts`, `tests/pista-kart-park-session.test.ts`, `tests/helpers/kartParkPilot.ts`)
+  passam a ler o fim de cada volta pelo crescimento de `listLapResults` ([test-strategy](test-strategy.md)); a
+  mudança é da etapa de testes desta feature e entra com a mesma rodada de `race-lap-validation`, porque
+  `npm test` roda as suítes juntas.
 
 ## Rastros de decisão
 
@@ -249,3 +278,4 @@ na etapa de testes, `tests/pista-kart-park-*.test.ts`, `tests/helpers/kartParkPi
 | [ADR-0004](adr/ADR-0004-zebra-como-superficie-na-fisica.md) | zebra como terceira superfície da física, 85 % da aderência por pneu, pista nas demais regras; caminho da pista sintética bit a bit inalterado |
 | [ADR-0005](adr/ADR-0005-kart-park-sem-chave-e-producao-bloqueada.md) | nenhuma chave de configuração; produção com a Kart Park bloqueada na promoção até a decisão Esri |
 | [ADR-0006](adr/ADR-0006-lacunas-do-f-spec-resolvidas-no-projeto.md) | largura da zebra, suavização, origem das coordenadas, intervalo e timbre do som, aba do link e aparência |
+| [ADR-0007](adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md) | crédito OSM do resultado no painel do resultado de cada volta do treino de `race-lap-validation`; `#lap-result-credit` retirado |

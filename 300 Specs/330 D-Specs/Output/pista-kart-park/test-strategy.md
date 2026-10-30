@@ -3,7 +3,7 @@ title: Estratégia de testes — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: []
 ---
 
@@ -36,7 +36,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | Integração | `npm test` | a física sobre o ambiente da Kart Park (`step`, barreira, zebra), a volta inteira de `src/lap.ts` na Kart Park com o piloto de teste, a sessão de treino com troca de pista e volta, o retorno da zebra sobre os passos de uma volta real, o desenho construído em Node |
 | Contrato de API | `npm test` | forma, unidades e códigos de API-0001 (`readTrackData` da versão 3), API-0002 (`getTrainingTrackOptions`, `selectTrainingTrack`) e API-0003 (`getTrackContact`), campo a campo, sem campo além dos contratados |
 | Arquivo | `npm test` | V01 a V18 sobre o arquivo publicado e a origem; reprodução do arquivo pelo preparo; registro de publicação e resumos |
-| Web E2E | roteiro registrado em Chrome, Edge, Firefox e Safari nas versões atuais, em `web-desktop`, e no notebook de referência de RNF03 | seletor, crédito, nome, tela de resultado, desenho, som da zebra, rede bloqueada, idioma, 60 fps |
+| Web E2E | roteiro registrado em Chrome, Edge, Firefox e Safari nas versões atuais, em `web-desktop`, e no notebook de referência de RNF03 | seletor, crédito, nome, painel do resultado de cada volta do treino com o crédito, desenho, som da zebra, rede bloqueada, idioma, 60 fps |
 | Mobile E2E | roteiro registrado no celular intermediário de referência de RNF03, em `web-mobile` | toque, inclinação negada, vibração, navegador sem vibração, 30 fps |
 
 ## Fixtures e como chegar a cada estado
@@ -47,6 +47,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | `originJson()` | `JSON.parse` de `tracks/sources/kart-park.json` | verificações que comparam com a origem; preparo |
 | cópias derivadas do arquivo publicado | objetos novos com um desvio cada: sem `centerline`; `centerline` de 2 pontos; um `widthM` 0; zebra de `side` inválido; barreira de 1 ponto; `barriers` vazio; `osmDerived` texto; `schemaVersion` 4; texto corrompido; um ponto a 0,4 m da origem; coordenadas escaladas; ordem invertida; um marcador retirado; zebra trocada de lado; vértice de barreira no asfalto; campo `recordeMs`; `trackVersion` 2 com o mesmo resumo | `UNREADABLE`, `UNSUPPORTED_SCHEMA`, reprovação de cada verificação; geometria sem barreira; o arquivo publicado nunca é alterado (I3) |
 | `kartParkPilot(offset?, shortcut?)` em `tests/helpers/kartParkPilot.ts` | controlador determinístico: persegue um ponto à frente na linha central da sessão (por distância de volta), esterço proporcional saturado em [−1, 1], acelerador e freio binários por uma velocidade alvo da curvatura local; deslocamento lateral opcional em função da distância de volta; atalho opcional para um ponto alvo por fora da pista. Parâmetros calibrados pela etapa de testes sobre o arquivo publicado | volta completa `VALID`; excursão lateral curta além da borda; permanência sobre a zebra; atalho da curva 4 |
+| `drive(lap, controller, steps, hook?)` em `tests/helpers/kartParkPilot.ts` | avança a volta passo a passo com o controlador, por no máximo `steps` passos, e para no passo em que `listLapResults(lap).lapResults` cresce — o fim de uma volta do treino — ou em que a fase é `ENDED`, que numa volta `TRAINING` só vem de `endTraining`; a volta é `TRAINING`, iniciada por `startLap` (ou por `startTrainingLap` nos testes da sessão), como a sessão de treino a oferece | o resultado de cada volta do treino como item novo de `listLapResults`, com a volta seguinte já em `RUNNING`; nenhuma prova desta feature espera `ENDED` na chegada ou no corte de uma volta `TRAINING` (ADR-0006 de `race-lap-validation`) |
 | `seededKart(pose, velocity)` | `kartAtStart` com posição, rumo e velocidade dados | kart lançado contra a barreira; kart com as rodas de um lado na zebra; kart além da borda |
 | ambientes de grama | `{surfaceAt: () => 'grass', walls: true}` (muro da pista sintética) e `{surfaceAt: () => 'grass', walls: false, track: geometria da Kart Park}` (barreira) | comparação da resposta do obstáculo sem diferença de superfície |
 | `tests/helpers/seeded.ts` (existente) | gerador congruencial de semente fixa | sequências de `Input` repetíveis, nunca `Math.random` |
@@ -74,9 +75,9 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0001-02 | `session`: a abertura (`initialTrainingSession` e seleção de `OPENING_TRACK_ID`) dá `selectedTrackId` `kart-park` sem argumento de escolha anterior; `layering`: nenhum uso de armazenamento; E2E-01: recarregar depois de escolher a pista sintética volta à Kart Park e o painel de armazenamento da origem fica vazio |
 | AC-US-0001-03 | `session`: `startTrainingLap` na sessão da Kart Park dá `getLapState().trackId` `kart-park` |
 | AC-US-0001-04 | `session`: o mesmo na sessão sintética dá `synthetic` |
-| AC-US-0001-05 | `session`: as voltas são `TRAINING` sem `challengeNumber`, com `official` falso no resultado, depois de volta concluída, invalidada e descartada nas duas pistas; `layering`: nenhum módulo grava no navegador; E2E-01: armazenamento vazio depois das voltas |
+| AC-US-0001-05 | `session`: nas duas pistas, o treino iniciado por `startTrainingLap` é `TRAINING` sem `challengeNumber`; cada item de `listLapResults` — da volta concluída na chegada, da volta invalidada por corte (que segue em `RUNNING` com `INVALID` e `CUT` e recebe o resultado no cruzamento seguinte da chegada) e da volta com marcador pulado — tem `official` falso e nenhum `challengeNumber`; o treino descartado pela troca de pista e o encerrado por `endTraining` não acrescentam item; `layering`: nenhum módulo grava no navegador; E2E-01: armazenamento vazio depois das voltas |
 | AC-US-0001-06 | `session`: depois da troca, o kart da sessão está na `startPosition` da pista escolhida (posição e rumo iguais aos do arquivo) |
-| AC-US-0001-07 | `session`: trocar de pista com volta em `COUNTDOWN`, `RUNNING` e `PAUSED` devolve volta ausente, `getLapState` `NO_ACTIVE_LAP` e nenhum `LapResult` |
+| AC-US-0001-07 | `session`: trocar de pista com o treino em `COUNTDOWN`, em `RUNNING` (antes e depois de uma volta concluída) e em `PAUSED` devolve volta ausente e `getLapState` `NO_ACTIVE_LAP`; a volta em andamento não tem resultado: `listLapResults` do treino descartado continua com os itens das voltas já concluídas e nenhum novo |
 | AC-US-0002-01 | `track-file`: V01 e V02 (684 pontos, último diferente do ponto 0) |
 | AC-US-0002-02 | `track-file`: V03 |
 | AC-US-0002-03 | `track-file`: V04 |
@@ -89,13 +90,13 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0003-02 | `track-file`: V09 (pontos de 201,6 m, 350,3 m, 529,9 m em `d_o`) |
 | AC-US-0003-03 | `track-file`: V04 (chegada no ponto 0) |
 | AC-US-0003-04 | `track-file`: V10 e V11 |
-| AC-US-0003-05 | `lap`: o piloto com uma excursão a 3,5 m além da borda da pista num trecho sem barreira nem outra parte por perto, por menos de 120 passos, termina `INVALID` com `MISSED_MARKER` ao cruzar a chegada |
+| AC-US-0003-05 | `lap`: o piloto com uma excursão a 3,5 m além da borda da pista num trecho sem barreira nem outra parte por perto, por menos de 120 passos, dá no cruzamento da chegada o item novo de `listLapResults` `INVALID` com `MISSED_MARKER`; a fase continua `RUNNING` |
 | AC-US-0003-06 | `lap`: `describeLap` (de `race-lap-validation`) sobre o estado dessa volta dá "marcador pulado"; E2E-03 |
-| AC-US-0003-07 | `lap`: kart mantido a mais de 3 m da borda da pista dá `CUT` no passo em que passam 121 passos seguidos |
+| AC-US-0003-07 | `lap`: kart mantido a mais de 3 m da borda da pista dá `lapValidity` `INVALID` com `CUT` no passo em que passam 121 passos seguidos; a fase continua `RUNNING` e `listLapResults` não ganha item nesse passo |
 | AC-US-0003-08 | `lap`: 120 passos a mais de 3 m e retorno a 3 m ou menos não dão `CUT` |
-| AC-US-0003-09 | `lap`: o piloto com o atalho que sai perto de 147 m de `d_o`, cruza a grama por dentro da curva 4 e volta perto de 200 m termina `INVALID` |
-| AC-US-0003-10 | `lap` e `determinism`: o piloto completa a volta pela pista, sem corte, passando por todos os marcadores, e termina `VALID` |
-| AC-US-0003-11 | `lap`: o `LapResult` dessa volta tem `lapMs` e 4 `sectorMs` que somam `lapMs`, formatados por `formatLapTime`; os casos de chegada cruzada de novo, contramão e pausa dão na Kart Park o mesmo resultado que os testes de `race-lap-validation` esperam na sintética; E2E-03 (tela de resultado, perda de foco e recarga) |
+| AC-US-0003-09 | `lap`: o piloto com o atalho que sai perto de 147 m de `d_o`, cruza a grama por dentro da curva 4 e volta perto de 200 m dá, no cruzamento seguinte da chegada, o item novo de `listLapResults` `INVALID` |
+| AC-US-0003-10 | `lap` e `determinism`: o piloto completa a volta pela pista, sem corte, passando por todos os marcadores, e o item novo de `listLapResults` no cruzamento da chegada é `VALID`; a volta seguinte começa no mesmo instante (`lapStartMs` da sessão igual ao fim da anterior) |
+| AC-US-0003-11 | `lap`: o `LapResult` dessa volta (o item novo de `listLapResults`) tem `lapMs` e 4 `sectorMs` que somam `lapMs`, iguais a `trainingLapMs` e `trainingSectorMs`, formatados por `formatLapTime`; os casos dão na Kart Park o que as regras de `race-lap-validation` dão na sintética para uma volta de treino: a chegada cruzada de novo depois de uma volta concluída encerra a volta seguinte com o seu próprio resultado (`lapSequenceCount` 2) e deixa o primeiro igual; a chegada na contramão não encerra nem inicia volta; pausa e retomada mantêm os marcadores já passados e o resultado `VALID` sai no cruzamento seguinte; E2E-03 (painel do resultado da volta do treino, perda de foco e recarga) |
 | AC-US-0004-01 | `track-file`: V13 |
 | AC-US-0004-02 | `track-file`: V14; `barrier`: o ambiente da Kart Park tem `walls` falso e os únicos segmentos de obstáculo são os de `barriers` |
 | AC-US-0004-03 | `track-file`: V15 |
@@ -106,7 +107,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0005-02 | `track-file`: V12 (lado e trecho por índice fracionário; a zebra da largada dividida) |
 | AC-US-0005-03 | `scene`: cada faixa no lado e no trecho declarados; E2E-03 |
 | AC-US-0005-04 | `surface`: `seededKart` com as rodas de um lado na zebra e as outras no asfalto: `wheelSurfaces` com `CURB` nessas rodas e `beyondTrackEdgeM` 0; `geometry`: ponto da faixa é `curb` |
-| AC-US-0005-05 | `lap`: o piloto rodando com o centro do kart sobre a borda do asfalto do lado de uma zebra longa, com rodas na zebra e nenhuma além dela, por mais de 120 passos, não termina com `CUT` |
+| AC-US-0005-05 | `lap`: o piloto rodando com o centro do kart sobre a borda do asfalto do lado de uma zebra longa, com rodas na zebra e nenhuma além dela, por mais de 120 passos, não fica `INVALID` com `CUT` (`offTrackSteps` continua 0) |
 | AC-US-0005-06 | `surface`: `tireForce(..., 'curb', acerto).capacity` igual a 0,85 da de `'asphalt'` para as mesmas carga e deslize, nos acertos publicados e com a escala de forçar; `getTrackContact` dá `wheelGripPc` 0,85 na roda em `CURB` |
 | AC-US-0005-07 | `feedback`: registro de pulsos com `web-mobile` e vibração disponível: inícios a 30 passos (250 ms) enquanto houver roda na zebra; E2E-05 |
 | AC-US-0005-08 | `feedback`: nenhum início com `curbWheelCount` 0, nem com a volta pausada |
@@ -117,7 +118,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0006-01 | `screens`: `creditFor` da entrada `kart-park` do catálogo dá `OSM_CREDIT` com `text` "© colaboradores do OpenStreetMap"; `renderCredit` em `#track-credit` com `creditFor` da entrada de `selectedTrackId`; E2E-01, E2E-05 |
 | AC-US-0006-02 | o mesmo com `license` |
 | AC-US-0006-03 | o mesmo com `url` como `href` do `a`; E2E-01: o clique abre `https://openstreetmap.org/copyright` |
-| AC-US-0006-04 | `screens`: `renderCredit` em `#lap-result-credit` com `creditFor` da entrada de `result.trackId`; `creditFor` da entrada `synthetic` ausente; E2E-03 (volta válida e inválida na Kart Park, volta na sintética sem crédito) |
+| AC-US-0006-04 | `screens`: `#lap-training-result-credit` dentro de `#lap-training-result` e `renderCredit` nele com `creditFor` da entrada do `trackId` do resultado exibido; nenhum `lap-result-credit`; `creditFor` da entrada `synthetic` ausente; E2E-03 (painel do resultado de uma volta válida e de uma inválida na Kart Park com o crédito, de uma volta na sintética sem crédito) |
 | AC-US-0006-05 | o mesmo com a menção |
 | AC-US-0006-06 | o mesmo com o link |
 | AC-US-0006-07 | `session`: `displayName` da entrada `kart-park`; `screens`: `optionLabel` da entrada `kart-park`, e `#track-name` e os botões recebem `optionLabel`; E2E-01, E2E-08 (navegador em inglês) |
@@ -144,15 +145,15 @@ Os critérios transversais de FEAT-0007 e os requisitos sem critério de histór
 | REQ-FEAT-0005-16 a -19 | `feedback`: nenhum pulso em `web-desktop`; som em `web-mobile` pelas mesmas regras; nada com a volta pausada; sem vibração, o mesmo registro de repetições e nenhum erro; E2E-06 |
 | REQ-FEAT-0006-12, -13 | E2E-07 (crédito sem rede) e E2E-01, E2E-03, E2E-05 (as duas telas nos dois canais) |
 | REQ-FEAT-0006-14 | E2E da entrega que promover a Kart Park a produção, se a decisão liberar a licença Esri: as duas telas com o crédito da Esri no texto da decisão |
-| REQ-FEAT-0003-15 | `lap`: chegada cruzada de novo depois do fim, contramão, pausa e retomada na Kart Park como na sintética; E2E-03: perda de foco e recarga |
+| REQ-FEAT-0003-15 | `lap`: chegada cruzada de novo depois de uma volta concluída, contramão, pausa e retomada na Kart Park como na sintética, pelas regras do treino de voltas seguidas de `race-lap-validation`; E2E-03: perda de foco e recarga |
 
 ## Roteiro registrado (`docs/kart-park-device-log.md`)
 
 | Id | Canal e aparelho | Passos e resultado esperado |
 |---|---|---|
 | E2E-01 | `web-desktop`, os quatro navegadores | abrir: seletor com as duas opções, Kart Park marcada com "Kart Park — São José dos Pinhais (traçado aproximado) · 687 m", crédito com texto, menção e link; clicar no link abre `https://openstreetmap.org/copyright` em outra aba; escolher a pista sintética: crédito some; recarregar: Kart Park marcada; painel de armazenamento da origem vazio depois de voltas nas duas pistas |
-| E2E-02 | `web-desktop`, Chrome | trocar de pista: o kart vai para a largada da pista escolhida, sem volta em andamento; volta de treino é a única oferta |
-| E2E-03 | `web-desktop`, notebook de referência | volta completa na Kart Park: asfalto com larguras variáveis, zebras nos lados declarados, barreira em todo o comprimento; tela de resultado com tempo total, 4 setores e crédito; volta inválida por marcador pulado com "marcador pulado" e crédito; volta na sintética sem crédito; perda de foco pausa; recarga sem resultado; 60 fps sustentados |
+| E2E-02 | `web-desktop`, Chrome | encerrar o treino ("encerrar treino") volta à tela inicial com o seletor; trocar de pista: o kart vai para a largada da pista escolhida, sem volta em andamento; treino é a única oferta |
+| E2E-03 | `web-desktop`, notebook de referência | treino na Kart Park: asfalto com larguras variáveis, zebras nos lados declarados, barreira em todo o comprimento; ao cruzar a chegada, sem parar o kart, o painel do resultado da volta do treino com tempo total, 4 setores, "não oficial" e o crédito, e a volta seguinte em andamento; volta seguinte inválida por marcador pulado com "marcador pulado" e o crédito no painel; treino na sintética com o painel sem crédito; o link do crédito no painel abre outra aba e o treino pausa; perda de foco pausa; recarga sem resultado para a volta em andamento; 60 fps sustentados num treino de ao menos duas voltas |
 | E2E-04 | `web-desktop`, Chrome e Firefox | som ligado: ruído grave repetido com roda na zebra, distinto do motor e da recompensa, nenhum fora da zebra; som desligado: nenhum |
 | E2E-05 | `web-mobile`, celular intermediário de referência | mesmo seletor e crédito; inclinação negada: toque com o aviso; vibração curta repetida com roda na zebra e nenhuma fora dela ou em pausa; 30 fps sustentados numa volta completa |
 | E2E-06 | `web-mobile`, navegador sem `navigator.vibrate` | volta com zebras sem vibração, sem erro e sem aviso; volta igual |
@@ -166,3 +167,9 @@ passam sem alteração, salvo `tests/race-lap-validation-track-data.test.ts:20` 
 (CHK-TEST-0009-03), que afirmam o literal 2 e usam a versão 3 como posterior; a mudança deles é de
 `race-lap-validation` ([01-architecture](01-architecture.md), "Consequências para outras features"). Nenhum
 teste desta feature altera um arquivo de teste de outra feature.
+
+O treino de voltas seguidas de `race-lap-validation` (ADR-0006 daquela feature) muda o que uma volta `TRAINING`
+faz na chegada e no corte; as verificações desta feature que esperavam `ENDED` nesses pontos e o laço de `drive`
+que parava em `ENDED` migram para o crescimento de `listLapResults` (tabela de migração no changelog, rodada de
+2026-10-30), sem verificação removida. O teste de camada desta feature não nomeia `src/maneuvers.ts`
+([DES-0006](core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md)).

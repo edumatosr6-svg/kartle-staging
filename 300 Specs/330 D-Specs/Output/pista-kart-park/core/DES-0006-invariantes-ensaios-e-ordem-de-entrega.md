@@ -4,7 +4,7 @@ title: Invariantes da simulação, contrato de passo, pista dos ensaios, depend�
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: [FEAT-0007, FLOW-0002, REQ-FEAT-0007-03, REQ-FEAT-0007-04, REQ-FEAT-0007-06, REQ-FEAT-0007-07, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10, REQ-FEAT-0007-11, REQ-FEAT-0007-12]
 ---
 
@@ -36,8 +36,8 @@ Nenhuma função nova. As garantias, cada uma com o ponto que a impõe:
 
 | Garantia | Ponto de aplicação |
 |---|---|
-| Regras de pista na simulação | `classifySurface`, `beyondTrackEdgeM` (dado de pista); `surfaceMu`, bloco da barreira, `trackEdgeDistanceM` (`src/physics.ts`); corte e linhas (`src/lap.ts`); a aplicação só lê `getTrackContact`, `getLapState`, `getLapResult` e `getTrainingTrackOptions` |
-| Simulação sem camada externa | os módulos `src/trackGeometry.ts` e `src/trainingSession.ts` entram na lista de simulação do teste de camada desta feature, com os de `race-lap-validation`: nenhuma importação de `three`, `./audio`, `./main`; nenhum uso de `document`, `window`, `Date`, `performance`, `Math.random`, `requestAnimationFrame`, `setTimeout`, `setInterval` |
+| Regras de pista na simulação | `classifySurface`, `beyondTrackEdgeM` (dado de pista); `surfaceMu`, bloco da barreira, `trackEdgeDistanceM` (`src/physics.ts`); corte e linhas (`src/lap.ts`); a aplicação só lê `getTrackContact`, `getLapState`, `getLapResult`, `listLapResults` e `getTrainingTrackOptions`; o fim de cada volta do treino é decidido pela simulação e lido pelo crescimento de `listLapResults`, nunca pela aplicação |
+| Simulação sem camada externa | os módulos `src/trackGeometry.ts` e `src/trainingSession.ts` entram na lista de simulação do teste de camada desta feature, com os de `race-lap-validation`: nenhuma importação de `three`, `./audio`, `./main`; nenhum uso de `document`, `window`, `Date`, `performance`, `Math.random`, `requestAnimationFrame`, `setTimeout`, `setInterval`. A lista desta feature não nomeia `src/maneuvers.ts`: o drift e o turbo saem do jogo e o módulo tem retirada projetada por `dirigibilidade` (ADR-0006 daquela feature, que espera que nenhum teste de outra feature o nomeie); a pureza dele, enquanto existir, continua afirmada pelo teste de camada de `race-lap-validation` |
 | Aplicação pura testável | `src/curbFeedback.ts` entra na lista de aplicação pura: as mesmas proibições de relógio, DOM e sorteio; `src/lapMessages.ts`, que recebe `OSM_CREDIT`, `creditFor` e `optionLabel` ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)), já está na lista de aplicação pura de `race-lap-validation` (`tests/race-lap-validation-layering.test.ts:10`) e continua importando só tipos de `./lap` (`:27-28`) |
 | Regra de tela fora da simulação | o teste de camada desta feature afirma que o texto de `src/trainingSession.ts` não contém `openstreetmap`, `ODbL` nem o separador de rótulo `' · '`: os textos do crédito, a regra de exibição do crédito e a formatação do rótulo ficam em `src/lapMessages.ts` (aplicação), e a sessão só entrega as entradas do catálogo |
 | Contrato de passo | `export const STEP = 1 / 120;`, o tipo `Input` e a assinatura de `step` ficam literalmente como `tests/race-lap-validation-frozen.test.ts:31-41` afirma; a linha 3 de `src/physics.ts` também |

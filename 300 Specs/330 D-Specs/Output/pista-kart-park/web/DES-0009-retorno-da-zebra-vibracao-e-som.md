@@ -4,7 +4,7 @@ title: Retorno da zebra — vibração em web-mobile e som em web-desktop
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [RULE-0004, SCR-0003, FLOW-0002, FEAT-0005, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12, REQ-FEAT-0005-13, REQ-FEAT-0005-14, REQ-FEAT-0005-15, REQ-FEAT-0005-16, REQ-FEAT-0005-17, REQ-FEAT-0005-18, REQ-FEAT-0005-19]
 ---
 
@@ -81,7 +81,9 @@ decideCurbFeedback(curbState, {simStepCount, curbWheelCount, channel, vibrationA
 audio.soundOn()})`; `curbState = r.state`; se `r.pulse`, `navigator.vibrate(CURB_PULSE_MS)`; se `r.sound`,
 `audio.curb()`. `channel` é `web-mobile` quando `matchMedia('(pointer: coarse)')` casa (o mesmo sinal que o
 aviso de toque usa, `:166`) e `web-desktop` senão; `vibrationAvailable` é `typeof navigator.vibrate ===
-'function'`. `curbState = initialCurbFeedback()` a cada `beginLap` e a cada `chooseTrack`.
+'function'`. `curbState = initialCurbFeedback()` a cada `beginLap` (início de um treino) e a cada `chooseTrack`;
+nunca no fim de uma volta do treino (crescimento de `listLapResults`), porque a volta seguinte continua com o
+mesmo kart e o mesmo `simStepCount`.
 
 ## Colaboradores
 
@@ -94,8 +96,11 @@ O estado guarda só o último passo tratado e os passos do último início de pu
 `simStepCount` é tratado uma vez e em ordem crescente, mesmo quando vários passos avançam num quadro
 (deduplicação por `simStepCount`, RULE-0004). Pausa, perda de foco e perda do sensor suspendem a volta
 (`stepLap` devolve a mesma sessão), o `simStepCount` não avança e nenhum pulso ou repetição começa
-(REQ-FEAT-0005-18). Volta nova e sessão nova recomeçam sem início registrado, porque o `simStepCount` do kart
-recomeça em 0.
+(REQ-FEAT-0005-18). Treino novo e sessão nova recomeçam sem início registrado, porque o `simStepCount` do kart
+recomeça em 0. Dentro de um treino de voltas seguidas (`race-lap-validation`, ADR-0006 daquela feature) o
+cruzamento da chegada não recria o kart nem zera o `simStepCount`: o estado do retorno continua de uma volta para
+a seguinte, e uma zebra atravessada pela chegada mantém o intervalo de 30 passos (pulso) e de 12 passos (som) sem
+repetição dobrada nem lacuna.
 
 ## Comportamento em falha
 
@@ -120,8 +125,16 @@ nenhuma mudança em `src/audio.ts` para o teste: `toggle()` e `update(...)` cria
 em 160 Hz; nenhum outro método cria fonte de buffer ou filtro; o tipo registrado de cada som é o `source` do
 seu descritor, e os três tipos são diferentes entre si; `curb()` com `enabled` falso não cria nó. Nenhum outro
 evento usa o som da zebra: `audio.curb(` aparece no texto de `src/main.ts` só no laço de passos, que não
-carrega em `npm test`. A prova auditiva, de que o som da zebra é distinguível do motor e da recompensa, é
-E2E-04.
+carrega em `npm test`. A prova auditiva, de que o som da zebra é distinguível do motor, é E2E-04.
+
+**Recompensa e drift.** A recompensa era o som do prêmio da manobra de drift (`audio.reward(tier)`,
+`src/main.ts:505`). Com a retirada do drift e do turbo do jogo (`dirigibilidade`, seed `revision: 5`; ADR-0006 e
+DES-0005 2.0.0 daquela feature), `reward` deixa de ser chamado, e os sons que o jogo toca passam a ser o motor e a
+zebra. Nada muda neste item por isso: `REWARD_SOUND` e `reward()` continuam em `src/audio.ts` enquanto o método
+existir, e a verificação do sinal de `reward()` continua: o sinal da zebra segue diferente do de todo som que o
+módulo sabe tocar (REQ-FEAT-0005-15). Uma retirada futura do método é decisão de `dirigibilidade` e chega a esta
+feature como feedback, com a migração da verificação no changelog. A zebra não ganha nenhum efeito de drift ou de turbo, e o retorno da zebra
+não depende de nenhum estado de manobra.
 
 ## Feature flag
 
