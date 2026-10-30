@@ -4,8 +4,8 @@ title: Reposicionar invalida a volta oficial
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.0.0
-sources: [SEED/US-7, SEED/RD-10, DOMAIN/DEC-02, DOMAIN/DEC-06, DOMAIN/DEC-08]
+version: 2.1.2
+sources: [SEED/US-7, SEED/US-10, SEED/RD-10, DOMAIN/DEC-02, DOMAIN/DEC-06, DOMAIN/DEC-08]
 ---
 
 # US-0007 — Reposicionar invalida a volta oficial
@@ -36,13 +36,15 @@ conscientemente.
 - AC-US-0007-02: Em volta oficial, ao reposicionar, a tela exibe o motivo "reposicionamento".
 - AC-US-0007-03: No estado da simulação, a volta oficial invalidada por reposicionamento termina no passo
   do reposicionamento: nenhum tempo de volta é acrescentado depois desse passo (`DOMAIN/DEC-06`).
-- AC-US-0007-04: Em volta de reconhecimento ou de treino, reposicionar não torna a volta inválida: a tela
-  continua exibindo o estado "válida em andamento" (`DOMAIN/DEC-02`).
-- AC-US-0007-05: Em volta de reconhecimento ou de treino, reposicionar não exibe motivo na tela
-  (`DOMAIN/DEC-02`).
+- AC-US-0007-04: Em volta de reconhecimento ou de treino sem motivo de invalidação, reposicionar não torna
+  a volta inválida: a tela continua exibindo o estado "válida em andamento" (`DOMAIN/DEC-02`).
+- AC-US-0007-05: Em volta de reconhecimento ou de treino, reposicionar não exibe o motivo
+  "reposicionamento" na tela (`SEED/US-7`, "não exibe motivo"; `DOMAIN/DEC-02`).
 - AC-US-0007-06: No estado da simulação, numa volta de reconhecimento ou de treino, o tempo da volta após
-  um reposicionamento, N passos de `STEP` depois do sinal verde, é N × `STEP`, sem acréscimo de
-  penalidade (`DOMAIN/DEC-02`, "sem penalidade").
+  um reposicionamento é o tempo de simulação decorrido desde o início da volta, sem acréscimo de
+  penalidade: N × `STEP` após N passos de `STEP` contados do sinal verde, numa volta iniciada nele; a
+  diferença entre o instante de simulação e o instante de cruzamento da chegada que a iniciou, nas voltas
+  seguintes do treino (`DOMAIN/DEC-02`, "sem penalidade"; US-0010).
 
 ## Casos anormais
 
@@ -50,6 +52,13 @@ conscientemente.
   (critério 03); o motivo exibido é "reposicionamento".
 - **Reposicionamentos repetidos em reconhecimento ou treino**: nenhum deles invalida nem penaliza
   (critérios 04 a 06).
+- **Reposicionamento nas voltas seguidas do treino**: livre em qualquer volta da sequência e não
+  interrompe a sequência (US-0010, critérios 14 e 19; `SEED/US-7`, "em treino, reposicionar não
+  invalida").
+- **Reposicionamento numa volta de treino já inválida por corte**: a volta segue inválida com o motivo
+  "corte"; reposicionar não a revalida nem acrescenta o motivo "reposicionamento" (critério 05; US-0010,
+  critério 19). Numa volta de reconhecimento, a volta inválida por corte já terminou no passo da
+  invalidação (`DOMAIN/DEC-06`).
 - **Pausa, perda de foco ou perda do sensor durante a volta**: simulação e cronômetro ficam suspensos;
   pausar não é reposicionar e não invalida a volta (`DOMAIN/DEC-08`).
 - **Recarregar ou abandonar a página antes da chegada**: a volta não é concluída e não produz resultado
@@ -63,6 +72,7 @@ conscientemente.
   e treino.
 - `DOMAIN/DEC-06` — volta invalidada termina imediatamente.
 - `DOMAIN/DEC-08` — pausa durante a volta.
+- `SEED/US-10` — voltas seguidas no treino, nas quais reposicionar segue livre (`SEED/US-7`).
 
 ## Pontos em aberto
 

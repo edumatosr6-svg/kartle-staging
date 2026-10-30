@@ -2,8 +2,8 @@
 stage: req
 feature: race-lap-validation
 status: validated
-generated: 2026-10-20T18:35:54Z
-files: 25
+generated: 2026-10-30T12:00:20Z
+files: 26
 ---
 
 # Index
@@ -12,9 +12,9 @@ files: 25
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-context.md` | - | Contexto — validação de volta de corrida | validated | 2.2.0 |
-| `02-glossary.md` | - | Glossário — validação de volta de corrida | validated | 2.0.0 |
-| `97-changelog.md` | - | Changelog — validação de volta de corrida | validated | 2.2.0 |
+| `01-context.md` | - | Contexto — validação de volta de corrida | validated | 2.3.3 |
+| `02-glossary.md` | - | Glossário — validação de volta de corrida | validated | 2.1.1 |
+| `97-changelog.md` | - | Changelog — validação de volta de corrida | validated | 2.3.3 |
 | `98-divergences.md` | - | Divergências — validação de volta de corrida | validated | 1.0.0 |
 | `nfr/NFR-0001-determinismo.md` | NFR-0001 | Determinismo no mesmo runtime | validated | 1.0.0 |
 | `nfr/NFR-0002-independencia-de-quadros.md` | NFR-0002 | Independência da taxa de quadros | validated | 1.0.0 |
@@ -24,16 +24,17 @@ files: 25
 | `nfr/NFR-0006-acessibilidade.md` | NFR-0006 | Estado da volta por texto além de cor, com legibilidade WCAG AA | validated | 2.0.0 |
 | `nfr/NFR-0007-idiomas.md` | NFR-0007 | Mensagens em português e inglês | validated | 2.0.0 |
 | `nfr/NFR-0008-determinismo-entre-navegadores.md` | NFR-0008 | Determinismo entre navegadores | validated | 2.0.0 |
-| `nfr/NFR-0009-verificacao-deterministica.md` | NFR-0009 | Verificação determinística das regras de validade | validated | 2.0.0 |
+| `nfr/NFR-0009-verificacao-deterministica.md` | NFR-0009 | Verificação determinística das regras de validade | validated | 2.1.0 |
 | `nfr/NFR-0010-passo-fixo-preservado.md` | NFR-0010 | Contrato de passo fixo preservado | validated | 1.0.0 |
 | `nfr/NFR-0011-fisica-e-presets-inalterados.md` | NFR-0011 | Física e presets de kart inalterados | validated | 1.0.0 |
 | `nfr/NFR-0012-versionamento-do-dado-de-pista.md` | NFR-0012 | Mudança versionada do dado de pista | validated | 1.0.0 |
-| `stories/US-0001-contagem-regressiva-e-largada.md` | US-0001 | Contagem regressiva e início da cronometragem | validated | 2.0.0 |
-| `stories/US-0002-volta-valida-tempo-e-setores.md` | US-0002 | Volta válida com tempo total e quatro tempos de setor | validated | 2.0.0 |
+| `stories/US-0001-contagem-regressiva-e-largada.md` | US-0001 | Contagem regressiva e início da cronometragem | validated | 2.1.0 |
+| `stories/US-0002-volta-valida-tempo-e-setores.md` | US-0002 | Volta válida com tempo total e quatro tempos de setor | validated | 2.1.0 |
 | `stories/US-0003-tempo-independente-do-aparelho.md` | US-0003 | Tempo oficial dependente só da pilotagem | validated | 2.0.0 |
-| `stories/US-0004-marcador-pulado.md` | US-0004 | Volta que pula marcador não gera tempo válido | validated | 2.1.0 |
-| `stories/US-0005-chegada-na-contramao.md` | US-0005 | Chegada na contramão não conta como volta | validated | 2.0.0 |
-| `stories/US-0006-corte-e-grama.md` | US-0006 | Corte invalida a volta, grama sem corte só reduz a velocidade | validated | 2.1.0 |
-| `stories/US-0007-reposicionamento.md` | US-0007 | Reposicionar invalida a volta oficial | validated | 2.0.0 |
-| `stories/US-0008-reconhecimento-e-treino.md` | US-0008 | Reconhecimento e treino nunca produzem tempo oficial | validated | 2.2.0 |
-| `stories/US-0009-estado-da-volta.md` | US-0009 | Estado da volta visível durante toda a volta | validated | 2.0.0 |
+| `stories/US-0004-marcador-pulado.md` | US-0004 | Volta que pula marcador não gera tempo válido | validated | 2.2.0 |
+| `stories/US-0005-chegada-na-contramao.md` | US-0005 | Chegada na contramão não conta como volta | validated | 2.1.0 |
+| `stories/US-0006-corte-e-grama.md` | US-0006 | Corte invalida a volta, grama sem corte só reduz a velocidade | validated | 2.2.1 |
+| `stories/US-0007-reposicionamento.md` | US-0007 | Reposicionar invalida a volta oficial | validated | 2.1.2 |
+| `stories/US-0008-reconhecimento-e-treino.md` | US-0008 | Reconhecimento e treino nunca produzem tempo oficial | validated | 2.3.3 |
+| `stories/US-0009-estado-da-volta.md` | US-0009 | Estado da volta visível durante toda a volta | validated | 2.1.0 |
+| `stories/US-0010-voltas-seguidas-no-treino.md` | US-0010 | Voltas seguidas no treino | validated | 1.1.2 |

@@ -4,8 +4,8 @@ title: Contagem regressiva e início da cronometragem
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.0.0
-sources: [SEED/US-1, SEED/RD-01, DOMAIN/DEC-04, DOMAIN/DEC-05, DOMAIN/DEC-11]
+version: 2.1.0
+sources: [SEED/US-1, SEED/US-10, SEED/RD-01, DOMAIN/DEC-04, DOMAIN/DEC-05, DOMAIN/DEC-11]
 ---
 
 # US-0001 — Contagem regressiva e início da cronometragem
@@ -26,12 +26,14 @@ a valer.
 
 ## Pré-condições
 
-- Uma volta foi iniciada numa pista cujo dado declara largada, sentido, quatro setores e marcadores.
+- Uma volta oficial, uma volta de reconhecimento ou um treino foi iniciado numa pista cujo dado declara
+  largada, sentido, quatro setores e marcadores. No treino, só a primeira volta é precedida da contagem
+  (US-0010).
 - O kart está na posição de largada e a contagem regressiva ainda não começou.
 
 ## Critérios de aceite
 
-- AC-US-0001-01: Ao iniciar a volta, a tela exibe uma contagem regressiva com duração de 3 s, medida do
+- AC-US-0001-01: Ao iniciar uma volta oficial, uma volta de reconhecimento ou um treino, a tela exibe uma contagem regressiva com duração de 3 s, medida do
   primeiro valor exibido até o sinal verde (`DOMAIN/DEC-05`).
 - AC-US-0001-02: Cada valor da contagem regressiva é exibido na tela em texto, além de qualquer cor.
 - AC-US-0001-03: O sinal verde é indicado na tela em texto, além de qualquer cor.
@@ -63,6 +65,9 @@ a valer.
   do caso anterior (`DOMAIN/DEC-08`).
 - **Sensor de inclinação ausente ou permissão negada antes da contagem (`web-mobile`)**: o controle recai
   para toque com estado visível (I4); a contagem prossegue com a mesma duração.
+- **Voltas seguintes do treino**: não são precedidas de contagem regressiva; a contagem só acontece no
+  começo do treino, e cada volta seguinte começa no instante de cruzamento da chegada (US-0010,
+  `SEED/US-10`).
 - **Recarregar ou abandonar a página durante a contagem**: a volta não chega à linha de chegada, portanto
   não é concluída e não produz resultado (`SEED/RD-05`). O consumo de tentativa é da etapa 5, fora do
   escopo.
@@ -70,6 +75,7 @@ a valer.
 ## Fontes
 
 - `SEED/US-1` — história e seus três critérios.
+- `SEED/US-10` — no treino, a contagem só acontece no começo.
 - `SEED/RD-01` — largada com contagem regressiva (RF09).
 - `DOMAIN/DEC-04` — queima de largada ignorada.
 - `DOMAIN/DEC-05` — contagem de 3 s e cronômetro iniciado no sinal verde.

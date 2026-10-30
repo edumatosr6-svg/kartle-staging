@@ -3,7 +3,7 @@ title: Changelog — validação de volta de corrida
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.2.0
+version: 2.3.3
 sources: [SEED, DOMAIN]
 ---
 
@@ -175,3 +175,166 @@ anteriores continuam fora, pelos motivos lá registrados.
   pausa, pausa manual por toque em `web-mobile`, o que a volta de treino exibe em pista sem linha de
   chegada) continuam fora, pelos motivos lá registrados; nenhum é decidido pelo seed revision 2.
 - `NOTES.md` da pasta do seed não foi lido (fora da lista de entrada da etapa).
+
+## 2026-10-29 — rodada 6, Mode A (seed revision 3)
+
+**O que mudou**
+
+- O seed subiu para `revision: 3` (2026-10-29): nova história US-10 (voltas seguidas no treino) e nova
+  entrada de `DOMAIN.md` de 2026-10-29, que substitui o fechamento do ponto aberto 06 ("volta invalidada
+  termina imediatamente") só para o treino e mantém esse fechamento e o INV-1 para a volta oficial. A
+  verificação de fechamento (dez histórias, regras de domínio, restrições, impactos, NFRs e itens fora do
+  escopo) não achou outro item novo, faltando ou sem origem; nenhum id foi removido ou renumerado.
+- Novos rótulos de rastreabilidade em `01-context.md`: `DOMAIN/DEC-12` (a decisão de 2026-10-29) e
+  `DOMAIN/DEC-12/P1` a `P3` (os três pressupostos do condutor que a mesma entrada pede para confirmar).
+- Nova história `stories/US-0010-voltas-seguidas-no-treino.md` (`version: 1.0.0`), com 22 critérios: volta
+  seguinte iniciada no instante de cruzamento da chegada, resultado de cada volta exibido sem parar o kart,
+  contagem só no começo do treino, tempos das voltas seguidas sem intervalo entre elas, volta inválida do
+  treino marcada na hora e seguindo até a chegada, melhor volta válida visível, pausa pelo botão, ação de
+  encerrar o treino, reposicionamento livre, um resultado por volta, e o contraste com a volta oficial
+  (termina na chegada ou na invalidação, nenhuma volta seguinte, kart parado).
+- Pressupostos do condutor carregados como enunciados e sinalizados como tais, sem ponto em aberto:
+  P1 (o treino só termina por pausa ou por "encerrar treino") nos critérios 14 e 16 de US-0010; P2 (melhor
+  volta válida visível) no critério 12; P3 (reposicionar segue livre no treino) no critério 19 e nos casos
+  anormais de US-0007.
+- Histórias existentes ajustadas onde o seed revision 3 muda o fato, carregando cada sítio:
+  - US-0001 (`2.1.0`): critério 01 e pré-condição passam a valer para volta oficial, volta de
+    reconhecimento e começo do treino; novo caso anormal das voltas seguintes do treino, sem contagem.
+  - US-0002 (`2.1.0`): critério 12 diz "segundo resultado para essa volta"; pré-condição remete o início e
+    o tempo das voltas seguintes do treino a US-0010; caso anormal da chegada cruzada de novo no treino.
+  - US-0004 (`2.2.0`): casos anormais da chegada cruzada de novo no treino e do marcador pulado no treino.
+  - US-0005 (`2.1.0`): caso anormal da chegada na contramão no treino.
+  - US-0006 (`2.2.0`): critério 06 restrito à volta oficial e à de reconhecimento, com a remissão do treino a
+    US-0010; caso anormal do corte seguido de marcador pulado separado entre fora do treino e treino.
+  - US-0007 (`2.1.0`): critério 06 passa a medir o tempo desde o início da volta, que nas voltas seguintes do
+    treino é o cruzamento da chegada; novo caso anormal do reposicionamento nas voltas seguidas (P3).
+  - US-0008 (`2.3.0`): critério 04 oferece "o treino"; casos anormais da volta inválida e da chegada
+    cruzada de novo no treino.
+  - US-0009 (`2.1.0`): critério 01 conta o estado do início de cada volta, que no treino pode ser o
+    cruzamento da chegada; caso anormal da volta invalidada separado entre fora do treino e treino.
+- `NFR-0009` (`2.1.0`): as voltas seguidas do treino entram na lista de regras com verificação
+  determinística (I9).
+- `01-context.md` (`2.3.0`): seed `revision: 3`; rótulos `SEED/US-10`, `DOMAIN/DEC-12` e P1 a P3; tabela de
+  aplicação das decisões; botão de pausa no treino entre as diferenças de canal. `02-glossary.md`
+  (`2.1.0`): novos termos Treino, Encerrar o treino e Melhor volta válida; Volta, Tempo total, Contagem
+  regressiva, Volta inválida e Pausa ajustados.
+- Arquivos alterados passaram a `status: draft`; os demais (US-0003, NFR-0001 a NFR-0008, NFR-0010 a
+  NFR-0012, `98-divergences.md`) não mudaram. `00-index.md` e `99-traceability.md` não foram escritos: o
+  gate os gera com `lint_artifacts.py --emit`.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` (nenhum relatório de validação ou de feedback novo).
+
+**Itens recusados, com motivo**
+
+- O botão de pausa não foi estendido à volta oficial nem à de reconhecimento: o seed revision 3 o nomeia
+  só dentro de US-10 ("botão ou perda de foco"), e a pausa da volta oficial continua a de `DOMAIN/DEC-08`
+  (Esc, perda de foco, perda do sensor). A recusa da rodada 2 sobre pausa manual por toque em
+  `web-mobile` passa a valer só fora do treino. Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-29
+  req-loop rodada 6 — o botão de pausa que US-10 nomeia para o treino vale também na volta oficial e na de
+  reconhecimento?"
+- Nenhum critério sobre um segundo motivo numa volta de treino já inválida (por exemplo, corte seguido de
+  marcador pulado): o seed diz só que a volta é marcada inválida na hora, com o motivo; este conjunto exige
+  o motivo da invalidação e não decide a lista de motivos do resultado.
+- Nenhum critério sobre o que o resultado de uma volta de treino exibe no lugar de um tempo de setor cujo
+  limite não foi cruzado: o seed não decide. Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-29
+  req-loop rodada 6 — no treino, o que o resultado de uma volta inválida exibe para um setor cujo limite o
+  kart não cruzou?"
+- Voltas seguidas na volta de reconhecimento: não acrescentadas; o seed as pede só para o treino.
+- Duração da exibição do resultado de cada volta do treino e forma de acionar "encerrar treino": não
+  fixadas; o seed não as decide e a forma de acionamento é decisão de F-Spec.
+- Persistência da melhor volta válida entre sessões: fora do escopo (etapa 5).
+- Os itens recusados nas rodadas 2, 3 e 5 (tamanho mínimo de texto em `web-desktop`, meio de continuar
+  após a pausa, o que a volta de treino exibe em pista sem linha de chegada) continuam fora, pelos motivos
+  lá registrados; o seed revision 3 não os decide.
+- `NOTES.md` da pasta do seed não foi lido (fora da lista de entrada da etapa).
+
+## 2026-10-30 — rodada 7, Mode B (relatório `req-validation-20261030-0229.md`)
+
+**O que mudou**
+
+- ISSUE-01: `stories/US-0006-corte-e-grama.md` (`2.2.1`): AC-US-0006-06 ficou só com o fim no passo da
+  invalidação na volta oficial e na de reconhecimento; a frase sobre o treino saiu, porque o
+  comportamento do treino já está em AC-US-0010-08 e AC-US-0010-09 e no caso anormal da mesma história.
+- ISSUE-02: AC-US-0010-02 dividido em um critério por observação: tempo total (02), quatro tempos de setor
+  (23), validade com o motivo (24) e rótulo "não oficial" (25). Os ids novos foram acrescentados no fim
+  para não renumerar os critérios 03 a 22.
+- ISSUE-03: AC-US-0010-20 ficou com "cada volta concluída tem exatamente 1 resultado"; "cada cruzamento da
+  chegada no sentido da pista encerra no máximo 1 volta" passou a AC-US-0010-26.
+- ISSUE-04: aplicada a entrada de 2026-10-30 de `DOMAIN.md`, com o rótulo novo `DOMAIN/DEC-13` em
+  `01-context.md`: o tempo total aparece sempre que a volta de treino terminou na chegada (critério 02), o
+  setor cujo limite não foi cruzado aparece como "—" (critério 23), e numa pista sem setores declarados o
+  resultado mostra só o tempo total e a validade (critério 27, com pré-condição própria). Os casos
+  anormais de US-0010 ("setor não cruzado", "pista de dado incompleto") e o de US-0008 (`2.3.1`, pista sem
+  setores) passaram a citar a decisão.
+- ISSUE-05: os rótulos `DOMAIN/DEC-12/P1` a `P3` saíram do conjunto. Os critérios 12, 14, 16 e 19 de
+  US-0010 passaram a citar o texto do seed (`SEED/US-10`, `SEED/US-7`, `DOMAIN/DEC-02`), sem a ressalva "a
+  confirmar"; US-0010 ganhou `SEED/US-7` nas fontes. Sítios do mesmo fato carregados: `01-context.md`
+  (`2.3.1`: linhas dos rótulos e da tabela de aplicação, parágrafo de pontos em aberto), `02-glossary.md`
+  (`2.1.1`: Treino, Melhor volta válida), `stories/US-0007-reposicionamento.md` (`2.1.1`: fontes e caso
+  anormal).
+- `stories/US-0010-voltas-seguidas-no-treino.md` foi para `1.1.0`. Nenhuma história, NFR ou campo novo; os
+  critérios novos de US-0010 resultam da divisão pedida em ISSUE-02 e ISSUE-03 e da decisão que fecha
+  ISSUE-04. `00-index.md` e `99-traceability.md` não foram escritos: o gate os gera com
+  `lint_artifacts.py --emit`.
+
+**Itens fechados**: ISSUE-01, ISSUE-02, ISSUE-03, ISSUE-04, ISSUE-05.
+
+**Itens recusados, com motivo**
+
+- Nenhum item do relatório foi recusado.
+- `DOMAIN.md` registra a entrada de 2026-10-30 como do condutor, a confirmar pelo dono do produto. O
+  coordenador a declarou a decisão que fecha ISSUE-04, e o conjunto a aplica como está escrita. O
+  contexto cita a ressalva só na linha do rótulo e não a repete nos critérios.
+- A proposta de 2026-10-29 para `SCOPE-BACKLOG.md` sobre o setor não cruzado foi retirada, porque
+  `DOMAIN/DEC-13` a decide. A proposta sobre o botão de pausa na volta oficial continua de pé.
+- Ainda não há decisão sobre o que se cronometra numa pista sem linha de chegada. O item já tinha sido
+  recusado na rodada 3 e está fora deste relatório.
+
+## 2026-10-30 — rodada 8, Mode B (relatório `req-validation-20261030-0237.md`)
+
+**O que mudou**
+
+- ISSUE-02: em `stories/US-0010-voltas-seguidas-no-treino.md` (`1.1.1`), AC-US-0010-27 ficou só com a
+  ausência de tempo de setor e de linha de setores numa pista sem setores declarados. A exibição do tempo
+  total e a da validade nessa pista passaram a AC-US-0010-02 e AC-US-0010-24: uma pré-condição nova estende
+  os dois às duas pistas, e AC-US-0010-24 passou a citar `DOMAIN/DEC-13` para a pista sem setores. Nenhum
+  critério novo.
+- ISSUE-03: em `stories/US-0007-reposicionamento.md` (`2.1.2`), AC-US-0007-04 passou a valer só para a volta
+  de reconhecimento ou de treino sem motivo de invalidação. AC-US-0007-05 passou a exigir que o motivo
+  "reposicionamento" não seja exibido (`SEED/US-7`, "não exibe motivo"), o que concorda com
+  AC-US-0010-19. Um caso anormal novo trata a volta de treino já inválida por corte: ela segue inválida com
+  o motivo "corte", e reposicionar não a revalida.
+- ISSUE-01, deixado aberto por ordem do coordenador enquanto o dono do produto confirma a entrada de
+  2026-10-30 de `DOMAIN.md`. Os critérios não mudaram. O ponto foi listado como **ponto aberto 12**, com dono no
+  produto, citando `DOMAIN/DEC-13` como pendente de confirmação, em US-0010 (Pontos em aberto), em US-0008
+  (`2.3.2`, Pontos em aberto) e em `01-context.md` (`2.3.2`). O contexto deixou de afirmar que não resta
+  ponto em aberto, e a linha de `DOMAIN/DEC-13` na tabela de aplicação passou a incluir o critério 24 e a
+  marca de pendência.
+- `00-index.md` e `99-traceability.md` não foram escritos: o gate os gera com `lint_artifacts.py --emit`.
+
+**Itens fechados**: ISSUE-02, ISSUE-03.
+
+**Itens abertos ou recusados, com motivo**
+
+- ISSUE-01 fica aberto (ponto aberto 12) até o dono do produto confirmar `DOMAIN/DEC-13`. Enquanto o ponto aberto 12
+  existir, o gate (G5) acusa erro, de propósito.
+
+## 2026-10-30 — rodada 9, Mode B (fechamento de ISSUE-01 do relatório `req-validation-20261030-0237.md`)
+
+**O que mudou**
+
+- O dono do produto confirmou a entrada de 2026-10-30 de `DOMAIN.md`, que agora traz "Eduardo Matos,
+  confirmado em 2026-10-30". `DOMAIN/DEC-13` passa a ser citada como decisão do dono do produto.
+- O ponto aberto 12 foi removido de todos os lugares onde aparecia:
+  - `stories/US-0010-voltas-seguidas-no-treino.md` (`1.1.2`): Pontos em aberto e Fontes;
+  - `stories/US-0008-reconhecimento-e-treino.md` (`2.3.3`): Pontos em aberto;
+  - `01-context.md` (`2.3.3`): a linha do rótulo `DOMAIN/DEC-13`, a tabela de aplicação e o parágrafo de
+    pontos em aberto.
+- Na entrada da rodada 8 deste changelog, o identificador do ponto foi reescrito como "ponto aberto 12",
+  sem mudar o sentido, para que o gate não o leia como ainda aberto (o mesmo tratamento dado na rodada 2).
+- Nenhum critério, história, NFR ou campo mudou. `00-index.md` e `99-traceability.md` não foram escritos:
+  o gate os gera com `lint_artifacts.py --emit`.
+
+**Itens fechados**: ISSUE-01 (ponto aberto 12).
+
+**Itens recusados, com motivo**: nenhum.

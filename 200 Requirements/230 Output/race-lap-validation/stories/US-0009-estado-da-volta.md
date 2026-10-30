@@ -4,8 +4,8 @@ title: Estado da volta visível durante toda a volta
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.0.0
-sources: [SEED/US-9, SEED/NF-06, SEED/NF-07, DOMAIN/DEC-06, DOMAIN/DEC-08, DOMAIN/DEC-09, DOMAIN/DEC-11]
+version: 2.1.0
+sources: [SEED/US-9, SEED/US-10, SEED/NF-06, SEED/NF-07, DOMAIN/DEC-06, DOMAIN/DEC-08, DOMAIN/DEC-09, DOMAIN/DEC-11]
 ---
 
 # US-0009 — Estado da volta visível durante toda a volta
@@ -29,8 +29,9 @@ sem saber.
 
 ## Critérios de aceite
 
-- AC-US-0009-01: Do sinal verde ao encerramento da volta, a tela exibe o estado da volta em todos os
-  quadros.
+- AC-US-0009-01: Do início da volta ao seu encerramento, a tela exibe o estado da volta em todos os
+  quadros; o início é o sinal verde ou, nas voltas seguintes do treino, o instante de cruzamento da
+  chegada que encerrou a anterior (US-0010).
 - AC-US-0009-02: Enquanto a volta não tem motivo de invalidação, a tela exibe o estado "válida em
   andamento".
 - AC-US-0009-03: Quando a volta se torna inválida, a tela exibe o estado "inválida" com o seu motivo
@@ -48,8 +49,10 @@ sem saber.
 
 ## Casos anormais
 
-- **Volta invalidada**: a volta termina no passo da invalidação (`DOMAIN/DEC-06`); a tela exibe
-  "inválida" com o motivo ao terminar.
+- **Volta invalidada**: fora do treino, a volta termina no passo da invalidação (`DOMAIN/DEC-06`); a tela
+  exibe "inválida" com o motivo ao terminar. No treino, a tela exibe "inválida" com o motivo na hora da
+  invalidação e mantém esse estado até a próxima chegada no sentido da pista, quando a nova volta passa a
+  "válida em andamento" (US-0010, critérios 07 e 11).
 - **Pausa, perda de foco ou perda do sensor durante a volta**: simulação e cronômetro ficam suspensos e a
   volta segue oficial (`DOMAIN/DEC-08`); ao continuar, a tela exibe o mesmo estado da volta do instante da
   pausa.
@@ -59,9 +62,10 @@ sem saber.
 ## Fontes
 
 - `SEED/US-9` — história e seu critério.
+- `SEED/US-10` — no treino, estado de cada volta da sequência.
 - `SEED/NF-06` — estado comunicado por texto, não só por cor.
 - `SEED/NF-07` — mensagens em pt e en (RNF11).
-- `DOMAIN/DEC-06` — volta invalidada termina imediatamente.
+- `DOMAIN/DEC-06` — volta invalidada termina imediatamente, fora do treino.
 - `DOMAIN/DEC-08` — pausa durante a volta.
 - `DOMAIN/DEC-09` — idioma fora de pt e en recebe inglês.
 - `DOMAIN/DEC-11` — legibilidade WCAG AA e tamanho mínimo no celular.

@@ -4,8 +4,8 @@ title: Chegada na contramão não conta como volta
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.0.0
-sources: [SEED/US-5, SEED/RD-04, SEED/RD-05, DOMAIN/DEC-08]
+version: 2.1.0
+sources: [SEED/US-5, SEED/US-10, SEED/RD-04, SEED/RD-05, DOMAIN/DEC-08]
 ---
 
 # US-0005 — Chegada na contramão não conta como volta
@@ -43,6 +43,8 @@ sentido da pista.
   (critérios 01 e 02).
 - **Contramão seguida de cruzamento no sentido da pista**: encerra a volta; a validade depende dos
   marcadores (US-0002, US-0004).
+- **Chegada na contramão no treino**: não encerra a volta em andamento nem inicia a seguinte; no treino,
+  a volta seguinte só começa no cruzamento da chegada no sentido da pista (US-0010).
 - **Pausa, perda de foco ou perda do sensor durante a volta**: simulação e cronômetro ficam suspensos e a
   volta continua em andamento ao continuar (`DOMAIN/DEC-08`).
 - **Recarregar ou abandonar a página antes da chegada**: a volta não é concluída e não produz resultado
@@ -51,6 +53,7 @@ sentido da pista.
 ## Fontes
 
 - `SEED/US-5` — história e seus dois critérios.
+- `SEED/US-10` — no treino, só o cruzamento no sentido da pista encerra a volta e inicia a seguinte.
 - `SEED/RD-04`, `SEED/RD-05` — regras de domínio.
 - `DOMAIN/DEC-08` — pausa durante a volta.
 

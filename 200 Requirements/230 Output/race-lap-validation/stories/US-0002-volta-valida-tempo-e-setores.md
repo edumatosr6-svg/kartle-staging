@@ -4,8 +4,8 @@ title: Volta válida com tempo total e quatro tempos de setor
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.0.0
-sources: [SEED/US-2, SEED/RD-01, SEED/RD-04, SEED/RD-05, SEED/RD-08, SEED/RD-11, SEED/RE-03, SEED/RE-04, SEED/IM-I1, SEED/IM-I7, DOMAIN/DEC-03, DOMAIN/DEC-08]
+version: 2.1.0
+sources: [SEED/US-2, SEED/US-10, SEED/RD-01, SEED/RD-04, SEED/RD-05, SEED/RD-08, SEED/RD-11, SEED/RE-03, SEED/RE-04, SEED/IM-I1, SEED/IM-I7, DOMAIN/DEC-03, DOMAIN/DEC-08]
 ---
 
 # US-0002 — Volta válida com tempo total e quatro tempos de setor
@@ -26,6 +26,8 @@ registre meu tempo total e meus quatro tempos de setor, para comparar voltas.
 
 - O sinal verde foi dado (US-0001) e a volta está em andamento, sem motivo de invalidação.
 - O dado da pista declara largada, sentido, quatro setores e marcadores (`SEED/RE-03`).
+- Os critérios 07 e 08 tratam de uma volta iniciada no sinal verde; o início e o tempo das voltas
+  seguintes do treino estão em US-0010 (critérios 01 e 05).
 
 ## Critérios de aceite
 
@@ -51,7 +53,7 @@ registre meu tempo total e meus quatro tempos de setor, para comparar voltas.
 - AC-US-0002-11: O resultado de uma volta concluída, no estado da simulação, identifica a pista
   (`trackId`) e a versão da pista (`trackVersion`) em que foi corrida (I1).
 - AC-US-0002-12: Depois de uma volta concluída, cruzar a linha de chegada de novo não produz um segundo
-  resultado: o estado da simulação contém exatamente 1 resultado para essa volta (I7).
+  resultado para essa volta: o estado da simulação contém exatamente 1 resultado para essa volta (I7).
 - AC-US-0002-13: Na pista sintética atual, uma volta completa no sentido da pista passando por todos os
   marcadores em ordem é exibida como válida com quatro tempos de setor (`SEED/RE-04`).
 
@@ -59,7 +61,9 @@ registre meu tempo total e meus quatro tempos de setor, para comparar voltas.
 
 - **Chegada sem todos os marcadores em ordem**: a volta é inválida com motivo "marcador pulado" (US-0004).
 - **Chegada na contramão**: não encerra a volta nem registra tempo (US-0005).
-- **Linha de chegada cruzada de novo após a conclusão**: nenhum segundo resultado (critério 12).
+- **Linha de chegada cruzada de novo após a conclusão**: nenhum segundo resultado para a volta concluída
+  (critério 12); no treino, esse cruzamento encerra a volta seguinte, que tem o seu próprio resultado
+  (US-0010).
 - **Cruzamento da chegada exatamente sobre um passo**: o tempo total é o desse passo, k × `STEP`; a
   interpolação dos critérios 07 e 08 só se aplica a cruzamentos entre dois passos.
 - **Pausa, perda de foco ou perda do sensor durante a volta**: simulação e cronômetro ficam suspensos e,
@@ -74,6 +78,7 @@ registre meu tempo total e meus quatro tempos de setor, para comparar voltas.
 ## Fontes
 
 - `SEED/US-2` — história e seus três critérios.
+- `SEED/US-10` — no treino, as voltas se seguem a partir do instante de cruzamento da chegada.
 - `SEED/RD-01`, `SEED/RD-04`, `SEED/RD-05`, `SEED/RD-08`, `SEED/RD-11` — regras de domínio.
 - `SEED/RE-03`, `SEED/RE-04` — restrições sobre o dado de pista e a pista sintética.
 - `SEED/IM-I1`, `SEED/IM-I7` — impacto no domínio.

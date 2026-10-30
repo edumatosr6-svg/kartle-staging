@@ -3,7 +3,7 @@ title: Contexto — validação de volta de corrida
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.2.0
+version: 2.3.3
 sources: [SEED, DOMAIN]
 ---
 
@@ -14,7 +14,9 @@ sources: [SEED, DOMAIN]
 Uma corrida no Kartle é uma volta cronometrada numa pista, iniciada por contagem regressiva e encerrada na
 linha de chegada. Esta feature define quando essa volta é **válida**, como o tempo total e os quatro tempos
 de setor são medidos, e como o Jogador fica sabendo, durante e ao final da volta, se ela vale
-(`SEED.md`, Visão geral). É a base do desafio diário, que é outra feature.
+(`SEED.md`, Visão geral). É a base do desafio diário, que é outra feature. No treino, as voltas se seguem
+sem parar o kart e sem nova contagem, até o Jogador pausar ou encerrar o treino (`SEED.md` US-10,
+US-0010); a volta oficial continua terminando na chegada ou no momento da invalidação, com o kart parado.
 
 **Compatibilidade.** A validação preliminar por gates sequenciais do protótipo atual, que o próprio
 `README.md` declara não substituir o sistema final de cortes (`SEED.md`, Contexto), é aposentada por esta
@@ -26,9 +28,10 @@ assim que a feature é entregue. É seguro ligado porque pista sem dado completo
 oficial (`DOMAIN/DEC-10`), a volta não depende de servidor (NFR-0004) e física e presets não mudam
 (NFR-0011).
 
-Seed: `200 Requirements/220 Input/race-lap-validation/SEED.md`, `revision: 2`, `date: 2026-10-20`,
+Seed: `200 Requirements/220 Input/race-lap-validation/SEED.md`, `revision: 3`, `date: 2026-10-29`,
 autor `eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de
-2026-10-20 prevalecem sobre os pontos em aberto correspondentes do seed.
+2026-10-20 prevalecem sobre os pontos em aberto correspondentes do seed e cuja decisão de 2026-10-29
+(voltas seguidas no treino) acompanha a história US-10 do seed.
 
 ## Atores e canais
 
@@ -43,7 +46,8 @@ conjunto o cobre.
 
 Em todas as histórias, as regras de validade e de cronometragem são idênticas em `web-desktop` e
 `web-mobile`; o que muda entre os canais é o dispositivo de entrada, a forma de pausar (tecla Esc só em
-`web-desktop`; perda do sensor só em `web-mobile`) e o tamanho mínimo do texto de estado e de motivo
+`web-desktop`; perda do sensor só em `web-mobile`; no treino, também o botão de pausa, nos dois canais,
+`SEED.md` US-10) e o tamanho mínimo do texto de estado e de motivo
 (16 px exigidos só em `web-mobile`, `DOMAIN/DEC-11`). Em `web-mobile`, sensor de inclinação ausente ou
 permissão negada antes da volta faz o controle recair para toque com estado visível (I4, `[DOMAIN]`); a
 perda do sensor **durante** a volta suspende simulação e cronômetro (`DOMAIN/DEC-08`).
@@ -56,7 +60,7 @@ cada rótulo aos itens deste conjunto.
 
 | Rótulo | Item |
 |---|---|
-| `SEED/US-1` … `SEED/US-9` | As nove histórias de usuário da seção Histórias de usuário, na ordem do seed |
+| `SEED/US-1` … `SEED/US-10` | As dez histórias de usuário da seção Histórias de usuário, na ordem do seed |
 | `SEED/RD-01` | Largada com contagem regressiva, quatro setores e linha de chegada (RF09) |
 | `SEED/RD-02` | Volta que pula checkpoint é inválida (RF10) |
 | `SEED/RD-03` | Setores de apresentação e marcadores de validação são conjuntos distintos (`requirements/02`, `06`) |
@@ -98,27 +102,37 @@ cada rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-09` | Navegador em idioma que não é português nem inglês recebe as mensagens em inglês |
 | `DOMAIN/DEC-10` | Pista cujo dado não declara largada, sentido, quatro setores ou marcadores é jogável apenas sem tempo oficial (treino); nenhuma volta oficial é oferecida nela |
 | `DOMAIN/DEC-11` | Legibilidade WCAG AA: contraste mínimo 4,5:1; texto de estado e motivo com no mínimo 16 px no celular; contagem com no mínimo 48 px |
+| `DOMAIN/DEC-12` | Voltas seguidas no treino (2026-10-29): ao cruzar a chegada, o resultado da volta aparece, o kart continua e a próxima volta começa na hora, sem contagem; no treino, a volta inválida é marcada na hora e o kart segue até a próxima passagem pela chegada, o que substitui `DOMAIN/DEC-06` só para o treino; a volta oficial mantém `DOMAIN/DEC-06` e o INV-1 (depois do encerramento, nada muda) |
+| `DOMAIN/DEC-13` | Resultado da volta de treino (2026-10-30): um setor cujo limite o kart não cruzou aparece como "—", sem tempo; o tempo total aparece sempre que a volta terminou na chegada; numa pista cujo dado não declara setores (`DOMAIN/DEC-10`), o resultado mostra só o tempo total e a validade, sem linha de setores. Decisão de Eduardo Matos, dono do produto, confirmada em 2026-10-30 |
 
 ## Decisões de domínio aplicadas
 
 Cada decisão `DOMAIN/DEC-nn` fecha o ponto aberto de mesmo número (nn) — os de 01 a 08 vinham do seed, os
-de 09 a 11 foram levantados pela rodada anterior deste conjunto. Onde cada uma é aplicada:
+de 09 a 11 foram levantados pela rodada anterior deste conjunto. `DOMAIN/DEC-12` não fecha ponto aberto: é a
+decisão de 2026-10-29 que acompanha a história US-10 do seed, e `DOMAIN/DEC-13` é a entrada de 2026-10-30
+sobre o resultado da volta de treino. Onde cada uma é aplicada:
 
 | Decisão | Histórias e NFRs |
 |---|---|
 | `DOMAIN/DEC-01` | US-0006 |
-| `DOMAIN/DEC-02` | US-0007 |
-| `DOMAIN/DEC-03` | US-0002, US-0003 |
+| `DOMAIN/DEC-02` | US-0007, US-0010 |
+| `DOMAIN/DEC-03` | US-0002, US-0003, US-0010 |
 | `DOMAIN/DEC-04` | US-0001 |
-| `DOMAIN/DEC-05` | US-0001 |
-| `DOMAIN/DEC-06` | US-0004, US-0006, US-0007, US-0009 |
+| `DOMAIN/DEC-05` | US-0001, US-0010 |
+| `DOMAIN/DEC-06` | US-0004, US-0006, US-0007, US-0009 e US-0010, na volta oficial e na de reconhecimento; o treino segue `DOMAIN/DEC-12` |
 | `DOMAIN/DEC-07` | NFR-0008 |
-| `DOMAIN/DEC-08` | US-0003, com reflexo nos casos anormais de US-0001, US-0002, US-0004 a US-0007 e US-0009 |
+| `DOMAIN/DEC-08` | US-0003 e US-0010, com reflexo nos casos anormais de US-0001, US-0002, US-0004 a US-0007 e US-0009 |
 | `DOMAIN/DEC-09` | US-0009, NFR-0007 |
 | `DOMAIN/DEC-10` | US-0008 |
 | `DOMAIN/DEC-11` | US-0001, US-0009, NFR-0006 |
+| `DOMAIN/DEC-12` | US-0010, com reflexo em US-0001, US-0002, US-0004 a US-0009 e NFR-0009 |
+| `DOMAIN/DEC-13` | US-0010, critérios 02, 23, 24 (na pista sem setores) e 27; US-0008, casos anormais |
 
-Não resta ponto em aberto neste conjunto.
+Não resta ponto em aberto neste conjunto: `DOMAIN/DEC-13` foi confirmada pelo dono do produto em
+2026-10-30. Os três itens que a entrada de 2026-10-29 de `DOMAIN.md` listava
+como a confirmar — o treino só para por pausa ou por encerramento, a melhor volta válida fica visível,
+reposicionar segue livre no treino — são texto do seed revision 3 (US-10 e US-7), como confirma a entrada
+de 2026-10-30, e são rastreados a `SEED/US-10` e `SEED/US-7`. A volta de reconhecimento não ganha voltas seguidas: o seed as pede só para o treino.
 
 ## Restrições (citadas do seed, seção Restrições)
 

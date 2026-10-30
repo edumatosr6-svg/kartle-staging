@@ -4,8 +4,8 @@ title: Volta que pula marcador não gera tempo válido
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.1.0
-sources: [SEED/US-4, SEED/RD-02, SEED/RD-03, SEED/RD-04, SEED/RE-03, SEED/RE-04, DOMAIN/DEC-06, DOMAIN/DEC-08]
+version: 2.2.0
+sources: [SEED/US-4, SEED/US-10, SEED/RD-02, SEED/RD-03, SEED/RD-04, SEED/RE-03, SEED/RE-04, DOMAIN/DEC-06, DOMAIN/DEC-08]
 ---
 
 # US-0004 — Volta que pula marcador não gera tempo válido
@@ -48,8 +48,11 @@ compensem.
   regra exige todos os marcadores em ordem; a passagem conta se ocorrer na ordem e no sentido da pista
   (`SEED/RD-04`).
 - **Marcador atravessado na contramão**: não conta como passagem (US-0005).
-- **Linha de chegada cruzada de novo após a volta inválida por marcador**: nenhum segundo resultado; a
-  volta já terminou no passo do primeiro cruzamento (critério 07, `DOMAIN/DEC-06`, I7).
+- **Linha de chegada cruzada de novo após a volta inválida por marcador**: nenhum segundo resultado para
+  ela; a volta já terminou no passo do primeiro cruzamento (critério 07, `DOMAIN/DEC-06`, I7). No treino,
+  o novo cruzamento encerra a volta seguinte, que tem o seu próprio resultado (US-0010).
+- **Marcador pulado no treino**: o cruzamento da chegada que torna a volta inválida também inicia a
+  próxima volta, no mesmo instante, e o kart não para (US-0010, critérios 03 e 10).
 - **Pausa, perda de foco ou perda do sensor durante a volta**: simulação e cronômetro ficam suspensos; as
   passagens por marcador registradas antes da pausa continuam valendo ao continuar (`DOMAIN/DEC-08`).
 - **Recarregar ou abandonar a página antes da chegada**: a volta não é concluída e não produz resultado
@@ -58,6 +61,7 @@ compensem.
 ## Fontes
 
 - `SEED/US-4` — história e seu critério.
+- `SEED/US-10` — no treino, a volta inválida não para o kart e a seguinte começa na chegada.
 - `SEED/RD-02`, `SEED/RD-03`, `SEED/RD-04` — regras de domínio.
 - `SEED/RE-03`, `SEED/RE-04` — dado de pista e pista sintética.
 - `DOMAIN/DEC-06` — volta invalidada termina imediatamente.

@@ -4,8 +4,8 @@ title: Reconhecimento e treino nunca produzem tempo oficial
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.2.0
-sources: [SEED/US-8, SEED/RD-09, SEED/RE-03, DOMAIN/DEC-10]
+version: 2.3.3
+sources: [SEED/US-8, SEED/US-10, SEED/RD-09, SEED/RE-03, DOMAIN/DEC-10, DOMAIN/DEC-13]
 ---
 
 # US-0008 — Reconhecimento e treino nunca produzem tempo oficial
@@ -37,7 +37,7 @@ não altere meu resultado.
   identificado como não oficial.
 - AC-US-0008-03: Numa pista de dado incompleto, a tela não oferece volta oficial: nenhuma opção de
   iniciar volta oficial é exibida (`DOMAIN/DEC-10`).
-- AC-US-0008-04: Numa pista de dado incompleto, a tela oferece a volta de treino, que pode ser pilotada
+- AC-US-0008-04: Numa pista de dado incompleto, a tela oferece o treino, que pode ser pilotado
   (`DOMAIN/DEC-10`).
 - AC-US-0008-05: Numa pista de dado incompleto, todo resultado no estado da simulação é identificado como
   não oficial (`DOMAIN/DEC-10`).
@@ -45,15 +45,19 @@ não altere meu resultado.
 ## Casos anormais
 
 - **Volta de reconhecimento ou de treino inválida** (marcador pulado, corte): as regras de US-0004 e
-  US-0006 valem em qualquer tipo de volta; nenhuma delas produz tempo oficial.
+  US-0006 valem em qualquer tipo de volta; nenhuma delas produz tempo oficial. No treino, a volta inválida
+  não para o kart e a seguinte começa na próxima chegada no sentido da pista (US-0010).
 - **Chegada na contramão em reconhecimento ou treino**: não encerra a volta nem registra tempo, e a volta
   segue em andamento, como em qualquer tipo de volta (US-0005); não é causa de volta inválida.
 - **Reposicionamento em reconhecimento ou treino**: não invalida e não penaliza (US-0007).
-- **Chegada cruzada de novo após a conclusão**: nenhum segundo resultado (I7, US-0002).
+- **Chegada cruzada de novo após a conclusão**: nenhum segundo resultado para a volta concluída (I7,
+  US-0002); no treino, o novo cruzamento encerra a volta seguinte, que tem o seu próprio resultado,
+  também não oficial (US-0010).
 - **Pista de dado incompleto que não declara linha de chegada ou setores**: a volta de treino pode ser
-  pilotada (critério 04) e nenhum resultado dela é identificado como oficial (critério 05). O que se
-  cronometra numa pista sem linha de chegada não é decidido pelo seed nem por `DOMAIN.md`; este conjunto
-  não acrescenta critério sobre isso.
+  pilotada (critério 04) e nenhum resultado dela é identificado como oficial (critério 05). Sem setores
+  declarados, o resultado mostra só o tempo total e a validade (US-0010, critério 27, `DOMAIN/DEC-13`). O
+  que se cronometra numa pista sem linha de chegada não é decidido pelo seed nem por `DOMAIN.md`; este
+  conjunto não acrescenta critério sobre isso.
 - **Pausa, perda de foco ou perda do sensor durante a volta**: simulação e cronômetro ficam suspensos
   (`DOMAIN/DEC-08`); a volta continua não oficial.
 - **Recarregar ou abandonar a página antes da chegada**: a volta não é concluída e não produz resultado
@@ -62,10 +66,13 @@ não altere meu resultado.
 ## Fontes
 
 - `SEED/US-8` — história e seus dois critérios.
+- `SEED/US-10` — voltas seguidas no treino, todas não oficiais.
 - `SEED/RD-09` — reconhecimento e treino não escrevem tempos oficiais.
 - `SEED/RE-03` — largada, sentido, setores e marcadores vêm do dado da pista.
 - `DOMAIN/DEC-10` — pista de dado incompleto só é jogável como treino.
 
 ## Pontos em aberto
 
-Nenhum — o tratamento da pista de dado incompleto está decidido em `DOMAIN.md` de 2026-10-20.
+Nenhum — o tratamento da pista de dado incompleto está decidido em `DOMAIN.md` de 2026-10-20
+(`DOMAIN/DEC-10`), e o resultado numa pista sem setores declarados está decidido pelo dono do produto em
+`DOMAIN.md` de 2026-10-30 (`DOMAIN/DEC-13`).

@@ -4,8 +4,8 @@ title: Corte invalida a volta, grama sem corte só reduz a velocidade
 feature: race-lap-validation
 stage: req
 status: validated
-version: 2.1.0
-sources: [SEED/US-6, SEED/RD-06, SEED/RE-03, DOMAIN/DEC-01, DOMAIN/DEC-06, DOMAIN/DEC-08]
+version: 2.2.1
+sources: [SEED/US-6, SEED/US-10, SEED/RD-06, SEED/RE-03, DOMAIN/DEC-01, DOMAIN/DEC-06, DOMAIN/DEC-08, DOMAIN/DEC-12]
 ---
 
 # US-0006 — Corte invalida a volta, grama sem corte só reduz a velocidade
@@ -41,8 +41,9 @@ apenas me deixe mais lento, para que erros honestos não sejam punidos como trap
   a volta se torna inválida, no estado da simulação, quando o kart ultrapassa esses limites, e não os
   valores de 3 m e 1000 ms (`DOMAIN/DEC-01`, `SEED/RE-03`).
 - AC-US-0006-05: Quando a volta se torna inválida por corte, a tela exibe o motivo "corte".
-- AC-US-0006-06: No estado da simulação, a volta inválida por corte termina no passo da invalidação:
-  nenhum tempo de volta e nenhum tempo de setor é acrescentado depois desse passo (`DOMAIN/DEC-06`).
+- AC-US-0006-06: No estado da simulação, em volta oficial e em volta de reconhecimento, a volta inválida
+  por corte termina no passo da invalidação: nenhum tempo de volta e nenhum tempo de setor é acrescentado
+  depois desse passo (`DOMAIN/DEC-06`).
 - AC-US-0006-07: No estado da simulação, partindo do mesmo estado inicial e com a mesma entrada em todos
   os passos, a velocidade do kart após N passos de `STEP` na grama é menor que após N passos de `STEP` na
   pista (RF08).
@@ -54,8 +55,9 @@ apenas me deixe mais lento, para que erros honestos não sejam punidos como trap
 - **Saída de pista interrompida e retomada** (o kart volta a 3 m ou menos da borda e sai de novo): a
   contagem de 1000 ms seguidos recomeça a cada saída além de 3 m (critérios 01 e 02, "seguidos" em
   `DOMAIN/DEC-01`).
-- **Saída de pista seguida de marcador pulado**: a volta já terminou no corte (`DOMAIN/DEC-06`); o motivo
-  exibido é "corte".
+- **Saída de pista seguida de marcador pulado**: fora do treino, a volta já terminou no corte
+  (`DOMAIN/DEC-06`); o motivo exibido é "corte". No treino, a volta segue inválida com o motivo "corte"
+  até a próxima chegada no sentido da pista (US-0010).
 - **Pausa, perda de foco ou perda do sensor durante a saída de pista**: a simulação fica suspensa e não
   avança nenhum passo (`DOMAIN/DEC-08`); como a duração é medida no estado da simulação, o tempo em pausa
   não conta para os 1000 ms.
@@ -65,10 +67,11 @@ apenas me deixe mais lento, para que erros honestos não sejam punidos como trap
 ## Fontes
 
 - `SEED/US-6` — história e seus dois critérios.
+- `SEED/US-10`, `DOMAIN/DEC-12` — no treino, a volta inválida por corte não termina no corte.
 - `SEED/RD-06` — grama reduz velocidade e não invalida sem regra de corte (RF08).
 - `SEED/RE-03` — os limites próprios vêm do dado da pista.
 - `DOMAIN/DEC-01` — critério de corte: 3 m e 1000 ms seguidos, substituíveis pelo dado da pista.
-- `DOMAIN/DEC-06` — volta invalidada termina imediatamente.
+- `DOMAIN/DEC-06` — volta invalidada termina imediatamente, fora do treino.
 - `DOMAIN/DEC-08` — pausa durante a volta.
 
 ## Pontos em aberto
