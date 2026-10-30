@@ -143,19 +143,8 @@ skidMarks.frustumCulled = false;
 scene.add(skidMarks);
 const skidTransform = new THREE.Object3D();
 let skidIndex = 0, lastSkidStepCount = 0;
-// One tyre-mark segment every 5 simulation steps (41.7 ms, today's 40 ms cadence rounded to the step), never by wall clock (DES-0005).
-const SKID_STEP_INTERVAL = 5;
 let previousSkids: THREE.Vector3[] = [];
-// A single jet tied to the Kart 01 exhaust outlet, pointing behind the kart (+Z of the model frame) with its base at the tailpipe (DES-0005).
-const exhaust = new THREE.Group();
-const jet = new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.2, 8), new THREE.MeshBasicMaterial({ color: '#a5faff', transparent: true, opacity: 0.9 }));
-jet.rotation.x = Math.PI / 2;
-jet.position.set(0, 0, 0.6);
-exhaust.add(jet);
-exhaust.visible = false;
-kart01.anchors.exhaustOutlet.add(exhaust);
 const audio = new RaceAudio();
-const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // Lap state: the simulation (src/lap.ts) is the single source; this layer only forwards commands and reads views.
 let lap: LapSession | undefined;
@@ -586,40 +575,43 @@ function frame(now: number) {
     sun.position.set(pose.xM + 45, 100, pose.zM + 60);
     sun.target.position.set(pose.xM, 0, pose.zM);
   }
-  const tricks = state.maneuvers;
   audio.update(state.speed, state.throttle, running);
-  exhaust.visible = tricks.boost > 0;
-  exhaust.scale.z = 1 + (reducedMotion ? 0 : Math.sin(state.elapsed * 35) * 0.12);
-  // A counter that went backwards (new lap, reposition) restarts the segment chain without touching the marks already drawn.
-  if (!('code' in pose) && pose.simStepCount < lastSkidStepCount) { previousSkids = []; lastSkidStepCount = pose.simStepCount; }
-  if (lap && lap.phase === 'RUNNING' && !('code' in pose) && tricks.drifting && state.speed > 6 && Math.abs(state.telemetry.sideslip) > 0.055) {
-    if (pose.simStepCount - lastSkidStepCount >= SKID_STEP_INTERVAL) {
-      lastSkidStepCount = pose.simStepCount;
+  // Tyre-mark situation (DES-0005, RULE-0003), read once per frame from the last completed step: a new step, RUNNING,
+  // speedMps > 6 and sideslipRad > 0.055. A counter that went backwards (new lap, reposition) restarts the chain
+  // without moving the marks already drawn; a frame without a new step draws nothing.
+  if ('code' in pose || pose.simStepCount < lastSkidStepCount) {
+    previousSkids = [];
+    if (!('code' in pose)) lastSkidStepCount = pose.simStepCount;
+  } else if (pose.simStepCount > lastSkidStepCount) {
+    lastSkidStepCount = pose.simStepCount;
+    const skidLapState = getLapState(lap);
+    if (!lap || 'code' in skidLapState || skidLapState.lapPhase !== 'RUNNING') previousSkids = [];
+    else {
       // The rear simulation wheel positions of the lap's frozen config, carried by the pose: never the model's wheel centres (NFR-0007).
       const rear = simWheelGroundPositions(pose, lap.config).slice(2).map(p => new THREE.Vector3(p.xM, 0.055, p.zM));
-      rear.forEach((p, i) => {
-        const previous = previousSkids[i];
-        if (!previous) return;
-        const distance = p.distanceTo(previous);
-        if (distance < 0.03 || distance > 3) return;
-        skidTransform.position.copy(p).add(previous).multiplyScalar(0.5);
-        skidTransform.rotation.y = Math.atan2(p.x - previous.x, p.z - previous.z);
-        skidTransform.scale.set(1, 1, distance);
-        skidTransform.updateMatrix();
-        skidMarks.setMatrixAt(skidIndex, skidTransform.matrix);
-        skidIndex = (skidIndex + 1) % 320;
-        skidMarks.count = Math.min(320, skidMarks.count + 1);
-      });
-      skidMarks.instanceMatrix.needsUpdate = true;
+      const skidTelemetry = getHandlingTelemetry(lap.kart, setupRef);
+      if (!('code' in skidTelemetry) && skidTelemetry.speedMps > 6 && skidTelemetry.sideslipRad > 0.055) {
+        rear.forEach((p, i) => {
+          const previous = previousSkids[i];
+          if (!previous) return;
+          skidTransform.position.copy(p).add(previous).multiplyScalar(0.5);
+          skidTransform.rotation.y = Math.atan2(p.x - previous.x, p.z - previous.z);
+          skidTransform.scale.set(1, 1, p.distanceTo(previous));
+          skidTransform.updateMatrix();
+          skidMarks.setMatrixAt(skidIndex, skidTransform.matrix);
+          skidIndex = (skidIndex + 1) % 320;
+          skidMarks.count = Math.min(320, skidMarks.count + 1);
+        });
+        skidMarks.instanceMatrix.needsUpdate = true;
+      }
       previousSkids = rear;
     }
-  } else { previousSkids = []; }
-  // The camera is a pure function of the frame (ADR-0002): lap state, pose, play-area shape read this frame and the turbo condition.
+  }
+  // The camera is a pure function of the frame (ADR-0002): lap state, pose and play-area shape read this frame.
   const viewWidthPx = host.clientWidth, viewHeightPx = host.clientHeight;
   if (viewWidthPx > 0 && viewHeightPx > 0) {
     const view = computeCameraView({
-      lapState: getLapState(lap), kartPose: pose, viewWidthPx, viewHeightPx,
-      turboActive: config.drivingAssists && !reducedMotion && tricks.boost > 0, trackBounds,
+      lapState: getLapState(lap), kartPose: pose, viewWidthPx, viewHeightPx, trackBounds,
     });
     cameraView = 'code' in view ? undefined : view;
     if (cameraView) applyCameraView(camera, cameraView);

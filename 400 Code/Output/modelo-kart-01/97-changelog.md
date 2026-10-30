@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de c
 feature: modelo-kart-01
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -96,6 +96,46 @@ feedback de outra feature nesta feature).
 
 **Proposta ao autor** (de ADR-0002, Consequências): uma pista cuja visão geral exigir altura próxima de 300 m fica esbatida pela
 névoa de `src/main.ts` (160–350 m); assunto da feature que trouxer essa pista.
+
+## 2026-10-30 — rodada 3, Mode B (projeto revalidado com o seed `revision: 4`, `dspec-validation-20261030-1413`)
+
+**O que mudou**
+
+- `src/gameCamera.ts` (DES-0003 1.2.0, Retirada I3): saem `TURBO_FOV_DELTA_DEG`, `CameraFrameInputs.turboActive`,
+  `CameraView.baseVerticalFovDeg` e `CameraView.turboFovDeltaDeg`; `baseVerticalFovDeg` passa a `shapeVerticalFovDeg` com o mesmo
+  corpo; `computeCameraView` dá `verticalFovDeg = base` em `RACE_CHASE` (REQ-FEAT-0003-05 a -07, -17). `decideCameraMode` inalterado
+  (REQ-FEAT-0003-16).
+- `src/main.ts` (DES-0004 1.3.2, DES-0005 1.4.0): `computeCameraView` com as cinco entradas, sem `turboActive`; o jato (`exhaust`,
+  `jet`, `anchors.exhaustOutlet.add`, `exhaust.visible`/`scale.z`) retirado (REQ-FEAT-0005-10); o bloco das marcas reescrito pela
+  situação de marca de pneu (passo novo, `getLapState(lap).lapPhase === 'RUNNING'`, `getHandlingTelemetry` sem `code`,
+  `speedMps > 6`, `sideslipRad > 0.055`; `previousSkids` em todo quadro com passo novo em `RUNNING`), sem `SKID_STEP_INTERVAL`, sem
+  os filtros de distância e sem `tricks.drifting` (REQ-FEAT-0005-01, -07, -08, -09, -11, -12); `const tricks` e `const reducedMotion`
+  retirados porque nenhum leitor sobrou.
+- `src/kart01Model.ts` (DES-0001 1.2.0): `anchors` passa a `{ bumperPlate }`; o nó `escapamentoSaida` sai; nenhuma geometria muda.
+- Não tocados: `src/physics.ts` (presets, `Input`), `src/lap.ts`, `src/track.ts`, `tests/`, `tests/fixtures/kart01-sim-baseline.json`
+  (regravado com `arcade-assistido-v6` no commit `07b5cfa`).
+- Registros: `web/DES-0001` 1.2.0, `web/DES-0003` 2.0.0, `web/DES-0004` 1.1.0, `web/DES-0005` 2.0.0, `98-divergences.md` 2.0.0 (linhas 11,
+  17 e 18 `retired`, 16 reescrita, 22 a 27 resolvidas, 28 a 30 abertas para o estágio de testes), `01-implementation.md` 1.2.0.
+- Portão: `npx tsc --noEmit -p .` 0; `npx vite build` 0; `npx tsx --test tests/*.test.ts` 423 testes, 410 aprovados, 13 reprovados
+  (lista em `01-implementation.md`, rodada 3).
+
+**Itens fechados**: linhas do projeto `98-divergences.md` 1.5.0 das rodadas 5, 6 e 7 (código: linhas 22 a 26 deste registro; linha
+de base: linha 27, já fechada pelo estágio de testes).
+
+**Itens recusados, com motivo**
+
+- ISSUE-16 de `dspec-validation-20261030-1413` (warning, sugestão ao gerador do projeto: dar à decisão da situação de marca de pneu
+  uma função pura testável em Node): não feito aqui. O projeto validado DES-0005 1.4.0 diz "nenhum módulo novo e nenhuma função nova"
+  e põe a decisão no bloco das marcas de `src/main.ts`; a rodada 7 do projeto recusou a extração por superfície congelada; esta
+  rodada é Mode B (conventions §16). Proposta para o `SCOPE-BACKLOG.md` do autor, como a rodada 7 do projeto já registrou: "função
+  pura da situação de marca de pneu em `src/kartPose.ts` (modelo-kart-01)".
+- Manter `const tricks` "só para o HUD da manobra" (DES-0004 1.3.2, linha de `:553`): não mantido; na árvore corrente nenhum HUD lê
+  `tricks` e uma constante sem leitor não realiza nada (linha 24 de `98-divergences.md`).
+- Manter um apelido `baseVerticalFovDeg` exportado para `tests/modelo-kart-01-camera.test.ts` carregar: recusado; API-0003 2.0.0 e
+  DES-0003 (Retirada) exigem a ausência do nome em `src/gameCamera.ts`; a migração do teste é do estágio de testes (linha 28).
+- Editar testes ou helpers (`tests/modelo-kart-01-*.test.ts`, `tests/helpers/kart01Report.ts`, que ainda passa `turboActive`):
+  não feito; estágio de testes.
+- Regravar a linha de base: não feito; já regravada com `arcade-assistido-v6` (`07b5cfa`).
 
 ## 2026-10-27 — rodada 2, Mode B (projeto corrigido em 1.3.0, `dspec-validation-20261027-1941`, após o FAIL SPEC `feedback-20261027-1928.md`)
 

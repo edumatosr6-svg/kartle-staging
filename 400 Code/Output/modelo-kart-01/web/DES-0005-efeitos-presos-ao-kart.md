@@ -1,33 +1,36 @@
 ---
 id: DES-0005
-title: Efeitos presos ao kart — marcas de pneu em wheelPositions por passo, fumaça no escapamento do Kart 01 e indicação de drift — implementação
+title: Efeitos presos ao kart — marcas de pneu em wheelPositions, um trecho por quadro com passo novo na situação de marca de pneu; nenhuma indicação de drift nem fumaça ou chama de turbo — implementação
 feature: modelo-kart-01
 stage: code
 status: validated
-version: 1.0.0
-sources: [FEAT-0005, RULE-0003, FLOW-0001, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-07, REQ-FEAT-0005-08, NFR-0007]
+version: 2.0.0
+sources: [FEAT-0005, RULE-0003, FLOW-0001, SCR-0001, REQ-FEAT-0005-01, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12, NFR-0007]
 ---
 
 # DES-0005 — Efeitos presos ao kart — implementação
 
-`src/main.ts`, camada aplicação, alterado nos trechos das marcas, do jato de escapamento e de `beginLap`. Nenhum módulo novo: as
-posições vêm de `simWheelGroundPositions` (`src/kartPose.ts`) e o ponto do escapamento de `kart01.anchors.exhaustOutlet`
-(`src/kart01Model.ts`). Nenhum efeito é acrescentado ou retirado.
+`src/main.ts`, camada aplicação, alterado no bloco das marcas e na retirada do jato; `src/kart01Model.ts` alterado só pela retirada
+do nó `escapamentoSaida` (DES-0001). Nenhum módulo, função, constante ou chave nova (projeto DES-0005 1.4.0, Posicionamento): a
+decisão da situação de marca de pneu fica no bloco das marcas de `src/main.ts`, lida de `getKartPose`, `getLapState` e
+`getHandlingTelemetry`. Linhas de `src/main.ts` da rodada 3 (666 linhas).
 
 ## Realização por requisito
 
 | Requisito | Arquivo e símbolo |
 |---|---|
-| REQ-FEAT-0005-01; NFR-0007 | `src/main.ts` `frame` (`simWheelGroundPositions(pose, lap.config).slice(2)` em y 0,055 m, `:472`: as posições traseiras de `wheelPositions` da configuração congelada da volta, levadas pela pose; nunca os centros das rodas do modelo) |
-| REQ-FEAT-0005-02 | `src/main.ts` `exhaust`/`jet` (`:140-147`: um `ConeGeometry(0.18, 1.2, 8)` com o material de hoje, filho de `kart01.anchors.exhaustOutlet`, `rotation.x = π/2` apontando para trás do kart, base na saída da ponteira em `z = 0,6`); `frame` (`exhaust.visible = tricks.boost > 0`, `exhaust.scale.z = 1 + sin(state.elapsed × 35) × 0,12`, `:464-465`) |
-| REQ-FEAT-0005-03 | `src/main.ts` `frame` (as marcas nascem sob os pneus traseiros do Kart 01 exibido durante o drift; nenhum efeito novo) |
-| REQ-FEAT-0005-04 | `src/main.ts` `frame` (condição das marcas `lap.phase === 'RUNNING'`, `tricks.drifting`, `state.speed > 6`, `abs(sideslip) > 0.055`, `:468`; trecho só entre 0,03 m e 3 m; fumaça com `boost > 0`: as situações de hoje) |
-| REQ-FEAT-0005-07 | `src/main.ts` `frame` (`pose.simStepCount < lastSkidStepCount` → `previousSkids = []` e `lastSkidStepCount = pose.simStepCount`, `:467`: o primeiro trecho depois de um reposicionamento sai da nova posição e a `InstancedMesh` não é tocada); `beginLap` (`skidMarks.count = 0; skidIndex = 0; previousSkids = [];`, `:232`, sem `skidClock`; `lastSkidStepCount` não é escrito ali) |
-| REQ-FEAT-0005-08 | `src/main.ts` `SKID_STEP_INTERVAL` 5 (`:138`) e `frame` (`pose.simStepCount − lastSkidStepCount >= SKID_STEP_INTERVAL`, `:469-470`: um trecho a cada 5 passos, 41,7 ms; num quadro sem passo novo ou na pausa nada é desenhado; a fumaça é filha do modelo e `state.elapsed` congela na pausa) |
-| RULE-0003, FLOW-0001 | `src/main.ts` `lastSkidStepCount` (`:136`): o contador de sequência é `simStepCount`; o mesmo passo nunca desenha um segundo trecho |
+| REQ-FEAT-0005-01; NFR-0007 | `src/main.ts` `frame` (`simWheelGroundPositions(pose, lap.config).slice(2)` em y 0,055 m, `:591`: as posições traseiras de `wheelPositions` da configuração congelada da volta, levadas pela pose; nunca os centros das rodas do modelo); nada no bloco depende do tipo nem do fim da volta: no treino os trechos continuam nascendo enquanto `simStepCount` avança em `RUNNING` |
+| REQ-FEAT-0005-07 | `src/main.ts` `frame` (`pose.simStepCount < lastSkidStepCount` → `previousSkids = []` e `lastSkidStepCount` ao contador lido, `:582-584`: a `InstancedMesh` não é tocada e o primeiro trecho depois de um reposicionamento sai da nova posição); `beginLap` (`skidMarks.count = 0; skidIndex = 0; previousSkids = [];`, `:234`) |
+| REQ-FEAT-0005-08 | `src/main.ts` `frame` (só `pose.simStepCount > lastSkidStepCount` entra no ramo que desenha, `:585`: quadro sem passo novo — pausa, `ENDED` da volta oficial, aba sem foco — não desenha nada, quaisquer que sejam os valores lidos) |
+| REQ-FEAT-0005-11 | `src/main.ts` `frame` (`:585-608`: passo novo; `getLapState(lap).lapPhase === 'RUNNING'`, `:587-588`; `getHandlingTelemetry(lap.kart, setupRef)` sem `code`, `speedMps > 6` e `sideslipRad > 0.055`, `:592-593`; um trecho sob cada pneu traseiro de `previousSkids[i]` até a posição do quadro; `previousSkids` acompanha a posição traseira de todo quadro com passo novo em `RUNNING`, `:607`, de modo que o primeiro quadro da situação já desenha) |
+| REQ-FEAT-0005-12 | `src/main.ts` `frame` (fase diferente de `RUNNING` ou sem volta → `previousSkids = []` sem trecho, `:588`; telemetria `NO_STATE` ou valores iguais ou abaixo dos limites → nenhum trecho, `:593`, limites estritos; nenhum comando do Jogador nem campo de `State.maneuvers` é lido; `SKID_STEP_INTERVAL` e os filtros de distância 0,03/3 m retirados) |
+| REQ-FEAT-0005-09 | `src/main.ts`: nenhum objeto da cena é indicação de drift; `const tricks = state.maneuvers` retirado (nenhum leitor sobrou) e o bloco das marcas não lê `tricks` nem `maneuvers` |
+| REQ-FEAT-0005-10 | `src/main.ts`: `exhaust`, `jet` (`ConeGeometry(0.18, 1.2, 8)`), `kart01.anchors.exhaustOutlet.add(exhaust)`, `exhaust.visible = tricks.boost > 0` e a pulsação por `state.elapsed` retirados; `const reducedMotion` retirado com os seus dois únicos leitores (o jato e a condição de turbo da câmera); `src/kart01Model.ts`: nó `escapamentoSaida` e `anchors.exhaustOutlet` retirados (`anchors` = `{ bumperPlate }`, `:45`, `:534`) |
+| RULE-0003, FLOW-0001 | `src/main.ts` `lastSkidStepCount` (`:145`): o contador de sequência é `simStepCount`; no máximo um trecho sob cada pneu traseiro por valor novo |
+| SCR-0001 | nenhum texto, controle ou elemento de HUD acrescentado ou retirado |
 
 ## Interface entregue
 
-Estado de exibição: `skidMarks` (anel de 320 trechos, `skidIndex`), `previousSkids`, `lastSkidStepCount`, `exhaust`. O símbolo
-`skidClock` saiu de `src/main.ts` por inteiro (os quatro usos de `0068a57`). Diferença conhecida (DES-0002): a marca fica 0,03 m para
-fora do centro do pneu traseiro exibido, sob o pneu de 0,19 m.
+Estado de exibição: `skidMarks` (anel de 320 trechos, `skidIndex`), `previousSkids`, `lastSkidStepCount`. Saíram de `src/main.ts`:
+`SKID_STEP_INTERVAL`, `exhaust`, `jet`, `tricks`, `reducedMotion`. Diferença conhecida (DES-0002): a marca fica 0,03 m para fora do
+centro do pneu traseiro exibido, sob o pneu de 0,19 m.

@@ -1,8 +1,8 @@
 ---
 stage: code
 feature: modelo-kart-01
-generated: 2026-10-27T19:50:41Z
-rows: 171
+generated: 2026-10-30T16:51:09Z
+rows: 176
 ---
 
 # Traceability
@@ -133,7 +133,6 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0003-07 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | REQ-FEAT-0003-08 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | REQ-FEAT-0003-09 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
-| REQ-FEAT-0003-10 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | REQ-FEAT-0003-11 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | REQ-FEAT-0003-11 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0003-12 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
@@ -141,6 +140,10 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0003-14 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | REQ-FEAT-0003-15 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | REQ-FEAT-0003-15 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
+| REQ-FEAT-0003-16 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
+| REQ-FEAT-0003-16 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
+| REQ-FEAT-0003-17 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
+| REQ-FEAT-0003-17 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0004-01 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0004-02 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0004-03 | DES-0001 | - | `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` |
@@ -151,15 +154,16 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0004-05 | DM-0001 | - | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` |
 | REQ-FEAT-0005-01 | DES-0002 | - | `web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md` |
 | REQ-FEAT-0005-01 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
-| REQ-FEAT-0005-02 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
-| REQ-FEAT-0005-03 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
-| REQ-FEAT-0005-04 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
 | REQ-FEAT-0005-05 | DES-0006 | - | `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` |
 | REQ-FEAT-0005-05 | DM-0001 | - | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` |
 | REQ-FEAT-0005-06 | DES-0002 | - | `web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md` |
 | REQ-FEAT-0005-06 | DES-0006 | - | `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` |
 | REQ-FEAT-0005-07 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
 | REQ-FEAT-0005-08 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-09 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-10 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-11 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-12 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
 | REQ-FEAT-0006-01 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0006-01 | DES-0007 | - | `security/DES-0007-privacidade-sem-rede-e-sem-persistencia.md` |
 | REQ-FEAT-0006-02 | DES-0001 | - | `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` |
@@ -184,6 +188,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | RULE-0003 | DES-0006 | - | `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` |
 | SCR-0001 | DES-0003 | - | `web/DES-0003-camera-de-jogo.md` |
 | SCR-0001 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
+| SCR-0001 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
 
 ## Items with no upstream source
 

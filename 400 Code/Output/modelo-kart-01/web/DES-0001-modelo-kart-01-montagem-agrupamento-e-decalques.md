@@ -4,7 +4,7 @@ title: Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento po
 feature: modelo-kart-01
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0004, FEAT-0006, RULE-0001, RULE-0003, FLOW-0003, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-17, REQ-FEAT-0002-01, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-10, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0006-02, REQ-FEAT-0006-03, NFR-0003, NFR-0004]
 ---
 
@@ -39,7 +39,8 @@ que o DOM exige (decalques em módulo separado).
 `KART01_GROUP_NAMES`, `PILOT_GROUP_NAME`, `Kart01GroupName`, `WheelName`, `KART01_PALETTE`, `KART01_NUMBER`, `KART01_WHEELBASE_M`,
 `FRONT_WHEEL_DIAMETER_M`, `REAR_WHEEL_DIAMETER_M`, `STEERING_WHEEL_RATIO`, `steeringWheelAngleRad`, `ArmNodes`, `Kart01Model`
 (`root` `kart`; `groups`; `wheels` com `steer` — nome `<roda>Malha`, no centro da roda — e `spin` — `<roda>Giro`; `steeringWheel`;
-`arms`; `anchors.exhaustOutlet` `escapamentoSaida` filho de `motor` em (0,39, 0,33, 0,77); `anchors.bumperPlate`; `materials.body`,
+`arms`; `anchors.bumperPlate` (único nó de ancoragem desde a rodada 3: `anchors.exhaustOutlet` e o nó `escapamentoSaida`
+saíram com o jato, `src/kart01Model.ts:45`, `:534`; nenhuma geometria nem chamada de desenho mudou); `materials.body`,
 `plate`, `sidepod`; `palette`), `buildKart01Model`, `updateKart01Pose(model, { steerAngleRad, wheelSpinRevs })` (giro
 `−2π × revs` em X do nó `spin`, a convenção de `kart.js`); `paintKart01Decals(model)` em `src/kart01Decals.ts` (sem contexto 2D:
 `console.warn('kart01-decals', 'NO_2D_CONTEXT')`, decalques só com a `color` do material; chamada repetida descarta as texturas).

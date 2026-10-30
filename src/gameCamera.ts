@@ -1,5 +1,5 @@
 // Application layer, pure (DES-0003, ADR-0002): the game camera as a function of the lap state, the kart pose,
-// the shape of the play area and the turbo state. computeCameraView realizes the getCameraView operation of
+// and the shape of the play area. computeCameraView realizes the getCameraView operation of
 // API-0003. No DOM, no three, no clock; src/main.ts applies the result to the Three.js camera every frame.
 import { COUNTDOWN_MS } from './lapTiming';
 import type { LapStateView } from './lap';
@@ -8,7 +8,7 @@ import type { KartPose } from './kartPose';
 export type CameraMode = 'TRACK_OVERVIEW' | 'COUNTDOWN_DESCENT' | 'RACE_CHASE';
 export type ViewShape = 'LANDSCAPE' | 'PORTRAIT';
 
-// API-0003, field by field. baseVerticalFovDeg and turboFovDeltaDeg exist only in RACE_CHASE.
+// API-0003 2.0.0, field by field.
 export type CameraView = {
   cameraMode: CameraMode;
   simStepCount?: number;
@@ -23,8 +23,6 @@ export type CameraView = {
   aimHeightM: number;
   verticalFovDeg: number;
   horizontalFovDeg: number;
-  baseVerticalFovDeg?: number;
-  turboFovDeltaDeg?: number;
 };
 
 export type CameraPose = { cameraXM: number; cameraZM: number; cameraHeightM: number; aimXM: number; aimZM: number; aimHeightM: number };
@@ -37,7 +35,6 @@ export type CameraFrameInputs = {
   kartPose: KartPose | { code: 'NO_STATE' };
   viewWidthPx: number;
   viewHeightPx: number;
-  turboActive: boolean;
   trackBounds: TrackBounds | undefined;
 };
 
@@ -45,7 +42,6 @@ export const RACE_CHASE_HEIGHT_M = 1.38;
 export const RACE_CHASE_BACK_M = 3.05;
 export const RACE_CHASE_AIM_AHEAD_M = 3.2;
 export const RACE_CHASE_AIM_HEIGHT_M = 0.30;
-export const TURBO_FOV_DELTA_DEG = 4;
 export const OVERVIEW_TILT_DEG = 10;
 export const OVERVIEW_MARGIN = 0.05;
 export const OVERVIEW_MIN_HEIGHT_M = 20;
@@ -80,7 +76,7 @@ export function viewShapeOf(viewWidthPx: number, viewHeightPx: number): ViewShap
 }
 
 // Landscape: 62°. Portrait: the smallest vertical field that gives 60° horizontally, never below 62° (DOMAIN/DEC-03).
-export function baseVerticalFovDeg(shape: ViewShape, aspect: number): number {
+export function shapeVerticalFovDeg(shape: ViewShape, aspect: number): number {
   if (shape === 'LANDSCAPE') return LANDSCAPE_VERTICAL_FOV_DEG;
   const forHorizontal = toDeg(2 * Math.atan(Math.tan(PORTRAIT_MIN_HORIZONTAL_FOV_DEG / 2 * DEG) / aspect));
   return Math.max(LANDSCAPE_VERTICAL_FOV_DEG, forHorizontal);
@@ -140,7 +136,7 @@ export function fitOverviewHeightM(bounds: TrackBounds, verticalFovDeg: number, 
 }
 
 export function trackOverviewPose(bounds: TrackBounds, shape: ViewShape, aspect: number): CameraPose {
-  const h = fitOverviewHeightM(bounds, baseVerticalFovDeg(shape, aspect), aspect);
+  const h = fitOverviewHeightM(bounds, shapeVerticalFovDeg(shape, aspect), aspect);
   const { eye, target } = overviewEye(bounds, h);
   return { cameraXM: eye[0], cameraZM: eye[2], cameraHeightM: eye[1], aimXM: target[0], aimZM: target[2], aimHeightM: target[1] };
 }
@@ -163,7 +159,7 @@ export function computeCameraView(inputs: CameraFrameInputs): CameraView | { cod
   const { viewWidthPx, viewHeightPx } = inputs;
   const shape = viewShapeOf(viewWidthPx, viewHeightPx);
   const aspect = viewWidthPx / viewHeightPx;
-  const base = baseVerticalFovDeg(shape, aspect);
+  const base = shapeVerticalFovDeg(shape, aspect);
   // Without a simulation state there is no lap (every LapSession has a kart): overview, no step count.
   const hasState = !('code' in inputs.kartPose);
   const mode = hasState ? decideCameraMode(inputs.lapState) : 'TRACK_OVERVIEW';
@@ -178,10 +174,5 @@ export function computeCameraView(inputs: CameraFrameInputs): CameraView | { cod
     const pose = countdownDescentPose(trackOverviewPose(inputs.trackBounds, shape, aspect), raceChasePose(kartPose), remaining);
     return { cameraMode: mode, ...common, ...pose, verticalFovDeg: base, horizontalFovDeg: horizontalFovDeg(base, aspect) };
   }
-  const turboFovDeltaDeg = inputs.turboActive ? TURBO_FOV_DELTA_DEG : 0;
-  const verticalFovDeg = base + turboFovDeltaDeg;
-  return {
-    cameraMode: mode, ...common, ...raceChasePose(kartPose),
-    verticalFovDeg, horizontalFovDeg: horizontalFovDeg(verticalFovDeg, aspect), baseVerticalFovDeg: base, turboFovDeltaDeg,
-  };
+  return { cameraMode: mode, ...common, ...raceChasePose(kartPose), verticalFovDeg: base, horizontalFovDeg: horizontalFovDeg(base, aspect) };
 }

@@ -42,7 +42,7 @@ export type Kart01Model = {
   wheels: Record<WheelName, { steer: THREE.Group; spin: THREE.Group; diameterM: number }>;
   steeringWheel: THREE.Group;
   arms: readonly [ArmNodes, ArmNodes];
-  anchors: { exhaustOutlet: THREE.Object3D; bumperPlate: THREE.Mesh };
+  anchors: { bumperPlate: THREE.Mesh };
   materials: { body: THREE.MeshStandardMaterial; plate: THREE.MeshStandardMaterial; sidepod: THREE.MeshStandardMaterial };
   palette: typeof KART01_PALETTE;
 };
@@ -506,7 +506,7 @@ export function buildKart01Model(): Kart01Model {
   }
   peca('pedais').add(bake(pedais, body));
 
-  // --- engine (right side, rear), merged inside the motorBloco node; the exhaust outlet is an anchor without geometry
+  // --- engine (right side, rear), merged inside the motorBloco node
   const motor = peca('motor');
   const mg = group('motorBloco', motor, 0.325, 0, 0.52);
   const bloco = new Bucket('motorMalha');
@@ -523,11 +523,6 @@ export function buildKart01Model(): Kart01Model {
   bloco.tubo([-0.03, 0.3, 0.1], [-0.03, 0.33, 0.145], 0.014, C.escapamento, 6);
   bloco.add(caixa(0.016, 0.17, 0.25, 0.006), C.borracha, -0.11, 0.17, 0.02);
   mg.add(bake(bloco, body));
-  const exhaustOutlet = new THREE.Object3D();
-  exhaustOutlet.name = 'escapamentoSaida';
-  // The rear end of the tailpipe (ponteira) in model coordinates: (0.325 + 0.065, 0.33, 0.52 + 0.215 + 0.035).
-  exhaustOutlet.position.set(0.39, 0.33, 0.77);
-  motor.add(exhaustOutlet);
 
   // --- pilot: a direct child of root, never of one of the 15 groups
   const { piloto, arms } = buildPilot(C, body);
@@ -536,7 +531,7 @@ export function buildKart01Model(): Kart01Model {
 
   const model: Kart01Model = {
     root, groups, wheels, steeringWheel: volanteGiro, arms,
-    anchors: { exhaustOutlet, bumperPlate },
+    anchors: { bumperPlate },
     materials: { body, plate, sidepod }, palette: C,
   };
   updateKart01Pose(model, { steerAngleRad: 0, wheelSpinRevs: { rodaDianteiraEsq: 0, rodaDianteiraDir: 0, rodaTraseiraEsq: 0, rodaTraseiraDir: 0 } });
