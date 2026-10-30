@@ -163,6 +163,19 @@ let lap: LapSession | undefined;
 let config = { ...setup.config, driverMass: 75 };
 // The setup identity of the lap, fixed with its config in beginLap and read by the HUD and the lap record (DES-0002).
 let setupRef: SetupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
+// PRÉVIA de acerto (branch preview/acerto-v6, só staging): ?acerto=c ou ?acerto=d troca os valores do Arcade para o
+// Eduardo comparar a sensação antes da revisão 4 do seed. Não existe em master.
+const ACERTO_PREVIA: Record<string, Partial<typeof config>> = {
+  c: { governorSpeed: 19.5, assistLateralG: 2.4, maxSteer: 0.5, friction: 2.1, frontStiffness: 26 },
+  d: { governorSpeed: 19.5, assistLateralG: 3.0, maxSteer: 0.55, friction: 2.6, frontStiffness: 30, rearStiffness: 26 },
+};
+const previaKey = new URLSearchParams(location.search).get('acerto')?.toLowerCase() ?? '';
+const previa = ACERTO_PREVIA[previaKey];
+if (previa) {
+  config = { ...config, ...previa };
+  setupRef = { setupId: setup.setupId, setupVersion: `arcade-previa-${previaKey}` };
+  queueMicrotask(() => { const el = document.getElementById('preset-label'); if (el) el.textContent += ` · PRÉVIA ${previaKey.toUpperCase()}`; });
+}
 // Training session (DES-0005, DES-0007 of pista-kart-park): the track data of each catalogue entry comes bundled; the
 // session, its reading and its environment are replaced only by what selectTrainingTrack returns. Nothing is stored.
 const TRACK_SOURCES: TrainingTrackSources = { 'kart-park': kartParkV1Text, synthetic: SYNTHETIC_TRACK_FILE };
@@ -324,6 +337,7 @@ $('handling-preset').onchange = e => {
   config = { ...setup.config, driverMass: config.driverMass };
   setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
   bestRecord = undefined; renderBest();
+  if (preset === 'arcade' && previa) { config = { ...config, ...previa }; setupRef = { setupId: setup.setupId, setupVersion: `arcade-previa-${previaKey}` }; }
   $('preset-label').textContent = preset === 'arcade' ? 'ARCADE ASSISTIDO · TREINO LIVRE' : 'ALUGUEL 4T · TREINO LIVRE';
   $('assist-description').textContent = preset === 'arcade'
     ? 'Direção progressiva, freio equilibrado e ajuda para conter rodadas. Você escolhe a trajetória.'
