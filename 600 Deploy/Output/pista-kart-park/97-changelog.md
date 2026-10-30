@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
-status: draft
-version: 1.1.0
+status: validated
+version: 1.2.0
 sources: []
 ---
 
@@ -174,3 +174,47 @@ ADR-0007; estágio de testes: migração de CHK-TEST-0009-04; depois nova rodada
 - Nada foi executado contra produção; nenhum push, reexecução ou escrita no GitHub (só `gh run list`/`view`); nenhum valor de
   segredo escrito; nada fora de `600 Deploy/Output/pista-kart-park/` foi escrito (o artefato servido baixado foi para o
   diretório temporário da sessão).
+
+## 2026-10-30 — rodada 3, Modo B (registro atualizado ao build de `e70aad9`; DIV-DP-16 fechada)
+
+**Entradas lidas** (§12): a rodada 2 deste registro (DIV-DP-16); `400 Code/Output/pista-kart-park/reports/code-validation/code-validation-20261030-1836.md`
+(`SUCCESS`, rodada 4: ADR-0007) e `01-implementation.md` 1.4.0 (versão); `500 Tests/Output/pista-kart-park/reports/test-validation/`
+(nenhum relatório novo: a validação de testes de `e70aad9` está em curso). Leituras de verificação, só leitura: `git log`,
+`git diff 6b314b2 e70aad9` (`index.html`, `src/main.ts`, `src/style.css`, `tests/pista-kart-park-screens.test.ts`), `git rev-parse`
+dos blobs de pista, `git ls-files --eol`; `gh run view 41109469203` e `gh run list` em `kartle-staging` (log reduzido por `grep` a
+contagens, nomes de *assets* e *Measure dist*); GET da URL de staging; o artefato servido baixado para o diretório temporário da
+sessão, fora da árvore. O bloqueio da feature estava com o laço de testes (`man-20261030-testC-pista-kart-park`, validação de
+testes em curso, escrita só em `500 Tests/`): esta rodada correu **sem o bloqueio**, por instrução, e escreveu só em
+`600 Deploy/Output/pista-kart-park/`.
+
+**Mudanças**
+- `01-release.md` 1.2.0: `<sha>` = `e70aad9ddf5cf42da6c5957b4023afdbf6cacd03` (execução 41109469203, verde, 444/444,
+  `index-DmxsQuIL.js`, 711 620 bytes, 188 719 gzip); ADR-0007 realizado (`38354bb`) e testes migrados (`e70aad9`); veredito de
+  testes de `e70aad9` como precondição em aberto; ferramentas sobre o servido **79/79** e **88/88**; alvo de reversão 41101055606
+  (`6b314b2`).
+- `runbook.md` 1.2.0: `<sha>`, `<hash>` `DmxsQuIL`, `<sha-anterior>` 41101055606 / `index-BwruE9Pq.js` (o mesmo treino sem o
+  crédito no painel — reversão de emergência; 41076989728 como alternativa com crédito em `#lap-result`); caminho B e R1/R2 para o
+  alvo novo (R2 espera `checks=79 failed=4` sobre `BwruE9Pq`); C1 = `git revert e70aad9 38354bb`; C2 com `e70aad9`, `38354bb` e
+  `1254443` à frente da cadeia; precondições: DIV-DP-16 `[x]`, veredito de testes de `e70aad9` `[ ]`, publicação 41109469203;
+  *Promote* 3/6/7 com 444, 88/88 e 79/79; o parágrafo de gatilho que tratava `6b314b2` como build em vigor passa a tratar o alvo B.
+- `smoke.md` 1.2.0: preparação com `DmxsQuIL` (79/79); D17 com 79/79 e 88/88; 444/103 nos limites. Nenhuma linha nova.
+- `REL-0002` 1.2.0, `REL-0003` 1.2.0, `REL-0004` 1.2.0, `REL-0005` 1.2.0: commit, execução, *assets*, tamanhos, alvo de
+  reversão, linhas de `src/main.ts` de `e70aad9`; o risco de ADR-0007 passa a regressão vigiada (CHK-TEST-0009-04/-11 no workflow);
+  tabela de execuções com 41109469203. `REL-0001` sem mudança (1.1.0).
+- `tools/`: sem mudança; executadas sobre o servido de `e70aad9`: `check_served … index-DmxsQuIL.js` `checks=79 failed=0`;
+  `check_bundle` (artefato servido + registro de `e70aad9`) `checks=88 failed=0`, 1 `warn` (`fetch(` do polyfill).
+- `98-divergences.md` 1.2.0: **DIV-DP-16 `resolved`**; DIV-DP-01, -02, -03, -04, -11 atualizadas para a rodada 3.
+
+**Itens fechados**: DIV-DP-16 (pela rodada 4 de código e pela migração dos testes; verificado sobre o servido).
+
+**Itens que ficam abertos, com o que os fecha**: veredito de testes `SUCCESS` sobre `e70aad9` (laço de testes em curso);
+validação de staging desta rodada; DIV-DP-01 / DIV-DP-07 (H1–H8 em `docs/kart-park-device-log.md`); DIV-DP-12, DIV-DP-15
+(decisões do dono do produto); DIV-DP-14 (`blocked`: decisão Esri; produção continua BLOQUEADA, 404, nada enviado a `origin`).
+
+**Itens recusados ou não aplicados, com motivo**
+- Marcar a precondição do veredito de testes com o relatório de 2026-10-30 17:14: não aplicado — esse relatório é de uma árvore
+  anterior à rodada 4 de código; o de `e70aad9` ainda não existe.
+- Nenhuma linha nova de smoke, nenhum passo humano novo e nenhuma verificação nova nas ferramentas (§16): CHK-TEST-0009-11 é do
+  estágio de testes; as 4 linhas de ADR-0007 já existiam desde a rodada 2.
+- Nada foi executado contra produção; nenhum push, reexecução ou escrita no GitHub (só `gh run list`/`view`); nenhum valor de
+  segredo escrito.

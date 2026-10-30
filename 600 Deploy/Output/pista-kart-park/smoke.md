@@ -2,8 +2,8 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar; executadas em staging (produção só depois da decisão Esri)
 feature: pista-kart-park
 stage: deploy
-status: draft
-version: 1.1.0
+status: validated
+version: 1.2.0
 sources: [ADR-0007, DES-0003, DES-0004, DES-0005, DES-0007, DES-0008, DES-0009, DES-0011, DES-0012, DM-0001, DM-0002, NFR-0001, NFR-0002, NFR-0004, NFR-0005, NFR-0006, NFR-0008, NFR-0010, NFR-0012, TEST-0001, TEST-0007, TEST-0008, TEST-0009, TEST-0012]
 ---
 
@@ -32,9 +32,9 @@ D18 abaixo é a regressão mínima desta feature sobre a sintética (NFR-0008).
 
 Preparação comum: cache vazio (janela anônima), painel de rede e console abertos, idioma do navegador anotado,
 `python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" <URL> index-<hash>.js` executado uma vez (três GET de
-leitura; `<hash>` lido no passo *Build* da execução que publicou — `BwruE9Pq` para `6b314b2`, execução 41101055606). **Sobre o
-build de `6b314b2` a ferramenta dá `checks=79 failed=4`**: as 4 linhas de ADR-0007 (DIV-DP-16). D9, D10, D13, M10 e H3/H5 do
-`runbook.md` só se executam num build que passe nessas linhas.
+leitura; `<hash>` lido no passo *Build* da execução que publicou — `DmxsQuIL` para `e70aad9`, execução 41109469203; medido em
+2026-10-30: `checks=79 failed=0`). D9, D10, D13, M10 e H3/H5 do `runbook.md` só se executam num build que passe nas linhas de
+ADR-0007 (o crédito no painel do resultado).
 
 ## Canal `web-desktop` (Chrome, Edge, Firefox e Safari nas versões atuais; notebook de referência para D14)
 
@@ -56,7 +56,7 @@ build de `6b314b2` a ferramenta dá `checks=79 failed=4`**: as 4 linhas de ADR-0
 | D14 | um treino de ao menos duas voltas na Kart Park com o contador de fps do navegador aberto (F12 → Rendering → Frame Rendering Stats), no **notebook de referência**, página em primeiro plano, sem pausa, com zebras e barreira na tela | `fpsPerSecond` por segundo da volta e `minFps` | NFR-0002 / RNF03: `minFps` ≥ 60; a medida válida é a **H6** | E2E-03 | não |
 | D15 | depois de carregar, bloquear a rede (painel "offline"); escolher a sintética e depois a Kart Park; completar duas voltas na Kart Park passando pela zebra e tocando a barreira; ler o crédito do painel; "encerrar treino" | a escolha, as voltas, a zebra, a barreira, o painel do resultado e o crédito funcionam; **0 requisições** no painel de rede entre a escolha e "encerrar treino" (a requisição a `fonts.googleapis.com` acontece no carregamento — divergência aceita, DIV-DP-10 — e não conta); o link do crédito pode não abrir sem rede | NFR-0004: 0 requisições a outro serviço da escolha ao fim da volta; REQ-FEAT-0006-12: crédito sem rede; é **H7** | E2E-07 | não |
 | D16 | abrir a URL num navegador com o idioma **inglês** | o nome "Kart Park — São José dos Pinhais (traçado aproximado) · 687 m", "Pista sintética" e o crédito em **português**, iguais; os demais textos (HUD, oferta, resultado) em inglês | AC-US-0006-07, -08: nome e comprimento idênticos em qualquer idioma (literais fora de `MESSAGES`); é **H8** | E2E-08 | não |
-| D17 | localmente, a conferência byte-exata (`git ls-files --eol` dos três arquivos de pista, `runbook.md` *Promote* 1) e, depois de `npm run build`, `python -I "600 Deploy/Output/pista-kart-park/tools/check_bundle.py" dist tracks/registry.json`; na URL, a saída de `check_served.py` de D1 | `attr/-text` e `i/` = `w/` nas três linhas; `check_bundle.py` com `checks=88 failed=0`; `check_served.py` com o arquivo da Kart Park uma vez no JS e o resumo do literal **igual ao do registro** (`04ce5e51…`), os textos do crédito (`© colaboradores do OpenStreetMap`, `licença ODbL`, `https://openstreetmap.org/copyright`, `noopener noreferrer`, `_blank`) e do seletor, `#lap-training-result-credit` dentro de `#lap-training-result` e nenhum `lap-result-credit` (ADR-0007), `vibrate(20)`, `lowpassHz:160`, as malhas, `esri`/`41.45`/`recorde`/`Circuito Aurora`/`helmet`/`boxGeo` ausentes, `arcade-assistido-v6` e `kart01-decals` presentes | integridade do empacotamento: 88 de 88 e 79 de 79; NFR-0001, NFR-0006 (resumo do literal = registro), NFR-0010, NFR-0012 (0 `esri`), AC-US-0006-04..06 (crédito no painel), AC-US-0006-09 (0 recordes); com `6b314b2`: 4 reprovações de ADR-0007 em cada ferramenta (DIV-DP-16) | — | sim (só `check_served.py`) |
+| D17 | localmente, a conferência byte-exata (`git ls-files --eol` dos três arquivos de pista, `runbook.md` *Promote* 1) e, depois de `npm run build`, `python -I "600 Deploy/Output/pista-kart-park/tools/check_bundle.py" dist tracks/registry.json`; na URL, a saída de `check_served.py` de D1 | `attr/-text` e `i/` = `w/` nas três linhas; `check_bundle.py` com `checks=88 failed=0`; `check_served.py` com o arquivo da Kart Park uma vez no JS e o resumo do literal **igual ao do registro** (`04ce5e51…`), os textos do crédito (`© colaboradores do OpenStreetMap`, `licença ODbL`, `https://openstreetmap.org/copyright`, `noopener noreferrer`, `_blank`) e do seletor, `#lap-training-result-credit` dentro de `#lap-training-result` e nenhum `lap-result-credit` (ADR-0007), `vibrate(20)`, `lowpassHz:160`, as malhas, `esri`/`41.45`/`recorde`/`Circuito Aurora`/`helmet`/`boxGeo` ausentes, `arcade-assistido-v6` e `kart01-decals` presentes | integridade do empacotamento: 88 de 88 e 79 de 79; NFR-0001, NFR-0006 (resumo do literal = registro), NFR-0010, NFR-0012 (0 `esri`), AC-US-0006-04..06 (crédito no painel), AC-US-0006-09 (0 recordes); com `e70aad9`: 79/79 e 88/88 (em `6b314b2`, o alvo do caminho B, 4 reprovações de ADR-0007 em cada ferramenta) | — | sim (só `check_served.py`) |
 | D18 | escolher "Pista sintética", completar duas voltas seguidas; olhar o Kart 01 e a câmera; "encerrar treino" | o painel `#lap-training-result` a cada volta, **sem** `#lap-training-result-credit` visível; o Kart 01 e a câmera como nas listas das releases contidas | NFR-0008: simulação da sintética igual à das releases contidas; AC-US-0006-04: sintética sem crédito | E2E-02 | sim |
 
 ## Canal `web-mobile` (celular intermediário de referência, navegador atual; paisagem **e** retrato; e um navegador sem `navigator.vibrate`)
@@ -89,7 +89,7 @@ volta (NFR-0012, segunda linha; REQ-FEAT-0006-14). Qualquer limiar cruzado é ga
 - `check_served.py` e `check_bundle.py` provam o **servido** e o **empacotado** (hash, elementos, o arquivo da Kart Park byte a
   byte contra o registro, textos do seletor e do crédito, o lugar do crédito do resultado, constantes da zebra, malhas, ausência
   de `esri` e do recorde, tamanhos), não o comportamento: não executam a página, não medem ritmo, não ouvem nem sentem. O
-  comportamento é provado por `npm test` (443 verificações no workflow, 102 desta feature) nas regras — leitura do esquema 3, geometria, zebra como superfície, barreira de 5 a
+  comportamento é provado por `npm test` (444 verificações no workflow, 103 desta feature) nas regras — leitura do esquema 3, geometria, zebra como superfície, barreira de 5 a
   200 m/s, volta inteira na Kart Park com o piloto de teste, determinismo, sessão e catálogo, decisão do retorno por passo,
   textos do crédito, cena construída em Node, camadas, registro de publicação — e por estas linhas e por H1–H8 na tela.
 - Nenhuma verificação acima é automatizada de ponta a ponta: o projeto não tem ferramenta de E2E e a feature não acrescenta

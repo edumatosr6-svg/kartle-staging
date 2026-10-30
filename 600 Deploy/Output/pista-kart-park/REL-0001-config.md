@@ -3,7 +3,7 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores; nenhuma chave para a Kart Park
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 1.1.0
 sources: [DES-0010, DES-0011, DES-0012, DM-0002, ADR-0005, NFR-0004, NFR-0010, NFR-0012, TEST-0011, TEST-0012]
 ---
