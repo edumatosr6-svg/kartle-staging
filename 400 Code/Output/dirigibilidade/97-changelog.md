@@ -3,11 +3,46 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de
 feature: dirigibilidade
 stage: code
 status: validated
-version: 3.0.0
+version: 3.1.0
 sources: []
 ---
 
 # Registro de mudanças
+
+## 2026-10-30 — rodada 6, Mode B (projeto revalidado: D-Spec rodada 12, `dspec-validation-20261030-1530`; F-Spec 4.1.0; seed `revision: 6`, `DOMAIN/DEC-17`)
+
+**O que mudou**
+
+- `index.html` (DES-0009 1.0.0, novo): `#welcome` sem o `<h2>` "Entre de lado. Saia voando.", sem a frase "Acelere, encaixe o drift e
+  solte para dar o impulso." e o `<br />`, e com o `<small>` reduzido a "WASD / setas"; `.control-hint` reduzido a "Dirigir" (só o
+  texto do `<span>` trocado; `.actions` e `#lap-end-training` intactos); `<section class="maneuver-guide">` retirada inteira.
+- `index.html` e `src/main.ts` (DES-0007 1.3.0): o `<button data-control="drift">` sai de `.touch-controls`; `drift: keys.has(' ')`
+  (`src/main.ts:549`) sem `|| touch.has('drift')`; as linhas `driftButton` (antes `:655-656`) retiradas.
+- `src/style.css` (DES-0007, DES-0009): sem as regras `.maneuver-guide` (inclusive a de `@media(max-width:700px)`) e sem
+  `.touch-controls button[data-control=drift]`; `.welcome h2` e `.touch-controls button:disabled` ficam.
+- Manifesto: `web/DES-0009` 1.0.0 (novo), `web/DES-0007` 1.3.0, `web/DES-0005` 2.0.1, `01-implementation.md` 3.1.0,
+  `98-divergences.md` 3.1.0; `00-index.md` e `99-traceability.md` gerados por `lint_artifacts.py --emit`.
+
+**Itens fechados**: as duas linhas abertas novas do registro de divergências do projeto 4.1.0 (REQ-FEAT-0003-18 a -20; REQ-FEAT-0003-21),
+linhas 15 e 16 de `98-divergences.md`.
+
+**Avisos de `dspec-validation-20261030-1530`, como tocam o código**
+
+- ISSUE-05 (`scripts/keyboard-lap.ts` "alterado"): o código já é o que DES-0004 diz (rodada 5); nada a mudar.
+- ISSUE-06 (o resultado chega com a fase `RUNNING`): `recordLapResult` já trata cada `LapResult` sem ler a fase; nada a mudar.
+- ISSUE-12, ISSUE-13, ISSUE-14 (citações `arquivo:linha` do projeto anteriores à árvore corrente): os mirrors tocados nesta rodada
+  (`web/DES-0005`, `web/DES-0007`, `web/DES-0009`) e `98-divergences.md` citam as linhas da árvore de 2026-10-30 depois desta rodada.
+- ISSUE-07 a ISSUE-11 (scope): decisões das features alvo; nenhum código mudado aqui.
+
+**Itens recusados, com motivo**
+
+- Texto novo na tela inicial, na dica ou no lugar do guia: proibido (RNF11; SCR-0003, estado Vazio; DES-0009).
+- Retirar a tecla de drift do adaptador de teclado, o `preventDefault` do Espaço ou o campo `drift` de `Input`: o F-Spec mantém o
+  comando no `Input`, sem efeito (REQ-FEAT-0003-13, NFR-0006; DES-0007).
+- Retirar `src/maneuvers.ts` e a leitura `tricks.drifting` (`src/main.ts:595`): ADR-0006, decisão 4; condição de `modelo-kart-01`
+  (ISSUE-10); o projeto não autoriza nesta rodada.
+- Reescrever a linha `index.html:34` além do texto de `.control-hint`: tocaria `#lap-end-training` de `race-lap-validation`.
+- Editar testes: estágio de testes.
 
 ## 2026-10-30 — rodada 5, Mode B (projeto revalidado: D-Spec rodadas 10 e 11, `dspec-validation-20261030-1333`; F-Spec 4.0.1; seed `revision: 5`, `DOMAIN/DEC-15`, `DOMAIN/DEC-16`)
 

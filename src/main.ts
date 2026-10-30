@@ -546,7 +546,7 @@ function frame(now: number) {
       throttle: +(keys.has('w') || keys.has('arrowup') || touch.has('throttle')),
       brake: +(keys.has('s') || keys.has('arrowdown') || touch.has('brake')),
       steer: left || right ? Number(right) - Number(left) : tilt ? tiltSteer : 0,
-      drift: keys.has(' ') || touch.has('drift'),
+      drift: keys.has(' '),
     };
     const clock = advanceClock(accumulatorS, dt);
     accumulatorS = clock.accumulatorS;
@@ -652,8 +652,6 @@ function frame(now: number) {
     $('handling').textContent = labels[telemetry.handling];
     $('handling').dataset.state = telemetry.handling;
   }
-  const driftButton = document.querySelector<HTMLButtonElement>('[data-control="drift"]')!;
-  driftButton.disabled = !config.drivingAssists;
   const t = state.telemetry;
   $('lateral-g').textContent = `${Math.abs(t.lateralG).toFixed(2)} g`;
   $('longitudinal-g').textContent = `${t.longitudinalG >= 0 ? '+' : ''}${t.longitudinalG.toFixed(2)} g`;

@@ -3,17 +3,17 @@ title: Divergências — dirigibilidade do Arcade assistido (estágio de código
 feature: dirigibilidade
 stage: code
 status: validated
-version: 3.0.0
+version: 3.1.0
 sources: []
 ---
 
 # Divergências
 
-Registro contra `300 Specs/330 D-Specs/Output/dirigibilidade/98-divergences.md` 4.0.0 (projeto revalidado em
-`dspec-validation-20261030-1333`; rodada de código 5, Mode B). Caminhos relativos à raiz do repositório; as medidas são as de
+Registro contra `300 Specs/330 D-Specs/Output/dirigibilidade/98-divergences.md` 4.1.0 (projeto revalidado em
+`dspec-validation-20261030-1530`; rodada de código 6, Mode B; linhas 1 a 13 resolvidas na rodada 5, 15 e 16 nesta). Caminhos relativos à raiz do repositório; as medidas são as de
 `01-implementation.md` (saída de `npm run bench:handling` de 2026-10-30, registrada em `docs/physics.md`).
 
-## Linhas abertas do projeto 4.0.0, com o estado nesta rodada
+## Linhas abertas do projeto 4.1.0, com o estado nesta rodada
 
 | # | Requisito | O que exige | Etapa devedora | Item de projeto | Estado | Resolução |
 |---|---|---|---|---|---|---|
@@ -30,7 +30,9 @@ Registro contra `300 Specs/330 D-Specs/Output/dirigibilidade/98-divergences.md` 
 | 11 | REQ-FEAT-0003-15, REQ-FEAT-0005-13; SCR-0002 1.2.0 | texto compartilhado e resultado sem `setupVersion` nem drift | código | DES-0006 | resolved | `src/handlingMessages.ts:9`; `index.html` sem `#lap-result-setup`; `src/main.ts` `renderResult` sem a escrita da versão |
 | 12 | REQ-FEAT-0005-01 a -04, -10 | a volta do piloto de teste, a cronometrada e a reprodução terminam no primeiro resultado | código | DES-0003, DES-0004 | resolved | `scripts/handlingBench.ts:448`, `:460` (`hasLapResult` em `testPilotLap`); `scripts/keyboard-lap.ts:33` (`measureStepCost`); `src/setupRecords.ts:121` (`replayLap`) |
 | 13 | REQ-FEAT-0006-08, NFR-0004 | entrada datada de `arcade-assistido-v6`; v4 e Realista medidos de novo, uma entrada por chave | código | DM-0001, ADR-0003 | resolved | `docs/physics.md` (seção `## Dirigibilidade — Arcade assistido v6` e bloco com v4 e Realista de 2026-10-30, v5 mantida, v6 acrescentada) |
-| 14 | provas em `npm test` (REQ-FEAT-0001-06, REQ-FEAT-0002-06, REQ-FEAT-0003-08, REQ-FEAT-0004-07, REQ-FEAT-0006-04, -05) e roteiro registrado | verificações de test-strategy 6.0.0; `docs/handling-device-log.md` | testes | test-strategy | open | nenhum arquivo de `tests/` é escrito aqui; as falhas desta rodada estão na tabela "Verificações reprovadas" |
+| 14 | provas em `npm test` (REQ-FEAT-0001-06, REQ-FEAT-0002-06, REQ-FEAT-0003-08, REQ-FEAT-0004-07, REQ-FEAT-0006-04, -05) e roteiro registrado | verificações de test-strategy 6.1.0 (inclusive AC-US-0003-12 a -15 em `tests/dirigibilidade-hud-text.test.ts`); `docs/handling-device-log.md` | testes | test-strategy | open | nenhum arquivo de `tests/` é escrito aqui; as falhas desta rodada estão na tabela "Verificações reprovadas" |
+| 15 | REQ-FEAT-0003-18, -19, -20; SCR-0003 1.0.0 | tela inicial, dica da barra e guia de manobras sem drift nem turbo, sem texto novo | código | DES-0009 | resolved | `index.html:19` (`#welcome` sem o `<h2>`, a frase do drift e "Espaço + curva para drift"), `:34` (`.control-hint` "Dirigir"; `.actions` e `#lap-end-training` intactos), `.maneuver-guide` retirada; `src/style.css:3` sem `.maneuver-guide`; `index.html` sem `/drift\|turbo\|impulso\|combo\|Espaço/i` |
+| 16 | REQ-FEAT-0003-21; SCR-0001 1.2.0 | controle de toque sem o botão "Drift" nem outro controle de drift ou turbo | código | DES-0007 | resolved | `index.html:32` (`.touch-controls` só com `left`/`right` e `brake`/`throttle`); `src/main.ts:549` (`drift: keys.has(' ')`); consulta `driftButton` retirada; `src/style.css:3` sem `.touch-controls button[data-control=drift]` |
 
 ## Dependências e notas desta rodada
 
@@ -39,22 +41,13 @@ Registro contra `300 Specs/330 D-Specs/Output/dirigibilidade/98-divergences.md` 
 | R | DES-0006 (gatilho de cada resultado), DM-0001 seção 2 (campos de treino de `LapResult` 1.2.0) | o tratamento de cada resultado aceita o gatilho "cada item novo de `listLapResults`" de `race-lap-validation`; o `LapRecord` carrega `lapSequenceCount`, `lapStartMs`, `trainingLapMs`, `trainingSectorMs` | o código do treino contínuo de `race-lap-validation` ainda não está na árvore: `src/lap.ts` não tem `listLapResults` nem os campos de treino, e o gatilho continua a fase `ENDED` (`src/main.ts:530-533`). Esta rodada implementou a parte desta feature: `recordLapResult` (`src/main.ts:289-300`) recebe um `LapResult` e não lê a fase; `buildLapRecord` copia o resultado inteiro, logo carrega os campos de treino quando existirem; os fins de volta no primeiro resultado (linha 12) | código de `race-lap-validation` (rodada seguinte) | open |
 | W | DES-0004, Colaboradores ("deixa de importar … `WIDTH`") | `grassEntry` mantido (DES-0004) | `grassEntry` usa `WIDTH / 2` para pôr o kart ao lado da pista; `scripts/handlingBench.ts:12` continua importando `WIDTH` de `src/track.ts` só para isso, sem mudança de comportamento (`GRASS_LOSS` e a identidade do Realista dependem da mesma entrada) | — | resolved |
 
-## Verificações reprovadas em `npx tsx --test tests/*.test.ts` (370 testes: 350 aprovados, 20 reprovados)
+## Verificações reprovadas em `npx tsx --test tests/*.test.ts` (432 testes: 422 aprovados, 10 reprovados)
 
 | Arquivo | Verificação | Motivo | Devedora |
 |---|---|---|---|
-| `tests/dirigibilidade-classify.test.ts` | carregamento do arquivo | importa `classifyHandlingSteps`, retirado (DES-0001; o projeto retira o arquivo) | testes desta feature |
-| `tests/dirigibilidade-cornering.test.ts` | carregamento do arquivo | importa `arcEntry`/`testPadArc` e os ensaios retirados (`REFERENCE_CORNER`, `UNDERSTEER_ONSET`) | testes desta feature |
-| `tests/dirigibilidade-rear.test.ts` | carregamento do arquivo | importa símbolos retirados (anel de 18 m, `DRIFT_MANEUVER`) | testes desta feature |
-| `tests/dirigibilidade-speed.test.ts` | carregamento do arquivo | importa símbolos retirados | testes desta feature |
-| `tests/dirigibilidade-telemetry.test.ts` | carregamento do arquivo | afirma `driftActive` e `testPadLane` (API-0001 1.x) | testes desta feature |
-| `tests/dirigibilidade-contract.test.ts` | CHK-TEST-0010-03, CHK-TEST-0010-07 | esperam `arcRadiusM` no bloco e dezesseis ensaios (API-0003 3.x) | testes desta feature |
-| `tests/dirigibilidade-hud-text.test.ts` | CHK-TEST-0007-02, CHK-TEST-0007-03 | esperam a `setupVersion` no texto compartilhado e `#lap-result-setup` (SCR-0002 1.1) | testes desta feature |
-| `tests/dirigibilidade-setup-version.test.ts` | CHK-TEST-0008-04 | o fixture grava a volta com `ARCADE_ASSISTIDO_V5` (`tests/helpers/handling.ts:19`) e a reproduz com o acerto corrente v6 | testes desta feature |
-| `tests/dirigibilidade-steer-response.test.ts` | CHK-TEST-0001-06 | importa `testPadArc`/espera a faixa reta | testes desta feature |
-| `tests/dirigibilidade-test-pilot.test.ts` | CHK-TEST-0009-05 | conta os registros da suíte anterior (segunda condição de acelerador) | testes desta feature |
-| `tests/maneuvers.test.ts` | "player-induced drift generates real lateral slip and a useful exit boost" | exige o drift pelo passo; retirado pela tabela de migração do projeto (`tests/maneuvers.test.ts:68-80`) | testes desta feature |
-| `tests/modelo-kart-01-contract.test.ts` | CHK-TEST-0004-09, -11, -12, -13, -14, -15, -16 | a linha de base da simulação de `modelo-kart-01` (`tests/fixtures/kart01-sim-baseline.json`) é chaveada em `arcade-assistido-v5`: `BASELINE_MISSING` com `arcade-assistido-v6` (feedback cruzado FB-02 de `modelo-kart-01`, ISSUE-11 de `dspec-validation-20261030-1333`) | `modelo-kart-01` |
+| `tests/pista-kart-park-lap.test.ts`, `-feedback`, `-session`, `-determinism` | CHK-TEST-0005-01, -02, -03, -04, -06, -08, -10; CHK-TEST-0006-03; CHK-TEST-0007-05 | o piloto e o replay dessas verificações leem `PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config`, hoje o acerto C (`arcade-assistido-v6`); FB-02 de `pista-kart-park/reports/feedbacks/dirigibilidade/feedback-20261030-1326.md` (ISSUE-09) | `pista-kart-park` |
+| `tests/dirigibilidade-setup-version.test.ts` | CHK-TEST-0008-03 | AC-US-0005-05: a reprodução do replay da versão anterior com o acerto corrente (`arcade-assistido-v6`) não é aceita pela verificação; já reprovava antes desta rodada, que não toca a simulação nem `src/setupRecords.ts` | testes desta feature |
 
-Os conjuntos de `race-lap-validation` e de `pista-kart-park` (inclusive os testes de camada que nomeiam `src/maneuvers.ts` e os
-de superfície que leem `PUBLISHED_SETUPS.ARCADE_ASSISTIDO`) passam inteiros nesta rodada.
+Nenhuma verificação de texto de `dirigibilidade` ou `race-lap-validation` que nomeie os elementos retirados (`#welcome`, `.control-hint`,
+`.maneuver-guide`, `data-control="drift"`) reprova nesta rodada. As verificações de AC-US-0003-12 a -15 que `test-strategy` 6.1.0 pede
+em `tests/dirigibilidade-hud-text.test.ts` ainda não existem (linha 14).
