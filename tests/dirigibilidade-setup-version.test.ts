@@ -2,7 +2,7 @@
 // DES-0003, DM-0001, RULE-0003, API-0002).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ARCADE_KART, type Input } from '../src/physics';
+import { ARCADE_ASSISTIDO_V5, ARCADE_ASSISTIDO_V6, ARCADE_KART, type Input } from '../src/physics';
 import { getLapResult, startLap, stepLap } from '../src/lap';
 import { COUNTDOWN_STEPS } from '../src/lapTiming';
 import {
@@ -11,10 +11,11 @@ import {
 import { runBench, type SetupVersionRecord } from '../scripts/handlingBench';
 import { syntheticReading } from './fixtures/trackFiles';
 import {
-  corruptReplay, futureReplay, incompleteResult, newReplay, newResult, oldReplay, oldResult, oversizedReplay, oversizedReplayText, SYNTHETIC_IDENTITY, v4Replay,
+  corruptReplay, futureReplay, incompleteResult, newReplay, newResult, oldReplay, oldResult, oversizedReplay, oversizedReplayText,
+  SUPERSEDED_SETUP_VERSION, SYNTHETIC_IDENTITY, v4Replay, v5Replay,
 } from './fixtures/records';
 import { autopilot } from './helpers/autopilot';
-import { ARCADE, ARCADE_CONFIG, options, REALISTA, SETUP_REF } from './helpers/handling';
+import { ARCADE, ARCADE_CONFIG, options, REALISTA, SETUP_REF, untilFirstResult } from './helpers/handling';
 
 const reading = syntheticReading();
 if (reading.trackDataStatus !== 'COMPLETE') throw new Error('fixture: synthetic reading must be COMPLETE');
@@ -30,13 +31,18 @@ test('CHK-TEST-0008-01 the published Arcade setup declares a version different f
   assert.notEqual(view.setupVersion, view.previousSetupVersion, 'AC-US-0005-04: the current version must differ from the previous one');
   assert.equal(view.setupVersion, ARCADE.setupVersion, 'AC-US-0005-04: the view copies the published data');
   assert.deepEqual(getSetupVersion('OUTRO'), { code: 'UNKNOWN_SETUP' }, 'AC-US-0005-04: an unknown setup is rejected with its code');
-  const v4 = readReplay(v4Replay()), v5 = readReplay(newReplay());
-  assert.ok(v4.replayStatus === 'READABLE' && v5.replayStatus === 'READABLE', 'AC-US-0005-04: both replays must be readable');
-  if (v4.replayStatus !== 'READABLE' || v5.replayStatus !== 'READABLE') return;
-  assert.notEqual(v4.setupVersion, v5.setupVersion, 'AC-US-0005-04: the two replays must carry different versions');
-  assert.equal(v4.setupVersion, previousVersion, 'AC-US-0005-04: the previous replay declares the previous version');
-  assert.equal(v5.setupVersion, ARCADE.setupVersion, 'AC-US-0005-04: the new replay declares the current version');
-  assert.equal(v5.setupVersionSource, 'DECLARED', 'AC-US-0005-04: a declared version is read as DECLARED');
+  assert.equal(view.setupVersion, 'arcade-assistido-v6', 'AC-US-0005-04: the published Arcade is arcade-assistido-v6 (DOMAIN/DEC-15)');
+  assert.equal(view.previousSetupVersion, 'arcade-assistido-v4', 'AC-US-0005-04: the previous version is the one before the feature');
+  const readings = [readReplay(v4Replay()), readReplay(v5Replay()), readReplay(newReplay())];
+  assert.ok(readings.every(r => r.replayStatus === 'READABLE'), 'AC-US-0005-04: the three replays must be readable');
+  const versions = readings.map(r => (r.replayStatus === 'READABLE' ? r.setupVersion : ''));
+  assert.deepEqual(versions, [previousVersion, SUPERSEDED_SETUP_VERSION, ARCADE.setupVersion], 'AC-US-0005-04: each replay declares its own version');
+  assert.equal(new Set(versions).size, 3, 'AC-US-0005-04: the three replays must carry three different versions');
+  assert.ok(readings.every(r => r.replayStatus === 'READABLE' && r.setupVersionSource === 'DECLARED'), 'AC-US-0005-04: a declared version is read as DECLARED');
+  assert.equal(ARCADE.config, ARCADE_ASSISTIDO_V6, 'AC-US-0005-04: the published configuration is the v6 record');
+  const changed = Object.keys(ARCADE_ASSISTIDO_V6).filter(k => (ARCADE_ASSISTIDO_V6 as Record<string, unknown>)[k] !== (ARCADE_ASSISTIDO_V5 as Record<string, unknown>)[k]);
+  assert.equal(changed.length, 5, `AC-US-0005-04: v6 must differ from v5 in exactly the five fields of DOMAIN/DEC-15 (differs in ${changed.join(', ')})`);
+  assert.deepEqual(Object.keys(ARCADE_ASSISTIDO_V6).sort(), Object.keys(ARCADE_ASSISTIDO_V5).sort(), 'AC-US-0005-04: v6 declares no field v5 does not');
   const record = runBench('SETUP_VERSION', options('BINARY', { oldRecords: [oldReplay(), oldResult()] }))[0] as SetupVersionRecord;
   assert.equal(record.verdict, 'PASS', 'AC-US-0005-04: SETUP_VERSION must be PASS');
   assert.notEqual(record.declaredSetupVersion, record.previousSetupVersion, 'AC-US-0005-04: the record declares two different versions');
@@ -51,8 +57,7 @@ test('CHK-TEST-0008-02 a lap started with the setup fields returns them copied i
     if (!started.ok) throw new Error(`fixture: startLap rejected: ${started.code}`);
     let lap = started.lap;
     for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, IDLE);
-    const pilot = autopilot(0, ARCADE_CONFIG);
-    for (let i = 0; i < 6000 && lap.phase !== 'ENDED'; i++) lap = stepLap(lap, pilot(lap));
+    lap = untilFirstResult(lap, autopilot(0, ARCADE_CONFIG), 6000).lap;
     return getLapResult(lap);
   };
   const withFields = complete(true), without = complete(false);
@@ -77,6 +82,7 @@ test('CHK-TEST-0008-03 two records are comparable only on the same track, setup 
   const a = { ...SYNTHETIC_IDENTITY, ...SETUP_REF };
   assert.deepEqual(compareLapRecords(a, { ...a }), { comparability: 'COMPARABLE' }, 'AC-US-0005-05: same track, setup and version: COMPARABLE');
   assert.deepEqual(compareLapRecords(a, { ...a, setupVersion: previousVersion }), { comparability: 'SETUP_VERSION_DIFFERS' }, 'AC-US-0005-05: another version: SETUP_VERSION_DIFFERS');
+  assert.deepEqual(compareLapRecords({ ...a, setupVersion: SUPERSEDED_SETUP_VERSION }, a), { comparability: 'SETUP_VERSION_DIFFERS' }, 'AC-US-0005-05: a v5 record against a v6 one: SETUP_VERSION_DIFFERS');
   assert.deepEqual(compareLapRecords(a, { ...a, setupId: 'REALISTA_ALUGUEL_4T', setupVersion: REALISTA.setupVersion }), { comparability: 'SETUP_DIFFERS' }, 'AC-US-0005-05: another setup: SETUP_DIFFERS');
   assert.deepEqual(compareLapRecords(a, { ...a, trackVersion: 99 }), { comparability: 'TRACK_DIFFERS' }, 'AC-US-0005-05: another track version: TRACK_DIFFERS');
   assert.deepEqual(compareLapRecords(a, { ...a, trackId: 'outra' }), { comparability: 'TRACK_DIFFERS' }, 'AC-US-0005-05: another track: TRACK_DIFFERS');
@@ -101,8 +107,8 @@ test('CHK-TEST-0008-04 the same replay reproduced twice gives the same lap recor
     if (!started.ok) throw new Error('fixture');
     let lap = started.lap;
     for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, IDLE);
-    for (const input of newReplay().inputs) { if (lap.phase === 'ENDED') break; lap = stepLap(lap, input); }
-    return lap;
+    const inputs = newReplay().inputs;
+    return untilFirstResult(lap, l => inputs[l.stepCount], inputs.length).lap;
   };
   assert.deepEqual(final(), final(), 'AC-US-0005-01: the final session, kart state included, must be identical');
 });
@@ -116,8 +122,9 @@ test('CHK-TEST-0008-05 a replay of the previous version is still read and reprod
   if (!started.ok) return;
   let lap = started.lap, applied = 0;
   for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, IDLE);
-  for (const input of replay.inputs) { if (lap.phase === 'ENDED') break; lap = stepLap(lap, input); applied++; }
-  assert.ok(applied > 0 && (applied === replay.inputs.length || lap.phase === 'ENDED'), 'AC-US-0005-06: every input must be applied, or the lap must have ended first');
+  const ended = untilFirstResult(lap, l => replay.inputs[l.stepCount], replay.inputs.length);
+  lap = ended.lap; applied = ended.steps;
+  assert.ok(applied > 0 && (applied === replay.inputs.length || !('code' in getLapResult(lap))), 'AC-US-0005-06: every input must be applied, or the lap must have given its first result');
   assert.equal(lap.stepCount, applied, 'AC-US-0005-06: one step per input, the contract of the step unchanged');
   assert.ok(replay.inputs.every(i => [0, 1].includes(i.throttle) && [0, 1].includes(i.brake) && [-1, 0, 1].includes(i.steer)), 'AC-US-0005-06: the previous inputs have the same fields and ranges');
 });
@@ -161,4 +168,17 @@ test('CHK-TEST-0008-07 the setup reference resolves an absent setup to the Arcad
   assert.equal(resolveSetupRef({ setupVersion: '' }).setupVersionSource, 'RESOLVED_FROM_ABSENCE', 'NFR-0009: an empty version counts as absent');
   assert.notEqual(ARCADE_KART, ARCADE.config, 'NFR-0009: the previous configuration is not the current one');
   assert.equal(ARCADE.previousConfig, ARCADE_KART, 'NFR-0009: the previous configuration is still published, unedited');
+});
+
+test('CHK-TEST-0008-08 a replay of the superseded round recorded with the drift command held reproduces exactly as the same replay without the command', () => {
+  // AC-US-0003-08
+  const held = v5Replay();
+  assert.ok(held.inputs.some(i => i.drift === true) && held.inputs.some(i => i.drift !== true), 'AC-US-0003-08: the fixture holds the drift command in part of the inputs');
+  const without = { ...held, inputs: held.inputs.map(({ throttle, brake, steer }) => ({ throttle, brake, steer })) };
+  const a = replayLap(held, reading, ARCADE), b = replayLap(without, reading, ARCADE);
+  assert.ok(a.ok && b.ok, 'AC-US-0003-08: both reproductions must give a result');
+  if (!a.ok || !b.ok) return;
+  assert.deepEqual(a.record, b.record, 'AC-US-0003-08: the lap record (time, sectors, validity) must be the same with and without the drift command');
+  assert.equal(a.record.lapValidity, 'VALID', 'AC-US-0003-08: the reproduced lap is a valid lap');
+  assert.equal(a.comparability, 'SETUP_VERSION_DIFFERS', 'AC-US-0003-08: a v5 replay reproduced with v6 is never comparable with its recording');
 });

@@ -65,19 +65,6 @@ function run(state: State, input: Input, seconds: number, config = ARCADE_KART) 
   for (let i = 0; i < Math.round(seconds / STEP); i++) state = step(state, input, STEP, config, TEST_PAD);
   return state;
 }
-test('player-induced drift generates real lateral slip and a useful exit boost', () => {
-  const input = { throttle: 1, brake: 0, steer: 0.7, drift: true };
-  const drift = run(moving(), input, 2);
-  const grip = run(moving(), { ...input, drift: false }, 2);
-  assert.ok(Math.abs(drift.telemetry.sideslip) > Math.abs(grip.telemetry.sideslip) * 1.5);
-  assert.ok(Math.abs(drift.telemetry.sideslip) < 0.4, 'controlled drift must not turn into a spin');
-  assert.ok(drift.maneuvers.charge > 1.3);
-  const release = { throttle: 1, brake: 0, steer: 0 };
-  const boosted = run(drift, release, 1);
-  const unboosted = run({ ...drift, maneuvers: initialManeuvers() }, release, 1);
-  assert.ok(boosted.speed > unboosted.speed + 1);
-  assert.equal(boosted.maneuvers.score, 200);
-});
 test('realistic preset ignores the drift input entirely', () => {
   const input = { throttle: 1, brake: 0, steer: 0.3 };
   assert.deepEqual(run(moving(), { ...input, drift: true }, 2, RENTAL_KART), run(moving(), input, 2, RENTAL_KART));

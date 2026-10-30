@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { ARCADE_ASSISTIDO_V5, ARCADE_KART, PUBLISHED_SETUPS, RENTAL_KART, SOLVER_SUBSTEPS, STEP } from '../src/physics';
+import { ARCADE_ASSISTIDO_V5, ARCADE_ASSISTIDO_V6, ARCADE_KART, PUBLISHED_SETUPS, RENTAL_KART, SOLVER_SUBSTEPS, STEP } from '../src/physics';
 import {
   ALL_BENCHES, BENCH_PARAMETERS, judge, loadBaselineText, readBaseline, runBench,
   type BenchRecord, type RealistaUnchangedRecord, type StepContractRecord, type StepCostRecord,
@@ -53,32 +53,49 @@ test('CHK-TEST-0010-02 the step cost is judged only against a baseline of the sa
   const other = cost(10, 'another-runtime');
   assert.equal(other.baselineAvailable, false, 'NFR-0002: another runtime has no baseline');
   assert.equal(other.failReason, 'BASELINE_MISSING', 'NFR-0002: another runtime is BASELINE_MISSING');
+  for (const variant of ['noBlock', 'corrupt'] as const) {
+    const missing = readBaseline(baselineMarkdown(variant), ARCADE.setupId, ARCADE.previousSetupVersion ?? '', BASELINE_RUNTIME_ID);
+    assert.equal(missing, undefined, `NFR-0002: a ${variant} text gives no baseline`);
+    const record = runBench('STEP_COST', options('BINARY', { baseline: missing, stepCost: { meanStepCostUs: 10, runtimeId: BASELINE_RUNTIME_ID } }))[0] as StepCostRecord;
+    assert.equal(record.failReason, 'BASELINE_MISSING', `NFR-0002: with a ${variant} text STEP_COST is BASELINE_MISSING`);
+  }
   assert.throws(() => runBench('STEP_COST', options('BINARY')), /stepCost/, 'NFR-0002: STEP_COST needs the cost measured by the bench program; the tests never read the clock');
   assert.equal(ARCADE_BASELINE?.runtimeId !== undefined, true, 'NFR-0002: the recorded baseline names its runtime');
 });
 
-test('CHK-TEST-0010-03 docs/physics.md carries a handling-baseline block with a dated entry per setup version, the sweep parameters and every record of API-0003 with its environment', () => {
+// The bench ids API-0003 4.0.1 retired with the 18 m arc and the drift (DOMAIN/DEC-15): never in the current output.
+const RETIRED_BENCHES = ['REFERENCE_CORNER', 'UNDERSTEER_ONSET', 'DRIFT_MANEUVER'];
+const ENTRY_PARAMETERS = ['testAreaRadiusM', 'straightTestAreaRadiusM', 'radiusWindowMs', 'forcingSpeedMps', 'forcingWindowMs'] as const;
+
+test('CHK-TEST-0010-03 docs/physics.md carries a handling-baseline block with one dated entry per setup, version and runtime, the open-pad parameters and every record of API-0003 4.0.1 with its environment, and no retired bench', () => {
   // NFR-0004
   const text = loadBaselineText();
-  assert.match(text, /```json handling-baseline/, 'NFR-0004: the machine-readable block must be present');
+  const block = /```json handling-baseline\s*\n([\s\S]*?)\n```/.exec(text);
+  assert.ok(block, 'NFR-0004: the machine-readable block must be present');
+  const entries = (JSON.parse(block?.[1] ?? '{"entries":[]}') as { entries: { setupId: string; setupVersion: string; runtimeId?: string }[] }).entries;
+  const keys = entries.map(e => `${e.setupId}|${e.setupVersion}|${e.runtimeId ?? ''}`);
+  assert.equal(new Set(keys).size, keys.length, 'NFR-0004: one entry per (setupId, setupVersion, runtimeId)');
   const versions = [[ARCADE.setupId, ARCADE.previousSetupVersion ?? ''], [ARCADE.setupId, ARCADE.setupVersion], [REALISTA.setupId, REALISTA.setupVersion]] as const;
   for (const [setupId, setupVersion] of versions) {
     const entry = readBaseline(text, setupId, setupVersion);
     assert.ok(entry, `NFR-0004: an entry for ${setupVersion} must be recorded`);
     if (!entry) continue;
     assert.match(entry.measuredAtUtc, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, `NFR-0004: ${setupVersion}: measuredAtUtc must be a UTC date`);
-    assert.equal(entry.parameters?.plateauMs, BENCH_PARAMETERS.plateauMs, `NFR-0004: ${setupVersion}: plateauMs must be recorded with the entry`);
-    assert.equal(entry.parameters?.plateauSpeedHoldMode, BENCH_PARAMETERS.plateauSpeedHoldMode, `NFR-0004: ${setupVersion}: plateauSpeedHoldMode must be recorded with the entry`);
+    for (const k of ENTRY_PARAMETERS) assert.equal(entry.parameters?.[k], BENCH_PARAMETERS[k], `NFR-0004: ${setupVersion}: the parameter ${k} must be recorded with the entry`);
     for (const id of ALL_BENCHES) assert.ok(entry.records.some(r => r.benchId === id), `NFR-0004: ${setupVersion}: a ${id} record must be recorded`);
+    for (const id of RETIRED_BENCHES) assert.ok(!entry.records.some(r => (r.benchId as string) === id), `NFR-0004: ${setupVersion}: the retired bench ${id} must not be recorded`);
     for (const mode of MODES) assert.ok(entry.records.some(r => r.inputMode === mode), `NFR-0004: ${setupVersion}: records in ${mode}`);
     for (const r of entry.records) {
       const o = r as Record<string, unknown>;
       assert.ok(o.benchEnvironment === 'TEST_PAD' || o.benchEnvironment === 'SYNTHETIC_TRACK', `NFR-0004: ${setupVersion} ${r.benchId}: benchEnvironment must be recorded`);
       assert.ok(typeof o.verdict === 'string' && typeof o.setupVersion === 'string' && typeof o.baselineAvailable === 'boolean', `NFR-0004: ${setupVersion} ${r.benchId}: the common fields must be recorded`);
+      if (['STEER_RESPONSE', 'CORNER_RADIUS', 'CORNER_TURN', 'REAR_RECOVERY', 'ACCELERATION', 'TOP_SPEED'].includes(r.benchId)) {
+        assert.equal(o.benchEnvironment, 'TEST_PAD', `NFR-0004: ${setupVersion}: ${r.benchId} runs on the open test pad`);
+        assert.ok(typeof o.testAreaRadiusM === 'number' && typeof o.offAsphaltStepCount === 'number', `NFR-0004: ${setupVersion}: ${r.benchId} must record the area fields`);
+      }
+      if (['GRASS_LOSS', 'WALL_CONTACT', 'TEST_PILOT_LAP', 'NORMAL_DRIVING'].includes(r.benchId)) assert.equal(o.benchEnvironment, 'SYNTHETIC_TRACK', `NFR-0004: ${setupVersion}: ${r.benchId} runs on the synthetic track`);
       if (r.benchId === 'STEER_RESPONSE') for (const k of ['speedHoldMode', 'speedHoldBandMps', 'speedMinMps', 'speedMaxMps', 'settleWindowMs']) assert.ok(k in o, `NFR-0004: ${setupVersion}: STEER_RESPONSE must record ${k}`);
-      if (r.benchId === 'REFERENCE_CORNER' || r.benchId === 'UNDERSTEER_ONSET' || r.benchId === 'REAR_RECOVERY') for (const k of ['arcRadiusM', 'laneWidthM']) assert.ok(k in o, `NFR-0004: ${setupVersion}: ${r.benchId} must record ${k}`);
-      if (r.benchId === 'UNDERSTEER_ONSET') assert.ok('entrySpeedStepMps' in o && 'maxUndersteerMsBySpeed' in o, `NFR-0004: ${setupVersion}: UNDERSTEER_ONSET must record the sweep step and the plateaus`);
-      if (r.benchId === 'GRASS_LOSS' || r.benchId === 'WALL_CONTACT' || r.benchId === 'TEST_PILOT_LAP') assert.equal(o.benchEnvironment, 'SYNTHETIC_TRACK', `NFR-0004: ${setupVersion}: ${r.benchId} runs on the synthetic track`);
+      for (const retired of ['arcRadiusM', 'laneWidthM', 'driftActive', 'driftScorePoints', 'excludedRecoveryStepCount']) assert.ok(!(retired in o), `NFR-0004: ${setupVersion} ${r.benchId}: the retired field ${retired} must not be recorded`);
     }
   }
   assert.match(text, /\b2026-\d{2}-\d{2}\b/, 'NFR-0004: the prose must carry a dated entry');
@@ -98,7 +115,7 @@ test('CHK-TEST-0010-04 the simulation modules of the feature read no DOM, clock,
   }
   const main = code('src/main.ts');
   for (const literal of ['50 / 3.6', '13.88', '0.65']) assert.ok(!main.includes(literal), `NFR-0005: src/main.ts must not carry the rule literal ${literal}`);
-  for (const symbol of ['KART_PRESETS', 'ARCADE_KART', 'ARCADE_ASSISTIDO_V5', 'RENTAL_KART', 'classifyHandlingSteps', 'testPadLane', 'testPadArc', 'isForcing']) assert.ok(!uses(main, symbol), `NFR-0005: src/main.ts must not use ${symbol}`);
+  for (const symbol of ['KART_PRESETS', 'ARCADE_KART', 'ARCADE_ASSISTIDO_V5', 'ARCADE_ASSISTIDO_V6', 'RENTAL_KART', 'classifyHandlingSteps', 'testPadLane', 'testPadArc', 'testPadArea', 'isForcing']) assert.ok(!uses(main, symbol), `NFR-0005: src/main.ts must not use ${symbol}`);
   assert.ok(imports(main).includes('./physics') && uses(main, 'PUBLISHED_SETUPS'), 'NFR-0005: the application reads the published setups from the simulation');
   assert.equal(typeof document, 'undefined', 'NFR-0005: the benches run in npm test without a DOM');
   assert.equal(typeof window, 'undefined', 'NFR-0005: the benches run in npm test without a window');
@@ -125,7 +142,7 @@ test('CHK-TEST-0010-05 the Realista preset is unchanged: no differing measure ag
   assert.equal(RENTAL_KART.drivingAssists, false, 'NFR-0007: the Realista has no driving assists');
   assert.equal(PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T.config, RENTAL_KART, 'NFR-0007: the published Realista is RENTAL_KART itself');
   assert.ok(!('previousSetupVersion' in PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T), 'NFR-0007: the Realista declares no previous version: it did not change');
-  assert.ok(Object.isFrozen(RENTAL_KART) && Object.isFrozen(ARCADE_KART) && Object.isFrozen(ARCADE_ASSISTIDO_V5) && Object.isFrozen(PUBLISHED_SETUPS), 'NFR-0007: the presets and the published data are frozen records');
+  assert.ok(Object.isFrozen(RENTAL_KART) && Object.isFrozen(ARCADE_KART) && Object.isFrozen(ARCADE_ASSISTIDO_V5) && Object.isFrozen(ARCADE_ASSISTIDO_V6) && Object.isFrozen(PUBLISHED_SETUPS), 'NFR-0007: the presets and the published data are frozen records');
   assert.equal(REALISTA_BASELINE?.records.length, ARCADE_BASELINE?.records.length, 'NFR-0007: the Realista baseline carries the same set of records as the Arcade one');
 });
 
@@ -134,7 +151,7 @@ test('CHK-TEST-0010-06 the lap validation and the track data of race-lap-validat
   for (const file of ['src/lap.ts', 'src/track.ts', 'src/trackData.ts', 'src/lapTiming.ts']) {
     const text = code(file);
     assert.ok(!imports(text).some(d => /setupRecords|handlingBench|handlingMessages/.test(d)), `NFR-0008: ${file} must not import the modules of the feature`);
-    for (const symbol of ['testPadLane', 'testPadArc', 'PUBLISHED_SETUPS', 'resolveSetupRef', 'compareLapRecords', 'ARCADE_ASSISTIDO_V5']) assert.ok(!uses(text, symbol), `NFR-0008: ${file} must not use ${symbol}`);
+    for (const symbol of ['testPadLane', 'testPadArc', 'testPadArea', 'PUBLISHED_SETUPS', 'resolveSetupRef', 'compareLapRecords', 'ARCADE_ASSISTIDO_V5', 'ARCADE_ASSISTIDO_V6']) assert.ok(!uses(text, symbol), `NFR-0008: ${file} must not use ${symbol}`);
   }
   for (const file of ['src/track.ts', 'src/trackData.ts', 'src/lapTiming.ts']) assert.ok(!code(file).includes('setupVersion'), `NFR-0008: ${file} must not mention the setup version`);
   const lap = code('src/lap.ts');
@@ -161,5 +178,17 @@ test('CHK-TEST-0010-07 the records of API-0003 carry the common fields with thei
     assert.equal('failReason' in r, r.verdict === 'FAIL', `${r.benchId}: failReason only with FAIL`);
   }
   assert.ok(Object.isFrozen(ALL_BENCHES) && Object.isFrozen(BENCH_PARAMETERS), 'AC-US-0005-06: the bench list and the parameters are frozen');
-  assert.ok(ALL_BENCHES.length === 16 && new Set(ALL_BENCHES).size === 16, 'AC-US-0005-06: sixteen distinct benches');
+  assert.equal(new Set(ALL_BENCHES).size, ALL_BENCHES.length, 'AC-US-0005-06: the bench ids are distinct');
+  assert.deepEqual([...ALL_BENCHES].sort(), ['ACCELERATION', 'CORNER_RADIUS', 'CORNER_TURN', 'DETERMINISM', 'DRIFT_INERT', 'GRASS_LOSS', 'NORMAL_DRIVING', 'REALISTA_UNCHANGED',
+    'REAR_RECOVERY', 'SETUP_VERSION', 'SPEED_CAP', 'STEER_RESPONSE', 'STEP_CONTRACT', 'STEP_COST', 'TEST_PILOT_LAP', 'TOP_SPEED', 'WALL_CONTACT'], 'AC-US-0005-06: the seventeen benches of API-0003 4.0.1, no retired one');
+});
+
+test('CHK-TEST-0010-08 the simulation never advances nor cancels a maneuver and its telemetry has no drift field: the drift command reaches nothing', () => {
+  // AC-US-0003-08
+  const physics = code('src/physics.ts');
+  for (const symbol of ['advanceManeuvers', 'cancelManeuver']) assert.ok(!uses(physics, symbol), `AC-US-0003-08: src/physics.ts must not call ${symbol}`);
+  for (const word of ['driftActive', 'drifting', 'boosting']) assert.ok(!uses(physics, word), `AC-US-0003-08: src/physics.ts must not carry ${word}`);
+  const telemetryType = physics.match(/export type HandlingTelemetry = \{([^}]*)\}/)?.[1] ?? '';
+  assert.ok(telemetryType.length > 0, 'AC-US-0003-08: the HandlingTelemetry type must be found');
+  assert.ok(!/drift/i.test(telemetryType), 'AC-US-0003-08: the telemetry of API-0001 2.0.0 must carry no drift field');
 });

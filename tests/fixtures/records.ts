@@ -9,11 +9,11 @@ import {
   buildReplayRecord, MAX_REPLAY_INPUT_STEPS, MAX_REPLAY_TEXT_CHARS, REPLAY_FORMAT_VERSION, type LapRecord, type ReplayRecord,
 } from '../../src/setupRecords';
 import {
-  baselineEntry, BENCH_PARAMETERS, testPilot, type Baseline, type BenchRecord, type InputMode, type UndersteerOnsetRecord,
+  baselineEntry, BENCH_PARAMETERS, testPilot, type Baseline, type BenchRecord, type InputMode,
 } from '../../scripts/handlingBench';
 import { syntheticReading } from './trackFiles';
 import { autopilot } from '../helpers/autopilot';
-import { ARCADE, ARCADE_CONFIG, FIFTY_KMH_MPS, MEASURED_AT_UTC, SETUP_REF } from '../helpers/handling';
+import { ARCADE, ARCADE_CONFIG, MEASURED_AT_UTC, SETUP_REF, untilFirstResult } from '../helpers/handling';
 
 const reading = syntheticReading();
 if (reading.trackDataStatus !== 'COMPLETE') throw new Error('fixture: synthetic reading must be COMPLETE');
@@ -27,14 +27,11 @@ function recordLap(controller: (lap: LapSession) => Input, config: Parameters<ty
   if (!started.ok) throw new Error(`fixture: startLap rejected the synthetic track: ${started.code}`);
   let lap = started.lap;
   for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, IDLE);
+  // The recording ends at the first result getLapResult returns, never at phase ENDED (test strategy, FB-01).
   const inputs: Input[] = [];
-  for (let i = 0; i < MAX_LAP_STEPS && lap.phase !== 'ENDED'; i++) {
-    const input = controller(lap);
-    inputs.push(input);
-    lap = stepLap(lap, input);
-  }
-  if (lap.phase !== 'ENDED') throw new Error('fixture: the recorded lap did not end');
-  return { lap, inputs };
+  const ended = untilFirstResult(lap, controller, MAX_LAP_STEPS, (_l, input) => inputs.push(input));
+  if ('code' in getLapResult(ended.lap)) throw new Error('fixture: the recorded lap gave no result');
+  return { lap: ended.lap, inputs };
 }
 
 // Laps recorded once per process: the test-pilot lap with the current Arcade (setup fields in the request) and an
@@ -69,6 +66,13 @@ export function v4Replay(): ReplayRecord {
   if (!ARCADE.previousSetupVersion) throw new Error('fixture: the Arcade setup must declare a previous version');
   return { ...newReplay(), setupVersion: ARCADE.previousSetupVersion, inputs: clone(previousLap().inputs) };
 }
+// A replay of the superseded staging round (arcade-assistido-v5, DOMAIN/DEC-15), with the drift command held in part of
+// its inputs (blocks of 60 steps out of every 120), as a player of that round could have recorded it.
+export const SUPERSEDED_SETUP_VERSION = 'arcade-assistido-v5';
+export function v5Replay(): ReplayRecord {
+  const replay = newReplay();
+  return { ...replay, setupVersion: SUPERSEDED_SETUP_VERSION, inputs: replay.inputs.map((input, i) => (i % 120 < 60 ? { ...input, drift: true } : input)) };
+}
 export function futureReplay(): ReplayRecord { return { ...newReplay(), replayFormatVersion: REPLAY_FORMAT_VERSION + 1 }; }
 export function corruptReplay(): string { return '{"trackId": "synthetic", "inputs": [ not json'; }
 // MAX_REPLAY_INPUT_STEPS + 1 elements, each of which throws when read: a reader that touches one element fails loudly.
@@ -97,22 +101,15 @@ export function incompleteResult(): Omit<LapRecord, 'trackVersion'> {
 // ----------------------------------------------------------------------------- handling-baseline markdown texts
 
 export const BASELINE_RUNTIME_ID = 'fixture-platform-fixture-cpu';
-const PLATEAU_PARAMETERS = { plateauMs: BENCH_PARAMETERS.plateauMs, plateauSpeedHoldMode: BENCH_PARAMETERS.plateauSpeedHoldMode };
-const exit = { offAsphaltStepCount: 1, offAsphaltFirstStep: 1, offAsphaltFirstXM: 24.5, offAsphaltFirstZM: 0 };
+// The bench parameters an entry records with itself (DM-0001 section 5, API-0003 4.0.1).
+const ENTRY_PARAMETERS = {
+  testAreaRadiusM: BENCH_PARAMETERS.testAreaRadiusM, straightTestAreaRadiusM: BENCH_PARAMETERS.straightTestAreaRadiusM,
+  radiusWindowMs: BENCH_PARAMETERS.radiusWindowMs, forcingSpeedMps: BENCH_PARAMETERS.forcingSpeedMps, forcingWindowMs: BENCH_PARAMETERS.forcingWindowMs,
+};
 
-// The UNDERSTEER_ONSET record of the previous version as its bench emits it: V1 at 50 km/h (plateau 0 understeered),
-// no complete plateau above 50 km/h, and the sweep ended by the exit before the second one (MEASUREMENT_MISSING).
-function onsetRecord(inputMode: InputMode, patch: Partial<UndersteerOnsetRecord> = {}, geometry: { arcRadiusM: number; laneWidthM: number } = { arcRadiusM: BENCH_PARAMETERS.arcRadiusM, laneWidthM: BENCH_PARAMETERS.laneWidthM }): UndersteerOnsetRecord {
-  return {
-    benchEnvironment: 'TEST_PAD', setupId: ARCADE.setupId, setupVersion: ARCADE.previousSetupVersion ?? '', inputMode,
-    verdict: 'FAIL', failReason: 'MEASUREMENT_MISSING', measuredAtUtc: MEASURED_AT_UTC, baselineAvailable: false,
-    benchId: 'UNDERSTEER_ONSET', ...geometry, v1Mps: FIFTY_KMH_MPS, entrySpeedStepMps: BENCH_PARAMETERS.entrySpeedStepMps,
-    maxUndersteerMsBySpeed: [], ...exit, ...patch,
-  };
-}
 function stepCostRecord(inputMode: InputMode, meanStepCostUs: number): BenchRecord {
   return {
-    benchEnvironment: 'TEST_PAD', setupId: ARCADE.setupId, setupVersion: ARCADE.previousSetupVersion ?? '', inputMode,
+    benchEnvironment: 'SYNTHETIC_TRACK', setupId: ARCADE.setupId, setupVersion: ARCADE.previousSetupVersion ?? '', inputMode,
     verdict: 'FAIL', failReason: 'BASELINE_MISSING', measuredAtUtc: MEASURED_AT_UTC, baselineAvailable: false,
     benchId: 'STEP_COST', meanStepCostUs,
   };
@@ -121,27 +118,16 @@ function markdown(entries: readonly Baseline[]): string {
   const lines = entries.map(e => JSON.stringify(e)).join(',\n');
   return `# Física\n\nTexto antes do bloco.\n\n\`\`\`json handling-baseline\n{"entries": [\n${lines}\n]}\n\`\`\`\n\nTexto depois do bloco.\n`;
 }
-const entry = (records: BenchRecord[], parameters: Record<string, unknown> | undefined = PLATEAU_PARAMETERS, runtimeId?: string) =>
-  baselineEntry(records, ARCADE.setupId, ARCADE.previousSetupVersion ?? '', MEASURED_AT_UTC, runtimeId, parameters);
+const entry = (records: BenchRecord[], runtimeId?: string) =>
+  baselineEntry(records, ARCADE.setupId, ARCADE.previousSetupVersion ?? '', MEASURED_AT_UTC, runtimeId, { ...ENTRY_PARAMETERS, ...(runtimeId ? { runtimeId } : {}) });
 const bothModes = (make: (mode: InputMode) => BenchRecord) => (['BINARY', 'PROPORTIONAL'] as const).map(make);
 
-export type BaselineVariant =
-  | 'valid' | 'noBlock' | 'corrupt' | 'otherEnvironment' | 'otherArc' | 'noV1' | 'interruptedV1' | 'noPlateauParameters' | 'stepCost';
+export type BaselineVariant = 'noBlock' | 'corrupt' | 'stepCost';
 // `stepCost` carries a runtimeId and a STEP_COST record of 10 µs in both modes (NFR-0002).
 export function baselineMarkdown(variant: BaselineVariant): string {
   switch (variant) {
-    case 'valid': return markdown([entry(bothModes(m => onsetRecord(m)))]);
     case 'noBlock': return '# Física\n\nNenhum bloco legível por máquina aqui.\n';
     case 'corrupt': return '# Física\n\n```json handling-baseline\n{"entries": [ not json\n```\n';
-    case 'otherEnvironment': return markdown([entry(bothModes(m => onsetRecord(m, { benchEnvironment: 'SYNTHETIC_TRACK' })))]);
-    case 'otherArc': return markdown([entry(bothModes(m => onsetRecord(m, {}, { arcRadiusM: 24, laneWidthM: BENCH_PARAMETERS.laneWidthM })))]);
-    case 'noV1': return markdown([entry(bothModes(m => { const r = onsetRecord(m); delete r.v1Mps; return r; }))]);
-    // V1 above every plateau of the list and no pair above 200 ms: a baseline that never understeered (DOMAIN/DEC-12).
-    case 'interruptedV1': return markdown([entry(bothModes(m => onsetRecord(m, {
-      verdict: 'PASS', failReason: undefined, v1Mps: FIFTY_KMH_MPS + 4 * BENCH_PARAMETERS.entrySpeedStepMps,
-      maxUndersteerMsBySpeed: [[FIFTY_KMH_MPS + BENCH_PARAMETERS.entrySpeedStepMps, 0], [FIFTY_KMH_MPS + 2 * BENCH_PARAMETERS.entrySpeedStepMps, 0], [FIFTY_KMH_MPS + 3 * BENCH_PARAMETERS.entrySpeedStepMps, 0]],
-    })))]);
-    case 'noPlateauParameters': return markdown([entry(bothModes(m => onsetRecord(m)), { targetSpeedMps: FIFTY_KMH_MPS })]);
-    case 'stepCost': return markdown([entry(bothModes(m => stepCostRecord(m, 10)), { ...PLATEAU_PARAMETERS, runtimeId: BASELINE_RUNTIME_ID }, BASELINE_RUNTIME_ID)]);
+    case 'stepCost': return markdown([entry(bothModes(m => stepCostRecord(m, 10)), BASELINE_RUNTIME_ID)]);
   }
 }

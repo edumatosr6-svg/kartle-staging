@@ -3,16 +3,22 @@ title: Registro de divergências e de critérios não verificados em npm test
 feature: dirigibilidade
 stage: test
 status: validated
-version: 1.0.0
+version: 2.0.0
 ---
 
 # 98 — Divergências
 
-Nenhuma verificação derivada de um critério falha contra a implementação atual: a execução de 2026-10-27 (`npm test`, totais do
-próprio runner, `reports/npm-test-latest.log` e `reports/junit-latest.xml`) coletou 237 verificações — as 172 existentes
-(`physics`, `maneuvers`, `race-lap-validation-*`) e as 65 novas `CHK-TEST-00nn-nn` — e todas passaram. Não há divergência
-código-versus-especificação aberta neste estágio; a linha D de `400 Code/Output/dirigibilidade/98-divergences.md` (prova em
-`npm test` de todo registro de API-0003) é atendida pelas suítes `tests/dirigibilidade-*.test.ts`, exceto a metade humana abaixo.
+Nenhuma verificação desta feature falha contra a implementação atual. A execução de 2026-10-30 (`npx tsx --test tests/*.test.ts`,
+totais do próprio runner em `reports/npm-test-latest.log` e `reports/junit-latest.xml`) coletou 393 verificações: 386 aprovadas e 7
+reprovadas, as 7 de `modelo-kart-01` (tabela abaixo). As 61 `CHK-TEST-00nn-nn` desta feature e as suítes `physics`, `maneuvers`,
+`race-lap-validation-*` e `pista-kart-park-*` passam. A linha 14 de `400 Code/Output/dirigibilidade/98-divergences.md` (provas em
+`npm test` de test-strategy 6.0.0) é atendida pelas suítes `tests/dirigibilidade-*.test.ts`, exceto a metade humana abaixo.
+
+## Verificações reprovadas na mesma execução, de outra feature
+
+| Verificação | Arquivo | Motivo | Quem deve |
+|---|---|---|---|
+| CHK-TEST-0004-09, -11, -12, -13, -14, -15, -16 de `modelo-kart-01` | `tests/modelo-kart-01-contract.test.ts` | a linha de base da simulação daquela feature (`tests/fixtures/kart01-sim-baseline.json`) é chaveada em `arcade-assistido-v5`; com o acerto publicado `arcade-assistido-v6` ela é `BASELINE_MISSING` (FB-02 de `modelo-kart-01`, ISSUE-11 de `dspec-validation-20261030-1333`) | estágio de testes de `modelo-kart-01`; fora da cerca de escrita desta feature (conventions §14), não tocada |
 
 ## Critérios cuja metade de tela, aparelho ou navegador só é verificável pelo roteiro registrado
 
@@ -24,11 +30,20 @@ registro humano. Não é um teste pulado: é um nível sem execução.
 
 | Id | Estado | O que a especificação exige | Verificado por (`npm test`) | Parte não verificada e roteiro que a decide | Quem deve |
 |---|---|---|---|---|---|
-| AC-US-0004-06 | unverified | HUD exibe a velocidade em km/h e o estado de aderência em texto em todos os quadros entre o sinal verde e o fim da volta, em `web-desktop` e `web-mobile`; a pausa mantém o último valor | CHK-TEST-0006-01 (telemetria em todo passo da volta), CHK-TEST-0007-01 (elementos e rótulos) | observação por quadro na tela, inclusive na grama e após bater, e a pausa: E2E-01 em desktop e celular | registro humano em `docs/handling-device-log.md` |
-| AC-US-0005-05 | unverified | nenhum tempo da versão anterior apresentado na tela ou no texto compartilhado como comparável; melhor tempo `—` ao trocar de acerto | CHK-TEST-0007-02, CHK-TEST-0007-03, CHK-TEST-0007-04, CHK-TEST-0008-03 | exibição do resultado com `setupVersion`, troca Arcade → Realista → Arcade e o compartilhar (área de transferência e Web Share): E2E-02 | registro humano |
-| NFR-0002 | unverified | custo médio por passo no máximo 10 % acima da linha de base, na mesma máquina e runtime | CHK-TEST-0010-02 (regra de `STEP_COST` com valores constantes; linha de base real com `runtimeId`) | a medida de relógio de parede é só dos benches (I9): `npm run bench:handling` na máquina de referência, registrada em `docs/physics.md` (última: 220,4 µs contra 203,3 µs, 1,08 ×, `400 Code/Output/dirigibilidade/01-implementation.md`) | dono do bench, por rodada de acerto |
+| AC-US-0003-09 | unverified | nenhum indicador de carga de drift, turbo ou impulso, combo ou pontuação no HUD e na tela de resultado, em `web-desktop` e `web-mobile` | CHK-TEST-0007-06 (elementos, identificadores, textos e estilos ausentes de `index.html`, `src/main.ts` e `src/style.css`), CHK-TEST-0003-09 e CHK-TEST-0010-08 (o comando não alcança o estado) | observação por quadro com Espaço e o botão de drift segurados em curvas e retas: E2E-01 em desktop e celular | registro humano em `docs/handling-device-log.md` |
+| AC-US-0003-11 | unverified | nenhum conteúdo de drift, turbo, combo ou pontuação no texto compartilhado | CHK-TEST-0007-05 (`formatSharedText` sobre registros válidos e inválidos de quatro versões, pt e en) | o compartilhar real (área de transferência no desktop, Web Share no celular): E2E-02 | registro humano |
+| AC-US-0004-06 | unverified | HUD exibe a velocidade em km/h e o estado de aderência em texto em todos os quadros entre o sinal verde e o fim da volta; a pausa mantém o último valor | CHK-TEST-0006-01 (telemetria em todo passo da volta até o primeiro resultado), CHK-TEST-0007-01 (elementos e rótulos) | observação por quadro na tela, inclusive na grama e após bater, e a pausa: E2E-01 | registro humano |
+| AC-US-0005-05 | unverified | nenhum tempo da versão anterior apresentado na tela como comparável; melhor tempo `—` ao trocar de acerto; resultado sem a versão do acerto | CHK-TEST-0007-03, CHK-TEST-0007-04, CHK-TEST-0008-03 | exibição do resultado e a troca Arcade → Realista → Arcade: E2E-02 | registro humano |
+| AC-US-0005-07 | unverified | nenhum tempo da versão anterior apresentado como comparável no texto compartilhado | CHK-TEST-0007-02 (texto exato, um tempo, sem versão nem diferença, para registros de versões diferentes) | o compartilhar real: E2E-02 | registro humano |
+| NFR-0002 | unverified | custo médio por passo no máximo 10 % acima da linha de base, na mesma máquina e runtime | CHK-TEST-0010-02 (regra de `STEP_COST` com valores constantes; linhas de base de fixture e real com `runtimeId`) | a medida de relógio de parede é só dos benches (I9): `npm run bench:handling` na máquina de referência (última: 181,3 µs contra 173,9 µs, 1,04 ×, `400 Code/Output/dirigibilidade/01-implementation.md`) | dono do bench, por rodada de acerto |
 | NFR-0003 | unverified | paridade entre teclado e inclinação com o sensor real | CHK-TEST-0001-07, CHK-TEST-0002-08, CHK-TEST-0003-08, CHK-TEST-0005-07, CHK-TEST-0009-06 (mesmo `Input`, mesmas medidas nos dois modos) | inclinação proporcional no celular com o mesmo HUD e sem forçar a traseira com esterço parcial: E2E-03 | registro humano |
-| NFR-0004 | unverified | prosa datada de `docs/physics.md` com ambiente, parâmetros, resultado e data por mudança de acerto | CHK-TEST-0010-03 (bloco legível por máquina: três entradas, parâmetros, registros de todos os ensaios com ambiente) | a prosa datada é lida na revisão da etapa de código (estratégia, NFR-0004) | revisão de código |
+| NFR-0004 | unverified | prosa datada de `docs/physics.md` com ambiente, parâmetros, resultado e data por mudança de acerto | CHK-TEST-0010-03 (bloco legível por máquina: entradas v4, v6 e Realista, parâmetros da pista aberta, registros de todos os ensaios de API-0003 4.0.1, nenhum retirado) | a prosa datada é lida na revisão da etapa de código (estratégia, NFR-0004) | revisão de código |
 
 Nenhuma linha acima contribui para o veredito deste estágio (conventions §6); cada uma permanece aberta até a execução
 registrada, que é uma decisão humana e não uma verificação pulada.
+
+## Observação fora dos critérios
+
+| Item | O que foi visto | Por que não é verificação | Para quem |
+|---|---|---|---|
+| tela de boas-vindas e guia de manobra | `index.html:19` ("encaixe o drift e solte para dar o impulso") e `index.html:33` (seção `maneuver-guide`, "Como fazer drift") ainda ensinam o drift e o impulso retirados por `DOMAIN/DEC-15` | AC-US-0003-09 restringe a ausência ao HUD durante a volta e à tela de resultado; a tela de boas-vindas e o guia não são nenhum dos dois, e nenhum critério desta feature os cobre | dono do produto (decidir se a retirada do drift inclui o texto de instrução; um critério novo pediria revisão do seed) |

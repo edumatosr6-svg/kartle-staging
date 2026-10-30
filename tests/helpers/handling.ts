@@ -2,9 +2,10 @@
 // (never the clock), the baselines read from docs/physics.md, and a trace runner over the public simulation operations
 // so that a check recomputes a rule over its own trace instead of trusting the field the record reports.
 import {
-  ARCADE_ASSISTIDO_V5, getHandlingTelemetry, PUBLISHED_SETUPS, STEP, step,
+  getHandlingTelemetry, PUBLISHED_SETUPS, STEP, step,
   type Environment, type HandlingTelemetry, type Input, type KartConfig, type SetupRef, type State,
 } from '../../src/physics';
+import { getLapResult, stepLap, type LapSession } from '../../src/lap';
 import { toMs } from '../../src/lapTiming';
 import {
   BENCH_PARAMETERS, loadBaselineText, readBaseline, serialize,
@@ -15,8 +16,9 @@ export const MEASURED_AT_UTC = '2026-10-27T00:00:00.000Z';
 export const ARCADE = PUBLISHED_SETUPS.ARCADE_ASSISTIDO;
 export const REALISTA = PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T;
 export const SETUP_REF: SetupRef = { setupId: ARCADE.setupId, setupVersion: ARCADE.setupVersion };
-// The configuration the benches drive: the published Arcade assistido with the 75 kg driver of DOMAIN/DEC-05.
-export const ARCADE_CONFIG: KartConfig = { ...ARCADE_ASSISTIDO_V5, driverMass: BENCH_PARAMETERS.driverMassKg };
+// The configuration the benches drive: the published Arcade assistido (its `config`, whatever version is published) with
+// the 75 kg driver of DOMAIN/DEC-05.
+export const ARCADE_CONFIG: KartConfig = { ...ARCADE.config, driverMass: BENCH_PARAMETERS.driverMassKg };
 export const MODES: readonly InputMode[] = ['BINARY', 'PROPORTIONAL'];
 export const FIFTY_KMH_MPS = 50 / 3.6;
 export const kmh = (mps: number) => mps * 3.6;
@@ -54,6 +56,22 @@ export function trace(
     if (stopAfter?.(t)) break;
   }
   return out;
+}
+
+// The end of a lap in the tests (test strategy, "Fim de uma volta nos testes"): the first step at which getLapResult returns
+// a result, never phase ENDED. `onStep` sees every step applied by the controller, in order. Returns the session and the
+// number of controller steps applied.
+export function untilFirstResult(
+  lap: LapSession, controller: (lap: LapSession) => Input, maxSteps: number, onStep?: (lap: LapSession, input: Input) => void,
+): { lap: LapSession; steps: number } {
+  let current = lap, steps = 0;
+  while (steps < maxSteps && 'code' in getLapResult(current)) {
+    const input = controller(current);
+    current = stepLap(current, input);
+    steps++;
+    onStep?.(current, input);
+  }
+  return { lap: current, steps };
 }
 
 export const isLoose = (h: HandlingTelemetry['handling']) => h === 'oversteer' || h === 'sliding';

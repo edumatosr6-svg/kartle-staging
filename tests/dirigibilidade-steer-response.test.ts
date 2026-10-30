@@ -1,5 +1,5 @@
-// TEST-0001 — steering response on the straight lane of the test pad at 50 km/h held by the regulated throttle
-// (strategy: steer-response, integration and contract, RULE-0002, API-0003, DES-0004).
+// TEST-0001 — steering response on the open test pad (testPadArea, 100 m) at 50 km/h held by the regulated throttle
+// (strategy: steer-response, integration and contract, RULE-0002, API-0003 4.0.1, DES-0004).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { makeInput, judge, runBench, serialize, handlingBenchReport, THRESHOLDS, BENCH_PARAMETERS, type SteerResponseRecord } from '../scripts/handlingBench';
@@ -9,6 +9,9 @@ import { ARCADE, byId, FINITE, FIFTY_KMH_MPS, INTEGER, measures, MODES, near, op
 const records = { BINARY: runBench('STEER_RESPONSE', options('BINARY')), PROPORTIONAL: runBench('STEER_RESPONSE', options('PROPORTIONAL')) };
 const side = (mode: keyof typeof records, steer: number) => byId<SteerResponseRecord>(records[mode], 'STEER_RESPONSE', r => (r as SteerResponseRecord).steerInputNorm === steer);
 const FULL = [1, -1], PARTIAL = [0.5, -0.5];
+const STEER_KEYS = ['benchEnvironment', 'setupId', 'setupVersion', 'inputMode', 'verdict', 'measuredAtUtc', 'baselineAvailable', 'benchId',
+  'steerInputNorm', 'targetSpeedMps', 'speedHoldMode', 'speedHoldBandMps', 'speedMinMps', 'speedMaxMps', 'riseToNinetyPctMs', 'fallToTenPctMs',
+  'settleWindowMs', 'steadyYawRateRadPerS', 'understeerStepCount', 'testAreaRadiusM', 'offAsphaltStepCount'].sort();
 const speedHeld = (r: SteerResponseRecord) => r.speedMinMps >= r.targetSpeedMps - r.speedHoldBandMps && r.speedMaxMps <= r.targetSpeedMps + r.speedHoldBandMps;
 // The verdict RULE-0002 gives from the two times and the speed band alone (AC-US-0001-05).
 const ruleVerdict = (r: SteerResponseRecord) => !speedHeld(r) ? 'FAIL' : r.riseToNinetyPctMs <= THRESHOLDS.riseToNinetyPctMs && r.fallToTenPctMs <= THRESHOLDS.fallToTenPctMs ? 'PASS' : 'FAIL';
@@ -69,7 +72,7 @@ test('CHK-TEST-0001-05 the verdict depends only on the two measured times and th
   assert.equal(judge({ ...inside, fallToTenPctMs: 251 }).failReason, 'THRESHOLD_EXCEEDED', 'AC-US-0001-05: a fall of 251 ms must be THRESHOLD_EXCEEDED');
 });
 
-test('CHK-TEST-0001-06 the output carries the steering-response record of API-0003 with its times, regime, speed range and settle window', (t) => {
+test('CHK-TEST-0001-06 the output carries the steering-response record of API-0003 4.0.1 with its times, regime, speed range, settle window and the declared area, and leaving the area fails before any other reason', (t) => {
   // AC-US-0001-06
   for (const mode of MODES) for (const r of records[mode] as SteerResponseRecord[]) {
     assert.equal(r.benchId, 'STEER_RESPONSE', 'AC-US-0001-06: benchId');
@@ -81,7 +84,10 @@ test('CHK-TEST-0001-06 the output carries the steering-response record of API-00
     for (const k of ['steadyYawRateRadPerS', 'speedMinMps', 'speedMaxMps', 'targetSpeedMps', 'speedHoldBandMps', 'steerInputNorm'] as const) assert.ok(FINITE(r[k]), `AC-US-0001-06: ${k} must be a finite number`);
     assert.equal(r.speedHoldMode, 'THROTTLE_REGULATED', 'AC-US-0001-06: the speed is held by the regulated throttle');
     assert.ok(!('throttleInputNorm' in r), 'AC-US-0001-06: throttleInputNorm is absent in THROTTLE_REGULATED');
-    assert.ok(!('offAsphaltStepCount' in r) && !('offAsphaltFirstStep' in r), 'AC-US-0001-06: a lane exit of the straight has no field in the record');
+    assert.equal(r.testAreaRadiusM, 100, 'AC-US-0001-06: testAreaRadiusM must be the 100 m area of the open pad (test strategy)');
+    assert.equal(r.offAsphaltStepCount, 0, 'AC-US-0001-06: offAsphaltStepCount must be 0: the run stays inside the declared area');
+    assert.ok(!('offAsphaltFirstStep' in r) && !('offAsphaltFirstXM' in r) && !('offAsphaltFirstZM' in r), 'AC-US-0001-06: no exit fields without an exit');
+    assert.deepEqual(Object.keys(r).sort(), STEER_KEYS, `AC-US-0001-06: ${mode} steer ${r.steerInputNorm}: exactly the fields of API-0003 for STEER_RESPONSE plus those of the area, without throttleInputNorm`);
     assert.equal(r.settleWindowMs, BENCH_PARAMETERS.settleWindowMs, 'AC-US-0001-06: the settle window used for the regime must be the declared parameter');
     assert.ok(r.speedMinMps <= r.speedMaxMps, 'AC-US-0001-06: speedMinMps must not exceed speedMaxMps');
     assert.ok(r.verdict === 'PASS' ? !('failReason' in r) : typeof r.failReason === 'string', 'AC-US-0001-06: failReason only with FAIL');
@@ -96,8 +102,10 @@ test('CHK-TEST-0001-06 the output carries the steering-response record of API-00
   assert.equal(notHeld.verdict, 'FAIL', 'AC-US-0001-06: a speed beyond the band must be FAIL');
   assert.equal(notHeld.failReason, 'SPEED_NOT_HELD', 'AC-US-0001-06: a speed beyond the band must be SPEED_NOT_HELD');
   assert.equal(judge({ ...base, speedMinMps: base.targetSpeedMps - 0.6 }).failReason, 'SPEED_NOT_HELD', 'AC-US-0001-06: a speed below the band must be SPEED_NOT_HELD');
-  const offLane = judge({ ...base, riseToNinetyPctMs: 100, fallToTenPctMs: 100, speedMinMps: base.targetSpeedMps, speedMaxMps: base.targetSpeedMps }, 'OFF_ASPHALT');
-  assert.equal(offLane.verdict, 'PASS', 'AC-US-0001-06: leaving the lane of the straight does not alter the verdict');
+  const exit = { offAsphaltStepCount: 1, offAsphaltFirstStep: 70, offAsphaltFirstXM: 99.9, offAsphaltFirstZM: 4.2 };
+  const offArea = judge({ ...base, ...exit, speedMaxMps: base.targetSpeedMps + 0.6, riseToNinetyPctMs: 300 });
+  assert.equal(offArea.verdict, 'FAIL', 'AC-US-0001-06: leaving the declared area must be FAIL');
+  assert.equal(offArea.failReason, 'TEST_AREA_EXCEEDED', 'AC-US-0001-06: leaving the declared area must be TEST_AREA_EXCEEDED before SPEED_NOT_HELD or THRESHOLD_EXCEEDED');
   assert.deepEqual(handlingBenchReport(options('BINARY'), []), [], 'AC-US-0001-06: zero benches requested give zero records, never an implicit PASS');
   t.diagnostic(`STEER_RESPONSE records: ${records.BINARY.length} BINARY, ${records.PROPORTIONAL.length} PROPORTIONAL`);
 });

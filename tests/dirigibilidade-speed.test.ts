@@ -1,11 +1,11 @@
-// TEST-0005 — speed and risk: 0-60 km/h, top speed, the grass of the synthetic track and the wall
-// (strategy: speed, integration and contract, RULE-0002, API-0003, DES-0004).
+// TEST-0005 — speed and risk: 0-60 km/h and the top speed on the straight area of the open test pad, the grass of the
+// synthetic track and the wall (strategy: speed, integration and contract, RULE-0002, API-0003 4.0.1, DES-0004).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
-import { CIRCUIT, testPadLane } from '../src/physics';
+import { CIRCUIT, testPadArea } from '../src/physics';
 import { toMs } from '../src/lapTiming';
 import {
   BENCH_PARAMETERS, grassEntry, judge, makeInput, runBench, serialize, straight, wallApproach,
@@ -13,7 +13,7 @@ import {
 } from '../scripts/handlingBench';
 import { ARCADE, byId, FINITE, FIFTY_KMH_MPS, INTEGER, measures, MODES, near, options, printRecords, trace } from './helpers/handling';
 
-const LANE = testPadLane(BENCH_PARAMETERS.laneWidthM);
+const STRAIGHT_AREA = testPadArea(BENCH_PARAMETERS.straightTestAreaRadiusM);
 const SIXTY_KMH_MPS = 60 / 3.6;
 const run = (mode: 'BINARY' | 'PROPORTIONAL') => ({
   acceleration: runBench('ACCELERATION', options(mode))[0] as AccelerationRecord,
@@ -27,7 +27,7 @@ const full = (mode: 'BINARY' | 'PROPORTIONAL') => makeInput(mode, 1, 0, 0);
 // The straight from rest with full throttle until the speed stops growing (120 flat steps), as the strategy fixes it.
 function straightLine(mode: 'BINARY' | 'PROPORTIONAL') {
   let flat = 0, previous = 0, sixty: number | undefined;
-  const tr = trace(straight(0), LANE, Math.round(BENCH_PARAMETERS.topSpeedWindowMs / 1000 * 120), () => full(mode), t => {
+  const tr = trace(straight(0), STRAIGHT_AREA, Math.round(BENCH_PARAMETERS.topSpeedWindowMs / 1000 * 120), () => full(mode), t => {
     if (sixty === undefined && t.speedMps >= SIXTY_KMH_MPS) sixty = t.simStepCount;
     flat = Math.abs(t.speedMps - previous) < 1e-6 ? flat + 1 : 0;
     previous = t.speedMps;
@@ -51,16 +51,23 @@ test('CHK-TEST-0005-01 from rest on the straight with full throttle the kart rea
   printRecords(t, [records.BINARY.acceleration, records.PROPORTIONAL.acceleration]);
 });
 
-test('CHK-TEST-0005-02 on the straight with full throttle the stabilized speed is at least 105 km/h', (t) => {
+test('CHK-TEST-0005-02 on the straight with full throttle the stabilized speed lies between 65 km/h and 72 km/h, both ends included', (t) => {
   // AC-US-0004-02
   for (const mode of MODES) {
-    const r = records[mode].topSpeed;
-    assert.ok(FINITE(r.topSpeedMps) && r.topSpeedMps >= 105 / 3.6, `AC-US-0004-02: ${mode}: topSpeedMps ${r.topSpeedMps} must be at least 105 km/h`);
+    const r = records[mode].topSpeed, line = straightLine(mode);
+    const stabilized = line.final.speed;
+    assert.ok(line.trace.telemetry.every(x => x.surface === 'ASPHALT'), `AC-US-0004-02: ${mode}: the straight must stay inside the straight area of ${BENCH_PARAMETERS.straightTestAreaRadiusM} m`);
+    const tail = line.trace.states.slice(-120).map(s => s.speed);
+    assert.ok(Math.max(...tail) - Math.min(...tail) < 1e-4, `AC-US-0004-02: ${mode}: the speed must have stopped growing over the last second of the straight`);
+    assert.ok(stabilized * 3.6 >= 65 && stabilized * 3.6 <= 72, `AC-US-0004-02: ${mode}: the stabilized speed of the straight is ${(stabilized * 3.6).toFixed(2)} km/h and must lie in 65-72 km/h`);
+    assert.ok(near(r.topSpeedMps, stabilized, 1e-6), `AC-US-0004-02: ${mode}: the recorded top speed must be the stabilized speed of the replayed straight (${stabilized})`);
     assert.equal(r.verdict, 'PASS', `AC-US-0004-02: ${mode}: TOP_SPEED must be PASS`);
-    const line = straightLine(mode);
-    assert.ok(near(r.topSpeedMps, line.final.speed, 1e-6), `AC-US-0004-02: ${mode}: the recorded top speed must be the stabilized speed of the replayed straight (${line.final.speed})`);
   }
-  assert.equal(judge({ ...records.BINARY.topSpeed, topSpeedMps: 105 / 3.6 - 0.01 }).failReason, 'THRESHOLD_EXCEEDED', 'AC-US-0004-02: a top speed below 105 km/h must be THRESHOLD_EXCEEDED');
+  const top = records.BINARY.topSpeed;
+  assert.equal(judge({ ...top, topSpeedMps: 18.05 }).failReason, 'THRESHOLD_EXCEEDED', 'AC-US-0004-02: 18.05 m/s (64.98 km/h) must be THRESHOLD_EXCEEDED');
+  assert.equal(judge({ ...top, topSpeedMps: 20.01 }).failReason, 'THRESHOLD_EXCEEDED', 'AC-US-0004-02: 20.01 m/s (72.04 km/h) must be THRESHOLD_EXCEEDED');
+  assert.equal(judge({ ...top, topSpeedMps: 18.056 }).verdict, 'PASS', 'AC-US-0004-02: 18.056 m/s (65.0 km/h) must be PASS');
+  assert.equal(judge({ ...top, topSpeedMps: 20.0 }).verdict, 'PASS', 'AC-US-0004-02: 20.0 m/s (72 km/h) must be PASS');
   printRecords(t, [records.BINARY.topSpeed, records.PROPORTIONAL.topSpeed]);
 });
 
@@ -115,7 +122,7 @@ test('CHK-TEST-0005-05 at every wall contact the speed on the step after the con
     assert.equal(r.contacts.length, contacts.length, `AC-US-0004-05: ${mode}: the record must carry one pair per contact of the replayed run`);
     for (let i = 0; i < contacts.length; i++) assert.ok(near(r.contacts[i][0], contacts[i][0]) && near(r.contacts[i][1], contacts[i][1]), `AC-US-0004-05: ${mode}: contact ${i} must carry the speeds before and after of the replayed run`);
   }
-  assert.equal(judge({ ...records.BINARY.wall, contacts: [] }).failReason, 'THRESHOLD_EXCEEDED', 'AC-US-0004-05: a run without contact must be FAIL');
+  assert.equal(judge({ ...records.BINARY.wall, contacts: [] }).failReason, 'MEASUREMENT_MISSING', 'AC-US-0004-05: a run without contact must be MEASUREMENT_MISSING');
   assert.equal(judge({ ...records.BINARY.wall, contacts: [[10, 9], [10, 10]] }).failReason, 'THRESHOLD_EXCEEDED', 'AC-US-0004-05: a contact that does not cost speed must be FAIL');
   printRecords(t, [records.BINARY.wall]);
 });
@@ -124,7 +131,13 @@ test('CHK-TEST-0005-06 the output carries the four records of API-0003 with thei
   // AC-US-0004-07
   for (const mode of MODES) {
     const { acceleration, topSpeed, grass, wall } = records[mode];
-    for (const r of [acceleration, topSpeed]) assert.equal(r.benchEnvironment, 'TEST_PAD', `AC-US-0004-07: ${mode} ${r.benchId}: runs on the test pad`);
+    for (const r of [acceleration, topSpeed]) {
+      assert.equal(r.benchEnvironment, 'TEST_PAD', `AC-US-0004-07: ${mode} ${r.benchId}: runs on the open test pad`);
+      assert.equal(r.testAreaRadiusM, 1500, `AC-US-0004-07: ${mode} ${r.benchId}: testAreaRadiusM must be the 1 500 m straight area (test strategy)`);
+      assert.equal(r.offAsphaltStepCount, 0, `AC-US-0004-07: ${mode} ${r.benchId}: no step off the declared area`);
+      assert.ok(!('offAsphaltFirstStep' in r), `AC-US-0004-07: ${mode} ${r.benchId}: no exit fields without an exit`);
+    }
+    for (const r of [...grass, wall]) assert.ok(!('testAreaRadiusM' in r) && !('offAsphaltStepCount' in r), `AC-US-0004-07: ${mode} ${r.benchId}: a synthetic-track record carries no area field`);
     for (const r of [...grass, wall]) assert.equal(r.benchEnvironment, 'SYNTHETIC_TRACK', `AC-US-0004-07: ${mode} ${r.benchId}: runs on the synthetic track`);
     for (const r of [acceleration, topSpeed, ...grass, wall]) {
       assert.equal(r.setupId, 'ARCADE_ASSISTIDO', `AC-US-0004-07: ${mode} ${r.benchId}: setupId`);

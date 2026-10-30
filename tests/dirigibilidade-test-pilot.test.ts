@@ -76,11 +76,20 @@ test('CHK-TEST-0009-04 every bench run twice gives identical states in both envi
   assert.equal(differing.failReason, 'NON_DETERMINISTIC', 'AC-US-0005-01: runs that differ must be NON_DETERMINISTIC');
 });
 
+// The variants of each simulation bench in the keyboard form (API-0003 4.0.1, RULE-0002): two sides of the steering response,
+// two start speeds × two sides of the radius, two sides of the turn and of the recovery, two compared sequences of the
+// drift command, two grass entries, and one record for each of the others.
+const BINARY_VARIANTS: Partial<Record<BenchId, number>> = {
+  STEER_RESPONSE: 2, CORNER_RADIUS: 4, CORNER_TURN: 2, NORMAL_DRIVING: 1, REAR_RECOVERY: 2, DRIFT_INERT: 2, SPEED_CAP: 1,
+  ACCELERATION: 1, TOP_SPEED: 1, GRASS_LOSS: 2, WALL_CONTACT: 1, TEST_PILOT_LAP: 1,
+};
+
 test('CHK-TEST-0009-05 the whole set of simulation benches produces the same records on a second run', () => {
   // NFR-0001
-  const ids: BenchId[] = SIMULATION_BENCHES.filter(id => id !== 'DETERMINISM' && id !== 'NORMAL_DRIVING');
+  const ids: BenchId[] = SIMULATION_BENCHES.filter(id => id !== 'DETERMINISM');
   const first = handlingBenchReport(options('BINARY'), ids), second = handlingBenchReport(options('BINARY'), ids);
-  assert.equal(first.length, ids.length + 3, 'NFR-0001: one record per bench, plus the second side, the second throttle condition and the second grass entry');
+  for (const id of ids) assert.equal(first.filter(r => r.benchId === id).length, BINARY_VARIANTS[id], `NFR-0001: ${id} must give one record per variant (${BINARY_VARIANTS[id]})`);
+  assert.equal(first.length, Object.values(BINARY_VARIANTS).reduce((a, b) => a + (b ?? 0), 0), 'NFR-0001: no record beyond the declared variants');
   assert.deepEqual(second, first, 'NFR-0001: the records of two runs must be identical, measuredAtUtc included');
   assert.deepEqual(runBench('TEST_PILOT_LAP', options('PROPORTIONAL')), runBench('TEST_PILOT_LAP', options('PROPORTIONAL')), 'NFR-0001: the lap record must be identical across runs');
 });
