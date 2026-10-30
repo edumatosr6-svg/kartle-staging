@@ -4,7 +4,7 @@ title: Estado da volta visível durante toda a volta
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0009, NFR-0006, NFR-0007, AC-US-0009-01, AC-US-0009-02, AC-US-0009-03, AC-US-0009-04, AC-US-0009-05, AC-US-0009-06, AC-US-0009-07, AC-US-0009-08, AC-US-0009-09]
 ---
 
@@ -12,7 +12,8 @@ sources: [US-0009, NFR-0006, NFR-0007, AC-US-0009-01, AC-US-0009-02, AC-US-0009-
 
 ## Resumo
 
-Do sinal verde ao encerramento, a tela mostra se a volta ainda vale: "válida em andamento" ou "inválida" com
+Do início de cada volta ao seu encerramento, a tela mostra se a volta ainda vale; o início é o sinal verde
+ou, nas voltas seguintes do treino, o instante de cruzamento da chegada que encerrou a anterior: "válida em andamento" ou "inválida" com
 o motivo. O estado e o motivo são texto, além de cor, nos idiomas português e inglês conforme o idioma do
 navegador, com contraste mínimo de 4,5:1 (WCAG AA) e, em `web-mobile`, com no mínimo 16 px
 (`DOMAIN/DEC-09`, `DOMAIN/DEC-11`).
@@ -28,8 +29,9 @@ Mesmo estado, mesmos textos, mesmos idiomas e mesmo contraste mínimo nos dois c
 
 ## Requisitos
 
-- REQ-FEAT-0007-01: O sistema SHALL exibir o estado da volta na tela em todos os quadros, do sinal verde ao
-  encerramento da volta (AC-US-0009-01).
+- REQ-FEAT-0007-01: O sistema SHALL exibir o estado da volta na tela em todos os quadros, do início da volta
+  ao seu encerramento, sendo o início o sinal verde ou, nas voltas seguintes do treino, o instante de
+  cruzamento da chegada que encerrou a anterior (AC-US-0009-01).
 - REQ-FEAT-0007-02: O sistema SHALL exibir o estado "válida em andamento" enquanto a volta não tem motivo
   de invalidação (AC-US-0009-02).
 - REQ-FEAT-0007-03: O sistema SHALL exibir o estado "inválida" com o seu motivo ("marcador pulado", "corte"
@@ -55,8 +57,10 @@ Mesmo estado, mesmos textos, mesmos idiomas e mesmo contraste mínimo nos dois c
   o mesmo estado da volta do instante da pausa [DOMAIN] (US-0009, caso anormal; `DOMAIN/DEC-08`).
 - REQ-FEAT-0007-13: O sistema SHALL seguir o idioma do navegador se ele mudar durante a volta, sem alterar a
   regra de validade [DOMAIN] (US-0009, caso anormal; `DOMAIN/DEC-09`).
-- REQ-FEAT-0007-14: O sistema SHALL exibir "inválida" com o motivo ao terminar a volta invalidada, no passo
-  da invalidação [DOMAIN] (US-0009, caso anormal; `DOMAIN/DEC-06`).
+- REQ-FEAT-0007-14: O sistema SHALL exibir "inválida" com o motivo na invalidação: fora do treino, ao
+  terminar a volta no passo da invalidação; no treino, na hora da invalidação, mantendo esse estado até a
+  próxima chegada no sentido da pista, quando a nova volta passa a "válida em andamento" [DOMAIN] (US-0009,
+  caso anormal; `DOMAIN/DEC-06`; `DOMAIN/DEC-12`).
 
 ## Comportamento
 
@@ -66,7 +70,7 @@ Textos e resolução de idioma: [RULE-0006](../rules/RULE-0006-mensagens-de-esta
 | Situação | Comportamento |
 |---|---|
 | Volta em andamento sem motivo | "válida em andamento" / "valid, in progress" |
-| Volta invalidada por marcador pulado, corte ou reposicionamento | "Inválida" com o motivo, no passo da invalidação; a volta termina |
+| Volta invalidada por marcador pulado, corte ou reposicionamento | "Inválida" com o motivo, no passo da invalidação; fora do treino a volta termina. No treino, o corte deixa "inválida", "corte" até a chegada, e a volta seguinte começa "válida em andamento" ([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)) |
 | Navegador em português (inclui variantes regionais do português) | Textos em português |
 | Navegador em inglês (inclui variantes regionais do inglês) | Textos em inglês |
 | Navegador em qualquer outro idioma | Textos em inglês |
@@ -87,7 +91,7 @@ Nenhuma. O idioma não é uma configuração do jogo: vem do navegador (`DOMAIN/
 
 ## Critérios de aceite
 
-- A tela mostra o estado a cada quadro do sinal verde ao fim: "válida em andamento" ou "inválida" com
+- A tela mostra o estado a cada quadro do início de cada volta ao seu fim: "válida em andamento" ou "inválida" com
   motivo (satisfaz AC-US-0009-01, AC-US-0009-02, AC-US-0009-03; cobre os requisitos 01 a 03 e 14).
 - O estado é legível com a cor desconsiderada (tela em escala de cinza) (satisfaz AC-US-0009-04 e o
   NFR-0006; cobre os requisitos 04 e 10).

@@ -4,16 +4,18 @@ title: Resultado da volta
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [US-0002, US-0004, US-0008, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-06, AC-US-0004-03, AC-US-0004-04, AC-US-0008-01, NFR-0004, NFR-0005]
+version: 1.2.1
+sources: [US-0002, US-0004, US-0008, US-0010, AC-US-0010-21, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-06, AC-US-0004-03, AC-US-0004-04, AC-US-0008-01, NFR-0004, NFR-0005]
 ---
 
 # SCR-0003 — Resultado da volta
 
 ## Propósito
 
-Mostra o fim da volta: válida com tempo total e quatro tempos de setor, válida e não oficial, ou inválida
-com o motivo e sem tempo. O resultado é produzido pela simulação ([API-0001](../api/API-0001-resultado-e-estado-da-volta.md));
+Mostra o fim de uma volta oficial ou de reconhecimento: válida com tempo total e quatro tempos de setor,
+válida e não oficial, ou inválida com o motivo e sem tempo. O resultado de cada volta do treino não usa esta
+tela: aparece em [SCR-0001](SCR-0001-corrida-hud-da-volta.md) sem parar o jogo
+([FEAT-0010](../features/FEAT-0010-voltas-seguidas-no-treino.md)). O resultado é produzido pela simulação ([API-0001](../api/API-0001-resultado-e-estado-da-volta.md));
 a tela só o exibe. Esta feature não grava o resultado nem o associa a tentativa: isso é do desafio diário
 (etapa 5, fora do escopo).
 
@@ -24,7 +26,9 @@ motivo tem no mínimo 16 px.
 
 ## Pontos de entrada
 
-Quando `lapPhase` chega a `ENDED` em [SCR-0001](SCR-0001-corrida-hud-da-volta.md).
+Quando `lapPhase` chega a `ENDED` numa volta oficial ou de reconhecimento em
+[SCR-0001](SCR-0001-corrida-hud-da-volta.md). Nenhuma volta seguinte começa depois desse encerramento
+(AC-US-0010-21).
 
 ## Estados
 
@@ -33,7 +37,7 @@ Quando `lapPhase` chega a `ENDED` em [SCR-0001](SCR-0001-corrida-hud-da-volta.md
 | Carregando | `ENDED` já ocorreu e o resultado é lido no mesmo quadro | `getLapResult` | Nenhum estado visível: o resultado existe no quadro do encerramento (sem rede, sem espera) | NFR-0004 |
 | Vazio | Não há volta encerrada | `getLapResult` retorna `NO_RESULT` | A tela não é exibida; a volta cruzada na contramão, recarregada ou abandonada não tem resultado | AC-US-0005-02 |
 | Válida oficial | `VALID`, `official` verdadeiro | `getLapResult` | "válida"; tempo total e quatro tempos de setor em `m:ss.mmm` | AC-US-0002-01 a AC-US-0002-03, AC-US-0002-06 |
-| Válida não oficial | `VALID`, `official` falso (reconhecimento, treino ou pista de dado incompleto) | `getLapResult` | "válida"; tempo total e quatro tempos de setor em `m:ss.mmm`, identificados em texto como "não oficial" | AC-US-0008-01 |
+| Válida não oficial | `VALID`, `official` falso (reconhecimento) | `getLapResult` | "válida"; tempo total e quatro tempos de setor em `m:ss.mmm`, identificados em texto como "não oficial" | AC-US-0008-01 |
 | Inválida | `INVALID` | `getLapResult` | "inválida" e o motivo; nenhum tempo total, nenhum tempo de setor, nenhum tempo oficial | AC-US-0004-03, AC-US-0004-04 |
 | Erro | Resultado ausente com a volta `ENDED` | `getLapResult` | A tela não é exibida e nenhuma mensagem própria é definida; defesa que não deve ocorrer | API-0001 |
 | Offline | Sem rede | nenhuma chamada de rede | Idêntico ao estado online; a tela não pede rede (0 requisições com dados da volta) | NFR-0004, NFR-0005 |
@@ -52,7 +56,7 @@ acerto e mesma `setupVersion`), é `COMPARABLE`; com `SETUP_VERSION_DIFFERS`, `S
 registros, nunca da renderização (D-FS-05, I2). Um resultado anterior, sem os dois campos, entra na
 comparação com os padrões de leitura de API-0001 (I5). Quais tempos são comparados e de onde vêm (melhor
 tempo gravado, tentativa anterior) é do desafio diário; esta feature fixa apenas a precondição. Fonte: FB-01
-de `dirigibilidade` (AC-US-0005-05 daquela feature), aceito na rodada de 2026-10-22.
+de `dirigibilidade` (`dirigibilidade/AC-US-0005-05`), aceito na rodada de 2026-10-22.
 
 ## Ações do Jogador
 

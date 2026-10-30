@@ -4,7 +4,7 @@ title: Dado de pista com largada, sentido, setores e marcadores
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [NFR-0012, US-0002, US-0004, US-0006, US-0008, AC-US-0002-10, AC-US-0002-13, AC-US-0004-06, AC-US-0006-04, AC-US-0008-03, AC-US-0008-04, AC-US-0008-05]
 ---
 
@@ -71,6 +71,7 @@ Contrato do dado: [API-0003](../api/API-0003-dado-de-pista.md). Início de volta
 | Dado completo e consistente | Volta oficial pode ser oferecida pelo desafio diário; treino e reconhecimento disponíveis |
 | Dado sem largada, sentido, chegada, quatro setores ou marcadores | Dado incompleto: só treino; todo resultado não oficial |
 | Dado na forma anterior (sem setores e marcadores) | Lido sem erro; tratado como dado incompleto |
+| Dado incompleto que declara linha de chegada e sentido mas não declara setores | Só treino; o resultado de cada volta encerrada na chegada mostra só o tempo total e a validade (`DOMAIN/DEC-13`, [FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)) |
 | Dado com versão de esquema desconhecida | Não é usado; mantido intacto; erro exibido ([SCR-0001](../screens/SCR-0001-corrida-hud-da-volta.md)) |
 | Dado declara só um dos limites de corte | O limite ausente usa o padrão; o declarado vale |
 | Dado ilegível (corrompido) | Tratado como erro de leitura; nenhuma volta é criada (`TRACK_DATA_UNREADABLE`) |

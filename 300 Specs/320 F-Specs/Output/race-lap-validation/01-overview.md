@@ -3,7 +3,7 @@ title: Visão geral — validação de volta de corrida
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: []
 ---
 
@@ -14,9 +14,13 @@ sources: []
 Esta especificação funcional diz o que o jogo faz para que uma volta de corrida seja justa, reproduzível e
 compreensível: a contagem regressiva e o início do cronômetro no sinal verde, a validade da volta (marcador
 pulado, chegada na contramão, corte, grama, reposicionamento), o tempo total e os quatro tempos de setor com
-interpolação dentro do passo, a pausa, os tipos de volta (oficial, reconhecimento, treino), o dado de pista
-que carrega largada, sentido, setores e marcadores, e o estado da volta exibido em texto, em português e em
-inglês. A base é o conjunto de requisitos validado em `200 Requirements/230 Output/race-lap-validation/`.
+interpolação dentro do passo, a pausa, os tipos de volta (oficial, reconhecimento, treino), o treino como
+sequência de voltas seguidas — uma única contagem, o resultado de cada volta sem parar o kart, a volta
+seguinte iniciada no instante de cruzamento da chegada, a melhor volta válida visível, o fim só pela ação de
+encerrar o treino —, o dado de pista que carrega largada, sentido, setores e marcadores, e o estado da volta
+exibido em texto, em português e em inglês. A volta oficial continua terminando na chegada ou na
+invalidação, com o kart parado. A base é o conjunto de requisitos validado em
+`200 Requirements/230 Output/race-lap-validation/`, contra o seed `revision: 3`.
 
 O produto não tem servidor, conta nem sessão no MVP (RNF08, RNF10). Por isso os contratos de `api/` são
 contratos em processo dentro do navegador, únicos para os dois canais, e não endpoints de rede; o único
@@ -26,8 +30,8 @@ papel é `player` (anônimo).
 
 | Canal | O que esta especificação fixa |
 |---|---|
-| `web-desktop` | Pilotagem por teclado; pausa por Esc e por perda de foco da aba; reposicionamento por teclado; contraste mínimo de 4,5:1 no estado, no motivo e na contagem; contagem e sinal verde com 48 px no mínimo |
-| `web-mobile` | Pilotagem por inclinação e toque; pausa por perda de foco da aba e por perda do sensor; reposicionamento por toque; recaída para toque com estado visível sem sensor ou sem permissão; texto de estado e de motivo com 16 px no mínimo; as mesmas regras de validade e de tempo |
+| `web-desktop` | Pilotagem por teclado; pausa por Esc e por perda de foco da aba e, no treino, pelo botão de pausa; ação "encerrar treino" no treino; reposicionamento por teclado; contraste mínimo de 4,5:1 no estado, no motivo e na contagem; contagem e sinal verde com 48 px no mínimo |
+| `web-mobile` | Pilotagem por inclinação e toque; pausa por perda de foco da aba e por perda do sensor e, no treino, pelo botão de pausa; ação "encerrar treino" no treino; reposicionamento por toque; recaída para toque com estado visível sem sensor ou sem permissão; texto de estado e de motivo com 16 px no mínimo; as mesmas regras de validade e de tempo |
 
 As regras de validade e de cronometragem são idênticas nos dois canais.
 
@@ -35,9 +39,9 @@ As regras de validade e de cronometragem são idênticas nos dois canais.
 
 | Parte | Onde |
 |---|---|
-| Funcionalidades | `features/FEAT-0001` a `FEAT-0009` |
-| Fluxos | `flows/FLOW-0001` a `FLOW-0004` |
-| Contratos | `api/API-0001` (resultado e estado), `API-0002` (comandos), `API-0003` (dado de pista) |
+| Funcionalidades | `features/FEAT-0001` a `FEAT-0010` (`FEAT-0010`: voltas seguidas no treino) |
+| Fluxos | `flows/FLOW-0001` a `FLOW-0005` (`FLOW-0005`: treino com voltas seguidas) |
+| Contratos | `api/API-0001` (resultado, lista de resultados e estado), `API-0002` (comandos, inclusive `endTraining`), `API-0003` (dado de pista) |
 | Telas | `screens/SCR-0001` a `SCR-0003` |
 | Regras | `rules/RULE-0001` a `RULE-0006` |
 
@@ -58,9 +62,12 @@ especificação não os decide nem os inventa:
 | Ponto | Situação |
 |---|---|
 | Meio pelo qual o Jogador continua a volta depois da pausa | Os contratos definem o comando `resumeLap`; a tecla, o toque ou o botão que o aciona não são decididos |
-| Pausa manual por toque em `web-mobile` | Os requisitos nomeiam a pausa por Esc só em `web-desktop`; não exigem pausa manual em `web-mobile` |
+| Pausa manual por toque em `web-mobile` fora do treino | Os requisitos nomeiam a pausa por Esc só em `web-desktop` e o botão de pausa só no treino (`SEED/US-10`); não exigem pausa manual em `web-mobile` na volta oficial nem na de reconhecimento |
 | Tamanho mínimo do texto de estado e de motivo em `web-desktop` | A decisão do dono do produto não fixa mínimo |
-| O que se cronometra numa volta de treino em pista sem linha de chegada | Não decidido; só se exige que a volta seja pilotável e que o resultado seja não oficial |
+| O que se cronometra numa volta de treino em pista sem linha de chegada | Não decidido; só se exige que a volta seja pilotável e que o resultado seja não oficial. Numa pista que declara a chegada mas não os setores, o resultado mostra só o tempo total e a validade (`DOMAIN/DEC-13`) |
+| Por quanto tempo o resultado de cada volta do treino fica na tela | Os requisitos recusaram fixá-lo; exige-se só que ele apareça ao terminar a volta, sem parar o jogo e sem ocultar o estado da volta em andamento |
+| Atalho de teclado para o botão de pausa e para "encerrar treino" | Os requisitos exigem as duas ações nos dois canais, não um atalho; a tela as oferece como controles com rótulo em texto |
+| O que acontece com o kart depois do encerramento de uma volta de reconhecimento | Os requisitos fixam que o kart para no encerramento da volta oficial (AC-US-0010-22) e que nenhuma volta seguinte começa; para a de reconhecimento não fixam o movimento do kart |
 | Ponto para onde o kart é recolocado ao reposicionar | Os requisitos fixam o efeito sobre validade e tempo, não o destino |
 | Dois eventos de invalidação no mesmo passo | Os requisitos fixam o motivo quando um vem antes do outro, não a precedência dentro do mesmo passo |
 

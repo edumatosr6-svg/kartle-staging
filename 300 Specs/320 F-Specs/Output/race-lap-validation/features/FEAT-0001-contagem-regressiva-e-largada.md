@@ -4,7 +4,7 @@ title: Contagem regressiva e largada
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10]
 ---
 
@@ -12,7 +12,10 @@ sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, A
 
 ## Resumo
 
-Antes de cada volta o Jogador vê uma contagem regressiva de 3 s que termina no sinal verde. O cronômetro da
+Antes de cada volta oficial ou de reconhecimento, e no começo do treino, o Jogador vê uma contagem
+regressiva de 3 s que termina no sinal verde. As voltas seguintes do treino não têm contagem: cada uma começa
+no instante de cruzamento da chegada que encerrou a anterior
+([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)). O cronômetro da
 volta começa no sinal verde, não no cruzamento da linha de largada. Acelerar antes do sinal verde é
 ignorado: o kart fica parado, sem efeito e sem penalidade (`DOMAIN/DEC-04`, `DOMAIN/DEC-05`).
 
@@ -28,8 +31,9 @@ idênticos nos dois canais.
 
 ## Requisitos
 
-- REQ-FEAT-0001-01: Ao iniciar a volta, o sistema SHALL exibir uma contagem regressiva de 3 s (3000 ms de
-  tempo de simulação), medida do primeiro valor exibido até o sinal verde (AC-US-0001-01).
+- REQ-FEAT-0001-01: Ao iniciar uma volta oficial, uma volta de reconhecimento ou um treino, o sistema SHALL
+  exibir uma contagem regressiva de 3 s (3000 ms de tempo de simulação), medida do primeiro valor exibido até
+  o sinal verde (AC-US-0001-01).
 - REQ-FEAT-0001-02: O sistema SHALL exibir cada valor da contagem regressiva em texto, além de qualquer
   cor (AC-US-0001-02).
 - REQ-FEAT-0001-03: O sistema SHALL indicar o sinal verde em texto, além de qualquer cor (AC-US-0001-03).
@@ -75,6 +79,7 @@ Fluxo nominal: [FLOW-0001](../flows/FLOW-0001-volta-completa.md), passos 1 a 4. 
 | Perda do sensor de inclinação durante a contagem (`web-mobile`) | Pausa automática, com o mesmo efeito do caso anterior |
 | Sensor ausente ou permissão negada antes da contagem (`web-mobile`) | Controle por toque com estado visível; a contagem prossegue com a mesma duração |
 | Recarregar ou abandonar a página durante a contagem | Nenhum resultado; o consumo de tentativa é da etapa 5, fora do escopo |
+| Voltas seguintes do treino | Sem contagem: a contagem só acontece no começo do treino e cada volta seguinte começa no instante de cruzamento da chegada ([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)) |
 | Tempo de quadro irregular (30 fps ou 60 fps) | A contagem é medida em passos de simulação, não em quadros renderizados; a duração de 3 s não varia com a taxa de quadros ([FEAT-0003](FEAT-0003-tempo-independente-do-aparelho-e-pausa.md)) |
 | Rede indisponível | Sem efeito: a contagem não usa rede (D-FS-08, [FEAT-0009](FEAT-0009-requisitos-transversais.md)) |
 
@@ -84,7 +89,7 @@ Lê e altera `lapPhase` (`COUNTDOWN` para `RUNNING`) definido em [RULE-0002](../
 
 | Transição | O que a dispara | Idempotência |
 |---|---|---|
-| `COUNTDOWN` para `RUNNING` | o passo em que o tempo de contagem acumulado alcança 3000 ms (passo contado em `stepCount`) | Disparada uma única vez por volta; repetir passos já encerrados não existe, pois o estado só avança passo a passo |
+| `COUNTDOWN` para `RUNNING` | o passo em que o tempo de contagem acumulado alcança 3000 ms (passo contado em `stepCount`) | Disparada uma única vez por volta oficial ou de reconhecimento e uma única vez por treino; repetir passos já encerrados não existe, pois o estado só avança passo a passo |
 | `COUNTDOWN` para `PAUSED` e volta | pausa e continuar | Pausar com a volta já pausada não tem efeito |
 
 ## Configuração

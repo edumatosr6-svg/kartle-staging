@@ -4,13 +4,15 @@ title: Volta completa, da contagem ao resultado
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [US-0001, US-0002, US-0004, US-0005, AC-US-0001-01, AC-US-0001-05, AC-US-0002-01, AC-US-0002-09, AC-US-0002-12, AC-US-0004-01, AC-US-0005-01]
+version: 1.1.0
+sources: [US-0001, US-0002, US-0004, US-0005, US-0010, AC-US-0010-21, AC-US-0010-22, AC-US-0001-01, AC-US-0001-05, AC-US-0002-01, AC-US-0002-09, AC-US-0002-12, AC-US-0004-01, AC-US-0005-01]
 ---
 
 # FLOW-0001 — Volta completa, da contagem ao resultado
 
-Fluxo nominal e alternativas de uma volta, igual em `web-desktop` e `web-mobile`. Realiza
+Fluxo nominal e alternativas de uma volta oficial ou de reconhecimento, igual em `web-desktop` e
+`web-mobile`. O treino, com voltas seguidas e uma única contagem, segue
+[FLOW-0005](FLOW-0005-treino-com-voltas-seguidas.md). Realiza
 [FEAT-0001](../features/FEAT-0001-contagem-regressiva-e-largada.md),
 [FEAT-0002](../features/FEAT-0002-conclusao-da-volta-tempos-e-setores.md) e
 [FEAT-0004](../features/FEAT-0004-marcadores-e-sentido-da-pista.md). O fluxo roda inteiro sem rede (D-FS-08,
@@ -45,13 +47,13 @@ sequenceDiagram
 
 | Passo | Ator | Ação | Estado antes e depois | Fonte |
 |---|---|---|---|---|
-| 1 | Apresentação | Pede `startLap` com `lapKind`, `trackId` e `trackVersion` | nenhuma volta ou `ENDED` para `COUNTDOWN` | AC-US-0001-01 |
+| 1 | Apresentação | Pede `startLap` com `lapKind` `OFFICIAL` ou `RECON`, `trackId` e `trackVersion` | nenhuma volta ou `ENDED` para `COUNTDOWN` | AC-US-0001-01 |
 | 2 | Simulação | Conta 3000 ms de passos; o kart fica parado; a aceleração é ignorada | `countdownRemainingMs` de 3000 a 0 | AC-US-0001-05, AC-US-0001-06 |
 | 3 | Apresentação | Exibe cada valor da contagem e o cronômetro em zero | `COUNTDOWN` | AC-US-0001-02, AC-US-0001-04 |
 | 4 | Simulação | Dá o sinal verde: `RUNNING`, `stepCount` 0 | `COUNTDOWN` para `RUNNING` | AC-US-0001-05 |
 | 5 | Simulação | A cada passo, avança `elapsedMs`, conta marcadores em ordem, completa setores ao cruzar cada limite, mede a saída de pista | `RUNNING` | AC-US-0002-09, AC-US-0004-02 |
 | 6 | Apresentação | Exibe o tempo de cada setor ao completá-lo e o estado da volta em todos os quadros | `RUNNING` | AC-US-0002-09, AC-US-0009-01 |
-| 7 | Simulação | Cruza a chegada no sentido da pista com todos os marcadores em ordem: interpola o instante, fecha o quarto setor, produz o resultado | `RUNNING` para `ENDED`, `VALID` | AC-US-0002-01, AC-US-0002-07 |
+| 7 | Simulação | Cruza a chegada no sentido da pista com todos os marcadores em ordem: interpola o instante, fecha o quarto setor, produz o resultado. Em volta oficial, o kart para: a partir deste passo a sua posição não muda; nenhuma volta seguinte começa | `RUNNING` para `ENDED`, `VALID` | AC-US-0002-01, AC-US-0002-07; AC-US-0010-21, AC-US-0010-22 |
 | 8 | Apresentação | Exibe a volta válida, o tempo total e os quatro tempos de setor ([SCR-0003](../screens/SCR-0003-resultado-da-volta.md)) | `ENDED` | AC-US-0002-02, AC-US-0002-03 |
 
 ## Alternativas, erros e eventos fora de ordem

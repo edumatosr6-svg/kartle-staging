@@ -4,8 +4,8 @@ title: Início da volta, dado de pista e controle
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [US-0008, NFR-0012, AC-US-0008-03, AC-US-0008-04, AC-US-0008-05, AC-US-0001-06]
+version: 1.1.0
+sources: [US-0008, US-0010, NFR-0012, AC-US-0008-03, AC-US-0008-04, AC-US-0008-05, AC-US-0001-06]
 ---
 
 # FLOW-0004 — Início da volta, dado de pista e controle
@@ -44,7 +44,7 @@ sequenceDiagram
 | 2 | Apresentação | Oferece volta conforme [RULE-0005](../rules/RULE-0005-tipos-de-volta-e-reposicionamento.md): `COMPLETE` oferece treino e volta oficial quando o desafio diário a define; `INCOMPLETE` só treino | [SCR-0002](../screens/SCR-0002-inicio-de-volta.md) | AC-US-0008-03, AC-US-0008-04 |
 | 3 | Jogador | Escolhe o tipo | | |
 | 4 | Apresentação | Em `web-mobile`, verifica o sensor de inclinação; ausente ou com permissão negada, usa o controle por toque e mostra o estado | controle ativo | I4 |
-| 5 | Apresentação | Pede `startLap` | `COUNTDOWN` ou rejeição | [API-0002](../api/API-0002-comandos-da-volta.md) |
+| 5 | Apresentação | Pede `startLap`; com `TRAINING`, inicia um treino de voltas seguidas ([FLOW-0005](FLOW-0005-treino-com-voltas-seguidas.md)) | `COUNTDOWN` ou rejeição | [API-0002](../api/API-0002-comandos-da-volta.md) |
 | 6 | Simulação | Rejeita `OFFICIAL` em pista `INCOMPLETE` com `OFFICIAL_NOT_AVAILABLE` | nenhuma volta | AC-US-0008-03 |
 | 7 | Simulação | Em pista `INCOMPLETE`, todo resultado é não oficial | | AC-US-0008-05 |
 

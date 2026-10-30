@@ -4,7 +4,7 @@ title: Corte invalida a volta, grama sem corte só reduz a velocidade
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0006, AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08]
 ---
 
@@ -15,7 +15,9 @@ sources: [US-0006, AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, A
 Sair da pista é corte, e invalida a volta, somente quando o kart fica a mais de 3 m além da borda da pista
 por mais de 1000 ms seguidos; esses valores padrão podem ser substituídos pelos limites que o dado da pista
 declarar (`DOMAIN/DEC-01`). Uma escapada que não ultrapassa os limites apenas reduz a velocidade (grama,
-RF08) e não invalida a volta.
+RF08) e não invalida a volta. Em volta oficial e de reconhecimento, a volta cortada termina no passo do
+corte; no treino, ela é marcada inválida na hora e segue até a próxima passagem pela chegada
+([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md), `DOMAIN/DEC-12`).
 
 ## Canais
 
@@ -37,8 +39,9 @@ estado visível e as regras desta feature não mudam.
   ultrapassa esses limites, em lugar dos valores de 3 m e 1000 ms (AC-US-0006-04).
 - REQ-FEAT-0005-05: O sistema SHALL exibir na tela o motivo "corte" quando a volta se torna inválida por
   corte (AC-US-0006-05).
-- REQ-FEAT-0005-06: O sistema SHALL terminar a volta inválida por corte no passo da invalidação, sem
-  acrescentar tempo de volta nem tempo de setor depois desse passo (AC-US-0006-06).
+- REQ-FEAT-0005-06: O sistema SHALL, em volta oficial e em volta de reconhecimento, terminar a volta
+  inválida por corte no passo da invalidação, sem acrescentar tempo de volta nem tempo de setor depois desse
+  passo (AC-US-0006-06).
 - REQ-FEAT-0005-07: O sistema SHALL reduzir a velocidade do kart na grama de modo que, no estado da
   simulação, partindo do mesmo estado inicial e com a mesma entrada em todos os passos, a velocidade após N
   passos de `STEP` na grama seja menor que após N passos de `STEP` na pista (AC-US-0006-07; RF08).
@@ -51,7 +54,9 @@ estado visível e as regras desta feature não mudam.
   `STEP`, sem contar o tempo em que a simulação esteve suspensa por pausa, perda de foco ou perda do sensor
   [DOMAIN] (US-0006, caso anormal; `DOMAIN/DEC-08`).
 - REQ-FEAT-0005-11: O sistema SHALL exibir o motivo "corte" quando um corte ocorre antes de um marcador
-  pulado, porque a volta termina no corte [DOMAIN] (US-0006, caso anormal; `DOMAIN/DEC-06`).
+  pulado: fora do treino porque a volta termina no corte, no treino porque a volta segue inválida com o
+  motivo "corte" até a próxima chegada no sentido da pista [DOMAIN] (US-0006, caso anormal; `DOMAIN/DEC-06`;
+  `DOMAIN/DEC-12`).
 - REQ-FEAT-0005-12: O sistema SHALL NOT produzir resultado para uma volta cuja página foi recarregada ou
   abandonada antes da chegada [DOMAIN] (US-0006, caso anormal; `SEED/RD-05`).
 
@@ -63,11 +68,11 @@ volta: [FLOW-0002](../flows/FLOW-0002-invalidacao-e-fim-da-volta.md). Limites de
 
 | Situação | Comportamento |
 |---|---|
-| Distância além da borda maior que o limite de distância, por mais que o limite de duração, seguidos | Corte: volta inválida no passo em que a duração é ultrapassada, motivo "corte" |
+| Distância além da borda maior que o limite de distância, por mais que o limite de duração, seguidos | Corte: volta inválida no passo em que a duração é ultrapassada, motivo "corte"; fora do treino a volta termina nesse passo, no treino ela segue até a chegada e o kart não para |
 | Saída até o limite de duração e retorno a distância menor ou igual ao limite | Sem invalidação; o acumulador volta a zero |
 | Saída a distância menor ou igual ao limite de distância, por qualquer duração | Sem invalidação; apenas a redução de velocidade da grama |
 | Saída interrompida e retomada | A contagem recomeça a cada saída além do limite de distância |
-| Corte seguido de chegada sem marcadores | Já encerrada no corte; motivo "corte"; a chegada posterior é ignorada |
+| Corte seguido de chegada sem marcadores | Fora do treino, já encerrada no corte; motivo "corte"; a chegada posterior é ignorada. No treino, a chegada encerra a volta com o motivo "corte" e inicia a seguinte |
 | Pausa, perda de foco ou perda do sensor durante a saída | A simulação não avança; o acumulador não muda |
 | Pista que declara limites próprios | Os limites da pista substituem os padrões |
 | Recarregar ou abandonar antes da chegada | Nenhum resultado |
@@ -82,7 +87,7 @@ Lê e altera `offTrackMs` (acumulador de duração contínua da saída além do 
 |---|---|---|
 | `offTrackMs` aumenta de `STEP` | passo com o kart além do limite de distância da borda | Avança apenas por passo de simulação; não avança em `PAUSED` |
 | `offTrackMs` volta a 0 | passo com o kart a no máximo o limite de distância da borda | Idempotente |
-| `lapValidity` `VALID` para `INVALID` com `CUT`, fase para `ENDED` | passo em que `offTrackMs` passa a ser maior que o limite de duração | Ocorre uma única vez; ordenada por `stepCount` |
+| `lapValidity` `VALID` para `INVALID` com `CUT`, fase para `ENDED` (no treino, a fase segue `RUNNING`) | passo em que `offTrackMs` passa a ser maior que o limite de duração | Ocorre uma única vez por volta; ordenada por `stepCount` |
 
 ## Configuração
 
@@ -96,7 +101,8 @@ Nenhuma configuração da feature. Os limites de corte são dado da pista: `cutD
   AC-US-0006-01, AC-US-0006-02, AC-US-0006-03; cobre os requisitos 01 a 03, 09 e 10).
 - Numa pista com limites próprios valem os da pista e não 3 m e 1000 ms (satisfaz AC-US-0006-04; cobre o
   requisito 04).
-- O motivo "corte" aparece e nenhum tempo é acrescentado depois do passo da invalidação (satisfaz
+- O motivo "corte" aparece e, em volta oficial e de reconhecimento, nenhum tempo é acrescentado depois do
+  passo da invalidação (satisfaz
   AC-US-0006-05, AC-US-0006-06; cobre os requisitos 05, 06 e 11).
 - A velocidade na grama é menor que na pista; a volta com escapada dentro dos limites segue "válida em
   andamento" (satisfaz AC-US-0006-07, AC-US-0006-08; cobre os requisitos 07 e 08).

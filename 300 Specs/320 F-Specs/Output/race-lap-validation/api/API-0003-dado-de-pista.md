@@ -4,7 +4,7 @@ title: Contrato do dado de pista com largada, sentido, setores e marcadores
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [NFR-0012, US-0002, US-0004, US-0006, US-0008, AC-US-0002-10, AC-US-0002-13, AC-US-0004-05, AC-US-0004-06, AC-US-0006-04, AC-US-0008-03]
 ---
 
@@ -38,7 +38,7 @@ cliente porque o dado de pista não é segredo.
 | `direction` | enum `CLOCKWISE`, `COUNTER_CLOCKWISE` | — | sim para dado `COMPLETE` | ausente: dado `INCOMPLETE` |
 | `startPosition` | ponto `{xM, zM}` e `headingDeg` | m e graus | sim para `COMPLETE` | ausente: `INCOMPLETE`. Posicionada de modo que a primeira passagem pela chegada no sentido da pista só ocorra ao completar o percurso |
 | `finishLine` | linha | m | sim para `COMPLETE` | ausente: `INCOMPLETE` |
-| `sectorLimits` | lista de exatamente 3 linhas, em ordem | m | sim para `COMPLETE` | ausente ou com outro tamanho: `INCOMPLETE`. Os 3 limites mais a chegada definem os 4 setores; o setor 1 começa no sinal verde |
+| `sectorLimits` | lista de exatamente 3 linhas, em ordem | m | sim para `COMPLETE` | ausente ou com outro tamanho: `INCOMPLETE`. Os 3 limites mais a chegada definem os 4 setores; o setor 1 começa no início da volta: o sinal verde ou, nas voltas seguintes do treino, `lapStartMs` ([RULE-0003](../rules/RULE-0003-cronometragem-e-interpolacao.md)) |
 | `markers` | lista de 1 ou mais linhas, em ordem | m | sim para `COMPLETE` | ausente ou vazia: `INCOMPLETE`. Conjunto distinto de `sectorLimits` (AC-US-0004-05) |
 | `cutDistanceM` | número | m | não | padrão 3. Neutro: na ausência, o comportamento é o da decisão `DOMAIN/DEC-01`; um arquivo anterior não tem o campo. Maior que 0 |
 | `cutDurationMs` | inteiro | ms | não | padrão 1000. Neutro pelo mesmo motivo. Maior que 0 |

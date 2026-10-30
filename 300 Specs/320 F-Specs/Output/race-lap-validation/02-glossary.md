@@ -3,7 +3,7 @@ title: Glossário — validação de volta de corrida
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -18,19 +18,19 @@ glossário dos requisitos; as linhas de enum e de campo são as dos contratos de
 |---|---|
 | Jogador | Quem pilota o kart e recebe a contagem, o tempo, os setores e o estado da volta |
 | Curador do catálogo | Quem fornece e publica o dado de cada pista; não interage com o jogo nesta feature |
-| Volta | Percurso cronometrado de uma pista, do sinal verde até o encerramento |
-| Contagem regressiva | Sequência de 3 s exibida antes da largada, que termina no sinal verde |
+| Volta | Percurso cronometrado de uma pista, do seu início — o sinal verde ou, nas voltas seguintes do treino, o instante de cruzamento da chegada que encerrou a anterior — até o encerramento |
+| Contagem regressiva | Sequência de 3 s exibida antes da largada, que termina no sinal verde; no treino, só antes da primeira volta |
 | Sinal verde | Fim da contagem; o cronômetro da volta começa nele |
 | Linha de largada | Linha do dado da pista onde os karts partem; seu cruzamento não inicia o cronômetro |
 | Linha de chegada | Linha do dado da pista cujo cruzamento, no sentido da pista, encerra a volta |
 | Sentido da pista | Direção de percurso declarada no dado da pista |
 | Contramão | Passagem por uma linha ou por um marcador no sentido oposto ao da pista |
-| Tempo total | Tempo da volta do sinal verde ao instante de cruzamento da chegada, em ms inteiros |
+| Tempo total | Tempo da volta do seu início ao instante de cruzamento da chegada, em ms inteiros |
 | Instante de cruzamento | Instante em que o kart cruza a chegada ou um limite de setor, interpolado dentro do passo |
 | Setor | Cada um dos quatro trechos de apresentação da volta, com limites declarados no dado da pista |
 | Marcador de validação (marcador) | Ponto de passagem obrigatório, em ordem e no sentido da pista; conjunto distinto dos setores. O seed também o chama de checkpoint |
 | Volta válida | Volta encerrada ao cruzar a chegada no sentido da pista depois de passar por todos os marcadores em ordem, sem invalidação |
-| Volta inválida | Volta com motivo de invalidação; termina no momento da invalidação e não tem tempo oficial |
+| Volta inválida | Volta com motivo de invalidação; não tem tempo oficial; fora do treino termina no momento da invalidação; no treino segue até a próxima passagem pela chegada no sentido da pista |
 | Motivo | Texto que diz por que a volta é inválida: "marcador pulado", "corte" ou "reposicionamento" |
 | Estado da volta | "válida em andamento" ou "inválida" com o motivo, exibido durante a volta |
 | Borda da pista | Limite da superfície de pista declarado no dado da pista |
@@ -38,13 +38,17 @@ glossário dos requisitos; as linhas de enum e de campo são as dos contratos de
 | Limites de corte | Distância além da borda e duração contínua acima das quais uma saída de pista é corte: 3 m e 1000 ms por padrão |
 | Corte | Saída de pista além da distância dos limites de corte por mais que a duração dos limites, seguidos; invalida a volta |
 | Reposicionamento | Ação do Jogador que recoloca o kart na pista |
-| Pausa | Suspensão da simulação e do cronômetro: Esc (`web-desktop`), perda de foco da aba (ambos), perda do sensor (`web-mobile`) |
+| Pausa | Suspensão da simulação e do cronômetro: Esc (`web-desktop`), no treino também o botão de pausa (ambos), perda de foco da aba (ambos), perda do sensor (`web-mobile`) |
 | Volta oficial | Volta cujo tempo, se válida, é o tempo oficial; quem a define é o desafio diário |
 | Volta de reconhecimento | Volta que nunca produz tempo oficial |
 | Volta de treino | Volta que nunca produz tempo oficial; único tipo numa pista de dado incompleto |
+| Treino | Sequência de voltas de treino seguidas, iniciada por um único `startLap` e precedida de uma única contagem; cada volta começa no instante em que a anterior cruza a chegada no sentido da pista, sem parar o kart; só a pausa o suspende e só a ação de encerrar o treino o termina |
+| Encerrar o treino | Ação do Jogador que termina o treino (`endTraining`); a volta em andamento não é concluída e nenhuma nova volta começa |
+| Melhor volta válida | Volta válida de menor tempo total entre as concluídas no treino em andamento; exibida do fim da primeira volta válida ao encerramento do treino |
+| Setor sem tempo | Setor de uma volta de treino com um dos seus limites sem cruzamento registrado; exibido como "—" |
 | Dado de pista incompleto | Dado que não declara largada, sentido, linha de chegada, quatro setores ou marcadores, ou que está na forma anterior ou inconsistente |
 | Tempo oficial | Tempo total e tempos de setor de uma volta oficial válida |
-| Resultado | Registro produzido pela simulação ao encerrar uma volta |
+| Resultado | Registro produzido pela simulação ao encerrar uma volta; no treino, um por volta concluída na chegada |
 | Queima de largada | Acelerar antes do sinal verde; ignorada, sem efeito e sem penalidade |
 | Dado da pista | Dado versionado de cada pista; `trackId` e `trackVersion` a identificam |
 | Pista sintética | Pista de teste atual, mantida jogável até as pistas reais da etapa 3 |
@@ -59,18 +63,23 @@ glossário dos requisitos; as linhas de enum e de campo são as dos contratos de
 |---|---|---|
 | `lapPhase` | `COUNTDOWN`, `RUNNING`, `PAUSED`, `ENDED` | [RULE-0002](rules/RULE-0002-estados-da-volta.md) |
 | `resumePhase` | `COUNTDOWN`, `RUNNING` | RULE-0002 |
-| `pauseCause` | `ESC_KEY`, `FOCUS_LOST`, `SENSOR_LOST` | RULE-0002 |
+| `pauseCause` | `ESC_KEY`, `FOCUS_LOST`, `SENSOR_LOST`, `PAUSE_BUTTON` (só no treino) | RULE-0002 |
 | `lapValidity` | `VALID`, `INVALID` | [RULE-0001](rules/RULE-0001-validade-da-volta.md) |
 | `invalidReason` | `MISSED_MARKER`, `CUT`, `REPOSITION` | RULE-0001 |
 | `lapKind` | `OFFICIAL`, `RECON`, `TRAINING` | [RULE-0005](rules/RULE-0005-tipos-de-volta-e-reposicionamento.md) |
 | `trackDataStatus` | `COMPLETE`, `INCOMPLETE`, `UNSUPPORTED_SCHEMA`, `UNREADABLE` | RULE-0005 |
-| `stepCount` | passos de `STEP` contados do sinal verde; contador de sequência | RULE-0002 |
+| `stepCount` | passos de `STEP` contados do sinal verde; contador de sequência; não recomeça a cada volta do treino | RULE-0002 |
+| `lapSequenceCount` | posição da volta na sequência do treino, a partir de 1; 1 fora do treino | RULE-0002, API-0001 |
+| `lapStartMs` | instante de início da volta, contado do sinal verde; 0 fora do treino e na primeira volta | RULE-0002, API-0001 |
+| `bestValidLapMs` | tempo da melhor volta válida do treino; ausente antes da primeira volta válida e fora do treino | API-0001 |
+| `trainingLapMs`, `trainingSectorMs` | tempo total e tempos de setor de uma volta de treino, também inválida; setor sem tempo é `null` | API-0001 |
 | `elapsedMs`, `lapMs`, `sectorMs` | tempos em milissegundos inteiros | [API-0001](api/API-0001-resultado-e-estado-da-volta.md) |
 | `markersPassedCount` | marcadores passados em ordem | RULE-0001 |
 | `offTrackMs` | duração contínua da saída além da distância de corte | [RULE-0004](rules/RULE-0004-corte-e-grama.md) |
 | `cutDistanceM`, `cutDurationMs` | limites de corte do dado da pista | [API-0003](api/API-0003-dado-de-pista.md) |
 | `official` | verdadeiro só para volta oficial válida e concluída em pista de dado completo | API-0001 |
-| `startLap`, `pauseLap`, `resumeLap`, `repositionKart` | comandos da volta | [API-0002](api/API-0002-comandos-da-volta.md) |
+| `startLap`, `pauseLap`, `resumeLap`, `repositionKart`, `endTraining` | comandos da volta e do treino | [API-0002](api/API-0002-comandos-da-volta.md) |
+| `getLapState`, `getLapResult`, `listLapResults` | leituras do estado, do resultado mais recente e da lista de resultados | API-0001 |
 | `setupId` | `ARCADE_ASSISTIDO`, `REALISTA_ALUGUEL_4T`; acerto que produziu o resultado; ausente lê-se `ARCADE_ASSISTIDO` | API-0001, API-0002 |
 | `setupVersion` | versão declarada do acerto; ausente lê-se a `previousSetupVersion` do `setupId` (contrato `API-0002` de `dirigibilidade`) | API-0001, API-0002 |
 | `comparability` | `COMPARABLE`, `SETUP_VERSION_DIFFERS`, `SETUP_DIFFERS`, `TRACK_DIFFERS`; decidida fora desta feature (`compareLapRecords`, `dirigibilidade`); a tela de resultado só compara tempos com `COMPARABLE` | [SCR-0003](screens/SCR-0003-resultado-da-volta.md) |

@@ -4,7 +4,7 @@ title: Marcador pulado e chegada na contramão
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0004, US-0005, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04]
 ---
 
@@ -15,7 +15,9 @@ sources: [US-0004, US-0005, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0
 Os marcadores de validação são um conjunto distinto dos quatro setores. Cruzar a chegada no sentido da pista
 sem ter passado por todos os marcadores em ordem torna a volta inválida com o motivo "marcador pulado" e sem
 tempo oficial. Cruzar a chegada, ou atravessar um marcador, no sentido oposto ao da pista não conta: não
-encerra a volta, não registra tempo e não avança o progresso pelos marcadores.
+encerra a volta, não registra tempo e não avança o progresso pelos marcadores. No treino, o cruzamento que
+torna a volta inválida por marcador pulado também inicia a volta seguinte, e a chegada na contramão não inicia
+volta nenhuma ([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)).
 
 ## Canais
 
@@ -52,8 +54,9 @@ regras desta feature não mudam.
 - REQ-FEAT-0004-12: O sistema SHALL contar a passagem por um marcador somente quando ela ocorre no sentido
   da pista e esse marcador é o próximo na ordem declarada no dado da pista, de modo que um marcador
   retomado depois de pulado conte se for passado na ordem e no sentido (AC-US-0004-02).
-- REQ-FEAT-0004-13: O sistema SHALL NOT produzir um segundo resultado quando a linha de chegada é cruzada
-  de novo depois de a volta ter sido invalidada por marcador (AC-US-0004-07; I7).
+- REQ-FEAT-0004-13: O sistema SHALL NOT produzir um segundo resultado para a volta invalidada por marcador
+  quando a linha de chegada é cruzada de novo depois dela; no treino, esse cruzamento encerra a volta
+  seguinte, que tem o seu próprio resultado (AC-US-0004-07; I7).
 - REQ-FEAT-0004-14: O sistema SHALL preservar, depois de pausa, perda de foco ou perda do sensor durante a
   volta, as passagens por marcador registradas antes da pausa [DOMAIN] (US-0004, caso anormal;
   `DOMAIN/DEC-08`).
@@ -68,12 +71,12 @@ Regra de decisão: [RULE-0001](../rules/RULE-0001-validade-da-volta.md).
 | Situação | Comportamento |
 |---|---|
 | Chegada no sentido da pista com todos os marcadores em ordem | Volta válida ([FEAT-0002](FEAT-0002-conclusao-da-volta-tempos-e-setores.md)) |
-| Chegada no sentido da pista sem todos os marcadores em ordem | Volta inválida, motivo "marcador pulado", fim imediato, sem tempo oficial |
+| Chegada no sentido da pista sem todos os marcadores em ordem | Volta inválida, motivo "marcador pulado", fim imediato, sem tempo oficial; no treino, a volta seguinte começa no mesmo instante e o kart não para |
 | Marcador pulado e depois retomado antes da chegada | A passagem conta se for o próximo marcador esperado, na ordem e no sentido da pista |
 | Marcador atravessado na contramão | Não conta; o progresso pelos marcadores não recua nem avança |
-| Cruzamentos repetidos da chegada na contramão | Nenhum encerra a volta nem registra tempo |
+| Cruzamentos repetidos da chegada na contramão | Nenhum encerra a volta nem registra tempo; no treino, nenhum inicia volta |
 | Contramão seguida de cruzamento no sentido da pista | Encerra a volta; a validade depende dos marcadores |
-| Chegada cruzada de novo depois da volta inválida | Ignorada: nenhum segundo resultado; a deduplicação ocorre na simulação, que só avalia cruzamentos com a fase `RUNNING` |
+| Chegada cruzada de novo depois da volta inválida | Fora do treino, ignorada: nenhum segundo resultado; a deduplicação ocorre na simulação, que só avalia cruzamentos com a fase `RUNNING`. No treino, encerra a volta seguinte, com resultado próprio |
 | Pausa durante a volta | Progresso pelos marcadores preservado |
 | Recarregar ou abandonar antes da chegada | Nenhum resultado |
 | Rede indisponível | Sem efeito (D-FS-08) |
@@ -86,7 +89,7 @@ Lê e altera `markersPassedCount` (quantos marcadores já foram passados em orde
 | Transição | O que a dispara | Idempotência e contador |
 |---|---|---|
 | `markersPassedCount` aumenta de 1 | travessia, no sentido da pista, do marcador de índice `markersPassedCount` + 1 | Idempotente: atravessar de novo um marcador já passado não altera a contagem. Ordenada por `stepCount` |
-| `lapValidity` `VALID` para `INVALID` com `MISSED_MARKER`, fase para `ENDED` | chegada cruzada no sentido da pista com `markersPassedCount` menor que o total de marcadores | Ocorre uma única vez; cruzamentos seguintes são ignorados |
+| `lapValidity` `VALID` para `INVALID` com `MISSED_MARKER`, fase para `ENDED` (no treino, a fase segue `RUNNING` e a volta seguinte começa) | chegada cruzada no sentido da pista com `markersPassedCount` menor que o total de marcadores | Ocorre uma única vez por volta; fora do treino, cruzamentos seguintes são ignorados |
 
 ## Configuração
 

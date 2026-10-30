@@ -4,7 +4,7 @@ title: Tempo independente do aparelho e pausa
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0003, NFR-0001, NFR-0002, NFR-0008, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10]
 ---
 
@@ -21,12 +21,14 @@ a pausa (`DOMAIN/DEC-08`, `SEED/RD-07`, I8).
 
 | Canal | Entradas de pausa |
 |---|---|
-| `web-desktop` | Tecla Esc; perda de foco da aba (automática) |
-| `web-mobile` | Perda de foco da aba (automática); perda do sensor de inclinação (automática) |
+| `web-desktop` | Tecla Esc; perda de foco da aba (automática); no treino, botão de pausa |
+| `web-mobile` | Perda de foco da aba (automática); perda do sensor de inclinação (automática); no treino, botão de pausa |
 
 O efeito da pausa é o mesmo nos dois canais. Em `web-mobile` com sensor ausente ou permissão negada antes da
 volta, o controle recai para toque com estado visível e a regra desta feature não muda. O meio pelo qual o
-Jogador continua a volta depois da pausa não é decidido pelos requisitos (ver `01-overview.md`).
+Jogador continua a volta depois da pausa não é decidido pelos requisitos (ver `01-overview.md`). O botão de
+pausa do treino tem o mesmo efeito das demais entradas e é requisito de
+[FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md).
 
 ## Requisitos
 
@@ -80,6 +82,7 @@ Pausa e retomada: [FLOW-0003](../flows/FLOW-0003-pausa-e-retomada.md). Estados:
 | Execução em navegador diferente | Mesmo tempo ao ms; diferença é defeito (requisito 11) |
 | Pausa e perda de foco no mesmo instante (`web-mobile`) | Uma única pausa |
 | Foco da aba volta enquanto a volta está pausada | A volta continua pausada e o cronômetro mostra o mesmo valor; ela só deixa a pausa quando o Jogador continua |
+| Pausa no treino, por qualquer entrada | O mesmo efeito; ao continuar, a mesma volta segue sem contagem ([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)) |
 | Pausa durante a contagem | Ver [FEAT-0001](FEAT-0001-contagem-regressiva-e-largada.md): simulação suspensa, cronômetro em zero |
 | Pausa durante saída de pista | A simulação não avança; o tempo em pausa não conta para os limites de corte ([FEAT-0005](FEAT-0005-corte-e-grama.md)) |
 | Recarregar ou abandonar durante a pausa | Nenhum resultado; consumo de tentativa é da etapa 5, fora do escopo |
@@ -96,7 +99,7 @@ Lê e altera `lapPhase` (`COUNTDOWN` ou `RUNNING` para `PAUSED` e de volta) e `p
 
 | Transição | O que a dispara | Idempotência e contador |
 |---|---|---|
-| `RUNNING` ou `COUNTDOWN` para `PAUSED` | Esc (`web-desktop`), perda de foco da aba, perda do sensor (`web-mobile`) | Idempotente: pausar de novo não muda nada. `stepCount` não avança durante `PAUSED` |
+| `RUNNING` ou `COUNTDOWN` para `PAUSED` | Esc (`web-desktop`), perda de foco da aba, perda do sensor (`web-mobile`), botão de pausa (treino) | Idempotente: pausar de novo não muda nada. `stepCount` não avança durante `PAUSED` |
 | `PAUSED` para a fase anterior | o Jogador continua | Idempotente: continuar sem pausa não muda nada. Não acrescenta passos nem tempo |
 
 ## Configuração

@@ -4,7 +4,7 @@ title: Requisitos transversais de simulação, desempenho, privacidade e verific
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [NFR-0003, NFR-0004, NFR-0005, NFR-0009, NFR-0010, NFR-0011]
 ---
 
@@ -52,7 +52,9 @@ celular intermediário); todo o restante é igual.
   cronometragem: marcador pulado, contramão, corte pelos limites padrão de 3 m e 1000 ms, corte pelos
   limites declarados na pista, grama sem corte, reposicionamento, reconhecimento e treino, pista de dado
   incompleto, início no sinal verde, queima de largada ignorada, suspensão na pausa, interpolação do
-  cruzamento e soma dos setores igual ao tempo total (NFR-0009).
+  cruzamento, soma dos setores igual ao tempo total e voltas seguidas no treino (início da volta seguinte
+  no instante de cruzamento da chegada, volta inválida do treino seguindo até a próxima chegada, melhor
+  volta válida) (NFR-0009).
 - REQ-FEAT-0009-11: O sistema SHALL NOT gravar no navegador o resultado da volta nesta feature: a
   persistência do resultado é do desafio diário [DOMAIN] (I7; requisitos, fora do escopo; D-FS-04).
 - REQ-FEAT-0009-12: O sistema SHALL tratar como sem efeito um evento de volta repetido, atrasado ou fora de
@@ -67,7 +69,7 @@ taxa de quadros e navegadores só se provam em teste registrado no aparelho ou n
 
 | Situação | Comportamento |
 |---|---|
-| Evento de volta repetido (por exemplo, a chegada cruzada de novo) | Sem efeito; a deduplicação ocorre na simulação, pelo estado `lapPhase` e pelo contador `stepCount` |
+| Evento de volta repetido (por exemplo, a chegada cruzada de novo) | Sem efeito sobre o resultado já produzido; a deduplicação ocorre na simulação, pelo estado `lapPhase`, pelo contador `stepCount` e, no treino, por `lapSequenceCount`: cada cruzamento é avaliado uma vez e encerra no máximo 1 volta |
 | Evento fora de ordem (por exemplo, marcador atravessado antes do anterior) | Sem efeito sobre o progresso (ver [RULE-0001](../rules/RULE-0001-validade-da-volta.md)) |
 | Rede bloqueada após o carregamento | A volta conclui e o resultado é exibido; nenhuma requisição é necessária |
 | Rede indisponível durante a contagem, a volta ou o resultado | Sem efeito observável |

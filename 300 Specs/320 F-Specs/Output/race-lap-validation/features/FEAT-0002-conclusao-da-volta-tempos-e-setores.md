@@ -4,7 +4,7 @@ title: Conclusão da volta, tempo total e quatro tempos de setor
 feature: race-lap-validation
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0002, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-10, AC-US-0002-11, AC-US-0002-12, AC-US-0002-13]
 ---
 
@@ -15,7 +15,8 @@ sources: [US-0002, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, A
 Uma volta completa no sentido da pista, passando por todos os marcadores em ordem, termina ao cruzar a
 chegada e produz um único resultado válido com tempo total e quatro tempos de setor, em milissegundos
 inteiros, exibidos no formato `m:ss.mmm`. O instante de cruzamento da chegada e dos limites de setor é
-interpolado dentro do passo de simulação (`DOMAIN/DEC-03`).
+interpolado dentro do passo de simulação (`DOMAIN/DEC-03`). No treino, a volta concluída não para o jogo: o
+resultado aparece e a volta seguinte começa no mesmo instante ([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)).
 
 ## Canais
 
@@ -35,28 +36,32 @@ controle recai para toque com estado visível e as regras desta feature não mud
   soma em milissegundos é igual ao tempo total, com diferença de 0 ms (AC-US-0002-05).
 - REQ-FEAT-0002-06: O sistema SHALL exibir o tempo total e cada tempo de setor no formato `m:ss.mmm`, com 3
   casas decimais de segundo (AC-US-0002-06).
-- REQ-FEAT-0002-07: O sistema SHALL, quando a linha de chegada é cruzada entre o passo k e o passo k + 1
-  contados do sinal verde, sem coincidir com nenhum dos dois, produzir um tempo total maior que k × `STEP`
+- REQ-FEAT-0002-07: O sistema SHALL, numa volta iniciada no sinal verde, quando a linha de chegada é
+  cruzada entre o passo k e o passo k + 1 contados do sinal verde, sem coincidir com nenhum dos dois, produzir um tempo total maior que k × `STEP`
   e menor que (k + 1) × `STEP`, e, quando o cruzamento coincide com um passo, produzir o tempo desse passo,
   k × `STEP` (AC-US-0002-07).
-- REQ-FEAT-0002-08: O sistema SHALL, quando um limite de setor é cruzado entre o passo k e o passo k + 1
-  contados do sinal verde, sem coincidir com nenhum dos dois, produzir um instante de fim desse setor maior
+- REQ-FEAT-0002-08: O sistema SHALL, numa volta iniciada no sinal verde, quando um limite de setor é
+  cruzado entre o passo k e o passo k + 1 contados do sinal verde, sem coincidir com nenhum dos dois, produzir um instante de fim desse setor maior
   que k × `STEP` e menor que (k + 1) × `STEP` (AC-US-0002-08).
 - REQ-FEAT-0002-09: O sistema SHALL exibir na tela, durante a volta, o tempo de cada setor ao completá-lo
   (AC-US-0002-09).
 - REQ-FEAT-0002-10: O sistema SHALL encerrar cada tempo de setor no cruzamento do limite de setor declarado
-  no dado da pista, iniciando o primeiro setor no sinal verde e encerrando o quarto no cruzamento da
-  chegada (AC-US-0002-10).
+  no dado da pista, iniciando o primeiro setor no início da volta (o sinal verde ou, nas voltas seguintes do
+  treino, o instante de cruzamento que encerrou a anterior) e encerrando o quarto no cruzamento da chegada
+  (AC-US-0002-10).
 - REQ-FEAT-0002-11: O sistema SHALL identificar, no resultado de uma volta concluída, a pista (`trackId`) e
   a versão da pista (`trackVersion`) em que foi corrida (AC-US-0002-11).
 - REQ-FEAT-0002-12: O sistema SHALL produzir exatamente 1 resultado por volta, de modo que cruzar a linha
-  de chegada de novo depois da conclusão não produza um segundo resultado (AC-US-0002-12).
+  de chegada de novo depois da conclusão não produza um segundo resultado para essa volta; no treino, esse
+  cruzamento encerra a volta seguinte, que tem o seu próprio resultado (AC-US-0002-12).
 - REQ-FEAT-0002-13: O sistema SHALL exibir como válida, com quatro tempos de setor, uma volta completa na
   pista sintética atual no sentido da pista passando por todos os seus marcadores em ordem
   (AC-US-0002-13).
-- REQ-FEAT-0002-14: O sistema SHALL contar um limite de setor somente quando cruzado no sentido da pista e
-  depois do limite de setor anterior, de modo que cada tempo de setor seja medido entre limites
-  consecutivos (AC-US-0002-10).
+- REQ-FEAT-0002-14: O sistema SHALL registrar um limite de setor somente no primeiro cruzamento no sentido
+  da pista que ocorre depois da última fronteira anterior registrada na mesma volta, e medir cada tempo de
+  setor entre as fronteiras do seu início e do seu fim, de modo que, numa volta válida, cada tempo de setor
+  seja medido entre limites consecutivos ([RULE-0003](../rules/RULE-0003-cronometragem-e-interpolacao.md))
+  (AC-US-0002-10).
 - REQ-FEAT-0002-15: O sistema SHALL manter a volta oficial e com as mesmas regras de conclusão depois de
   pausa, perda de foco ou perda do sensor durante a volta [DOMAIN] (US-0002, caso anormal; `DOMAIN/DEC-08`).
 - REQ-FEAT-0002-16: O sistema SHALL NOT produzir resultado para uma volta cuja página foi recarregada ou
@@ -73,7 +78,7 @@ Fluxo nominal: [FLOW-0001](../flows/FLOW-0001-volta-completa.md). Cronometragem 
 |---|---|
 | Chegada cruzada sem todos os marcadores em ordem | Volta inválida com motivo "marcador pulado" ([FEAT-0004](FEAT-0004-marcadores-e-sentido-da-pista.md)) |
 | Chegada cruzada na contramão | Não encerra a volta nem registra tempo ([FEAT-0004](FEAT-0004-marcadores-e-sentido-da-pista.md)) |
-| Chegada cruzada de novo depois da conclusão | Ignorada: o estado contém exatamente 1 resultado para a volta (I7); a deduplicação ocorre na simulação, que só aceita cruzamentos enquanto a fase é `RUNNING` |
+| Chegada cruzada de novo depois da conclusão | Fora do treino, ignorada: o estado contém exatamente 1 resultado para a volta (I7); a deduplicação ocorre na simulação, que só aceita cruzamentos enquanto a fase é `RUNNING`. No treino, encerra a volta seguinte, com resultado próprio; cada cruzamento é avaliado uma única vez ([FEAT-0010](FEAT-0010-voltas-seguidas-no-treino.md)) |
 | Cruzamento exatamente sobre um passo | Tempo total k × `STEP`; a interpolação só se aplica a cruzamentos entre dois passos |
 | Pausa, perda de foco ou perda do sensor durante a volta | Simulação e cronômetro suspensos; ao continuar a volta segue oficial |
 | Recarregar ou abandonar a página antes da chegada | Nenhum resultado; o consumo de tentativa é da etapa 5, fora do escopo |
@@ -91,7 +96,7 @@ Lê e altera `lapPhase` (`RUNNING` para `ENDED`), `lapValidity` e o resultado; v
 
 | Transição | O que a dispara | Idempotência e contador |
 |---|---|---|
-| `RUNNING` para `ENDED` com `lapValidity` `VALID` | o passo em que a chegada é cruzada no sentido da pista com todos os marcadores passados em ordem | Ocorre uma única vez por volta; o cruzamento seguinte é ignorado. Carrega `stepCount` do passo de encerramento |
+| `RUNNING` para `ENDED` com `lapValidity` `VALID` (volta oficial ou de reconhecimento) | o passo em que a chegada é cruzada no sentido da pista com todos os marcadores passados em ordem | Ocorre uma única vez por volta; o cruzamento seguinte é ignorado. Carrega `stepCount` do passo de encerramento. No treino, a fase segue `RUNNING` e a volta seguinte começa ([RULE-0002](../rules/RULE-0002-estados-da-volta.md)) |
 | Limite de setor completado | o passo em que o limite de setor seguinte é cruzado no sentido da pista | Cada limite é completado uma única vez; cruzar de novo não altera o tempo do setor |
 
 ## Configuração

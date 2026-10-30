@@ -2,8 +2,8 @@
 stage: fspec
 feature: race-lap-validation
 status: validated
-generated: 2026-10-22T16:32:37Z
-files: 29
+generated: 2026-10-30T12:31:04Z
+files: 31
 ---
 
 # Index
@@ -12,32 +12,34 @@ files: 29
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-overview.md` | - | Visão geral — validação de volta de corrida | validated | 1.0.0 |
-| `02-glossary.md` | - | Glossário — validação de volta de corrida | validated | 1.1.0 |
-| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida | validated | 1.1.0 |
+| `01-overview.md` | - | Visão geral — validação de volta de corrida | validated | 1.1.0 |
+| `02-glossary.md` | - | Glossário — validação de volta de corrida | validated | 1.2.0 |
+| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida | validated | 1.2.1 |
 | `98-divergences.md` | - | Divergências — validação de volta de corrida | validated | 1.0.0 |
-| `api/API-0001-resultado-e-estado-da-volta.md` | API-0001 | Contrato do resultado e do estado da volta | validated | 1.1.0 |
-| `api/API-0002-comandos-da-volta.md` | API-0002 | Contrato dos comandos da volta | validated | 1.1.0 |
-| `api/API-0003-dado-de-pista.md` | API-0003 | Contrato do dado de pista com largada, sentido, setores e marcadores | validated | 1.0.1 |
-| `features/FEAT-0001-contagem-regressiva-e-largada.md` | FEAT-0001 | Contagem regressiva e largada | validated | 1.0.0 |
-| `features/FEAT-0002-conclusao-da-volta-tempos-e-setores.md` | FEAT-0002 | Conclusão da volta, tempo total e quatro tempos de setor | validated | 1.0.0 |
-| `features/FEAT-0003-tempo-independente-do-aparelho-e-pausa.md` | FEAT-0003 | Tempo independente do aparelho e pausa | validated | 1.0.0 |
-| `features/FEAT-0004-marcadores-e-sentido-da-pista.md` | FEAT-0004 | Marcador pulado e chegada na contramão | validated | 1.0.0 |
-| `features/FEAT-0005-corte-e-grama.md` | FEAT-0005 | Corte invalida a volta, grama sem corte só reduz a velocidade | validated | 1.0.0 |
-| `features/FEAT-0006-reposicionamento-e-tipos-de-volta.md` | FEAT-0006 | Reposicionamento, reconhecimento e treino | validated | 1.0.0 |
-| `features/FEAT-0007-estado-da-volta-na-tela.md` | FEAT-0007 | Estado da volta visível durante toda a volta | validated | 1.0.0 |
-| `features/FEAT-0008-dado-de-pista-versionado.md` | FEAT-0008 | Dado de pista com largada, sentido, setores e marcadores | validated | 1.0.0 |
-| `features/FEAT-0009-requisitos-transversais.md` | FEAT-0009 | Requisitos transversais de simulação, desempenho, privacidade e verificação | validated | 1.0.0 |
-| `flows/FLOW-0001-volta-completa.md` | FLOW-0001 | Volta completa, da contagem ao resultado | validated | 1.0.0 |
-| `flows/FLOW-0002-invalidacao-e-fim-da-volta.md` | FLOW-0002 | Invalidação e fim imediato da volta | validated | 1.0.0 |
-| `flows/FLOW-0003-pausa-e-retomada.md` | FLOW-0003 | Pausa, perda de foco, perda do sensor e retomada | validated | 1.0.1 |
-| `flows/FLOW-0004-inicio-da-volta.md` | FLOW-0004 | Início da volta, dado de pista e controle | validated | 1.0.0 |
-| `rules/RULE-0001-validade-da-volta.md` | RULE-0001 | Validade da volta | validated | 1.0.0 |
-| `rules/RULE-0002-estados-da-volta.md` | RULE-0002 | Estados da volta | validated | 1.0.0 |
-| `rules/RULE-0003-cronometragem-e-interpolacao.md` | RULE-0003 | Cronometragem, interpolação e formato do tempo | validated | 1.0.0 |
-| `rules/RULE-0004-corte-e-grama.md` | RULE-0004 | Corte e grama | validated | 1.0.0 |
-| `rules/RULE-0005-tipos-de-volta-e-reposicionamento.md` | RULE-0005 | Tipos de volta, reposicionamento e pista de dado incompleto | validated | 1.0.0 |
-| `rules/RULE-0006-mensagens-de-estado-e-motivo.md` | RULE-0006 | Mensagens de estado e motivo, idioma e legibilidade | validated | 1.0.0 |
-| `screens/SCR-0001-corrida-hud-da-volta.md` | SCR-0001 | Corrida, contagem e estado da volta | validated | 1.0.1 |
-| `screens/SCR-0002-inicio-de-volta.md` | SCR-0002 | Início de volta e oferta de tipo de volta | validated | 1.0.0 |
-| `screens/SCR-0003-resultado-da-volta.md` | SCR-0003 | Resultado da volta | validated | 1.1.0 |
+| `api/API-0001-resultado-e-estado-da-volta.md` | API-0001 | Contrato do resultado e do estado da volta | validated | 1.2.0 |
+| `api/API-0002-comandos-da-volta.md` | API-0002 | Contrato dos comandos da volta | validated | 1.2.1 |
+| `api/API-0003-dado-de-pista.md` | API-0003 | Contrato do dado de pista com largada, sentido, setores e marcadores | validated | 1.0.2 |
+| `features/FEAT-0001-contagem-regressiva-e-largada.md` | FEAT-0001 | Contagem regressiva e largada | validated | 1.1.0 |
+| `features/FEAT-0002-conclusao-da-volta-tempos-e-setores.md` | FEAT-0002 | Conclusão da volta, tempo total e quatro tempos de setor | validated | 1.1.0 |
+| `features/FEAT-0003-tempo-independente-do-aparelho-e-pausa.md` | FEAT-0003 | Tempo independente do aparelho e pausa | validated | 1.1.0 |
+| `features/FEAT-0004-marcadores-e-sentido-da-pista.md` | FEAT-0004 | Marcador pulado e chegada na contramão | validated | 1.1.0 |
+| `features/FEAT-0005-corte-e-grama.md` | FEAT-0005 | Corte invalida a volta, grama sem corte só reduz a velocidade | validated | 1.1.0 |
+| `features/FEAT-0006-reposicionamento-e-tipos-de-volta.md` | FEAT-0006 | Reposicionamento, reconhecimento e treino | validated | 1.1.0 |
+| `features/FEAT-0007-estado-da-volta-na-tela.md` | FEAT-0007 | Estado da volta visível durante toda a volta | validated | 1.1.0 |
+| `features/FEAT-0008-dado-de-pista-versionado.md` | FEAT-0008 | Dado de pista com largada, sentido, setores e marcadores | validated | 1.1.0 |
+| `features/FEAT-0009-requisitos-transversais.md` | FEAT-0009 | Requisitos transversais de simulação, desempenho, privacidade e verificação | validated | 1.1.0 |
+| `features/FEAT-0010-voltas-seguidas-no-treino.md` | FEAT-0010 | Voltas seguidas no treino | validated | 1.0.1 |
+| `flows/FLOW-0001-volta-completa.md` | FLOW-0001 | Volta completa, da contagem ao resultado | validated | 1.1.0 |
+| `flows/FLOW-0002-invalidacao-e-fim-da-volta.md` | FLOW-0002 | Invalidação e fim imediato da volta | validated | 1.1.0 |
+| `flows/FLOW-0003-pausa-e-retomada.md` | FLOW-0003 | Pausa, perda de foco, perda do sensor e retomada | validated | 1.1.0 |
+| `flows/FLOW-0004-inicio-da-volta.md` | FLOW-0004 | Início da volta, dado de pista e controle | validated | 1.1.0 |
+| `flows/FLOW-0005-treino-com-voltas-seguidas.md` | FLOW-0005 | Treino com voltas seguidas | validated | 1.0.0 |
+| `rules/RULE-0001-validade-da-volta.md` | RULE-0001 | Validade da volta | validated | 1.1.0 |
+| `rules/RULE-0002-estados-da-volta.md` | RULE-0002 | Estados da volta | validated | 1.1.1 |
+| `rules/RULE-0003-cronometragem-e-interpolacao.md` | RULE-0003 | Cronometragem, interpolação e formato do tempo | validated | 1.1.0 |
+| `rules/RULE-0004-corte-e-grama.md` | RULE-0004 | Corte e grama | validated | 1.1.0 |
+| `rules/RULE-0005-tipos-de-volta-e-reposicionamento.md` | RULE-0005 | Tipos de volta, reposicionamento e pista de dado incompleto | validated | 1.1.1 |
+| `rules/RULE-0006-mensagens-de-estado-e-motivo.md` | RULE-0006 | Mensagens de estado e motivo, idioma e legibilidade | validated | 1.1.0 |
+| `screens/SCR-0001-corrida-hud-da-volta.md` | SCR-0001 | Corrida, contagem e estado da volta | validated | 1.1.0 |
+| `screens/SCR-0002-inicio-de-volta.md` | SCR-0002 | Início de volta e oferta de tipo de volta | validated | 1.1.0 |
+| `screens/SCR-0003-resultado-da-volta.md` | SCR-0003 | Resultado da volta | validated | 1.2.1 |
