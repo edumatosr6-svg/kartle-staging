@@ -1,7 +1,7 @@
 ---
 name: dirigibilidade
 description: Sensação de pilotagem do acerto Arcade assistido — resposta do volante, aderência em curva, aceleração e sensação de velocidade — com referência em Karting Superstars. Ler antes de qualquer mudança nos presets de kart, nas assistências de direção ou no bench de volta.
-revision: 4
+revision: 5
 date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
@@ -47,7 +47,8 @@ sensação de velocidade. O acerto **Realista — aluguel 4T** continua existind
     mede ≈ 11,7 m).
   - Partindo de 70 km/h nas mesmas condições, o raio também fica em no máximo **13 m** (o kart perde
     velocidade na curva em vez de abrir a trajetória).
-  - Sem acelerador, partindo de 50 km/h com esterço cheio, o raio fica em no máximo **3 m**.
+  - Sem acelerador, partindo de 50 km/h com esterço cheio, o kart gira pelo menos **180°** em até
+    **2 s** (acerto escolhido mede 208°).
 - **US-3** Como Jogador, quero uma traseira viva mas controlável, para escorregar e segurar.
   - Em condução normal (pista sintética, piloto de teste), a telemetria nunca reporta `oversteer` nem
     `sliding`, e a derrapagem lateral nunca passa de 0,65 rad.
@@ -90,8 +91,10 @@ sensação de velocidade. O acerto **Realista — aluguel 4T** continua existind
 
 ## Restrições
 
-- Mudanças ficam nos presets e nas assistências de `src/physics.ts`; nada de regra de pilotagem em
-  renderização ou controle (I2). Motivo: a simulação roda sem DOM e no servidor futuro.
+- As regras de pilotagem ficam na simulação (`src/physics.ts` e `src/maneuvers.ts`); nada de regra de
+  pilotagem em renderização ou controle (I2). Motivo: a simulação roda sem DOM e no servidor futuro.
+  Retirar o drift e o turbo também tira da tela (HUD, resultado e texto compartilhado) o que mostrava os
+  dois; isso é só remoção de exibição, sem regra nova na renderização.
 - `STEP`, solver de 480 Hz e `Input` não mudam (I8). Motivo: contrato de todos os replays.
 - O preset Realista não muda. Motivo: é a referência física documentada.
 - A validação de volta (`src/lap.ts`, `src/track.ts`) não muda. Motivo: feature própria já validada.

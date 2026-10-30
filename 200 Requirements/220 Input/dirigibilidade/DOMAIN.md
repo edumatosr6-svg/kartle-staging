@@ -89,3 +89,9 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   no arco de 18 m (OPEN-02/OPEN-03 e o início do subesterço), que não valem para um kart que faz curva
   mais fechada que o arco: a curva passa a ser julgada pelo raio na pista de teste aberta (US-2). OPEN-01,
   OPEN-04, OPEN-05 e OPEN-07 permanecem.
+- 2026-10-30 — **Curva sem acelerador e onde a retirada do drift acontece (condutor, rev 5):** medido com o
+  acerto C, sem acelerador a partir de 50 km/h com esterço cheio, o kart gira 82° no 1.º segundo e 208° em
+  2 s, e aos 3 s já está a 4 km/h; um raio medido aos 3 s não mede nada. O critério passa a ser o giro:
+  pelo menos 180° em até 2 s (rev 5, US-2). A retirada do drift e do turbo pedida pelo dono do produto
+  inclui a exibição deles (HUD, resultado, texto compartilhado); a restrição de I2 vale para regras de
+  pilotagem, não para essa remoção.
