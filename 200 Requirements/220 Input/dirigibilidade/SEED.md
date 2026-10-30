@@ -1,7 +1,7 @@
 ---
 name: dirigibilidade
 description: Sensação de pilotagem do acerto Arcade assistido — resposta do volante, aderência em curva, aceleração e sensação de velocidade — com referência em Karting Superstars. Ler antes de qualquer mudança nos presets de kart, nas assistências de direção ou no bench de volta.
-revision: 5
+revision: 6
 date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
@@ -93,8 +93,9 @@ sensação de velocidade. O acerto **Realista — aluguel 4T** continua existind
 
 - As regras de pilotagem ficam na simulação (`src/physics.ts` e `src/maneuvers.ts`); nada de regra de
   pilotagem em renderização ou controle (I2). Motivo: a simulação roda sem DOM e no servidor futuro.
-  Retirar o drift e o turbo também tira da tela (HUD, resultado e texto compartilhado) o que mostrava os
-  dois; isso é só remoção de exibição, sem regra nova na renderização.
+  Retirar o drift e o turbo também tira da tela tudo o que mostrava, ensinava ou oferecia os dois: HUD,
+  resultado, texto compartilhado, tela inicial, dica da barra de ferramentas, guia de manobras e o botão
+  "Drift" do controle de toque no celular. Isso é só remoção de exibição, sem regra nova na renderização.
 - `STEP`, solver de 480 Hz e `Input` não mudam (I8). Motivo: contrato de todos os replays.
 - O preset Realista não muda. Motivo: é a referência física documentada.
 - A validação de volta (`src/lap.ts`, `src/track.ts`) não muda. Motivo: feature própria já validada.

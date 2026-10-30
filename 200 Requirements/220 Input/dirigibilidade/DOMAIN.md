@@ -95,3 +95,7 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   pelo menos 180° em até 2 s (rev 5, US-2). A retirada do drift e do turbo pedida pelo dono do produto
   inclui a exibição deles (HUD, resultado, texto compartilhado); a restrição de I2 vale para regras de
   pilotagem, não para essa remoção.
+- 2026-10-30 — **Drift fora de todas as telas (Eduardo Matos, "aproveita tira o turbo + drift"):** a validação de
+  testes encontrou o drift ainda ensinado em `index.html` (tela inicial, dica da barra, guia de manobras) e o
+  botão "Drift" no controle de toque. O pedido do dono do produto foi tirar o drift do jogo; a rev 6 nomeia
+  essas telas na restrição de exibição, para que nada ofereça um comando que não faz mais nada.
