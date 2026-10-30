@@ -3,7 +3,7 @@ title: Contexto — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.4.1
+version: 1.5.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -24,7 +24,7 @@ define medidas, peças, cores, piloto e câmera de jogo (`SEED/RD-04`); o códig
 escrito no chat do Cowork, está salvo sem alteração em `docs/kart-01/kart.js` e é a fonte do modelo,
 enquanto a ficha é a referência para conferir o resultado (`SEED/RD-05`, `DOMAIN/DEC-00`).
 
-Seed: `200 Requirements/220 Input/modelo-kart-01/SEED.md`, `revision: 3`, `date: 2026-10-29`, autor
+Seed: `200 Requirements/220 Input/modelo-kart-01/SEED.md`, `revision: 4`, `date: 2026-10-29`, autor
 `eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de 2026-10-22
 fecham todos os pontos em aberto do seed (01 a 05) e prevalecem sobre eles; uma sexta decisão da mesma
 data, tomada depois da parada do F-Spec, fixa o que a câmera faz depois do fim da volta
@@ -40,6 +40,10 @@ ligada ao turbo deixam de existir e as marcas de pneu continuam. O seed `revisio
 história na mesma linha. Uma oitava decisão, da mesma data (`DOMAIN/DEC-08`), tira a consequência para a
 câmera: sem turbo, não há efeito de turbo no campo de visão, e a câmera de corrida tem só o campo de visão
 base (62° e a regra de retrato); o seed `revision: 3` tira da terceira história o critério desse efeito.
+Uma nona decisão, de 2026-10-30 (`DOMAIN/DEC-09`), diz quando as marcas de pneu aparecem sem o drift:
+"quando escorregar", com a volta em andamento, a mais de 6 m/s e com derrapagem lateral (telemetria da
+simulação) acima de 0,055 rad; o seed `revision: 4` põe essa situação na quinta história, como a única
+em que as marcas aparecem.
 Este conjunto usa só os valores dessas decisões.
 
 ## Atores e canais
@@ -97,6 +101,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-06` | Câmera depois do fim da volta (decisão de 2026-10-22, após parada do F-Spec, corrigida na mesma data após feedback do D-Spec): quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel de resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); a decisão descreve só a câmera: ela continua atrás do piloto, na pose de corrida, com o kart parado, até a próxima visão geral (antes da contagem da volta seguinte); a visão geral do alto existe só antes da contagem regressiva; "em corrida", para a câmera, vai do sinal verde até a próxima visão geral, sem terminar em `ENDED`; a frase "o kart continua pilotável" da redação original não vale, nenhum requisito de pilotagem depois de `ENDED` existe nesta feature e nada muda em `race-lap-validation`; desde `DOMAIN/DEC-07`, o congelamento vale só para a volta oficial |
 | `DOMAIN/DEC-07` | Treino contínuo e fim do drift e do turbo (decisão de 2026-10-29, Eduardo Matos): no treino as voltas são seguidas (`race-lap-validation` revisão 3, US-10), então o kart não congela ao fim de uma volta de treino, continua pilotável e a câmera continua atrás do piloto; o congelamento de `DOMAIN/DEC-06` passa a valer só para a volta oficial; o drift e o turbo saíram do jogo (`dirigibilidade` revisão 4), então a indicação de drift e a fumaça do escapamento ligada ao turbo deixam de existir; as marcas de pneu continuam |
 | `DOMAIN/DEC-08` | Sem efeito de turbo na câmera (decisão de 2026-10-29, registrada em `DOMAIN.md` como consequência de `DOMAIN/DEC-07`): com o turbo retirado, o critério da terceira história "o efeito de campo de visão do turbo continua funcionando" sai do seed (`revision: 3`); a câmera de corrida tem só o campo de visão base, 62° e a regra de retrato |
+| `DOMAIN/DEC-09` | Marcas de pneu sem drift (decisão de 2026-10-30, Eduardo Matos): perguntado quando o kart deve deixar marcas de pneu sem o drift, o dono do produto escolheu "quando escorregar": a marca aparece com a volta em andamento, a mais de 6 m/s e com derrapagem lateral (telemetria da simulação) acima de 0,055 rad, os dois limites que já existiam, sem o termo do drift (seed `revision: 4`, quinta história) |
 
 ## Decisões de domínio aplicadas
 
@@ -111,6 +116,7 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-06` | US-0003 (critério 13: pose de corrida mantida depois do fim da volta oficial, em relação ao kart parado, com a simulação parada e o painel de resultado exibido, até a próxima visão geral); US-0002 e US-0005 (caso anormal "Fim da volta oficial"); os termos "Em corrida", "Fim da volta", "Volta oficial" e "Painel de resultado" do glossário — "Em corrida" é o termo que os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam |
 | `DOMAIN/DEC-07` | US-0003 (critério 13 limitado à volta oficial; critério 14: pose de corrida mantida no treino, em relação ao kart em movimento); US-0005 (critérios 04 e 05: sem indicação de drift nem fumaça ou chama de turbo; critérios 02 e 03 retirados); US-0002 e US-0005 (caso anormal "Fim de uma volta de treino"); os termos "Em corrida", "Treino", "Volta oficial", "Fim da volta", "Indicação de drift" e "Fumaça ou chama de turbo" do glossário |
 | `DOMAIN/DEC-08` | US-0003 (critérios 04 a 06: só o campo de visão base, em todos os quadros; critério 09 retirado; caso anormal "Comando que antes acionava o turbo"); o termo "Efeito de turbo no campo de visão" do glossário |
+| `DOMAIN/DEC-09` | US-0005 (critério 06: marcas de pneu com a volta em andamento, a mais de 6 m/s e com derrapagem lateral acima de 0,055 rad; critério 07: em nenhuma outra situação; casos anormais "Valores no limite", "Derrapagem para o outro lado", "Uma condição deixa de valer no meio da derrapagem" e "Antes da largada"); os termos "Marcas de pneu", "Volta em andamento", "Velocidade do kart" e "Derrapagem lateral" do glossário |
 
 Não resta ponto em aberto neste conjunto.
 
@@ -124,7 +130,7 @@ Esta feature redefine dois comportamentos que o Jogador vê hoje e mantém um te
 | Câmera de perseguição alta e distante durante a corrida | Retirada em corrida. Substituída pela câmera de jogo da ficha, atrás e perto do piloto | US-0003 |
 | Câmera inicial alta, vendo a pista toda | Mantida só antes da contagem regressiva; durante a contagem, desce até a posição de corrida (`DOMAIN/DEC-04`); não volta no fim da volta oficial nem com o painel de resultado exibido (`DOMAIN/DEC-06`), nem no fim de uma volta de treino (`DOMAIN/DEC-07`) | US-0003 |
 | Efeito de campo de visão do turbo | Não existe mais: o turbo saiu do jogo, e a câmera de corrida tem só o campo de visão base (`SEED/US-3` na `revision: 3`, `DOMAIN/DEC-07`, `DOMAIN/DEC-08`) | US-0003 |
-| Marcas de pneu | Mantidas, nas posições das rodas traseiras do Kart 01 | US-0005 |
+| Marcas de pneu | Mantidas, nas posições das rodas traseiras do Kart 01, só quando o kart escorrega de lado: volta em andamento, mais de 6 m/s e derrapagem lateral acima de 0,055 rad (`SEED/US-5` na `revision: 4`, `DOMAIN/DEC-09`) | US-0005 |
 | Fumaça ou chama de turbo e indicação de drift | Não aparecem com o Kart 01: o drift e o turbo saíram do jogo pela `dirigibilidade` (revisão 4), não por esta feature (`SEED/US-5`, `DOMAIN/DEC-07`) | US-0005 |
 
 ## Padrão seguro

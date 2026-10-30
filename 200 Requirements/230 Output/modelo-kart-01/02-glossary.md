@@ -3,7 +3,7 @@ title: Glossário — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.4.0
+version: 1.5.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -48,9 +48,12 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Fim da volta | Momento em que uma volta termina, válida ou invalidada, inclusive por reposicionamento. Na volta oficial é o estado `ENDED`: a partir dele a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`; `DOMAIN/DEC-06`). No treino, o kart não congela e as voltas são seguidas (`DOMAIN/DEC-07`). Já existe no jogo, e esta feature não o muda (`SEED/RE-01`) | ambos |
 | Painel de resultado | Painel exibido na tela quando a volta oficial termina, sobre a cena com a simulação parada e o kart congelado; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele (`DOMAIN/DEC-06`) | ambos |
 | Efeito de turbo no campo de visão | Variação do campo de visão vertical que o jogo aplicava enquanto o turbo estava ativo; deixou de existir com a retirada do turbo: a câmera de corrida tem só o campo de visão base, 62° em paisagem e a regra de retrato (`SEED/US-3` na `revision: 3`; `DOMAIN/DEC-07`; `DOMAIN/DEC-08`; US-0003, critérios 04 a 06) | ambos |
-| Marcas de pneu | Rastros deixados no chão pelas rodas traseiras | ambos |
-| Fumaça ou chama de turbo | Fumaça ou chama que o jogo exibia saindo do escapamento do kart, ligada ao turbo; deixou de existir com a retirada do turbo (`dirigibilidade` revisão 4; `SEED/US-5`, segundo critério; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01 (US-0005) | ambos |
-| Indicação de drift | Efeito visual que o jogo exibia junto às rodas traseiras durante o drift; deixou de existir com a retirada do drift (`dirigibilidade` revisão 4; `SEED/US-5`, segundo critério; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01 (US-0005) | ambos |
+| Marcas de pneu | Rastros deixados no chão pelas rodas traseiras; aparecem só quando o kart escorrega de lado: com a volta em andamento, a velocidade do kart acima de 6 m/s e a derrapagem lateral acima de 0,055 rad em módulo; sem o drift, é a única situação (`SEED/US-5`, segundo critério, na `revision: 4`; `DOMAIN/DEC-09`; US-0005, critérios 06 e 07) | ambos |
+| Volta em andamento | Estado de uma volta entre o seu início e o seu fim (Fim da volta), tal como o jogo já o informa; antes do sinal verde e, na volta oficial, depois de `ENDED` não há volta em andamento. Esta feature não muda esse estado (`SEED/RE-01`) | ambos |
+| Velocidade do kart | Módulo da velocidade do kart que a simulação informa para cada quadro, em m/s | ambos |
+| Derrapagem lateral | Ângulo de escorregamento de lado do kart, em rad, tal como a telemetria da simulação o informa para cada quadro; esta feature não o calcula (`SEED/RD-01`); o kart escorrega de lado para a esquerda ou para a direita, e o limite de 0,055 rad vale em módulo (`DOMAIN/DEC-09`) | ambos |
+| Fumaça ou chama de turbo | Fumaça ou chama que o jogo exibia saindo do escapamento do kart, ligada ao turbo; deixou de existir com a retirada do turbo (`dirigibilidade` revisão 4; `SEED/US-5`, terceiro critério; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01 (US-0005) | ambos |
+| Indicação de drift | Efeito visual que o jogo exibia junto às rodas traseiras durante o drift; deixou de existir com a retirada do drift (`dirigibilidade` revisão 4; `SEED/US-5`, terceiro critério; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01 (US-0005) | ambos |
 | `wheelPositions` | Posições das rodas que a simulação informa e usa para marcas de pneu e telemetria; contrato da simulação, citado da seção Restrições do seed (`SEED/RE-03`) | ambos |
 | Sombra do kart | Sombra que o kart exibido projeta no chão (`DOMAIN/DEC-05`) | ambos |
 | Taxa de quadros | Quadros exibidos por segundo (fps), contados a cada segundo | ambos |

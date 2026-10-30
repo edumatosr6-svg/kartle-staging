@@ -407,3 +407,72 @@ e a retirada do turbo), fechado pelo seed `revision: 3` e por `DOMAIN/DEC-08`. N
 - Segunda forma oferecida pela ISSUE-01 (tirar US-0002 e US-0005 da linha `DOMAIN/DEC-06` de
   `01-context.md`): não usada, porque o caso anormal "Fim da volta oficial" dessas histórias vem de fato
   dessa decisão; tirar a menção esconderia a fonte em vez de citá-la.
+
+## 2026-10-30 — rodada 8, Mode A (seed `revision: 4` e decisão de 2026-10-30 em `DOMAIN.md`)
+
+**O que mudou**
+
+- Origem: o seed passou a `revision: 4`, que acrescenta à quinta história um segundo critério (as marcas de
+  pneu aparecem quando o kart escorrega de lado: volta em andamento, mais de 6 m/s e derrapagem lateral
+  informada pela simulação acima de 0,055 rad; sem drift, é a única situação); o critério da ausência de
+  drift e de turbo passa a ser o terceiro. Em `DOMAIN.md` entrou "Marcas de pneu sem drift", rotulada
+  `DOMAIN/DEC-09`. Tudo o mais do conjunto validado contra a `revision: 3`
+  (`req-validation-20261030-0234.md`) foi mantido: US-0001 a US-0004, NFR-0001 a NFR-0007 e
+  `98-divergences.md` sem mudança.
+- US-0005 (2.1.0): novos AC-US-0005-06 (com as três condições, trecho novo de marca sob cada pneu traseiro
+  do Kart 01) e AC-US-0005-07 (sem alguma delas, nenhum trecho novo, antes da largada e em corrida). A
+  pré-condição "esta feature muda onde a marca aparece, não quando" saiu, porque o seed agora diz quando;
+  no lugar, a situação do seed, lida do estado que a simulação informa (`SEED/RD-01`). Novos casos anormais
+  "Valores no limite", "Derrapagem para o outro lado", "Uma condição deixa de valer no meio da derrapagem"
+  e "Antes da largada"; os demais citam o critério 06 onde falam de quando a marca aparece. As citações
+  "`SEED/US-5`, segundo critério" dos critérios 04 e 05, da pré-condição do drift e da nota de retirada dos
+  critérios 02 e 03 passaram a "terceiro critério". `sources:`, Fontes e Pontos em aberto com
+  `DOMAIN/DEC-09`.
+- `01-context.md` (1.5.0): seed `revision: 4`; parágrafo de `DOMAIN.md` com a nona decisão; rótulo
+  `DOMAIN/DEC-09` na chave e na tabela de decisões aplicadas; a linha "Marcas de pneu" de Retiradas e
+  substituições diz quando as marcas aparecem.
+- `02-glossary.md` (1.5.0): "Marcas de pneu" com a situação em que aparecem; termos novos "Volta em
+  andamento", "Velocidade do kart" e "Derrapagem lateral"; "Fumaça ou chama de turbo" e "Indicação de
+  drift" citam o terceiro critério de `SEED/US-5`.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate com `--emit`.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>`; a mudança vem do seed.
+
+**Leituras registradas**
+
+- "Acima de 0,055 rad" lido em módulo, para os dois lados: o seed diz "quando o kart escorrega de lado",
+  sem escolher o lado, e uma leitura com sinal deixaria marcas só nas curvas para um lado. Se o autor
+  quiser outra leitura, ela volta como ponto em aberto.
+- "A mais de 6 m/s" e "acima de 0,055 rad" lidos como estritos: no valor exato, nenhuma marca nova.
+
+**Itens recusados, com motivo**
+
+- Critério com o valor de 0,08 rad de derrapagem lateral "em condução normal na pista sintética" com o
+  acerto C (`DOMAIN.md`, 2026-10-30): não criado; é uma observação do comportamento da física da
+  `dirigibilidade` numa pista, não um requisito do seed, e exigir que as marcas apareçam numa curva
+  dependeria da física, que esta feature não muda (`SEED/RE-01`).
+- Definição de derrapagem lateral por fórmula (ângulo entre movimento e rumo): não escrita; o seed e
+  `DOMAIN/DEC-09` dizem só que o valor vem da telemetria da simulação, e a fórmula é da `dirigibilidade`.
+- Critério sobre marcas desenhadas pelas rodas dianteiras: não criado; o seed fala só das rodas
+  traseiras.
+- Mudança em NFR-0007 ou em `98-divergences.md`: não feita; `wheelPositions` continua o contrato das
+  posições, e esta etapa não lê a raiz de código (conventions §12), então não sabe se o jogo já usa essa
+  situação.
+
+## 2026-10-30 — rodada 9, Mode B (relatório `req-validation-20261030-1351.md`, 1 erro)
+
+**O que mudou**
+
+- ISSUE-01 (R3, US-0005, AC-US-0005-06 contra o caso anormal "Pausa"): AC-US-0005-06 passou a valer só nos
+  quadros em que a simulação avançou pelo menos um passo desde o quadro anterior (fora da pausa); a
+  ausência de passo da simulação, inclusive em pausa, entrou nas condições de AC-US-0005-07; o caso anormal
+  "Pausa" agora cita o critério 07 e diz que a marca não aparece mesmo com os valores do último estado
+  acima dos limites. Derivado de `SEED/RD-01` e do próprio caso anormal. Fechado por edição. US-0005 em
+  2.1.1.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate com `--emit`.
+- Superfície e §16: nenhum requisito, história, critério, campo ou limite acrescentado; dois critérios
+  existentes tiveram a condição de quadro precisada, sem afrouxar o SHALL.
+
+**Itens fechados**: ISSUE-01, por edição. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**: nenhum.
