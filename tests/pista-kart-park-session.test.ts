@@ -3,8 +3,8 @@
 // integration and contract levels, RULE-0003, DES-0005, DM-0002).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { CIRCUIT, initialState } from '../src/physics';
-import { getLapResult, getLapState, kartAtStart, offeredLapKinds, pauseLap, type LapSession } from '../src/lap';
+import { CIRCUIT, initialState, type State } from '../src/physics';
+import { endTraining, getLapResult, getLapState, kartAtStart, listLapResults, offeredLapKinds, pauseLap, type LapResult, type LapSession } from '../src/lap';
 import { SYNTHETIC_TRACK_FILE } from '../src/track';
 import {
   getTrainingTrackOptions, initialTrainingSession, OPENING_TRACK_ID, selectTrainingTrack, startTrainingLap, TRAINING_TRACKS, trainingIdleKart,
@@ -87,34 +87,60 @@ test('CHK-TEST-0007-04 a training lap started on the synthetic session has the t
   assert.deepEqual(trainingIdleKart(session), kartAtStart(SYNTHETIC_TRACK_FILE.startPosition), 'AC-US-0001-04: the synthetic start of the synthetic file');
 });
 
-test('CHK-TEST-0007-05 every lap of a session is TRAINING without a challenge number and never official, completed, invalidated or discarded, on both tracks', () => {
+test('CHK-TEST-0007-05 every lap result of a training session is TRAINING without a challenge number and never official, completed, cut or with a missed marker, and a discarded or ended training adds none, on both tracks', () => {
   // AC-US-0001-05
-  const results: ReturnType<typeof getLapResult>[] = [];
+  const items: LapResult[] = [];
   for (const trackId of ['kart-park', 'synthetic'] as const) {
     const session = ready(trackId);
-    const completed = trackId === 'kart-park'
-      ? drive(runCountdown(lapOf(session)), kartParkPilot(kartParkGeometry()), 9000).lap
-      : drive(runCountdown(lapOf(session)), constant(IDLE), 10).lap;
-    assert.equal(completed.lapKind, 'TRAINING', `AC-US-0001-05: ${trackId}: the lap is TRAINING`);
-    assert.equal(completed.challengeNumber, undefined, `AC-US-0001-05: ${trackId}: no challenge number`);
-    results.push(getLapResult(completed));
+    const started = runCountdown(lapOf(session));
+    assert.equal(started.lapKind, 'TRAINING', `AC-US-0001-05: ${trackId}: the lap is TRAINING`);
+    assert.equal(started.challengeNumber, undefined, `AC-US-0001-05: ${trackId}: no challenge number`);
+    // A kart a few metres before the finish, rolling forward along the track: the next step crossings close the lap.
+    const beforeFinish = (): State => {
+      const k = trackId === 'kart-park' ? kartAtLapM(kartParkGeometry().lapLengthM - 6) : { ...initialState(), x: 75, z: -14, heading: 0 };
+      return { ...k, vx: Math.sin(k.heading) * 8, vz: Math.cos(k.heading) * 8, speed: 8 };
+    };
+    if (trackId === 'kart-park') {
+      const completed = drive(started, kartParkPilot(kartParkGeometry()), 9000).lap;
+      const list = listLapResults(completed).lapResults;
+      assert.equal(list.length, 1, `AC-US-0001-05: ${trackId}: the completed lap adds one item (${list.length})`);
+      assert.equal(list[0].lapValidity, 'VALID', `AC-US-0001-05: ${trackId}: the completed lap is VALID`);
+      assert.equal(completed.phase, 'RUNNING', `AC-US-0001-05: ${trackId}: the training goes on after the completed lap`);
+      items.push(...list);
+    }
     const far = trackId === 'kart-park' ? kartAtLapM(105, 8) : { ...initialState(), x: 400, z: 400 };
-    const invalidated = drive(seedLap(runCountdown(lapOf(session)), { kart: far }), constant(IDLE), 200).lap;
-    assert.equal(invalidated.phase, 'ENDED', `AC-US-0001-05: ${trackId}: the far kart is cut`);
-    results.push(getLapResult(invalidated));
-    const running = drive(runCountdown(lapOf(session)), constant(IDLE), 5).lap;
+    let cut = drive(seedLap(started, { kart: far }), constant(IDLE), 200).lap;
+    assert.equal(cut.phase, 'RUNNING', `AC-US-0001-05: ${trackId}: the cut lap keeps running`);
+    assert.equal(cut.invalidReason, 'CUT', `AC-US-0001-05: ${trackId}: the far kart is cut`);
+    assert.equal(listLapResults(cut).lapResults.length, 0, `AC-US-0001-05: ${trackId}: the cut adds no item before the finish`);
+    cut = drive(seedLap(cut, { kart: beforeFinish() }), constant(IDLE), 600).lap;
+    const cutList = listLapResults(cut).lapResults;
+    assert.equal(cutList.length, 1, `AC-US-0001-05: ${trackId}: the cut lap gets its item at the next finish crossing (${cutList.length})`);
+    assert.equal(cutList[0].invalidReason, 'CUT', `AC-US-0001-05: ${trackId}: the item of the cut lap is INVALID by CUT (${cutList[0].invalidReason})`);
+    items.push(...cutList);
+    const missed = drive(seedLap(started, { kart: beforeFinish() }), constant(IDLE), 600).lap;
+    const missedList = listLapResults(missed).lapResults;
+    assert.equal(missedList.length, 1, `AC-US-0001-05: ${trackId}: the lap without markers gets its item at the finish (${missedList.length})`);
+    assert.equal(missedList[0].invalidReason, 'MISSED_MARKER', `AC-US-0001-05: ${trackId}: the item is INVALID by MISSED_MARKER (${missedList[0].invalidReason})`);
+    items.push(...missedList);
+    const running = drive(started, constant(IDLE), 5).lap;
+    assert.equal(listLapResults(running).lapResults.length, 0, `AC-US-0001-05: ${trackId}: the lap in progress has no item`);
     const switched = selectTrainingTrack(session, running, trackId === 'kart-park' ? 'synthetic' : 'kart-park', sources);
     assert.ok(switched.ok && switched.lap === undefined, `AC-US-0001-05: ${trackId}: the switch discards the running lap`);
-    results.push(getLapResult(running));
+    assert.deepEqual(listLapResults(switched.ok ? switched.lap : undefined).lapResults, [], `AC-US-0001-05: ${trackId}: the discarded training adds no item`);
+    const ended = endTraining(missed);
+    assert.ok(ended.ok && ended.lap.phase === 'ENDED', `AC-US-0001-05: ${trackId}: endTraining ends the training`);
+    assert.deepEqual(listLapResults(ended.ok ? ended.lap : undefined).lapResults, missedList, `AC-US-0001-05: ${trackId}: endTraining adds no item`);
   }
-  for (const r of results) {
-    if ('code' in r) { assert.equal(r.code, 'NO_RESULT', 'AC-US-0001-05: a discarded lap has no result'); continue; }
+  for (const r of items) {
     assert.equal(r.lapKind, 'TRAINING', 'AC-US-0001-05: TRAINING result');
     assert.equal(r.official, false, 'AC-US-0001-05: never official');
     assert.ok(!('challengeNumber' in r), 'AC-US-0001-05: no challenge number in the result');
   }
-  assert.ok(results.some(r => !('code' in r) && r.lapValidity === 'VALID'), 'AC-US-0001-05: a completed lap was judged');
-  assert.ok(results.some(r => !('code' in r) && r.lapValidity === 'INVALID'), 'AC-US-0001-05: an invalidated lap was judged');
+  assert.ok(items.some(r => r.lapValidity === 'VALID'), 'AC-US-0001-05: a completed lap was judged');
+  assert.ok(items.some(r => r.invalidReason === 'CUT'), 'AC-US-0001-05: a cut lap was judged');
+  assert.ok(items.some(r => r.invalidReason === 'MISSED_MARKER'), 'AC-US-0001-05: a lap with a missed marker was judged');
+  assert.equal(items.length, 5, `AC-US-0001-05: five items judged on the two tracks (${items.length})`);
 });
 
 test('CHK-TEST-0007-06 after a switch the session kart stands on the start of the chosen track, at rest, and the idle kart is that one', () => {

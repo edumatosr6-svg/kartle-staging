@@ -4,7 +4,7 @@
 // optional shortcut to a target point outside the track give the excursion, the curb and the cut fixtures. Pure function
 // of the lap state and of its own step counter: the same lap replays to the same inputs (D-TS-04, D-TS-05).
 import { ARCADE_ASSISTIDO_V5, STEP, step, type Environment, type Input, type KartConfig, type State } from '../../src/physics';
-import { kartAtStart, startLap, stepLap, type LapSession } from '../../src/lap';
+import { kartAtStart, listLapResults, startLap, stepLap, type LapResult, type LapSession } from '../../src/lap';
 import { COUNTDOWN_STEPS } from '../../src/lapTiming';
 import type { TrackReading } from '../../src/trackData';
 import { lapMAtIndex, nearestOnCenterline, positionAtLapM, type TrackGeometry } from '../../src/trackGeometry';
@@ -14,7 +14,9 @@ import { kartParkEnvironment, kartParkGeometry, kartParkReading } from '../fixtu
 export const IDLE: Input = { throttle: 0, brake: 0, steer: 0 };
 export const PILOT_DECISION_STEPS = 6;
 export const MAX_LAP_STEPS = 9000;
-// The configuration the application drives with: the published Arcade assistido and the 75 kg driver.
+// The configuration the pilot was calibrated on, pinned to the literal Arcade assistido v5 and the 75 kg driver (FB-02 of
+// dirigibilidade): the published setup moved to v6, the lap fixtures keep the round they were measured with, which does not
+// change. The curb rule over the published setup is checked in the surface suite on PUBLISHED_SETUPS, whatever its version.
 export const KART_PARK_CONFIG: KartConfig = { ...ARCADE_ASSISTIDO_V5, driverMass: 75 };
 
 export type Controller = (lap: LapSession) => Input;
@@ -109,9 +111,15 @@ export function runCountdown(lap: LapSession, input: Input = IDLE): LapSession {
 
 export type StepHook = (before: LapSession, after: LapSession, input: Input) => void;
 
+// The results of the training read through the contract (listLapResults of race-lap-validation, ADR-0006 of that feature).
+export function lapResults(lap: LapSession): LapResult[] { return listLapResults(lap).lapResults; }
+
+// Advances at most `steps` steps and stops in the step where listLapResults grows (the end of a training lap, the next one
+// already RUNNING) or where the phase is ENDED (only endTraining ends a TRAINING lap): test strategy, "drive".
 export function drive(lap: LapSession, controller: Controller, steps: number, hook?: StepHook): { lap: LapSession; inputs: Input[] } {
   const inputs: Input[] = [];
-  for (let i = 0; i < steps && lap.phase !== 'ENDED'; i++) {
+  const closed = lapResults(lap).length;
+  for (let i = 0; i < steps && lap.phase !== 'ENDED' && lapResults(lap).length === closed; i++) {
     const input = controller(lap);
     const next = stepLap(lap, input);
     inputs.push(input);
@@ -126,6 +134,7 @@ export function replay(inputs: readonly Input[]): Controller {
   return () => inputs[i++] ?? IDLE;
 }
 
+// Countdown plus one training lap under the controller, up to the step where its result is listed.
 export function completeKartParkLap(controller: Controller = kartParkPilot(), hook?: StepHook, reading: TrackReading = kartParkReading(), config: KartConfig = KART_PARK_CONFIG) {
   const started = runCountdown(startKartParkLap(reading, config));
   return drive(started, controller, MAX_LAP_STEPS, hook);

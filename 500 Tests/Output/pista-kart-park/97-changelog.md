@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: pista-kart-park
 stage: test
 status: validated
-version: 1.0.0
+version: 1.1.0
 ---
 
 # 97 — Changelog
@@ -161,3 +161,108 @@ pista), registrados em `98-divergences.md`.
   < 200 000 bytes) e a igualdade com o que o registro gravou (`lapLengthM`, `maxSmoothingOffsetM`, `sha256`, `fileBytes`).
 - **REQ-FEAT-0007-12 (`git merge-base`):** nenhuma verificação chama `git` (o estágio não o executa); o manifesto de código registra
   a ordem.
+
+## 2026-10-30 — rodada 3, Modo B (treino de voltas seguidas de `race-lap-validation`; acerto v6 e retirada do drift e do turbo de `dirigibilidade`)
+
+### Entrada
+
+- D-Spec revalidado em 2026-10-30 (`300 Specs/330 D-Specs/Output/pista-kart-park/reports/dspec-validation/dspec-validation-20261030-1327.md`):
+  DES-0004, DES-0005 e ADR-0007 alinhados ao treino contínuo (o fim de cada volta é o crescimento de `listLapResults`; o treino só
+  chega a `ENDED` por `endTraining`); `test-strategy.md`: fixture `drive` que para nesse crescimento, linhas AC-US-0001-05,
+  AC-US-0003-05/-07/-09/-10/-11 e "Testes de outras features" (migração sem verificação removida; layering sem `src/maneuvers.ts`).
+- Feedback `300 Specs/330 D-Specs/Output/pista-kart-park/reports/feedbacks/dirigibilidade/feedback-20261030-1326.md`: FB-01, FB-02.
+- Validação de testes anterior `reports/test-validation/test-validation-20261027-2333.md` (SUCCESS; ISSUE-01 a ISSUE-05).
+- Execução antes da escrita (mesmo comando, 2026-10-30): 423 coletadas, 410 aprovadas, 13 reprovadas; desta feature 9 —
+  CHK-TEST-0005-01, -02, -03, -04, -06, -08, -10, CHK-TEST-0006-03, CHK-TEST-0007-05; as outras 4 de `modelo-kart-01`.
+
+### Atrito de verificações
+
+Inventário antes da escrita: 102 ids `CHK-TEST-*` nas 12 suítes `tests/pista-kart-park-*.test.ts`, os mesmos 102 de
+`99-traceability.md` e do junit de 2026-10-27. Depois: 102. Retiradas 0, adicionadas 0, renomeadas 0; 9 modificadas (tabela
+abaixo); CHK-TEST-0011-01 a -07 e CHK-TEST-0003-01/-02 carregadas com a fixture alterada pelos feedbacks, sem mudar o que afirmam.
+
+### Migração
+
+| Id | O que mudou | Por que o critério continua coberto |
+|---|---|---|
+| CHK-TEST-0005-01 | deixa de esperar `ENDED` na chegada: lê o item novo de `listLapResults` (exatamente um, `VALID`, sem razão, `lapSequenceCount` 1); os marcadores são lidos da sessão de antes do passo de fechamento; afirma a volta seguinte em `RUNNING`, 2.ª, `VALID`, sem marcadores, com `lapStartMs` igual ao fim da primeira | AC-US-0003-10 inteiro como a estratégia o escreve: volta pela pista sem corte com todos os marcadores dá item `VALID` e a seguinte começa no mesmo instante |
+| CHK-TEST-0005-02 | resultado lido do item de `listLapResults`; a vista do estado (agora da volta seguinte) dá `bestValidLapMs` igual a `lapMs` em vez de setores e total; `trainingLapMs`/`trainingSectorMs` iguais a `lapMs`/`sectorMs`; limites de setor lidos da sessão de antes do fechamento; a sintética compara o primeiro item | AC-US-0003-11: `lapMs` e 4 `sectorMs` que somam, formato, mesma forma de resultado que a sintética |
+| CHK-TEST-0005-03 | a chegada dá um item `INVALID` com `MISSED_MARKER` e a fase continua `RUNNING`; a razão de tela vem de `describeTrainingResult` do item (ver "Ajustes") | AC-US-0003-05 e AC-US-0003-06 |
+| CHK-TEST-0005-04 | o 121.º passo dá `INVALID`/`CUT` com a fase `RUNNING` e nenhum item; 60 passos depois a volta continua (`stepCount` 181) e segue `CUT` sem item | AC-US-0003-07 como a estratégia o escreve ("a fase continua `RUNNING` e `listLapResults` não ganha item nesse passo") |
+| CHK-TEST-0005-06 | a volta do atalho dá, no cruzamento seguinte da chegada, um item `INVALID` (`CUT` ou `MISSED_MARKER`) com a fase `RUNNING`; marcadores lidos antes do fechamento | AC-US-0003-09 |
+| CHK-TEST-0005-08 | era "a chegada de novo depois do fim não produz segundo resultado"; agora, a partir da volta de referência, o segundo cruzamento fecha a 2.ª volta com o seu próprio item (`lapSequenceCount` 2, início no fim da 1.ª) e deixa o primeiro item igual; a 3.ª volta começa no segundo fim | AC-US-0003-11 na forma que a estratégia dá ao treino de voltas seguidas ("a chegada cruzada de novo depois de uma volta concluída encerra a volta seguinte com o seu próprio resultado (`lapSequenceCount` 2) e deixa o primeiro igual") |
+| CHK-TEST-0005-10 | depois da retomada, o item `VALID` sai no cruzamento seguinte; a retomada conserva os marcadores; marcadores lidos antes do fechamento; fase `RUNNING` depois | AC-US-0003-11 (pausa e retomada) |
+| CHK-TEST-0006-03 | a reprodução com 10 passos ociosos de folga para no fechamento (fixture `drive`); afirma o mesmo passo de fechamento e a mesma lista de resultados, além de `lapMs`, `sectorMs` e kart | NFR-0003: a reprodução pela sessão de treino dá a mesma volta e uma entrada trocada não |
+| CHK-TEST-0007-05 | resultados lidos de `listLapResults`: nas duas pistas, volta cortada (segue `RUNNING` sem item, item `CUT` na chegada seguinte) e volta sem marcadores (item `MISSED_MARKER`); na Kart Park, volta completa (item `VALID`); treino descartado pela troca e encerrado por `endTraining` sem item novo; 5 itens julgados, todos `TRAINING`, sem `challengeNumber`, nunca oficiais | AC-US-0001-05 como a estratégia o escreve (cada item de `listLapResults` — concluída, cortada, com marcador pulado — e o descarte e `endTraining` sem item) |
+
+### Fixtures
+
+- `tests/helpers/kartParkPilot.ts`: `drive` para no passo em que `listLapResults(lap).lapResults` cresce ou na fase `ENDED`
+  (estratégia, "Fixtures"); `lapResults(lap)` lê a lista pelo contrato; `completeKartParkLap` vai até o primeiro fechamento. As
+  verificações que usam `drive` por passos sem chegada (barreira, zebra, retorno, corte) não mudam de comportamento.
+- `KART_PARK_CONFIG` continua o literal `ARCADE_ASSISTIDO_V5` + 75 kg, comentário corrigido: é o acerto em que o piloto foi
+  calibrado, não o publicado.
+
+### Feedbacks
+
+- FB-01 (`dirigibilidade`, layering nomeia `src/maneuvers.ts`): **aceito**. `SIMULATION` passa a ser `reachedBy(SIMULATION_ROOTS)`:
+  os 7 módulos da feature mais todo módulo de `src/` que eles alcançam pelas importações. Hoje inclui `src/maneuvers.ts` porque
+  `src/physics.ts` o importa; quando o passo deixar de importá-lo, sai da lista sem edição aqui. Nenhuma suíte desta feature nomeia
+  `src/maneuvers.ts` (a menção `maneuvers.test.ts` de CHK-TEST-0011-05 é o nome de um teste de outra feature, filtrado por
+  presença, e não reprova se o arquivo sumir). Prova: mutação M8.
+- FB-02 (`dirigibilidade`, `PUBLISHED_SETUPS.ARCADE_ASSISTIDO` passa a v6): **aceito, confirmando**. CHK-TEST-0003-01/-02 medem
+  a regra da zebra (razões 0,85 ao asfalto do mesmo acerto e o atrito recuperado por roda), não números da v5; passam com
+  `arcade-assistido-v6`. Os rótulos levam a versão publicada (`ARCADE_ASSISTIDO arcade-assistido-v6`) e o literal
+  `ARCADE_ASSISTIDO_V5` do piloto entra como quinto acerto de CHK-TEST-0003-01. As verificações de volta continuam no literal v5
+  (o piloto foi calibrado nele; a rodada substituída não muda). Prova: mutação M10.
+
+### Itens da validação anterior
+
+- ISSUE-02: fechado. A linha de `98-divergences.md` passa a `REQ-FEAT-0007-12, NFR-0011` com o fato que a decide (manifesto de
+  código: `6ea3862` descendente de `b86b200`); NFR-0002 continua só no aparelho.
+- ISSUE-03: fechado. CHK-TEST-0004-03 em `98-divergences.md` passa a `passing`, com a causa e a correção (`src/physics.ts:372`,
+  commit 1a12076); a observação da poligonal deixa de citar CHK-TEST-0004-03 como defeito.
+- ISSUE-04: fechado. A coluna "o que a faria falhar" de CHK-TEST-0004-05 em TEST-0004 registra que -05 não depende da resposta.
+- ISSUE-01: declinado, com o motivo do próprio relatório: as afirmações textuais ficam como guarda de camada e de ligação (nível
+  "texto" da estratégia), a regra de tela provada pelas funções puras e a tela pelo roteiro E2E.
+- ISSUE-05: declinado neste estágio: o registro humano do aparelho é nomeado pela etapa de deploy (conventions §14).
+
+### Ajustes à estratégia, com o motivo
+
+- AC-US-0003-06 ("`describeLap` sobre o estado dessa volta dá 'marcador pulado'"): no treino de voltas seguidas o marcador pulado
+  só é decidido no cruzamento da chegada, e no mesmo passo a volta seguinte abre `VALID`; o estado nunca carrega `MISSED_MARKER`
+  numa volta `TRAINING`, e `describeLap` sobre ele não pode dar a razão. CHK-TEST-0005-03 decide pela função de tela do
+  resultado da volta do treino, `describeTrainingResult` sobre o item de `listLapResults` (painel de ADR-0007), com o mesmo texto
+  "marcador pulado"/"missed marker" e a mesma origem `message('reasonMissedMarker')`. A linha da estratégia fica para a próxima
+  rodada do D-Spec da feature.
+- AC-US-0001-05 na sintética: a volta completa `VALID` é provada só na Kart Park (como na rodada 1); na sintética, os itens `CUT`
+  e `MISSED_MARKER` vêm de um kart semeado antes da chegada, em (75, −14) a 8 m/s, porque o `autopilot()` de `race-lap-validation`
+  usa outro acerto que o da sessão.
+
+### Execução
+
+`npx tsx --test tests/*.test.ts` com `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`): **437
+coletadas, 432 aprovadas, 5 reprovadas**, 0 puladas. As 102 verificações desta feature passam; as 5 reprovações são de
+`tests/modelo-kart-01-camera.test.ts` (2), `-contract.test.ts` (2) e `-model.test.ts` (1), outra feature em revisão em paralelo.
+
+### Prova de que as verificações modificadas podem falhar
+
+As 12 suítes desta feature foram executadas numa cópia de `src/`, `scripts/`, `tests/`, `tracks/`, `docs/`, `index.html`,
+`package.json` e `tsconfig.json` no diretório de rascunho da sessão (`node_modules` por junção), com uma mutação de cada vez; a
+cópia foi descartada. Linha de base na cópia: 102 verificações, 0 reprovadas. A coluna conta as reprovações.
+
+| Mutação | Verificações que reprovaram (102 executadas) |
+|---|---|
+| M1 — `src/lap.ts`: o corte de uma volta de treino a encerra (contrato antigo `ENDED`) | 3: CHK-TEST-0005-04, -06, CHK-TEST-0007-05 |
+| M2 — `src/lap.ts`: a volta de treino termina na chegada (`phase: 'ENDED'` no fechamento) | 7: CHK-TEST-0005-01, -02, -03, -06, -08, -10, CHK-TEST-0007-05 |
+| M3 — `src/lap.ts`: a volta seguinte guarda o `lapStartMs` da anterior | 2: CHK-TEST-0005-01, -08 |
+| M4 — `src/lap.ts`: volta de treino sem todos os marcadores fecha `VALID` | 2: CHK-TEST-0005-03, CHK-TEST-0007-05 |
+| M5 — `src/lap.ts`: volta cortada fecha com `MISSED_MARKER` em vez da primeira razão | 1: CHK-TEST-0007-05 |
+| M6 — `src/lap.ts`: `endTraining` lista um resultado para a volta em andamento | 1: CHK-TEST-0007-05 |
+| M7 — `src/trainingSession.ts`: `startTrainingLap` pilota 1 kg a mais que o acerto pedido | 1: CHK-TEST-0006-03 |
+| M8 — `src/maneuvers.ts` (alcançado por `src/physics.ts`): lê `Date.now()` | 1: CHK-TEST-0011-01 (a lista pelo grafo de importações ainda vê o módulo, FB-01) |
+| M9 — `src/lap.ts`: corte medido pela borda sintética (`edgeDistanceM`) em vez da borda do arquivo | 9: CHK-TEST-0005-01, -02, -03, -04, -05, -07, -10, CHK-TEST-0006-01, CHK-TEST-0007-05 |
+| M10 — `src/physics.ts`: `CURB_GRIP_PC` 0,85 → 0,9 | 3: CHK-TEST-0003-01, -02, -03 (sobre a v6 publicada e o literal v5, FB-02) |
+
+Cada verificação modificada reprova em pelo menos uma mutação: CHK-TEST-0005-01 (M2, M3, M9), -02 (M2, M9), -03 (M2, M4, M9),
+-04 (M1, M9), -06 (M1, M2), -08 (M2, M3), -10 (M2, M9), CHK-TEST-0006-03 (M7), CHK-TEST-0007-05 (M1, M2, M4, M5, M6, M9).

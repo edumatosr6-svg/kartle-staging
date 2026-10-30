@@ -4,7 +4,7 @@ title: Barreira na simulação — único obstáculo do ambiente do arquivo, int
 feature: pista-kart-park
 stage: test
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [AC-US-0004-02, AC-US-0004-04, AC-US-0004-05]
 ---
 
@@ -25,5 +25,5 @@ sources: [AC-US-0004-02, AC-US-0004-04, AC-US-0004-05]
 | CHK-TEST-0004-02 | AC-US-0004-04 | a kart driven against the barrier from either side, at every speed the kart reaches and at 90 or 30 degrees, never ends a step on the other side | deslocamento de um passo cruzando um segmento de barreira em qualquer dos 40 lançamentos (2 miras × 2 lados × 5, 10, 20, 30, 34,5 m/s × 90°, 30°; mutação B), lançamento sem `barrierContact`, contato sem perda de velocidade |
 | CHK-TEST-0004-03 | AC-US-0004-04 | the barrier also holds at 60 and 200 m/s, the speeds DES-0003 names beyond the reach of the kart | cruzamento num dos 8 lançamentos a 60 e 200 m/s. **Reprova hoje** a 200 m/s e 90° dos dois lados (`98-divergences.md`): com 0,42 m por subpasso o ramo de proximidade do bloco da barreira recoloca o kart do lado oposto sem resposta |
 | CHK-TEST-0004-04 | AC-US-0004-05 | after a collision with a barrier line the kart has the position and velocity it has after the same collision with the existing wall, step by step | posição e velocidade normais e tangenciais, `yawRate`, rumo ou `speed` no referencial local diferindo em mais de 1e-9 do muro do passo do contato aos 10 seguintes (60 a 90°) em 24 lançamentos (2 lados × 90°, 60°, 45°, 30° × 10, 20, 30 m/s; mutação B), contatos em passos diferentes de mais de 1, menos de 240 passos comparados |
-| CHK-TEST-0004-05 | AC-US-0004-05 | barrierContact is true only in the step the touching begins, barrierTouching while it lasts, and the contact reading mirrors it | `barrierContact` num passo cujo anterior já tocava, contatos ≠ episódios de toque, contato sem toque, `getTrackContact().barrierContact` ≠ telemetria, estado inicial com contato |
+| CHK-TEST-0004-05 | AC-US-0004-05 | barrierContact is true only in the step the touching begins, barrierTouching while it lasts, and the contact reading mirrors it | `barrierContact` num passo cujo anterior já tocava, contatos ≠ episódios de toque, contato sem toque, `getTrackContact().barrierContact` ≠ telemetria, estado inicial com contato; não depende da resposta ao obstáculo: com o bloco da barreira desligado (mutação B da rodada 1) continua passando, porque `barrierTouching`/`barrierContact` nascem da proximidade de 0,11 m no fim do passo — a resposta é decidida por -02 e -04 |
 | CHK-TEST-0004-06 | AC-US-0004-02 | a copy of the file without barriers gives an environment where a seeded 2000-step run never touches a barrier and never throws | segmento de obstáculo sem declaração, `nearestBarrier` definido, `barrierTouching`/`barrierContact` verdadeiros em algum dos 2 000 passos, exceção ou estado não finito |

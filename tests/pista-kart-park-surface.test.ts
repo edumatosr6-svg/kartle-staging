@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  ARCADE_KART, CIRCUIT, CURB_GRIP_PC, getTrackContact, PUBLISHED_SETUPS, step, STEP, surfaceMu, TEST_PAD, tireForce, wheelPositions,
+  ARCADE_ASSISTIDO_V5, ARCADE_KART, CIRCUIT, CURB_GRIP_PC, getTrackContact, PUBLISHED_SETUPS, step, STEP, surfaceMu, TEST_PAD, tireForce, wheelPositions,
   type Environment, type KartConfig, type State, type Surface,
 } from '../src/physics';
 import { initialState } from '../src/physics';
@@ -15,9 +15,14 @@ import { Seeded } from './helpers/seeded';
 const g = kartParkGeometry();
 const env = kartParkEnvironment();
 const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
+// The setups are read from PUBLISHED_SETUPS, whatever version is published (arcade-assistido-v6 since dirigibilidade, FB-02):
+// the checks measure the curb rule (ratios to the asphalt of the same setup), never the numbers of one version. The literal v5
+// the Kart Park pilot is calibrated on is measured too, after the published ones (configs.slice(0, 3) keeps the step check).
+const published = (id: keyof typeof PUBLISHED_SETUPS) => `${id} ${PUBLISHED_SETUPS[id].setupVersion}`;
 const configs: [string, KartConfig][] = [
-  ['ARCADE_ASSISTIDO', PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config], ['REALISTA_ALUGUEL_4T', PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T.config], ['ARCADE_KART', ARCADE_KART],
+  [published('ARCADE_ASSISTIDO'), PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config], [published('REALISTA_ALUGUEL_4T'), PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T.config], ['ARCADE_KART', ARCADE_KART],
   ['forcing rear scale', { ...PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config, friction: PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config.friction * 0.67 }],
+  ['ARCADE_ASSISTIDO_V5 (Kart Park pilot)', ARCADE_ASSISTIDO_V5],
 ];
 // A kart straddling the edge of a long curb: the wheels of the curb side `inM` metres onto the strip, the others on the asphalt.
 function straddling(inM = 0.3): { kart: State; span: typeof g.curbs[number] } {

@@ -7,7 +7,7 @@ import { getLapResult, getLapState, type LapResult, type LapSession } from '../s
 import { startTrainingLap, selectTrainingTrack, initialTrainingSession } from '../src/trainingSession';
 import { SYNTHETIC_TRACK_FILE } from '../src/track';
 import { kartParkEnvironment, kartParkGeometry, kartParkText } from './fixtures/kartParkFiles';
-import { completeKartParkLap, drive, kartAtLapM, kartParkPilot, KART_PARK_CONFIG, replay, runCountdown } from './helpers/kartParkPilot';
+import { completeKartParkLap, drive, kartAtLapM, kartParkPilot, KART_PARK_CONFIG, lapResults, replay, runCountdown } from './helpers/kartParkPilot';
 import { Seeded } from './helpers/seeded';
 
 const g = kartParkGeometry();
@@ -32,12 +32,16 @@ test('CHK-TEST-0006-02 the whole session, kart included, is deepEqual after the 
 
 test('CHK-TEST-0006-03 replaying the recorded inputs step by step, without the pilot, reproduces the same lap; one input changed does not', () => {
   // NFR-0003
-  const replayed = drive(runCountdown((() => { const s = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE }); if (!s.ok) throw new Error('fixture'); const l = startTrainingLap(s.session, undefined, KART_PARK_CONFIG); if (!l.ok) throw new Error('fixture'); return l.lap; })()), replay(first.inputs), first.inputs.length + 10);
+  const viaSession = () => { const s = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE }); if (!s.ok) throw new Error('fixture'); const l = startTrainingLap(s.session, undefined, KART_PARK_CONFIG); if (!l.ok) throw new Error('fixture'); return l.lap; };
+  // The replay is padded with idle steps; the training goes on after the finish, so the comparison is taken where listLapResults grows.
+  const replayed = drive(runCountdown(viaSession()), replay(first.inputs), first.inputs.length + 10);
+  assert.equal(replayed.inputs.length, first.inputs.length, `NFR-0003: the replayed lap closes at the same step as the pilot's (${replayed.inputs.length} vs ${first.inputs.length})`);
+  assert.deepEqual(lapResults(replayed.lap), lapResults(first.lap), 'NFR-0003: the replay through the training session lists the same results');
   assert.equal(result(replayed.lap).lapMs, result(first.lap).lapMs, 'NFR-0003: the replay through the training session gives the same lapMs');
   assert.deepEqual(result(replayed.lap).sectorMs, result(first.lap).sectorMs, 'NFR-0003: and the same sectors');
-  assert.deepEqual(replayed.lap.kart, first.lap.kart, 'NFR-0003: and the same final kart');
+  assert.deepEqual(replayed.lap.kart, first.lap.kart, 'NFR-0003: and the same kart at the finish');
   const altered = first.inputs.map((input, i) => i === 600 ? { ...input, steer: input.steer === 0 ? 1 : 0, throttle: 0, brake: 1 } : input);
-  const changed = drive(runCountdown((() => { const s = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE }); if (!s.ok) throw new Error('fixture'); const l = startTrainingLap(s.session, undefined, KART_PARK_CONFIG); if (!l.ok) throw new Error('fixture'); return l.lap; })()), replay(altered), altered.length + 10);
+  const changed = drive(runCountdown(viaSession()), replay(altered), altered.length + 10);
   assert.notDeepEqual(changed.lap.kart, first.lap.kart, 'NFR-0003: a different input at step 600 changes the lap (the comparison can fail)');
 });
 

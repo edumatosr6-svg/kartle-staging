@@ -4,7 +4,7 @@ title: Zebra como superfície da simulação — 85 % de aderência por pneu, ro
 feature: pista-kart-park
 stage: test
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [AC-US-0005-04, AC-US-0005-06]
 ---
 
@@ -14,8 +14,8 @@ sources: [AC-US-0005-04, AC-US-0005-06]
 |---|---|
 | Arquivo | `tests/pista-kart-park-surface.test.ts` (estratégia: `surface`) |
 | Nível | unitário (`tireForce`, `surfaceMu`), integração (`step` sobre ambientes todo zebra e todo asfalto do mesmo estado; kart semeado com as rodas de um lado na zebra e dirigido 30 passos na Kart Park) e contrato (`getTrackContact` campo a campo, `NO_STATE`, sequência semeada de 300 passos na pista sintética) |
-| Interface exercitada | `tireForce`, `surfaceMu`, `CURB_GRIP_PC`, `step`, `getTrackContact`, `wheelPositions`, `PUBLISHED_SETUPS`, `ARCADE_KART`, `TEST_PAD`, `CIRCUIT` (`src/physics.ts`); `positionAtLapM` |
-| Fixtures | `kartParkEnvironment()`; `straddling(inM)`: kart no meio do trecho de zebra mais longo com as rodas do lado da zebra 0,3 m sobre a faixa e as outras no asfalto; ambiente `{surfaceAt: () => 'curb', walls: false}` contra `TEST_PAD`; `Seeded(20261027)` na `CIRCUIT`; kart a 20 m da caixa da pista (toda grama); acertos `ARCADE_ASSISTIDO`, `REALISTA_ALUGUEL_4T`, `ARCADE_KART` e o atrito traseiro escalado por 0,67 |
+| Interface exercitada | `tireForce`, `surfaceMu`, `CURB_GRIP_PC`, `step`, `getTrackContact`, `wheelPositions`, `PUBLISHED_SETUPS`, `ARCADE_ASSISTIDO_V5`, `ARCADE_KART`, `TEST_PAD`, `CIRCUIT` (`src/physics.ts`); `positionAtLapM` |
+| Fixtures | `kartParkEnvironment()`; `straddling(inM)`: kart no meio do trecho de zebra mais longo com as rodas do lado da zebra 0,3 m sobre a faixa e as outras no asfalto; ambiente `{surfaceAt: () => 'curb', walls: false}` contra `TEST_PAD`; `Seeded(20261027)` na `CIRCUIT`; kart a 20 m da caixa da pista (toda grama); acertos lidos de `PUBLISHED_SETUPS` com a versão publicada no rótulo (`ARCADE_ASSISTIDO` hoje `arcade-assistido-v6`, `REALISTA_ALUGUEL_4T`), `ARCADE_KART`, o atrito traseiro escalado por 0,67 e o literal `ARCADE_ASSISTIDO_V5` do piloto da Kart Park; as verificações medem a regra da zebra (razões ao asfalto do mesmo acerto), não os números de uma versão (FB-02 de `dirigibilidade`) |
 
 ## Verificações
 

@@ -1,19 +1,19 @@
-// TEST-0005 — the lap of src/lap.ts on the Kart Park: a valid lap with the Kart Park pilot, the missed marker, the cut rule over the
+// TEST-0005 — the training lap of src/lap.ts on the Kart Park, each lap read from the growth of listLapResults: a valid lap with the Kart Park pilot, the missed marker, the cut rule over the
 // file edge, the shortcut of curve 4, the curb as track, and the finish, reverse and pause cases as on the synthetic track
 // (strategy: lap, integration level, DES-0004, RULE-0001, RULE-0003 of race-lap-validation).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getTrackContact, type Input } from '../src/physics';
-import { getLapResult, getLapState, pauseLap, repositionKart, resumeLap, stepLap, type LapResult, type LapSession, type LapStateView } from '../src/lap';
+import { getLapResult, getLapState, listLapResults, pauseLap, repositionKart, resumeLap, stepLap, type LapResult, type LapSession, type LapStateView } from '../src/lap';
 import { toMs } from '../src/lapTiming';
-import { describeLap, formatLapTime, message } from '../src/lapMessages';
+import { describeTrainingResult, formatLapTime, message } from '../src/lapMessages';
 import { crossLine, sideOf } from '../src/track';
 import { nearestOnCenterline, positionAtLapM } from '../src/trackGeometry';
 import { kartParkFile, kartParkGeometry } from './fixtures/kartParkFiles';
 import { syntheticReading } from './fixtures/trackFiles';
 import { autopilot, completeLap } from './helpers/autopilot';
 import {
-  completeKartParkLap, constant, drive, IDLE, kartAtLapM, kartParkPilot, lapDistanceOf, runCountdown, seedLap, startKartParkLap, type StepHook,
+  completeKartParkLap, constant, drive, IDLE, kartAtLapM, kartParkPilot, lapDistanceOf, lapResults, runCountdown, seedLap, startKartParkLap, type StepHook,
 } from './helpers/kartParkPilot';
 
 const g = kartParkGeometry();
@@ -33,49 +33,66 @@ const lineLapM = (line: typeof file.markers[number]) => {
   throw new Error('fixture: line not crossed');
 };
 
-// The reference lap, once per file: the pilot on the centerline, with a trace of the cut counter and the edge distance.
+// The reference lap, once per file: the pilot on the centerline up to the step where listLapResults grows (the training goes
+// on), with a trace of the cut counter and the edge distance, and the session just before the closing step (markers, bounds).
 const reference = (() => {
   let maxOffTrackSteps = 0, maxBeyond = 0;
-  const hook: StepHook = (_b, a) => { maxOffTrackSteps = Math.max(maxOffTrackSteps, a.offTrackSteps); maxBeyond = Math.max(maxBeyond, contactOf(a).beyondTrackEdgeM); };
+  let closing: LapSession | undefined;
+  const hook: StepHook = (b, a) => {
+    maxOffTrackSteps = Math.max(maxOffTrackSteps, a.offTrackSteps); maxBeyond = Math.max(maxBeyond, contactOf(a).beyondTrackEdgeM);
+    if (lapResults(a).length > lapResults(b).length) closing = b;
+  };
   const { lap, inputs } = completeKartParkLap(kartParkPilot(g), hook);
-  return { lap, inputs, maxOffTrackSteps, maxBeyond };
+  if (!closing) throw new Error('fixture: the reference lap did not close');
+  return { lap, inputs, maxOffTrackSteps, maxBeyond, closing };
 })();
 
-test('CHK-TEST-0005-01 the Kart Park pilot passes every marker in order and crosses the finish without a cut: the lap ends VALID', () => {
+test('CHK-TEST-0005-01 the Kart Park pilot passes every marker in order and crosses the finish without a cut: the new item of listLapResults is VALID and the next lap starts at that instant', () => {
   // AC-US-0003-10
-  const { lap, maxOffTrackSteps } = reference;
-  assert.equal(lap.phase, 'ENDED', 'AC-US-0003-10: the lap must end');
-  assert.equal(view(lap).lapValidity, 'VALID', `AC-US-0003-10: the lap must be VALID (${view(lap).invalidReason ?? 'no reason'})`);
-  assert.equal(view(lap).invalidReason, undefined, 'AC-US-0003-10: a valid lap carries no reason');
-  assert.equal(lap.markersPassedCount, file.markers.length, `AC-US-0003-10: every marker must be passed (${lap.markersPassedCount}/${file.markers.length})`);
+  const { lap, maxOffTrackSteps, closing } = reference;
+  const items = lapResults(lap);
+  assert.equal(items.length, 1, `AC-US-0003-10: the finish crossing must add exactly one item to listLapResults (${items.length})`);
+  const r = items[0];
+  assert.equal(r.lapValidity, 'VALID', `AC-US-0003-10: the lap must be VALID (${r.invalidReason ?? 'no reason'})`);
+  assert.equal(r.invalidReason, undefined, 'AC-US-0003-10: a valid lap carries no reason');
+  assert.equal(closing.markersPassedCount, file.markers.length, `AC-US-0003-10: every marker must be passed before the finish (${closing.markersPassedCount}/${file.markers.length})`);
   assert.ok(maxOffTrackSteps <= 120, `AC-US-0003-10: the pilot never exceeded the cut window (${maxOffTrackSteps} steps)`);
-  assert.equal(lap.trackId, 'kart-park', 'AC-US-0003-10: the lap is on the Kart Park');
+  assert.equal(r.trackId, 'kart-park', 'AC-US-0003-10: the lap is on the Kart Park');
+  assert.equal(r.lapSequenceCount, 1, 'AC-US-0003-10: the item is the first lap of the training');
+  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-10: the training goes on after the finish: the next lap is RUNNING');
+  assert.equal(lap.lapSequenceCount, 2, 'AC-US-0003-10: the lap in progress is the second one');
+  assert.equal(lap.lapStartMs, r.lapStartMs! + r.trainingLapMs!, 'AC-US-0003-10: the next lap starts at the instant the first one ended');
+  assert.equal(view(lap).lapValidity, 'VALID', 'AC-US-0003-10: the next lap starts VALID');
+  assert.equal(lap.markersPassedCount, 0, 'AC-US-0003-10: the next lap starts with no marker passed');
   assert.ok(lap.stepCount > 3000 && lap.stepCount < 9000, `AC-US-0003-10: the lap takes a plausible number of steps (${lap.stepCount})`);
 });
 
 test('CHK-TEST-0005-02 a valid lap on the Kart Park has a total time and 4 sector times that add up to it, as a valid lap on the synthetic track has', () => {
   // AC-US-0003-11
-  const r = result(reference.lap);
+  const r = lapResults(reference.lap)[0];
   assert.ok(Number.isInteger(r.lapMs) && (r.lapMs as number) > 0, `AC-US-0003-11: lapMs must be a positive integer (${r.lapMs})`);
   assert.equal(r.sectorMs?.length, 4, 'AC-US-0003-11: four sector times');
   assert.equal(r.sectorMs!.reduce((s, v) => s + v, 0), r.lapMs, 'AC-US-0003-11: the sectors add up to the total');
   assert.ok(r.sectorMs!.every(v => Number.isInteger(v) && v > 0), 'AC-US-0003-11: every sector time is a positive integer');
-  assert.deepEqual(view(reference.lap).completedSectorMs, r.sectorMs, 'AC-US-0003-11: the state view shows the same sectors');
-  assert.equal(view(reference.lap).elapsedMs, r.lapMs, 'AC-US-0003-11: the state view shows the total');
+  assert.equal(r.trainingLapMs, r.lapMs, 'AC-US-0003-11: trainingLapMs equals lapMs on a valid lap');
+  assert.deepEqual(r.trainingSectorMs, r.sectorMs, 'AC-US-0003-11: trainingSectorMs equals sectorMs on a valid lap');
+  assert.deepEqual(getLapResult(reference.lap), r, 'AC-US-0003-11: getLapResult answers the same item');
+  assert.equal(view(reference.lap).bestValidLapMs, r.lapMs, 'AC-US-0003-11: the state view of the training shows the lap as its best valid lap');
   assert.match(formatLapTime(r.lapMs as number), /^\d+:\d{2}\.\d{3}$/, 'AC-US-0003-11: the total formats as m:ss.mmm');
   assert.equal(r.lapKind, 'TRAINING', 'AC-US-0003-11: a training lap');
   assert.equal(r.official, false, 'AC-US-0003-11: never official');
-  const synthetic = result(completeLap(syntheticReading(), 'TRAINING', autopilot()).lap);
-  assert.equal(synthetic.lapValidity, 'VALID', 'AC-US-0003-11: the synthetic reference lap is valid');
+  const synthetic = listLapResults(completeLap(syntheticReading(), 'TRAINING', autopilot()).lap).lapResults[0];
+  assert.equal(synthetic?.lapValidity, 'VALID', 'AC-US-0003-11: the synthetic reference lap is valid');
   assert.equal(synthetic.sectorMs?.length, 4, 'AC-US-0003-11: the synthetic lap has the same shape of result');
   assert.deepEqual(Object.keys(r).sort(), Object.keys(synthetic).sort(), 'AC-US-0003-11: the Kart Park result has the same fields as the synthetic one');
   // Each sector ends at the crossing of its limit: the limits are crossed in lap order and the bounds grow.
-  const bounds = reference.lap.sectorBoundsMs;
-  assert.equal(bounds.length, 3, 'AC-US-0003-11: three limits crossed');
+  const bounds = reference.closing.sectorBoundsMs as number[];
+  assert.equal(bounds.length, 3, 'AC-US-0003-11: three limits crossed before the finish');
   for (let i = 1; i < 3; i++) assert.ok(bounds[i] > bounds[i - 1], 'AC-US-0003-11: limits crossed in order');
+  assert.equal(r.sectorMs![0], bounds[0] - r.lapStartMs!, 'AC-US-0003-11: the first sector ends at the first limit');
 });
 
-test('CHK-TEST-0005-03 a lap that skips a marker, passing it 3.5 m beyond the edge for less than the cut window, ends INVALID with MISSED_MARKER at the finish', () => {
+test('CHK-TEST-0005-03 a lap that skips a marker, passing it 3.5 m beyond the edge for less than the cut window, gets an INVALID item with MISSED_MARKER at the finish', () => {
   // AC-US-0003-05
   const target = 10; // marker 11 (index 10) is skipped
   const markerM = lineLapM(file.markers[target]);
@@ -94,19 +111,23 @@ test('CHK-TEST-0005-03 a lap that skips a marker, passing it 3.5 m beyond the ed
   assert.ok(sideOf(file.markers[target], lap.kart) > 0, 'AC-US-0003-05: the kart passed the marker line while outside its reach');
   assert.equal(lap.markersPassedCount, target, 'AC-US-0003-05: the marker was not counted');
   assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-05: the lap is still running after the excursion');
+  assert.equal(view(lap).lapValidity, 'VALID', 'AC-US-0003-05: the excursion within the window did not cut the lap');
   const back = kartAtLapM(markerM + 8, 0);
   lap = seedLap(lap, { kart: { ...back, elapsed: lap.kart.elapsed } });
   lap = drive(lap, kartParkPilot(g), 9000).lap;
-  assert.equal(lap.phase, 'ENDED', 'AC-US-0003-05: the lap ends at the finish');
-  assert.equal(view(lap).lapValidity, 'INVALID', 'AC-US-0003-05: the lap must be INVALID');
-  assert.equal(view(lap).invalidReason, 'MISSED_MARKER', `AC-US-0003-05: the reason must be MISSED_MARKER (${view(lap).invalidReason})`);
-  assert.equal(result(lap).lapMs, undefined, 'AC-US-0003-05: no lap time for an invalid lap');
-  assert.equal(describeLap(view(lap), 'pt').reasonText, 'marcador pulado', 'AC-US-0003-06: the screen reason is "marcador pulado"');
-  assert.equal(describeLap(view(lap), 'pt').reasonText, message('reasonMissedMarker', 'pt'), 'AC-US-0003-06: the reason comes from the message table');
-  assert.equal(describeLap(view(lap), 'en').reasonText, 'missed marker', 'AC-US-0003-06: the English reason');
+  const items = lapResults(lap);
+  assert.equal(items.length, 1, `AC-US-0003-05: the finish crossing adds one item to listLapResults (${items.length})`);
+  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-05: the training keeps running after the finish');
+  const r = items[0];
+  assert.equal(r.lapValidity, 'INVALID', 'AC-US-0003-05: the item must be INVALID');
+  assert.equal(r.invalidReason, 'MISSED_MARKER', `AC-US-0003-05: the reason must be MISSED_MARKER (${r.invalidReason})`);
+  assert.equal(r.lapMs, undefined, 'AC-US-0003-05: no lap time for an invalid lap');
+  assert.equal(describeTrainingResult(r, 'pt').reasonText, 'marcador pulado', 'AC-US-0003-06: the screen reason is "marcador pulado"');
+  assert.equal(describeTrainingResult(r, 'pt').reasonText, message('reasonMissedMarker', 'pt'), 'AC-US-0003-06: the reason comes from the message table');
+  assert.equal(describeTrainingResult(r, 'en').reasonText, 'missed marker', 'AC-US-0003-06: the English reason');
 });
 
-test('CHK-TEST-0005-04 standing more than 3 m beyond the edge of the Kart Park invalidates the lap by CUT in the 121st consecutive step', () => {
+test('CHK-TEST-0005-04 standing more than 3 m beyond the edge of the Kart Park invalidates the lap by CUT in the 121st consecutive step, and the lap goes on', () => {
   // AC-US-0003-07
   const started = runCountdown(startKartParkLap());
   const far = kartAtLapM(105, widthAt(105) / 2 + 4);
@@ -117,9 +138,15 @@ test('CHK-TEST-0005-04 standing more than 3 m beyond the edge of the Kart Park i
   assert.equal(view(lap).lapValidity, 'VALID', 'AC-US-0003-07: 120 steps (1000 ms) beyond 3 m do not invalidate yet');
   assert.equal(lap.offTrackSteps, 120, 'AC-US-0003-07: the cut counter counts the steps');
   lap = stepLap(lap, IDLE);
-  assert.equal(lap.phase, 'ENDED', 'AC-US-0003-07: the 121st step ends the lap');
+  assert.equal(view(lap).lapValidity, 'INVALID', 'AC-US-0003-07: the 121st step invalidates the lap');
   assert.equal(view(lap).invalidReason, 'CUT', 'AC-US-0003-07: the reason is CUT');
-  assert.equal(view(lap).elapsedMs, toMs(121), 'AC-US-0003-07: the lap ends in the step of the cut');
+  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-07: the cut does not end a training lap');
+  assert.equal(lapResults(lap).length, 0, 'AC-US-0003-07: listLapResults gains no item in the step of the cut');
+  assert.equal(view(lap).elapsedMs, toMs(121), 'AC-US-0003-07: the cut happens in the 121st step');
+  lap = drive(lap, constant(IDLE), 60).lap;
+  assert.equal(lap.stepCount, 181, 'AC-US-0003-07: the lap keeps stepping after the cut');
+  assert.equal(view(lap).invalidReason, 'CUT', 'AC-US-0003-07: the lap stays INVALID by CUT');
+  assert.equal(lapResults(lap).length, 0, 'AC-US-0003-07: still no item before the finish');
 });
 
 test('CHK-TEST-0005-05 up to 1000 ms beyond 3 m followed by a return to 3 m or less does not invalidate, and the count restarts', () => {
@@ -138,21 +165,25 @@ test('CHK-TEST-0005-05 up to 1000 ms beyond 3 m followed by a return to 3 m or l
   assert.equal(view(lap).invalidReason, 'CUT', 'AC-US-0003-08: only the 121st consecutive step is the cut');
 });
 
-test('CHK-TEST-0005-06 a lap that crosses the grass inside curve 4, leaving near 147 m and returning near 200 m, is invalid', () => {
+test('CHK-TEST-0005-06 a lap that crosses the grass inside curve 4, leaving near 147 m and returning near 200 m, gets an INVALID item at the next finish crossing', () => {
   // AC-US-0003-09
-  let grassInside = 0, minLapM = Infinity, maxLapM = -Infinity;
-  const { lap } = completeKartParkLap(kartParkPilot(g, { shortcut: { fromLapM: 147, toLapM: 200 } }), (_b, a) => {
+  let grassInside = 0;
+  let closing: LapSession | undefined;
+  const { lap } = completeKartParkLap(kartParkPilot(g, { shortcut: { fromLapM: 147, toLapM: 200 } }), (b, a) => {
     const c = contactOf(a);
     if (c.wheelSurfaces.includes('GRASS')) {
       const m = lapDistanceOf(g, a.kart);
-      if (m > 140 && m < 205) { grassInside++; minLapM = Math.min(minLapM, m); maxLapM = Math.max(maxLapM, m); }
+      if (m > 140 && m < 205) grassInside++;
     }
+    if (lapResults(a).length > lapResults(b).length) closing = b;
   });
   assert.ok(grassInside > 20, `AC-US-0003-09: the kart must cross the grass inside curve 4 (${grassInside} steps with a wheel on the grass between 140 and 205 m)`);
-  assert.equal(lap.phase, 'ENDED', 'AC-US-0003-09: the lap ends');
-  assert.equal(view(lap).lapValidity, 'INVALID', 'AC-US-0003-09: the shortcut lap must be INVALID');
-  assert.ok(['CUT', 'MISSED_MARKER'].includes(view(lap).invalidReason ?? ''), `AC-US-0003-09: invalid by the cut or by a missed marker (${view(lap).invalidReason})`);
-  assert.ok(lap.markersPassedCount < file.markers.length, 'AC-US-0003-09: the shortcut skipped markers');
+  const items = lapResults(lap);
+  assert.equal(items.length, 1, `AC-US-0003-09: the next finish crossing adds one item to listLapResults (${items.length})`);
+  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-09: the training keeps running');
+  assert.equal(items[0].lapValidity, 'INVALID', 'AC-US-0003-09: the shortcut lap must be INVALID');
+  assert.ok(['CUT', 'MISSED_MARKER'].includes(items[0].invalidReason ?? ''), `AC-US-0003-09: invalid by the cut or by a missed marker (${items[0].invalidReason})`);
+  assert.ok(closing !== undefined && closing.markersPassedCount < file.markers.length, 'AC-US-0003-09: the shortcut skipped markers');
 });
 
 test('CHK-TEST-0005-07 riding a curb for more than 1000 ms with no wheel beyond it is not a cut: the curb counts as track', () => {
@@ -179,16 +210,19 @@ test('CHK-TEST-0005-07 riding a curb for more than 1000 ms with no wheel beyond 
   assert.equal(lap.offTrackSteps, 0, 'AC-US-0005-05: the cut counter stayed at 0 on the curb');
 });
 
-test('CHK-TEST-0005-08 crossing the finish again after the lap ended produces no second result and adds no time', () => {
+test('CHK-TEST-0005-08 crossing the finish again after a completed lap closes the next lap with its own result and leaves the first unchanged', () => {
   // AC-US-0003-11
-  const ended = reference.lap;
-  const before = { elapsed: view(ended).elapsedMs, steps: ended.stepCount, result: result(ended) };
-  let lap = ended;
-  for (let i = 0; i < 600; i++) lap = stepLap(lap, { throttle: 1, brake: 0, steer: 0 });
-  assert.equal(view(lap).elapsedMs, before.elapsed, 'AC-US-0003-11: elapsedMs does not change after the end');
-  assert.equal(lap.stepCount, before.steps, 'AC-US-0003-11: no step is added after the end');
-  assert.deepEqual(result(lap), before.result, 'AC-US-0003-11: the result is the same');
-  assert.deepEqual(lap.kart, ended.kart, 'AC-US-0003-11: the kart does not move after the end');
+  const first = lapResults(reference.lap)[0];
+  const lap = drive(reference.lap, kartParkPilot(g), 9000).lap;
+  const items = lapResults(lap);
+  assert.equal(items.length, 2, `AC-US-0003-11: the second finish crossing adds exactly one item (${items.length})`);
+  assert.deepEqual(items[0], first, 'AC-US-0003-11: the first result is unchanged');
+  assert.equal(items[1].lapSequenceCount, 2, 'AC-US-0003-11: the new item is the second lap');
+  assert.equal(items[1].lapStartMs, first.lapStartMs! + first.trainingLapMs!, 'AC-US-0003-11: the second lap starts where the first ended');
+  assert.ok(Number.isInteger(items[1].trainingLapMs) && items[1].trainingLapMs! > 0, `AC-US-0003-11: the second lap has its own time (${items[1].trainingLapMs})`);
+  assert.equal(lap.lapStartMs, items[1].lapStartMs! + items[1].trainingLapMs!, 'AC-US-0003-11: the third lap starts at the second finish');
+  assert.equal(lap.lapSequenceCount, 3, 'AC-US-0003-11: the lap in progress is the third');
+  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-11: the training keeps running');
 });
 
 test('CHK-TEST-0005-09 crossing the finish of the Kart Park against the track sense does not end the lap and counts no marker', () => {
@@ -223,10 +257,14 @@ test('CHK-TEST-0005-10 a pause freezes the Kart Park lap, the resume continues i
   const resumed = resumeLap(lap);
   assert.ok(resumed.ok, 'AC-US-0003-11: the lap can resume');
   if (!resumed.ok) return;
-  lap = drive(resumed.lap, pilot, 9000).lap;
-  assert.equal(lap.phase, 'ENDED', 'AC-US-0003-11: the lap ends after the resume');
-  assert.equal(view(lap).lapValidity, 'VALID', 'AC-US-0003-11: the lap is valid');
-  assert.equal(lap.markersPassedCount, file.markers.length, 'AC-US-0003-11: the markers before the pause counted');
+  assert.equal(resumed.lap.markersPassedCount, passed, 'AC-US-0003-11: the resume keeps the markers already passed');
+  let closing: LapSession | undefined;
+  lap = drive(resumed.lap, pilot, 9000, (b, a) => { if (lapResults(a).length > lapResults(b).length) closing = b; }).lap;
+  const items = lapResults(lap);
+  assert.equal(items.length, 1, `AC-US-0003-11: the finish after the resume adds one item (${items.length})`);
+  assert.equal(items[0].lapValidity, 'VALID', `AC-US-0003-11: the lap is valid (${items[0].invalidReason ?? ''})`);
+  assert.equal(closing?.markersPassedCount, file.markers.length, 'AC-US-0003-11: the markers before the pause counted');
+  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-11: the training keeps running');
 });
 
 test('CHK-TEST-0005-11 the reposition of a training lap on the Kart Park puts the kart on the nearest point of the file centerline, facing the travel sense, at rest', () => {

@@ -3,7 +3,7 @@
 // track of the other features' benches; no runtime dependency was added (strategy: layering, text level, DES-0006, DES-0012).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { testPilot, testPilotLapWith } from '../scripts/handlingBench';
@@ -15,7 +15,23 @@ const stripComments = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '').re
 const code = (file: string) => stripComments(readFileSync(join(root, file), 'utf8'));
 const imports = (text: string) => [...text.matchAll(/from\s+'([^']+)'/g)].map(m => m[1]);
 const uses = (text: string, symbol: string) => new RegExp(`(^|[^\\w.$'"])${symbol.replace('.', '\\.')}(?![\\w$])`).test(text);
-const SIMULATION = ['src/trackGeometry.ts', 'src/trackData.ts', 'src/physics.ts', 'src/lap.ts', 'src/trainingSession.ts', 'src/track.ts', 'src/maneuvers.ts', 'src/lapTiming.ts'];
+// The simulation is the modules of the feature plus every src module they reach through their imports, found by the import
+// graph rather than named (FB-01 of dirigibilidade): a module the step stops importing leaves the list with no edit here.
+const SIMULATION_ROOTS = ['src/trackGeometry.ts', 'src/trackData.ts', 'src/physics.ts', 'src/lap.ts', 'src/trainingSession.ts', 'src/track.ts', 'src/lapTiming.ts'];
+function reachedBy(roots: readonly string[]): string[] {
+  const seen = new Set(roots);
+  const queue = [...roots];
+  while (queue.length > 0) {
+    const file = queue.shift()!;
+    for (const dep of imports(code(file))) {
+      if (!/^\.\/[\w-]+$/.test(dep)) continue;
+      const next = `${file.slice(0, file.lastIndexOf('/') + 1)}${dep.slice(2)}.ts`;
+      if (!seen.has(next) && existsSync(join(root, next))) { seen.add(next); queue.push(next); }
+    }
+  }
+  return [...seen];
+}
+const SIMULATION = reachedBy(SIMULATION_ROOTS);
 const APPLICATION_PURE = ['src/curbFeedback.ts', 'src/lapMessages.ts'];
 const PREPARATION = ['scripts/trackPrep.ts', 'scripts/trackChecks.ts'];
 const FEATURE_MODULES = [...SIMULATION, ...APPLICATION_PURE, 'src/trackScene.ts', 'src/audio.ts', 'src/main.ts', ...PREPARATION, 'scripts/track-pipeline.ts'];

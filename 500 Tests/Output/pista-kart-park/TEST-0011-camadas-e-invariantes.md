@@ -4,7 +4,7 @@ title: Camadas e invariantes — simulação sem renderizador, DOM, relógio, so
 feature: pista-kart-park
 stage: test
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009, NFR-0010]
 ---
 
@@ -14,8 +14,8 @@ sources: [NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009, NFR-0010]
 |---|---|
 | Arquivo | `tests/pista-kart-park-layering.test.ts` (estratégia: `layering`) |
 | Nível | texto (módulos lidos com `node:fs`, comentários retirados, como `tests/race-lap-validation-layering.test.ts`) e integração (`testPilotLapWith` com `testPilot` na pista sintética) |
-| Interface exercitada | textos de `src/trackGeometry.ts`, `src/trackData.ts`, `src/physics.ts`, `src/lap.ts`, `src/trainingSession.ts`, `src/track.ts`, `src/maneuvers.ts`, `src/lapTiming.ts`, `src/curbFeedback.ts`, `src/lapMessages.ts`, `src/trackScene.ts`, `src/audio.ts`, `src/main.ts`, `scripts/trackPrep.ts`, `scripts/trackChecks.ts`, `scripts/track-pipeline.ts`, `package.json`, dos testes e benches das outras features e das suítes desta; `testPilot`, `testPilotLapWith` (`scripts/handlingBench.ts`); `options`, `ARCADE_CONFIG` (`tests/helpers/handling.ts`) |
-| Fixtures | listas `SIMULATION`, `APPLICATION_PURE`, `PREPARATION`, `FEATURE_MODULES`, `NETWORK_OR_STORAGE`, `DOM_CLOCK_RANDOM`; expressão de renderização montada por partes para que o próprio arquivo não a satisfaça |
+| Interface exercitada | textos de `src/trackGeometry.ts`, `src/trackData.ts`, `src/physics.ts`, `src/lap.ts`, `src/trainingSession.ts`, `src/track.ts`, `src/lapTiming.ts` e de todo módulo de `src/` que eles alcançam pelas importações, `src/curbFeedback.ts`, `src/lapMessages.ts`, `src/trackScene.ts`, `src/audio.ts`, `src/main.ts`, `scripts/trackPrep.ts`, `scripts/trackChecks.ts`, `scripts/track-pipeline.ts`, `package.json`, dos testes e benches das outras features e das suítes desta; `testPilot`, `testPilotLapWith` (`scripts/handlingBench.ts`); `options`, `ARCADE_CONFIG` (`tests/helpers/handling.ts`) |
+| Fixtures | lista `SIMULATION` montada pelo grafo de importações a partir de `SIMULATION_ROOTS` (`reachedBy`), sem nomear um módulo que uma retirada possa apagar (FB-01 de `dirigibilidade`); listas `APPLICATION_PURE`, `PREPARATION`, `FEATURE_MODULES`, `NETWORK_OR_STORAGE`, `DOM_CLOCK_RANDOM`; expressão de renderização montada por partes para que o próprio arquivo não a satisfaça |
 
 ## Verificações
 

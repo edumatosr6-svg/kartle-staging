@@ -2,7 +2,7 @@
 stage: test
 feature: pista-kart-park
 status: validated
-generated: 2026-10-27T23:06:38Z
+generated: 2026-10-30T17:14:12Z
 files: 14
 ---
 
@@ -12,17 +12,17 @@ files: 14
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.0.0 |
-| `98-divergences.md` | - | Registro de divergências, verificação reprovada e critérios não verificados em npm test | draft | 1.0.0 |
-| `TEST-0001-arquivo-da-pista-medido-contra-a-origem.md` | TEST-0001 | Arquivo da pista publicado medido contra a origem e contra si mesmo — V01 a V18 rederivados, verifyTrackFile e cópias com um desvio | draft | 1.0.0 |
-| `TEST-0002-leitura-do-esquema-3-e-geometria-do-arquivo.md` | TEST-0002 | Leitura do esquema 3 e geometria do arquivo usada como declarada — API-0001, cópias ilegíveis, padrões neutros e regra de superfície | draft | 1.0.0 |
-| `TEST-0003-zebra-como-superficie-da-simulacao.md` | TEST-0003 | Zebra como superfície da simulação — 85 % de aderência por pneu, rodas na zebra sem saída de pista e o contato de API-0003 | draft | 1.0.0 |
-| `TEST-0004-barreira-na-simulacao.md` | TEST-0004 | Barreira na simulação — único obstáculo do ambiente do arquivo, intransponível, com a resposta do muro, contato só no passo de entrada | draft | 1.0.0 |
-| `TEST-0005-volta-na-kart-park.md` | TEST-0005 | Volta na Kart Park — válida com o piloto da Kart Park, marcador pulado, corte pela borda do arquivo, atalho da curva 4, zebra como pista, chegada de novo, contramão, pausa e reposicionamento | draft | 1.0.0 |
-| `TEST-0006-determinismo-na-kart-park.md` | TEST-0006 | Determinismo na Kart Park — mesma sequência de entradas, mesmo tempo, mesmos setores e mesmo estado; reprodução pela sessão de treino | draft | 1.0.0 |
-| `TEST-0007-sessao-de-treino-e-catalogo.md` | TEST-0007 | Sessão de treino e catálogo de pistas — API-0002 campo a campo, Kart Park na abertura, volta da pista escolhida, troca que descarta a volta e reposiciona o kart, códigos de falha | draft | 1.0.0 |
-| `TEST-0008-retorno-da-zebra.md` | TEST-0008 | Retorno da zebra — pulsos de 20 ms a cada 30 passos em web-mobile, som a cada 12 passos em web-desktop, nada sem roda na zebra nem em passo já tratado, som da zebra distinto construído num AudioContext de substituição | draft | 1.0.0 |
-| `TEST-0009-credito-nome-e-seletor-nas-telas.md` | TEST-0009 | Crédito, nome, comprimento e seletor nas telas — regras puras de src/lapMessages.ts e os textos de DOM que src/main.ts e index.html emitem | draft | 1.0.0 |
-| `TEST-0010-desenho-da-kart-park-em-node.md` | TEST-0010 | Desenho da Kart Park construído em Node — asfalto pelas bordas do arquivo, faixas da zebra no lado declarado, barreira em todo o comprimento, linha de largada e minimapa | draft | 1.0.0 |
-| `TEST-0011-camadas-e-invariantes.md` | TEST-0011 | Camadas e invariantes — simulação sem renderizador, DOM, relógio, sorteio, rede ou armazenamento; regra de tela fora da sessão; contrato de passo; pista sintética dos ensaios; dependências | draft | 1.0.0 |
-| `TEST-0012-publicacao-registro-e-programa.md` | TEST-0012 | Publicação — trackVersion 1, resumo e tamanho no registro, reprodução byte a byte pelo preparo, recusas do programa numa cópia temporária (promoção sem decisão Esri, regeneração, argumentos) | draft | 1.0.0 |
+| `97-changelog.md` | - | Changelog do estágio de testes | validated | 1.1.0 |
+| `98-divergences.md` | - | Registro de divergências, verificação reprovada e critérios não verificados em npm test | validated | 1.1.0 |
+| `TEST-0001-arquivo-da-pista-medido-contra-a-origem.md` | TEST-0001 | Arquivo da pista publicado medido contra a origem e contra si mesmo — V01 a V18 rederivados, verifyTrackFile e cópias com um desvio | validated | 1.0.0 |
+| `TEST-0002-leitura-do-esquema-3-e-geometria-do-arquivo.md` | TEST-0002 | Leitura do esquema 3 e geometria do arquivo usada como declarada — API-0001, cópias ilegíveis, padrões neutros e regra de superfície | validated | 1.0.0 |
+| `TEST-0003-zebra-como-superficie-da-simulacao.md` | TEST-0003 | Zebra como superfície da simulação — 85 % de aderência por pneu, rodas na zebra sem saída de pista e o contato de API-0003 | validated | 1.0.1 |
+| `TEST-0004-barreira-na-simulacao.md` | TEST-0004 | Barreira na simulação — único obstáculo do ambiente do arquivo, intransponível, com a resposta do muro, contato só no passo de entrada | validated | 1.0.1 |
+| `TEST-0005-volta-na-kart-park.md` | TEST-0005 | Volta na Kart Park — válida com o piloto da Kart Park, marcador pulado, corte pela borda do arquivo, atalho da curva 4, zebra como pista, chegada de novo, contramão, pausa e reposicionamento | validated | 1.1.0 |
+| `TEST-0006-determinismo-na-kart-park.md` | TEST-0006 | Determinismo na Kart Park — mesma sequência de entradas, mesmo tempo, mesmos setores e mesmo estado; reprodução pela sessão de treino | validated | 1.1.0 |
+| `TEST-0007-sessao-de-treino-e-catalogo.md` | TEST-0007 | Sessão de treino e catálogo de pistas — API-0002 campo a campo, Kart Park na abertura, volta da pista escolhida, troca que descarta a volta e reposiciona o kart, códigos de falha | validated | 1.1.0 |
+| `TEST-0008-retorno-da-zebra.md` | TEST-0008 | Retorno da zebra — pulsos de 20 ms a cada 30 passos em web-mobile, som a cada 12 passos em web-desktop, nada sem roda na zebra nem em passo já tratado, som da zebra distinto construído num AudioContext de substituição | validated | 1.0.0 |
+| `TEST-0009-credito-nome-e-seletor-nas-telas.md` | TEST-0009 | Crédito, nome, comprimento e seletor nas telas — regras puras de src/lapMessages.ts e os textos de DOM que src/main.ts e index.html emitem | validated | 1.0.0 |
+| `TEST-0010-desenho-da-kart-park-em-node.md` | TEST-0010 | Desenho da Kart Park construído em Node — asfalto pelas bordas do arquivo, faixas da zebra no lado declarado, barreira em todo o comprimento, linha de largada e minimapa | validated | 1.0.0 |
+| `TEST-0011-camadas-e-invariantes.md` | TEST-0011 | Camadas e invariantes — simulação sem renderizador, DOM, relógio, sorteio, rede ou armazenamento; regra de tela fora da sessão; contrato de passo; pista sintética dos ensaios; dependências | validated | 1.0.1 |
+| `TEST-0012-publicacao-registro-e-programa.md` | TEST-0012 | Publicação — trackVersion 1, resumo e tamanho no registro, reprodução byte a byte pelo preparo, recusas do programa numa cópia temporária (promoção sem decisão Esri, regeneração, argumentos) | validated | 1.0.0 |
