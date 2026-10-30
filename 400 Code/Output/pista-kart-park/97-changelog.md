@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park (estágio de código)
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.2.0
+version: 1.4.0
 sources: []
 ---
 
@@ -173,3 +173,64 @@ dois sentidos); uma simplificação da poligonal seria outra versão do preparo.
 **Migração de verificações existentes**: nenhuma verificação removida ou alterada por esta feature; `npx tsc --noEmit -p .` 0;
 `npx vite build` 0 (705 946 bytes); `npx tsx --test tests/*.test.ts` 398/398 (`CHK-TEST-0004-03` passa; `-02/-04/-05/-06` e
 `tests/physics.test.ts` verdes); `bench:handling` 46/46; `bench:physics` 10/10; `npm run track -- verify kart-park 1` V01–V18 `PASS`.
+
+## 2026-10-30 — rodada 4, Mode B (projeto revalidado em `dspec-validation-20261030-1327`: rodada 4 do projeto, Mode C, FB-01 de `race-lap-validation`; DIV-DP-16 do registro de deploy)
+
+- ADR-0007, DES-0007 1.3.0 (linha 14 de `98-divergences.md`; DIV-DP-16): `index.html:26` — `#lap-training-result-credit`
+  (`p.lap-chip.track-credit`, oculto) como último filho de `#lap-training-result`; `#lap-result-credit` retirado de `#lap-result` (I3, na
+  mesma entrega). `src/main.ts:479-484` — `renderTrainingResult` deixa de substituir todos os filhos do painel: remove só os elementos do
+  resultado, insere os novos antes do contêiner do crédito (que nunca é removido) e, no mesmo ramo do redesenho, chama
+  `renderCredit($('lap-training-result-credit'), creditFor(selectedOption(result.trackId)))`; o crédito some com o painel oculto.
+  `renderResult` deixa de chamar `renderCredit` (`#lap-result` só exibe volta oficial e de reconhecimento). `src/style.css:8` —
+  `#lap-training-result-credit a{pointer-events:auto}`.
+- DES-0009 1.2.0, DM-0002 1.2.0: o estado do retorno da zebra já era zerado só em `chooseTrack` (`:233`) e em `beginLap` (`:312`), nunca
+  no fim de uma volta do treino; só o comentário de `src/main.ts:164-165` passa a dizê-lo.
+- DES-0004 1.1.0, DES-0005 1.3.0, DES-0006 1.1.0, DES-0012 1.0.2: nenhuma mudança de código (o treino de voltas seguidas, a troca de
+  pista que descarta o treino e a leitura de `listLapResults` já estão no código); registros espelho atualizados.
+- Manifesto: `01-implementation.md` 1.3.0, `98-divergences.md` 1.3.0 (linhas 14 e 15 do projeto 1.1.0; linhas 3, 9, 10 e 11 com as
+  linhas de `src/main.ts` de 670 linhas; seção da verificação reprovada), `web/DES-0007` 1.2.0, `web/DES-0009` 1.1.0, `data/DM-0002`
+  1.2.0, `core/DES-0003` 1.1.0, `core/DES-0004` 1.1.0, `core/DES-0005` 1.2.0, `core/DES-0006` 1.1.0, `security/DES-0012` 1.1.0;
+  `00-index.md` e `99-traceability.md` por `lint_artifacts.py --emit`.
+
+**Itens fechados**: linha 14 do registro de divergências do projeto 1.1.0 (crédito em `#lap-result`); a parte de código de DIV-DP-16.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Retirar o cancelamento da manobra na barreira, o cálculo da condição de pista da manobra, o comentário de RULE-0001 que o acompanhava
+  e a escala de drift de `tireForce`: não aplicado por esta feature; o changelog do projeto (rodada 4, "Mudança de código desta feature
+  pelo drift: nenhuma") os atribui à rodada de código de `dirigibilidade` (DES-0001 4.0.0 daquela feature), que **já os retirou**
+  (`cfad3dc`; `src/physics.ts` com 440 linhas). Nada fica à espera dela.
+- Reescrever o painel `#lap-training-result` com elementos fixos de identificador próprio (título, total, setores): não aplicado;
+  acrescentaria elementos que nenhum item de projeto nomeia (§16); o redesenho continua o de `race-lap-validation`, com a única mudança
+  de não remover o contêiner do crédito (ADR-0007, consequências).
+- `REWARD_SOUND` e `reward()` em `src/audio.ts`: mantidos (DES-0009 1.2.0: a retirada, se vier, é de `dirigibilidade`).
+- Linha 15 do registro do projeto (verificações e `drive` que esperam `ENDED`) e a migração de `CHK-TEST-0009-04`, `CHK-TEST-0011-01`
+  e demais da tabela do projeto: do estágio de testes; nenhum arquivo de `tests/` editado.
+- Ver em tela o crédito no painel (E2E-02): não feito nesta rodada; fica para o roteiro de aparelho (DIV-DP-01).
+
+**Migração de verificações existentes**: nenhuma verificação editada; `CHK-TEST-0009-04` (`tests/pista-kart-park-screens.test.ts:47-56`)
+reprova como previsto pela migração planejada no changelog do projeto. `npx tsc --noEmit -p .` 0; `npx vite build` 0 (694 178 + 10 850
+bytes); `npx tsx --test tests/*.test.ts` 442/443 (só `CHK-TEST-0009-04`; nenhuma verificação de outra feature reprova); `npm run track --
+verify kart-park 1` V01–V18 `PASS`, `VERIFIED`; arquivo de pista e registro intactos (SHA-256 `04ce5e51…`).
+
+## 2026-10-30 — rodada 4, iteração 2, Mode B (`code-validation-20261030-1826` FAIL, só manifesto)
+
+- ISSUE-01 (`98-divergences.md` linhas 4 e 5): as provas citam a árvore corrente — `src/physics.ts` (440 linhas) sem a condição de pista
+  da manobra nem cancelamentos; o bloco da barreira `:332-348` responde como o muro (1,12; 0,65; `barrierHit`), sem cancelar manobra,
+  como o passo 3 de DES-0003 1.1.0; a linha "manobra" de DES-0003 1.1.0 é "sem mudança desta feature".
+- ISSUE-02 (`core/DES-0003` 1.2.0, `01-implementation.md` 1.4.0, este changelog): o manifesto registra que `cfad3dc` de `dirigibilidade`
+  já retirou esses trechos; o símbolo da condição de pista da manobra sai da linha de `src/physics.ts` da tabela de arquivos; a recusa
+  da rodada 4 continua (a retirada é de `dirigibilidade`) e diz que já foi feita.
+- ISSUE-03: `arquivo:linha` atualizados para a árvore corrente — `src/physics.ts` nas linhas 4, 5 e 6 e no bloco "Satisfeitos hoje"
+  (`step` `:376`), `src/lapMessages.ts:105-120` na linha 11 e em `web/DES-0007` (1.3.0), `src/main.ts` em `web/DES-0008` (1.1.0).
+  `98-divergences.md` 1.4.0.
+- Nenhum arquivo de código, de `tests/`, de pista ou do registro tocado; `00-index.md` e `99-traceability.md` por `lint_artifacts.py --emit`.
+
+**Itens fechados**: ISSUE-01, ISSUE-02, ISSUE-03 de `code-validation-20261030-1826`.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- `startSideNormal` em `:366`, como o relatório cita: registrado em `:364`, que é a linha em que a atribuição está na árvore (a função
+  começa em `:359`).
+- Reescrever os parágrafos das rodadas 1 a 3 deste changelog e de `01-implementation.md`: não aplicado; são histórico daquelas árvores
+  (481 linhas) e passam a dizer de que árvore são.

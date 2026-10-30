@@ -161,7 +161,8 @@ let reading: TrackReading = { trackDataStatus: 'UNREADABLE' };
 let trackBounds: TrackBounds | undefined;
 let trackGeometry: TrackGeometry | undefined;
 const trackScenes: Partial<Record<TrainingTrackId, THREE.Group>> = {};
-// Curb feedback state (DES-0009): reset on every lap start and every session (the simStepCount restarts at 0).
+// Curb feedback state (DES-0009): reset on every training start and every session (the simStepCount restarts at 0), never
+// at the end of a training lap, where the kart and its simStepCount go on.
 let curbState: CurbFeedbackState = initialCurbFeedback();
 const vibrationAvailable = typeof navigator.vibrate === 'function';
 // Display state of the feature: wheel spin by simStepCount and the camera of the current frame (DES-0002, DES-0004).
@@ -476,7 +477,11 @@ function renderTrainingResult(view: LapStateView) {
       items.push(list);
     }
     panel.dataset.validity = result.lapValidity;
-    panel.replaceChildren(...items);
+    // The redraw keeps the credit container, the panel's last child (ADR-0007): only the result elements are replaced.
+    const credit = $('lap-training-result-credit');
+    for (const child of [...panel.children]) if (child !== credit) child.remove();
+    credit.before(...items);
+    renderCredit($('lap-training-result-credit'), creditFor(selectedOption(result.trackId)));
   }
   panel.classList.remove('hidden');
 }
@@ -506,7 +511,6 @@ function renderResult() {
     list.replaceChildren();
   }
   $('lap-new-lap').textContent = message('newLap', lang);
-  renderCredit($('lap-result-credit'), creditFor(selectedOption(result.trackId)));
   $('lap-share').textContent = shareLabel(lang);
   panel.classList.remove('hidden');
 }

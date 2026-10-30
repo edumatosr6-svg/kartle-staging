@@ -4,7 +4,7 @@ title: Registro de publicação das pistas e estado em memória da sessão de tr
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0007-13, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
 ---
 
@@ -26,7 +26,7 @@ acrescido.
 | RULE-0005; FLOW-0003; REQ-FEAT-0002-17, -18 | `scripts/track-pipeline.ts` `readRegistry` (`:73-84`: recusa versão desconhecida sem reescrever), `writeAtomic` (`:65-71`: temporário e renomeação), `publish` (`:124-149`: exige `VERIFIED` na mesma execução, calcula o resumo, par ausente → `STAGING` com `stagedAtUtc` e `prep`; mesmo resumo → `já registrado`; outro resumo → `recusado: trackVersion já publicado com outro conteúdo`), `prepare` recusa par registrado (`:98`) |
 | REQ-FEAT-0007-13; REQ-FEAT-0006-14 | `promote` (`:151-160`): `STAGING` → `PRODUCTION` com `promotedAtUtc` e `esriDecisionRef`; `PRODUCTION` repetido → `já promovido`; `--esri-decision` validado em `parseArgs` (`:48-56`: só com `promote`, obrigatório, uma vez, 1–200 caracteres sem controle, valor nunca reproduzido na recusa) |
 | API-0002; RULE-0003; REQ-FEAT-0001-03, -12 | estado em memória `TrainingSession` (`src/trainingSession.ts:19-25`: `sessionState`, `selectedTrackId`, `reading`, `environment`, `startKart`), guardado em `src/main.ts:169` e substituído só por `selectTrainingTrack` (`:229`); a volta ao lado (`:162`); nada gravado |
-| RULE-0004; REQ-FEAT-0005-18 | `CurbFeedbackState` (`src/curbFeedback.ts:11`: `lastHandledStep`, `lastPulseStep`, `lastSoundStep`), zerado a cada sessão e a cada volta (`src/main.ts:235`, `:300`); com a volta suspensa `stepLap` não avança e nada começa (`:507-517` só roda por passo avançado) |
+| RULE-0004; REQ-FEAT-0005-18 | `CurbFeedbackState` (`src/curbFeedback.ts:11`: `lastHandledStep`, `lastPulseStep`, `lastSoundStep`), zerado a cada sessão nova (`src/main.ts:233`) e a cada treino iniciado (`:312`), nunca no fim de uma volta do treino, porque o kart e o `simStepCount` continuam (DM-0002 1.2.0; rodada 4: só o comentário de `:164-165`); com a volta suspensa `stepLap` não avança e nada começa (`:546-559` só roda por passo avançado). A volta guardada pela aplicação (`lap`) é o treino inteiro; a sessão desta feature não guarda resultado, contador nem melhor volta (`TrainingSession` sem esses campos) |
 
 ## Plano de migração
 

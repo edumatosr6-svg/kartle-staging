@@ -4,7 +4,7 @@ title: Sessão de treino, catálogo do treino e seleção de pista — implement
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-14, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11]
 ---
 
@@ -19,11 +19,11 @@ sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01
 | Requisito | Arquivo e símbolo |
 |---|---|
 | API-0002; REQ-FEAT-0001-01 | `TRAINING_TRACKS` (`:12-15`, congelado, duas entradas, sem campo de recorde), `getTrainingTrackOptions` (`:45-53`: sempre as duas entradas; `trackDataStatus` só com `READY` ou `FAILED`) |
-| REQ-FEAT-0001-02, -04 | `OPENING_TRACK_ID = 'kart-park'` (`:16`); `initialTrainingSession` (`:40-42`); `src/main.ts:645` seleciona a abertura na carga sem ler escolha anterior |
+| REQ-FEAT-0001-02, -04 | `OPENING_TRACK_ID = 'kart-park'` (`:16`); `initialTrainingSession` (`:40-42`); `src/main.ts:669` seleciona a abertura na carga sem ler escolha anterior |
 | REQ-FEAT-0001-03, -12 | nenhuma transição grava nada; nenhum `localStorage`/`sessionStorage`/IndexedDB/cookie; nenhum registro de desafio |
-| REQ-FEAT-0001-05, -09, -10 | `selectTrainingTrack` (`:55-79`): outra pista, ou sem sessão `READY`, devolve sessão nova e `lap: undefined` (a volta recebida em qualquer fase deixa de existir); `UNKNOWN_TRACK` deixa tudo como está (`:56`); a mesma pista `READY` devolve a sessão e a volta recebidas (`:57-61`, idempotência) |
+| REQ-FEAT-0001-05, -09, -10 | `selectTrainingTrack` (`:55-79`): outra pista, ou sem sessão `READY`, devolve sessão nova e `lap: undefined` (a volta recebida em qualquer fase deixa de existir); `UNKNOWN_TRACK` deixa tudo como está (`:56`); a mesma pista `READY` devolve a sessão e a volta recebidas (`:57-61`, idempotência). DES-0005 1.3.0 (rodada 4, sem mudança de código): o valor recebido é o treino inteiro; a troca o descarta sem resultado para a volta em andamento, e a lista de `listLapResults` do treino recebido (imutável) continua com os itens das voltas já concluídas |
 | REQ-FEAT-0001-08 | `startKart = kartAtStart(reading.startPosition)` (`:75`); `trainingIdleKart` (`:92-94`) |
-| REQ-FEAT-0001-06, -07, -11 | `startTrainingLap` (`:81-90`): sempre `lapKind: 'TRAINING'`, nunca `challengeNumber`, `trackId`/`trackVersion` da leitura da sessão, ambiente da sessão; quarto parâmetro `setup?: SetupRef` copiado ao pedido sem interpretação (`setupId`/`setupVersion` só quando dado, nunca derivados), a assinatura da tabela de interface de DES-0005 1.2.0 (rodada 2, ISSUE-02) |
+| REQ-FEAT-0001-06, -07, -11 | `startTrainingLap` (`:81-90`): sempre `lapKind: 'TRAINING'`, nunca `challengeNumber`, `trackId`/`trackVersion` da leitura da sessão, ambiente da sessão; quarto parâmetro `setup?: SetupRef` copiado ao pedido sem interpretação (`setupId`/`setupVersion` só quando dado, nunca derivados), a assinatura da tabela de interface de DES-0005 1.2.0 (rodada 2, ISSUE-02); cada chamada inicia um treino de voltas seguidas de `race-lap-validation` (as voltas seguintes começam em `stepLap`, sem nova chamada), cada volta com um item `TRAINING` sem `challengeNumber` e `official` falso em `listLapResults`, e `ENDED` só por `endTraining` (DES-0005 1.3.0, sem mudança de código) |
 | REQ-FEAT-0001-14 | `UNSUPPORTED_SCHEMA` → sessão `FAILED` com `TRACK_SCHEMA_UNSUPPORTED` (`:63-66`); `UNREADABLE` ou `trackId` diferente → `FAILED` com `TRACK_DATA_UNREADABLE` (`:67-70`); `startTrainingLap` rejeita sem leitura (`:84-86`); as duas opções continuam selecionáveis (`getTrainingTrackOptions`) |
 | RULE-0003; FLOW-0001 | `SessionState` (`:18`), `TrainingSession` imutável (`:19-25`); `LOADING` dura a chamada (leitura síncrona do dado empacotado); ambiente `trackEnvironment(buildTrackGeometry(...))` numa leitura com `centerline`, `CIRCUIT` numa de versão 2 (`:72-74`) |
 | REQ-FEAT-0006-07, -08, -10, -11; FEAT-0006 | entrada `kart-park`: `displayName` `Kart Park — São José dos Pinhais (traçado aproximado)`, `displayLengthM` 687, `osmCredit` `true`; entrada `synthetic`: `Pista sintética`, sem comprimento, `osmCredit` `false` (`:13-14`); literais iguais nos dois idiomas |

@@ -3,7 +3,7 @@ title: Registro de implementação — pista Kart Park
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.2.0
+version: 1.4.0
 sources: []
 ---
 
@@ -40,8 +40,32 @@ só o item do relatório. FAIL-01 — `barrierContactPoint` (`src/physics.ts:367
 proximidade). Correção na linha `:372`: `startSideNormal = sSide >= 0 ? {−leftOfAB.x, −leftOfAB.z} : leftOfAB`, que vale também para
 o caso `near.distanceM === 0` (`:382`); o ramo de proximidade (`:380-383`), o bloco da resposta (`:339-357`) e o muro não mudam;
 comentário da função (`:365-366`) corrigido. Nenhum preset, `Input`, contrato de passo, `src/lap.ts`, arquivo de `tests/` nem
-arquivo de pista tocados; `src/physics.ts` continua com 481 linhas (todas as referências `arquivo:linha` deste manifesto valem).
+arquivo de pista tocados; `src/physics.ts` ficou com 481 linhas na rodada 3 (as linhas deste parágrafo são as daquela árvore; as da árvore
+corrente, 440 linhas depois de `cfad3dc` de `dirigibilidade`, estão em `core/DES-0003` e em `98-divergences.md`).
 Arquivos alterados: `src/physics.ts` e este manifesto. As medidas do preparo abaixo continuam as da rodada 2.
+
+Rodada 4, Mode B (2026-10-30, projeto revalidado em `dspec-validation-20261030-1327`: rodada 4 do projeto, Mode C — FB-01 de
+`race-lap-validation`, treino de voltas seguidas; DES-0007 1.3.0, ADR-0007 1.0.0 novo, DES-0004 1.1.0, DES-0005 1.3.0, DES-0009 1.2.0,
+DM-0002 1.2.0, DES-0003 1.1.0, ADR-0003 1.1.0, ADR-0004 1.1.0, ADR-0006 1.2.0, DES-0006 1.1.0, DES-0012 1.0.2, `01-architecture.md` 1.1.0;
+divergência DIV-DP-16 do registro de deploy): só as consequências de código que o changelog do projeto atribui a esta rodada. ADR-0007 —
+o crédito OSM do resultado sai de `#lap-result` e passa ao painel do resultado da volta do treino: `index.html:26` ganha
+`#lap-training-result-credit` (`p.lap-chip.track-credit`, oculto) como último filho de `#lap-training-result`, e `#lap-result-credit`
+sai de `#lap-result`; `renderTrainingResult` (`src/main.ts:479-484`) troca só os elementos do resultado, inseridos antes do contêiner do
+crédito, que nunca é removido, e no mesmo ramo do redesenho chama `renderCredit($('lap-training-result-credit'),
+creditFor(selectedOption(result.trackId)))`; `renderResult` deixa de chamar `renderCredit`; `src/style.css:8` acrescenta
+`#lap-training-result-credit a{pointer-events:auto}`. DES-0009 1.2.0 / DM-0002 1.2.0 — o estado do retorno da zebra já era zerado só em
+`beginLap` (início de um treino) e em `chooseTrack` (sessão nova), nunca no fim de uma volta do treino: só o comentário de
+`src/main.ts:164-165` passa a dizê-lo. DES-0004 1.1.0 e DES-0005 1.3.0 — nenhuma mudança: `startTrainingLap` já inicia o treino inteiro e
+`selectTrainingTrack` já devolve `lap` `undefined` sem tocar a lista do treino recebido. DES-0003, ADR-0003, ADR-0004, ADR-0006 e DES-0006
+(retirada do drift e do turbo) — nenhuma mudança de código desta feature: o changelog do projeto atribui o cancelamento da manobra na
+barreira, o cálculo da condição de pista da manobra e o comentário de RULE-0001 que o acompanhava à rodada de código de `dirigibilidade`,
+que já os retirou (`cfad3dc`): `src/physics.ts` tem 440 linhas, o bloco da barreira (`:332-348`) responde como o muro sem cancelar
+manobra, e a árvore corrente satisfaz DES-0003 1.1.0 como está. Iteração 2 (`code-validation-20261030-1826`, ISSUE-01 a -03): só o
+manifesto — `98-divergences.md` linhas 4, 5, 6 e 11, `core/DES-0003`, `web/DES-0007`, `web/DES-0008` e esta seção descrevem a árvore
+corrente e os seus `arquivo:linha`.
+Nenhum preset, `Input`, regra de `src/lap.ts`, linha de `src/physics.ts`, módulo de `modelo-kart-01`, arquivo de pista nem registro
+tocados; nenhum arquivo de `tests/` escrito. Arquivos alterados: `index.html`, `src/main.ts` (666 → 670 linhas), `src/style.css` e este
+manifesto. `CHK-TEST-0009-04` reprova como previsto (afirma o elemento retirado; `98-divergences.md`, seção da rodada 4).
 
 Ordem de construção: dado de pista (`src/trackGeometry.ts` novo, `src/trackData.ts` esquema 3 — DES-0002, DES-0001, DM-0001),
 simulação (`src/physics.ts`, `src/lap.ts`, `src/trainingSession.ts` novo — DES-0003, DES-0004, DES-0005), aplicação pura
@@ -91,16 +115,16 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 |---|---|---|---|
 | `src/trackGeometry.ts` | novo (289 linhas) | dado de pista | DES-0002, DM-0001 |
 | `src/trackData.ts` | alterado (`TRACK_SCHEMA_VERSION` 3, `Schema3Fields`, `readSchema3Fields`, ordens 6 a 9, `checkConsistencyV3`; `checkConsistency` e o caminho da versão 2 intactos) | dado de pista | DES-0001, DM-0001, ADR-0001 |
-| `src/physics.ts` | alterado (`Surface` com `curb`, `CURB_GRIP_PC`, `surfaceMu`, `Environment.track`, `trackEnvironment`, `trackEdgeDistanceM`, telemetria `barrierTouching`/`barrierContact`, frações de rodas, bloco da barreira, `onRoad`, `getTrackContact`); rodada 3: `barrierContactPoint` `:372` (normal do lado de S corrigida, FAIL-01) e comentário `:365-366`; 481 linhas | simulação | DES-0003, ADR-0003, ADR-0004 |
+| `src/physics.ts` | alterado (`Surface` com `curb`, `CURB_GRIP_PC`, `surfaceMu`, `Environment.track`, `trackEnvironment`, `trackEdgeDistanceM`, telemetria `barrierTouching`/`barrierContact`, frações de rodas, bloco da barreira, `getTrackContact`); rodada 3: `barrierContactPoint` (normal do lado de S corrigida, FAIL-01; hoje `:364`); 481 linhas na rodada 3, 440 na árvore da rodada 4 depois da retirada do drift por `dirigibilidade` (`cfad3dc`), que não é desta feature; nenhuma linha tocada na rodada 4 | simulação | DES-0003, ADR-0003, ADR-0004 |
 | `src/lap.ts` | alterado (`kartAtStart`, corte por `trackEdgeDistanceM`, reposicionamento na linha central do ambiente) | simulação | DES-0004 |
 | `src/trainingSession.ts` | novo (94 linhas) | simulação | DES-0005, DM-0002 |
 | `src/curbFeedback.ts` | novo (37 linhas) | aplicação pura | DES-0009, DM-0002 |
 | `src/trackScene.ts` | novo (134 linhas) | aplicação | DES-0008 |
 | `src/lapMessages.ts` | alterado (`OSM_CREDIT`, `creditFor`, `optionLabel`; `MESSAGES` inalterado, 20 chaves) | aplicação pura | DES-0007 |
 | `src/audio.ts` | alterado (`SoundSignal`, `ENGINE_SOUND`, `REWARD_SOUND`, `CURB_SOUND`, `curb()`, `soundOn()`) | aplicação | DES-0009 |
-| `src/main.ts` | alterado (553 → 646 linhas: importações, `syntheticScene`, sessão e catálogo, `renderCredit`, `chooseTrack`, `renderOffer` com seletor e crédito, `beginLap` por `startTrainingLap`, minimapa por sessão, crédito no resultado, retorno da zebra no laço de passos, kart ocioso da sessão, abertura na Kart Park) | aplicação | DES-0007, DES-0008, DES-0009 |
-| `index.html` | alterado (`#track-name`, `#track-selector`, `#track-credit`, `#lap-result-credit`; "Circuito Aurora" retirado) | aplicação | DES-0007 |
-| `src/style.css` | alterado (linha 8: `.track-selector`, `.track-credit`) | aplicação | DES-0007 |
+| `src/main.ts` | alterado (553 → 646 linhas: importações, `syntheticScene`, sessão e catálogo, `renderCredit`, `chooseTrack`, `renderOffer` com seletor e crédito, `beginLap` por `startTrainingLap`, minimapa por sessão, crédito no resultado, retorno da zebra no laço de passos, kart ocioso da sessão, abertura na Kart Park); rodada 4 (666 → 670): crédito do resultado em `renderTrainingResult` `:479-484`, chamada de `renderResult` ao crédito retirada, comentário do estado da zebra `:164-165` | aplicação | DES-0007, DES-0008, DES-0009, ADR-0007 |
+| `index.html` | alterado (`#track-name`, `#track-selector`, `#track-credit`, `#lap-result-credit`; "Circuito Aurora" retirado); rodada 4: `#lap-training-result-credit` em `#lap-training-result` (`:26`), `#lap-result-credit` retirado | aplicação | DES-0007, ADR-0007 |
+| `src/style.css` | alterado (linha 8: `.track-selector`, `.track-credit`); rodada 4: `#lap-training-result-credit a{pointer-events:auto}` na linha 8 | aplicação | DES-0007, ADR-0007 |
 | `src/rawImports.d.ts` | novo (declaração de `*.json?raw`) | aplicação | DES-0007, ADR-0002 |
 | `src/tracks/kart-park-v1.json` | novo, gerado por `prepare`; regenerado na rodada 2 com a suavização de ADR-0006 1.1.0 | dado de pista | DM-0001, DES-0010 |
 | `scripts/trackPrep.ts` | novo (386 linhas); rodada 2: 391 linhas (`smooth` `:93-116`, conferência do comprimento `:190-194`, `PrepRecord.smoothingWindowM`) | dado de pista (papel `scripts/`) | DES-0010, ADR-0006 |
@@ -114,12 +138,12 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 
 | Passo | Resultado |
 |---|---|
-| `npx tsc --noEmit -p .` | saída 0 nas três rodadas (as bibliotecas puras `scripts/trackPrep.ts` e `scripts/trackChecks.ts` também passam em `tsc --strict` isolado; `scripts/track-pipeline.ts` usa `node:*` sem `@types/node`, como os demais programas de `scripts/`) |
-| `npx vite build` | saída 0; rodada 3: `dist/assets/index-DYFBop8t.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes (705 946 bytes, igual à rodada 2); rodada 2: `dist/assets/index-bBRFdYaS.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes: 705 946 bytes sem compressão (rodada 1: 705 575; 642 759 antes da feature; o acréscimo é o arquivo de pista como literal, 49 360 caracteres, mais os módulos novos); o texto da Kart Park está no pacote, nenhuma requisição |
-| `npx tsx --test tests/*.test.ts` | rodada 3: 398 verificações, **398 aprovadas, 0 reprovadas** (as 102 de `tests/pista-kart-park-*.test.ts` do estágio de testes incluídas; `CHK-TEST-0004-03` passa nos 8 lançamentos, `CHK-TEST-0004-02/-04/-05/-06` e `tests/physics.test.ts` verdes); rodada 2: 296 verificações, **296 aprovadas, 0 reprovadas** (`CHK-TEST-0009-02` reescrito por `race-lap-validation` em `32d0adf` e `CHK-TEST-0004-13` restrito aos campos da linha de base por `modelo-kart-01` em `c7e71b1`, entre as rodadas; rodada 1: 294/296 por essas duas). Nenhum teste editado por esta feature |
+| `npx tsc --noEmit -p .` | saída 0 nas quatro rodadas (as bibliotecas puras `scripts/trackPrep.ts` e `scripts/trackChecks.ts` também passam em `tsc --strict` isolado; `scripts/track-pipeline.ts` usa `node:*` sem `@types/node`, como os demais programas de `scripts/`) |
+| `npx vite build` | saída 0; rodada 4: `dist/assets/index-DmxsQuIL.js` 694 178 bytes e `index-q-biCwua.css` 10 850 bytes (sobre a árvore com o treino de voltas seguidas de `race-lap-validation`); rodada 3: `dist/assets/index-DYFBop8t.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes (705 946 bytes, igual à rodada 2); rodada 2: `dist/assets/index-bBRFdYaS.js` 694 056 bytes e `index-Dv0Dz75T.css` 11 890 bytes: 705 946 bytes sem compressão (rodada 1: 705 575; 642 759 antes da feature; o acréscimo é o arquivo de pista como literal, 49 360 caracteres, mais os módulos novos); o texto da Kart Park está no pacote, nenhuma requisição |
+| `npx tsx --test tests/*.test.ts` | rodada 4: 443 verificações, **442 aprovadas, 1 reprovada** — `CHK-TEST-0009-04` (`tests/pista-kart-park-screens.test.ts:47-56`), que afirma `#lap-result-credit`, retirado por ADR-0007; migração do estágio de testes (`98-divergences.md`); nenhuma verificação de outra feature reprova; rodada 3: 398 verificações, **398 aprovadas, 0 reprovadas** (as 102 de `tests/pista-kart-park-*.test.ts` do estágio de testes incluídas; `CHK-TEST-0004-03` passa nos 8 lançamentos, `CHK-TEST-0004-02/-04/-05/-06` e `tests/physics.test.ts` verdes); rodada 2: 296 verificações, **296 aprovadas, 0 reprovadas** (`CHK-TEST-0009-02` reescrito por `race-lap-validation` em `32d0adf` e `CHK-TEST-0004-13` restrito aos campos da linha de base por `modelo-kart-01` em `c7e71b1`, entre as rodadas; rodada 1: 294/296 por essas duas). Nenhum teste editado por esta feature |
 | `npm run bench:handling` | saída 0; **46 registros `PASS`**, 0 `FAIL` (rodadas 2 e 3 reexecutado; a pista sintética não tem barreira) |
 | `npm run bench:physics` | saída 0; 10 registros `PASS` (rodada 3 reexecutado) |
-| `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` (rodada 2, sobre o arquivo regenerado; rodada 3 reexecutado, arquivo intacto) |
+| `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` (rodada 2, sobre o arquivo regenerado; rodadas 3 e 4 reexecutado, arquivo intacto, SHA-256 `04ce5e51…`) |
 | `lint_artifacts.py --stage code --emit` | saída 0 |
 
 ## Decisões de implementação (nenhuma muda contrato nem requisito; ver também `97-changelog.md`)
@@ -162,4 +186,4 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 
 A matriz `99-traceability.md` e o índice `00-index.md` são gerados pelo gate a partir dos campos `sources` dos registros `core/`,
 `data/`, `web/`, `pipeline/` e `security/`; cada registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. As divergências
-herdadas do D-Spec (13 linhas) estão em `98-divergences.md`, com o encerramento das duas verificações de outras features que a rodada 1 reprovava.
+herdadas do D-Spec (15 linhas: 13 da rodada 1 do projeto e 2 da rodada 4) estão em `98-divergences.md`, com o encerramento das duas verificações de outras features que a rodada 1 reprovava.

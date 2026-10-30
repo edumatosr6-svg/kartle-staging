@@ -4,7 +4,7 @@ title: Invariantes da simulação, contrato de passo, pista dos ensaios, depend�
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [FEAT-0007, FLOW-0002, REQ-FEAT-0007-03, REQ-FEAT-0007-04, REQ-FEAT-0007-06, REQ-FEAT-0007-07, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10, REQ-FEAT-0007-11, REQ-FEAT-0007-12]
 ---
 
@@ -26,3 +26,7 @@ Restrição atravessando `src/trackGeometry.ts`, `src/trackData.ts`, `src/physic
 | REQ-FEAT-0007-11 | `package.json`: `dependencies` só `three` `^0.186.1`; `devDependencies` inalteradas; script `track` novo |
 | REQ-FEAT-0007-12 | árvore base `6ea3862` (`modelo-kart-01` validado), descendente de `b86b200` (`dirigibilidade` validado, `code-validation-20261027-1824`); o primeiro commit de código desta feature descende de `6ea3862` |
 | FEAT-0007; FLOW-0002 | camadas: `src/trackGeometry.ts` importa só `./track`; `src/trackData.ts` `./track` e `./trackGeometry`; `src/physics.ts` `./track`, `./maneuvers`, `./trackGeometry`; `src/lap.ts` `./physics`, `./track`, `./trackData`, `./trackGeometry`, `./lapTiming`; `src/trainingSession.ts` `./physics`, `./lap`, `./trackData`, `./trackGeometry`; `src/curbFeedback.ts` só tipos de `./physics`; `src/lapMessages.ts` só tipos de `./lap`; `src/trackScene.ts` `three` e `./trackGeometry`; `src/trainingSession.ts` sem `openstreetmap`, `ODbL`, `' · '` |
+
+Rodada 4 (DES-0006 1.1.0): `src/main.ts` lê `listLapResults` (`:567-568`, um registro por item novo, de `race-lap-validation`)
+ao lado de `getTrackContact`, `getLapState` e `getLapResult`, sem decidir regra; a retirada de `src/maneuvers.ts` da lista de
+simulação do teste de camada desta feature é do estágio de testes (`CHK-TEST-0011-01`); nenhum arquivo de código mudou por este item.
