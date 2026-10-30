@@ -1,22 +1,22 @@
 // TEST-0003 — the game camera (API-0003, RULE-0002) over real sessions of src/lap.ts frame by frame: the race pose, the
-// field of view per shape of the play area, the turbo, the overview before the countdown, the descent during it, the
-// kart inside the frame in a 90-degree curve and the camera behind the frozen kart after the lap ends (strategy:
-// camera, DES-0003, DES-0006). Pure math: no renderer, the model only for the projected corners.
+// field of view per shape of the play area (no turbo field any more), the overview before the countdown, the descent
+// during it, the kart inside the frame in a 90-degree curve, the camera behind the frozen kart after an official lap ends
+// and behind the moving kart after a training lap ends (strategy: camera, DES-0003, DES-0006). Pure math: no renderer, the model only for the projected corners.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { ARCADE_KART, PUBLISHED_SETUPS, track, WIDTH, type State } from '../src/physics';
-import { getLapResult, getLapState, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapSession, type LapStateView } from '../src/lap';
+import { ARCADE_KART, PUBLISHED_SETUPS, track, WIDTH, type Input, type State } from '../src/physics';
+import { getLapResult, getLapState, listLapResults, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapKind, type LapSession, type LapStateView } from '../src/lap';
 import { COUNTDOWN_MS, COUNTDOWN_STEPS } from '../src/lapTiming';
 import {
-  baseVerticalFovDeg, computeCameraView, decideCameraMode, horizontalFovDeg, raceChasePose, trackBoundsOf, trackOverviewPose, viewShapeOf,
+  computeCameraView, decideCameraMode, horizontalFovDeg, raceChasePose, shapeVerticalFovDeg, trackBoundsOf, trackOverviewPose, viewShapeOf,
   type CameraPose, type CameraView,
 } from '../src/gameCamera';
 import { getKartPose, modelOffsetForwardM, type KartPose } from '../src/kartPose';
 import { buildKart01Model, KART01_WHEELBASE_M } from '../src/kart01Model';
 import { syntheticReading } from './fixtures/trackFiles';
 import { autopilot, completeLap, drive, IDLE, runCountdown, seedLap, startSession } from './helpers/autopilot';
-import { modelExtremePoints, modelToWorld, moving, projectPoint } from './helpers/kart01Report';
+import { modelExtremePoints, modelToWorld, moving, projectPoint, sourceText, stripComments } from './helpers/kart01Report';
 
 const reading = syntheticReading();
 const bounds = trackBoundsOf(track, WIDTH / 2 + 1);
@@ -26,13 +26,13 @@ type Area = readonly [number, number];
 const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
 const wrap = (rad: number) => Math.atan2(Math.sin(rad), Math.cos(rad));
 const poseOf = (state: State): KartPose => { const p = getKartPose(state); if ('code' in p) throw new Error(p.code); return p; };
-const viewOf = (lap: LapSession | undefined, area: Area = LANDSCAPE, turboActive = false): CameraView => {
-  const view = computeCameraView({ lapState: getLapState(lap), kartPose: lap ? getKartPose(lap.kart) : { code: 'NO_STATE' }, viewWidthPx: area[0], viewHeightPx: area[1], turboActive, trackBounds: bounds });
+const viewOf = (lap: LapSession | undefined, area: Area = LANDSCAPE): CameraView => {
+  const view = computeCameraView({ lapState: getLapState(lap), kartPose: lap ? getKartPose(lap.kart) : { code: 'NO_STATE' }, viewWidthPx: area[0], viewHeightPx: area[1], trackBounds: bounds });
   if ('code' in view) throw new Error(view.code);
   return view;
 };
-const viewOfPose = (lapState: LapStateView | { code: 'NO_ACTIVE_LAP' }, pose: KartPose, area: Area, turboActive = false): CameraView => {
-  const view = computeCameraView({ lapState, kartPose: pose, viewWidthPx: area[0], viewHeightPx: area[1], turboActive, trackBounds: bounds });
+const viewOfPose = (lapState: LapStateView | { code: 'NO_ACTIVE_LAP' }, pose: KartPose, area: Area): CameraView => {
+  const view = computeCameraView({ lapState, kartPose: pose, viewWidthPx: area[0], viewHeightPx: area[1], trackBounds: bounds });
   if ('code' in view) throw new Error(view.code);
   return view;
 };
@@ -99,7 +99,7 @@ test('CHK-TEST-0003-03 in every race frame the camera aims 3.2 m ahead of the ka
   }
 });
 
-test('CHK-TEST-0003-04 in landscape without turbo the vertical field of view is 62 degrees at any speed', () => {
+test('CHK-TEST-0003-04 in landscape the vertical field of view is 62 degrees at any speed and with any command, and no view carries a turbo field', () => {
   // AC-US-0003-04
   assert.equal(viewShapeOf(1280, 720), 'LANDSCAPE', 'AC-US-0003-04: 1280 x 720 is landscape');
   assert.equal(viewShapeOf(1000, 1000), 'LANDSCAPE', 'AC-US-0003-04: a square play area follows the landscape rule');
@@ -108,14 +108,31 @@ test('CHK-TEST-0003-04 in landscape without turbo the vertical field of view is 
     for (const area of [LANDSCAPE, SQUARE, FOUR_THREE]) {
       const view = viewOfPose(lapState, poseOf(moving(v)), area);
       assert.equal(view.verticalFovDeg, 62, `AC-US-0003-04: vertical FOV must be 62 degrees at ${v} m/s in ${area.join('x')}`);
-      assert.equal(view.baseVerticalFovDeg, 62, `AC-US-0003-04: the base vertical FOV must be 62 degrees in ${area.join('x')}`);
       assert.ok(near(view.horizontalFovDeg, horizontalFovDeg(62, area[0] / area[1]), 1e-9), 'AC-US-0003-04: the horizontal FOV follows from 62 degrees and the aspect');
     }
   }
-  assert.equal(baseVerticalFovDeg('LANDSCAPE', 21 / 9), 62, 'AC-US-0003-04: an ultra-wide landscape keeps 62 degrees');
+  for (const aspect of [1, 16 / 9, 21 / 9]) assert.equal(shapeVerticalFovDeg('LANDSCAPE', aspect), 62, `AC-US-0003-04: a landscape of aspect ${aspect.toFixed(3)} keeps 62 degrees`);
+  // A real session driven with full throttle and the drift command in alternate stretches (the commands that used to
+  // fire the drift and the turbo), from rest to the top speed of the published setup (25 m/s is reached only by the
+  // moving(25) pose above: arcade-assistido-v6 tops out near 16 m/s on the synthetic track).
+  const commands = (i: number): Input => ({ throttle: 1, brake: 0, steer: 0, drift: Math.floor(i / 60) % 2 === 1 });
+  let lap = runCountdown(startSession(reading, 'TRAINING', PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config));
+  let topSpeedMps = 0;
+  const views: CameraView[] = [viewOf(undefined), viewOf(startSession(reading))];
+  for (let i = 0; i < 1500 && lap.phase === 'RUNNING'; i++) {
+    lap = stepLap(lap, commands(i));
+    const view = viewOf(lap);
+    topSpeedMps = Math.max(topSpeedMps, lap.kart.speed);
+    assert.equal(view.verticalFovDeg, 62, `AC-US-0003-04: step ${i} (${lap.kart.speed.toFixed(1)} m/s, drift command ${commands(i).drift}) keeps 62 degrees`);
+    views.push(view);
+  }
+  assert.ok(topSpeedMps > 15, `AC-US-0003-04: the session reached the top speed of the setup on the straight, more than 15 m/s (${topSpeedMps.toFixed(1)})`);
+  for (const view of views) {
+    assert.ok(!('baseVerticalFovDeg' in view) && !('turboFovDeltaDeg' in view), `AC-US-0003-04: a ${view.cameraMode} view carries no baseVerticalFovDeg nor turboFovDeltaDeg`);
+  }
 });
 
-test('CHK-TEST-0003-05 in portrait without turbo the horizontal field of view is at least 60 degrees', () => {
+test('CHK-TEST-0003-05 in portrait the horizontal field of view is at least 60 degrees', () => {
   // AC-US-0003-05
   assert.equal(viewShapeOf(720, 1280), 'PORTRAIT', 'AC-US-0003-05: 720 x 1280 is portrait');
   assert.equal(viewShapeOf(900, 1200), 'PORTRAIT', 'AC-US-0003-05: 900 x 1200 is portrait');
@@ -140,7 +157,7 @@ test('CHK-TEST-0003-06 in portrait the vertical field of view never falls below 
   assert.deepEqual(cameraPoseOf(portrait), cameraPoseOf(landscape), 'AC-US-0003-06: the race pose does not change with the shape');
   assert.equal(portrait.viewShape, 'PORTRAIT', 'AC-US-0003-06: the frame after the change carries the new shape');
   assert.notEqual(portrait.verticalFovDeg, landscape.verticalFovDeg, 'AC-US-0003-06: the field of view is the one of the new shape');
-  assert.ok(baseVerticalFovDeg('PORTRAIT', 0.99) >= 62, 'AC-US-0003-06: a barely portrait area still keeps 62 degrees');
+  assert.ok(shapeVerticalFovDeg('PORTRAIT', 0.99) >= 62, 'AC-US-0003-06: a barely portrait area still keeps 62 degrees');
 });
 
 test('CHK-TEST-0003-07 between consecutive frames the aim direction turns exactly as much as the kart heading, in a curve and across a reposition', () => {
@@ -180,33 +197,12 @@ test('CHK-TEST-0003-08 in a 90-degree curve at 50 km/h the whole kart with the p
   }
 });
 
-test('CHK-TEST-0003-09 with the turbo active the vertical field of view opens by the 4 degrees of the existing effect over the base of the shape', () => {
-  // AC-US-0003-09
-  const lapState = getLapState(running[0].lap);
-  const pose = running[20].pose;
-  for (const area of [LANDSCAPE, PORTRAIT]) {
-    const on = viewOfPose(lapState, pose, area, true), off = viewOfPose(lapState, pose, area, false);
-    assert.equal(on.turboFovDeltaDeg, 4, `AC-US-0003-09: the turbo delta is 4 degrees in ${area.join('x')}`);
-    assert.equal(on.verticalFovDeg - (on.baseVerticalFovDeg ?? NaN), 4, `AC-US-0003-09: vertical minus base must be 4 degrees with turbo in ${area.join('x')}`);
-    assert.equal(on.baseVerticalFovDeg, off.baseVerticalFovDeg, 'AC-US-0003-09: the base does not change with the turbo');
-    assert.equal(off.turboFovDeltaDeg, 0, 'AC-US-0003-09: without turbo the delta is 0');
-    assert.equal(off.verticalFovDeg, off.baseVerticalFovDeg, 'AC-US-0003-09: without turbo the vertical FOV is the base');
-    assert.deepEqual(cameraPoseOf(on), cameraPoseOf(off), 'AC-US-0003-09: the turbo does not move the camera');
-  }
-  const landscapeOn = viewOfPose(lapState, pose, LANDSCAPE, true), portraitOn = viewOfPose(lapState, pose, PORTRAIT, true);
-  assert.equal(landscapeOn.verticalFovDeg, 66, 'AC-US-0003-09: landscape with turbo is 62 + 4');
-  assert.equal(portraitOn.verticalFovDeg - (portraitOn.baseVerticalFovDeg ?? NaN), 4, 'AC-US-0003-09: after the shape change the 4 degrees apply over the new base');
-  assert.notEqual(portraitOn.baseVerticalFovDeg, landscapeOn.baseVerticalFovDeg, 'AC-US-0003-09: the two shapes have different bases');
-});
-
 test('CHK-TEST-0003-10 before the countdown the camera shows the whole track from above, in every shape of the play area, and never after the lap ended', () => {
   // AC-US-0003-10
   for (const area of AREAS) {
     const view = viewOf(undefined, area);
     assert.equal(view.cameraMode, 'TRACK_OVERVIEW', `AC-US-0003-10: without an active lap the mode is TRACK_OVERVIEW in ${area.join('x')}`);
     assert.equal(view.simStepCount, undefined, 'AC-US-0003-10: the overview carries no simulation step');
-    assert.equal(view.baseVerticalFovDeg, undefined, 'AC-US-0003-10: the overview carries no base FOV');
-    assert.equal(view.turboFovDeltaDeg, undefined, 'AC-US-0003-10: the overview carries no turbo delta');
     assert.ok(view.cameraHeightM >= 20, 'AC-US-0003-10: the overview is seen from above');
     for (const x of [bounds.minXM, bounds.maxXM]) for (const z of [bounds.minZM, bounds.maxZM]) {
       const ndc = projectPoint(view, new THREE.Vector3(x, 0, z));
@@ -214,7 +210,7 @@ test('CHK-TEST-0003-10 before the countdown the camera shows the whole track fro
     }
   }
   for (const { view } of [...endedByCompletion, ...endedByReposition]) assert.notEqual(view.cameraMode, 'TRACK_OVERVIEW', 'AC-US-0003-10: an ended lap never shows the overview');
-  assert.deepEqual(computeCameraView({ lapState: { code: 'NO_ACTIVE_LAP' }, kartPose: { code: 'NO_STATE' }, viewWidthPx: 1280, viewHeightPx: 720, turboActive: false, trackBounds: undefined }), { code: 'NO_SCENE' }, 'AC-US-0003-10: without a track there is no scene to show');
+  assert.deepEqual(computeCameraView({ lapState: { code: 'NO_ACTIVE_LAP' }, kartPose: { code: 'NO_STATE' }, viewWidthPx: 1280, viewHeightPx: 720, trackBounds: undefined }), { code: 'NO_SCENE' }, 'AC-US-0003-10: without a track there is no scene to show');
 });
 
 test('CHK-TEST-0003-11 during the countdown the camera holds the overview and then descends without ever rising, stopping while paused', () => {
@@ -307,4 +303,118 @@ test('CHK-TEST-0003-14 the camera mode follows the lap phase: overview only with
   assert.equal(decideCameraMode({ ...base, lapPhase: 'RUNNING' }), 'RACE_CHASE', 'AC-US-0003-10: running gives the chase');
   assert.equal(decideCameraMode({ ...base, lapPhase: 'PAUSED', resumePhase: 'RUNNING' }), 'RACE_CHASE', 'AC-US-0003-10: a paused race keeps the chase');
   assert.equal(decideCameraMode({ ...base, lapPhase: 'ENDED' }), 'RACE_CHASE', 'AC-US-0003-13: an ended lap keeps the chase, never the overview');
+});
+
+test('CHK-TEST-0003-15 the camera does not depend on the lap kind: a training lap gets the chase pose of the kart in every frame, as an official one', () => {
+  // AC-US-0003-14
+  const base = getLapState(running[0].lap);
+  if ('code' in base) throw new Error(base.code);
+  const kinds: readonly LapKind[] = ['OFFICIAL', 'RECON', 'TRAINING'];
+  // Every phase of a lap, with the mode RULE-0002 gives it whatever the kind: the descent only during the countdown.
+  const phases = [
+    { phase: { lapPhase: 'COUNTDOWN', countdownRemainingMs: 1500 }, mode: 'COUNTDOWN_DESCENT' },
+    { phase: { lapPhase: 'PAUSED', resumePhase: 'COUNTDOWN', countdownRemainingMs: 2950 }, mode: 'COUNTDOWN_DESCENT' },
+    { phase: { lapPhase: 'RUNNING' }, mode: 'RACE_CHASE' },
+    { phase: { lapPhase: 'PAUSED', resumePhase: 'RUNNING' }, mode: 'RACE_CHASE' },
+    { phase: { lapPhase: 'ENDED' }, mode: 'RACE_CHASE' },
+  ] as const;
+  for (const { phase, mode } of phases) {
+    for (const area of [LANDSCAPE, PORTRAIT]) {
+      const [official, ...others] = kinds.map(lapKind => viewOfPose({ ...base, ...phase, lapKind }, running[40].pose, area));
+      for (const other of others) assert.deepEqual(other, official, `AC-US-0003-14: a ${phase.lapPhase} view in ${area.join('x')} is the same field by field for every lap kind`);
+    }
+    for (const lapKind of kinds) {
+      assert.equal(decideCameraMode({ ...base, lapKind, ...phase }), mode, `AC-US-0003-14: ${lapKind} ${phase.lapPhase}${'resumePhase' in phase ? ` (from ${phase.resumePhase})` : ''} is ${mode}`);
+    }
+  }
+  // A real training countdown frame by frame: the same descent as the official one, step for step.
+  let trainingLap = startSession(reading, 'TRAINING'), officialLap = startSession(reading, 'OFFICIAL');
+  for (let i = 0; i < COUNTDOWN_STEPS; i++) {
+    const trainingView = viewOf(trainingLap), officialView = viewOf(officialLap);
+    assert.equal(trainingView.cameraMode, 'COUNTDOWN_DESCENT', `AC-US-0003-14: training countdown step ${i} is COUNTDOWN_DESCENT`);
+    assert.deepEqual(trainingView, officialView, `AC-US-0003-14: training countdown step ${i} gives the view of the official countdown`);
+    trainingLap = stepLap(trainingLap, IDLE); officialLap = stepLap(officialLap, IDLE);
+  }
+  const trainingState: LapStateView = { ...base, lapKind: 'TRAINING' };
+  for (const [i, { pose }] of running.entries()) {
+    const view = viewOfPose(trainingState, pose, LANDSCAPE);
+    assert.equal(view.cameraMode, 'RACE_CHASE', `AC-US-0003-14: training frame ${i} is RACE_CHASE`);
+    assert.deepEqual(cameraPoseOf(view), raceChasePose(pose), `AC-US-0003-14: training frame ${i} is the chase pose of the kart of that frame`);
+  }
+});
+
+// A training driven by the reference controller until two laps close on the finish line (the second one invalidated by a
+// cut: the kart is steered off the track until the lap is INVALID, then repositioned on the centerline), then 120 more
+// steps at full throttle; one frame per step.
+type TrainingFrame = Frame & { closedLaps: number; repositioned: boolean };
+function continuousTraining(): TrainingFrame[] {
+  const config = PUBLISHED_SETUPS.ARCADE_ASSISTIDO.config;
+  const controller = autopilot(0, config);
+  let lap = runCountdown(startSession(reading, 'TRAINING', config));
+  const frames: TrainingFrame[] = [];
+  const push = (repositioned = false) => frames.push({ lap, pose: poseOf(lap.kart), view: viewOf(lap), closedLaps: listLapResults(lap).lapResults.length, repositioned });
+  let repositionedOnce = false, afterLastClose = -1;
+  for (let i = 0; i < 20000 && lap.phase === 'RUNNING'; i++) {
+    const closed = listLapResults(lap).lapResults.length;
+    if (closed === 1 && !repositionedOnce && lap.markersPassedCount >= 1) {
+      for (let j = 0; j < 1200 && lap.validity === 'VALID'; j++) { lap = stepLap(lap, { throttle: 1, brake: 0, steer: 1 }); push(); }
+      const moved = repositionKart(lap);
+      if (!moved.ok) throw new Error(moved.code);
+      lap = moved.lap; repositionedOnce = true; push(true); continue;
+    }
+    lap = stepLap(lap, afterLastClose >= 0 ? { throttle: 1, brake: 0, steer: 0 } : controller(lap));
+    push();
+    if (afterLastClose < 0 && listLapResults(lap).lapResults.length === 2) afterLastClose = 0;
+    else if (afterLastClose >= 0 && ++afterLastClose >= 120) break;
+  }
+  return frames;
+}
+const training = continuousTraining();
+
+test('CHK-TEST-0003-16 after a training lap ends, valid or invalidated, the camera stays in the chase pose behind the kart, which keeps moving', () => {
+  // AC-US-0003-14
+  const results = listLapResults(training[training.length - 1].lap).lapResults;
+  assert.equal(results.length, 2, 'AC-US-0003-14: two training laps closed on the finish line');
+  assert.deepEqual(results.map(r => [r.lapValidity, r.invalidReason]), [['VALID', undefined], ['INVALID', 'CUT']], 'AC-US-0003-14: the first lap closed valid and the second invalidated by the cut');
+  assert.ok(training.some(f => f.repositioned), 'AC-US-0003-14: the kart was repositioned during the second lap');
+  const firstEnd = training.findIndex(f => f.closedLaps >= 1);
+  const secondEnd = training.findIndex(f => f.closedLaps >= 2);
+  assert.ok(firstEnd > 0 && secondEnd > firstEnd, 'AC-US-0003-14: the frames where each lap ended were found');
+  assert.ok(training.length - secondEnd > 120, `AC-US-0003-14: 120 frames were driven after the second lap ended (${training.length - secondEnd - 1})`);
+  for (let i = firstEnd; i < training.length; i++) {
+    const { lap, pose, view } = training[i];
+    assert.equal(lap.phase, 'RUNNING', `AC-US-0003-14: frame ${i} after a training lap end is still RUNNING`);
+    assert.equal(view.cameraMode, 'RACE_CHASE', `AC-US-0003-14: frame ${i} after a training lap end is RACE_CHASE, never the overview nor the descent`);
+    assert.deepEqual(cameraPoseOf(view), raceChasePose(poseOf(lap.kart)), `AC-US-0003-14: frame ${i} is the chase pose of the kart the simulation reports`);
+    assert.equal(view.simStepCount, pose.simStepCount, `AC-US-0003-14: frame ${i} carries the step of its kart`);
+    const previous = training[i - 1];
+    assert.notEqual(view.simStepCount, previous.view.simStepCount, `AC-US-0003-14: the simulation advanced between frames ${i - 1} and ${i}`);
+    if (lap.kart.speed > 0) assert.ok(pose.xM !== previous.pose.xM || pose.zM !== previous.pose.zM, `AC-US-0003-14: the kart reported at ${lap.kart.speed.toFixed(2)} m/s moved between frames ${i - 1} and ${i}`);
+  }
+  for (const [label, end] of [['valid', firstEnd], ['invalidated', secondEnd]] as const) {
+    const from = training[end].pose, to = training[end + 120].pose;
+    const travelled = Math.hypot(to.xM - from.xM, to.zM - from.zM);
+    assert.ok(travelled > 5, `AC-US-0003-14: in the 120 frames after the ${label} lap ended the kart kept moving (${travelled.toFixed(1)} m)`);
+  }
+});
+
+test('CHK-TEST-0003-17 the camera takes no turbo and no command: no turbo field or constant in the camera or the application, no manoeuvre or Input import, and the frame call passes exactly the five inputs', () => {
+  // AC-US-0003-04
+  const camera = stripComments(sourceText('src/gameCamera.ts')), main = stripComments(sourceText('src/main.ts'));
+  for (const symbol of ['turboActive', 'TURBO_FOV_DELTA_DEG', 'turboFovDeltaDeg', 'baseVerticalFovDeg']) {
+    assert.ok(!new RegExp(`\\b${symbol}\\b`).test(camera), `AC-US-0003-04: src/gameCamera.ts has no ${symbol}`);
+    assert.ok(!new RegExp(`\\b${symbol}\\b`).test(main), `AC-US-0003-04: src/main.ts has no ${symbol}`);
+  }
+  const imports = [...camera.matchAll(/import\s+(?:type\s+)?\{([^}]*)\}\s+from\s+'([^']+)'/g)];
+  assert.ok(!imports.some(m => /maneuvers$/.test(m[2])), 'AC-US-0003-04: src/gameCamera.ts does not import src/maneuvers.ts');
+  assert.ok(!imports.some(m => m[1].split(',').map(n => n.replace(/^\s*type\s+/, '').trim()).includes('Input')), 'AC-US-0003-04: src/gameCamera.ts does not import the Input type');
+  const calls = [...main.matchAll(/computeCameraView\(\s*\{([^}]*)\}\s*\)/g)];
+  assert.equal(calls.length, 1, 'AC-US-0003-04: src/main.ts calls computeCameraView once per frame, in one place');
+  const keys = calls[0][1].split(',').map(part => part.split(':')[0].trim()).filter(Boolean).sort();
+  assert.deepEqual(keys, ['kartPose', 'lapState', 'trackBounds', 'viewHeightPx', 'viewWidthPx'], 'AC-US-0003-04: the frame passes exactly lapState, kartPose, viewWidthPx, viewHeightPx and trackBounds');
+});
+
+test('CHK-TEST-0003-18 the camera module never reads the lap kind', () => {
+  // AC-US-0003-14
+  assert.ok(!/\blapKind\b/.test(stripComments(sourceText('src/gameCamera.ts'))), 'AC-US-0003-14: src/gameCamera.ts reads no lapKind');
 });

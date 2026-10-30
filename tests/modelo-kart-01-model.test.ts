@@ -258,14 +258,23 @@ test('CHK-TEST-0001-18 the nose is at the model front (-Z), the rear bumper behi
   assert.ok(noseTurned.min.z > 0, `AC-US-0002-06: with the root turned by pi the nose is at +Z, the simulation front (min.z ${noseTurned.min.z})`);
 });
 
-test('CHK-TEST-0001-19 the exhaust outlet anchor hangs from the motor group at the end of the tailpipe, (0.39, 0.33, 0.77) m', () => {
-  // AC-US-0005-02
-  let p: THREE.Object3D | null = model.anchors.exhaustOutlet;
-  let underMotor = false;
-  while (p) { if (p === model.groups.motor) underMotor = true; p = p.parent; }
-  assert.ok(underMotor, 'AC-US-0005-02: anchors.exhaustOutlet must be a descendant of motor');
-  model.anchors.exhaustOutlet.updateWorldMatrix(true, false);
-  const at = new THREE.Vector3().setFromMatrixPosition(model.anchors.exhaustOutlet.matrixWorld);
-  assert.ok(near(at.x, 0.39, 1e-9) && near(at.y, 0.33, 1e-9) && near(at.z, 0.77, 1e-9), `AC-US-0005-02: the outlet must be at (0.39, 0.33, 0.77) m in the model frame (${at.toArray().join(', ')})`);
-  assert.ok(at.z > boxOf([model.groups.motor]).max.z - 0.05, 'AC-US-0005-02: the outlet is at the rear end of the engine');
+test('CHK-TEST-0001-20 the kart root holds only the 15 part groups and the pilot: no drift indicator hangs from the model', () => {
+  // AC-US-0005-04
+  const groups = new Set<THREE.Object3D>(Object.values(model.groups));
+  assert.equal(groups.size, 16, 'AC-US-0005-04: the model has the 15 part groups and the pilot');
+  assert.equal(model.root.children.length, 16, `AC-US-0005-04: the root has exactly 16 children (${model.root.children.map(c => c.name).join(', ')})`);
+  for (const child of model.root.children) assert.ok(groups.has(child), `AC-US-0005-04: ${child.name || child.type} under the root is a part group or the pilot`);
+  assert.equal(meshesOf(model.root).length, measures.meshCount, 'AC-US-0005-04: every mesh under the root is one of the meshes DRAW_COST counts in the groups');
+  const fresh = buildKart01Model();
+  updateKart01Pose(fresh, { steerAngleRad: 0.36, wheelSpinRevs: { ...restSpin, rodaTraseiraEsq: 3, rodaTraseiraDir: 3 } });
+  assert.equal(meshesOf(fresh.root).length, measures.meshCount, 'AC-US-0005-04: posing the kart in a full-lock slide adds no object to the model');
+});
+
+test('CHK-TEST-0001-21 the model has no exhaust outlet: bumperPlate is its only anchor and no node is the exhaust tip', () => {
+  // AC-US-0005-05
+  assert.deepEqual(Object.keys(model.anchors), ['bumperPlate'], 'AC-US-0005-05: bumperPlate is the only anchor of the model');
+  const names: string[] = [];
+  model.root.traverse(o => { names.push(o.name); });
+  assert.ok(!names.includes('escapamentoSaida'), 'AC-US-0005-05: no node of the model is the exhaust outlet escapamentoSaida');
+  assert.ok(!('exhaustOutlet' in model.anchors), 'AC-US-0005-05: the model carries no exhaustOutlet anchor');
 });

@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: modelo-kart-01
 stage: test
 status: validated
-version: 1.1.0
+version: 1.3.0
 ---
 
 # 97 — Changelog
@@ -248,3 +248,159 @@ congelamento do Kart 01 reprovou nesta execução.
 
 - **Alterar as verificações de marcas de pneu / congelamento do Kart 01:** fora do escopo desta rodada; a rodada de código do
   Kart 01 que as implementa vem depois.
+
+## 2026-10-30 — rodada 4, Modo B (seed rev 4: marcas por derrapagem, sem drift nem turbo, treino contínuo)
+
+### Entrada
+
+- `reports/test-validation/test-validation-20261030-1453.md` (FAIL TEST): ISSUE-09 (sem verificação para AC-US-0003-14 e
+  AC-US-0005-04 a -07) e ISSUE-10 (CHK-TEST-0003-09, -0001-19, -0004-05 e -0004-06 decidiam critérios retirados).
+- Requisitos revalidados contra o seed rev 4 (`200 Requirements/230 Output/modelo-kart-01/`, US-0003 AC-14, US-0005 AC-04 a -07);
+  estratégia `test-strategy.md` 1.6.0 ("Verificações existentes"; linhas de AC-US-0003-04, -14 e AC-US-0005-04 a -07).
+- Código da rodada 3 (`400 Code/Output/modelo-kart-01/reports/code-validation/code-validation-20261030-1655.md`, SUCCESS):
+  `baseVerticalFovDeg` renomeada `shapeVerticalFovDeg` (DES-0003), `turboActive`/`turboFovDeltaDeg` fora de `CameraView`,
+  jato e `exhaustOutlet` fora, marcas pela telemetria (`speedMps` > 6, `sideslipRad` > 0,055) a cada passo novo em `RUNNING`.
+- Antes desta rodada: `tests/modelo-kart-01-camera.test.ts` não carregava (importava `baseVerticalFovDeg`); CHK-TEST-0001-19,
+  -0004-05 e -0004-06 reprovavam contra a árvore.
+
+### O que mudou
+
+- `tests/modelo-kart-01-camera.test.ts`: importa `shapeVerticalFovDeg`; `viewOf`/`viewOfPose` sem `turboActive`; CHK-TEST-0003-09
+  retirada; CHK-TEST-0003-15 e -16 novas (AC-US-0003-14).
+- `tests/modelo-kart-01-model.test.ts`: CHK-TEST-0001-19 retirada; CHK-TEST-0001-20 (AC-US-0005-04) e -21 (AC-US-0005-05) novas.
+- `tests/modelo-kart-01-contract.test.ts`: CHK-TEST-0004-05 retirada; CHK-TEST-0004-06 reescrita para AC-US-0005-06;
+  CHK-TEST-0004-17 (AC-US-0005-04), -18 (AC-US-0005-05), -19 e -20 (AC-US-0005-07) novas.
+- `tests/helpers/kart01Report.ts`: `tyreMarkBlockOf` e `tyreMarkRunner` — o bloco das marcas de `src/main.ts` (o primeiro `if`
+  depois da declaração de `lastSkidStepCount` cuja condição o lê), transpilado como está com `typescript` (dependência de
+  desenvolvimento já declarada), executado num escopo que só tem a sessão, a pose, `getLapState`, `getHandlingTelemetry`,
+  `simWheelGroundPositions`, `THREE` e uma `InstancedMesh` real; devolve os trechos escritos no quadro. Nenhum comando de
+  jogador existe no escopo: uma leitura de teclado, toque, inclinação ou `Input` no bloco lança `ReferenceError`.
+  `renderNeutralCheck` deixa de passar `turboActive` a `computeCameraView` (campo que a interface não tem mais; CHK-TEST-0004-09
+  sem mudança de comportamento).
+- TEST-0001 1.0.0 → 1.1.0, TEST-0003 1.0.0 → 1.1.0, TEST-0004 1.2.0 → 1.3.0 (`sources:` só com critérios do seed rev 4);
+  98-divergences 1.1.0 → 1.2.0 (seção de critérios retirados, linhas novas de AC-US-0003-14 e AC-US-0005-04 a -07, duas
+  interpretações registradas).
+
+### Migração de verificações existentes
+
+| Id | Desfecho | O que mudou | Por que o critério continua coberto / aprovação |
+|---|---|---|---|
+| CHK-TEST-0003-09 | removed | decidia o efeito de turbo de 4° (AC-US-0003-09) | critério retirado do seed (rev 3/4) pelo dono do produto, Eduardo Matos, 2026-10-29 ("Sem efeito de turbo na câmera", `200 Requirements/220 Input/modelo-kart-01/DOMAIN.md`); estratégia 1.6.0 "Verificações existentes"; registrado em `98-divergences.md` |
+| CHK-TEST-0001-19 | removed | decidia a posição da âncora `exhaustOutlet` (AC-US-0005-02) | critério retirado pelo dono do produto, Eduardo Matos, 2026-10-29 ("Treino contínuo e fim do drift e do turbo", `DOMAIN/DEC-07`); no lugar, CHK-TEST-0001-21 prova a ausência (AC-US-0005-05) |
+| CHK-TEST-0004-05 | removed | decidia o jato preso a `anchors.exhaustOutlet` visível com `tricks.boost` (AC-US-0005-02) | mesma decisão de 2026-10-29 (Eduardo Matos, `DOMAIN/DEC-07`); no lugar, CHK-TEST-0004-18 (AC-US-0005-05) |
+| CHK-TEST-0004-06 | modified | era a expressão regular `tricks.drifting && state.speed > 6 && …` (AC-US-0005-03, retirado em 2026-10-29/2026-10-30 por Eduardo Matos, `DOMAIN/DEC-07`, `DOMAIN/DEC-09`); agora executa o bloco das marcas de `src/main.ts` sobre 6 000 passos dirigidos em quadros de 0 a 3 passos e exige 2 trechos (um terminando sob cada roda traseira, encadeado na posição do quadro anterior) exatamente nos quadros com passo novo, `RUNNING`, > 6 m/s e > 0,055 rad, e nenhum nos outros; exige quadros dirigidos dos dois lados de cada limite e da derrapagem | decide AC-US-0005-06 (e a metade de velocidade e derrapagem de AC-US-0005-07), como a estratégia 1.6.0 pede para esta verificação |
+| CHK-TEST-0003-04 | modified | sem a afirmação `baseVerticalFovDeg === 62` (campo retirado); acrescenta `shapeVerticalFovDeg('LANDSCAPE', a) === 62` para 1, 16:9 e 21:9, a sessão dirigida com `drift` alternado e aceleração plena com 62° em todos os quadros, e a ausência de `baseVerticalFovDeg`/`turboFovDeltaDeg` em toda `CameraView` (visão geral, descida, corrida) | AC-US-0003-04 decidido por mais caminhos, nenhum afrouxado |
+| CHK-TEST-0003-05 | modified | só o nome (sem "without turbo") | mesmo corpo |
+| CHK-TEST-0003-06 | modified | `baseVerticalFovDeg('PORTRAIT', 0.99)` → `shapeVerticalFovDeg('PORTRAIT', 0.99)` (renomeação de DES-0003) | mesmo valor exigido |
+| CHK-TEST-0003-10 | modified | as afirmações de ausência de `baseVerticalFovDeg`/`turboFovDeltaDeg` na visão geral passam para CHK-TEST-0003-04 (que cobre os três modos); a chamada sem pista não passa `turboActive` | AC-US-0003-10 com as mesmas afirmações de modo, altura, margem e `NO_SCENE` |
+| CHK-TEST-0004-09 | modified | `renderNeutralCheck` sem `turboActive` | `RENDER_NEUTRAL` inalterado (`differingFieldCount` 0) |
+
+Novas: CHK-TEST-0001-20, -0001-21, -0003-15, -0003-16, -0004-17, -0004-18, -0004-19, -0004-20. Atrito por arquivo: 59 → 64
+(3 removidas, 8 novas); nenhuma outra id mudou.
+
+### Execução
+
+`npx tsx --test` com os repórteres `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`), 2026-10-30:
+441 verificações, 441 aprovadas, 0 reprovadas, 0 puladas; desta feature, por atributo `file`: `-model` 20, `-pose` 10,
+`-camera` 15, `-contract` 19 = 64, todas aprovadas.
+
+### Prova de que as verificações novas e modificadas podem falhar
+
+Cópia de `src/`, `tests/`, `tracks/`, `index.html`, `package.json` e `tsconfig.json` no rascunho da sessão, com junção para
+`node_modules`; uma mutação literal por vez, os arquivos de teste nomeados executados com o repórter TAP, o arquivo restaurado
+depois de cada tentativa (sem mutação: 64/64). Resultado:
+
+- M01 (`src/main.ts`, `speedMps > 6` → `>= 6`): 1 de 19 reprovadas — CHK-TEST-0004-19
+- M02 (`src/main.ts`, `sideslipRad > 0.055` → `>= 0.055`): 1 de 19 reprovadas — CHK-TEST-0004-19
+- M03 (`src/main.ts`, `speedMps > 6` → `> 5.5`): 2 de 19 reprovadas — CHK-TEST-0004-06, CHK-TEST-0004-19
+- M04 (`src/main.ts`, `sideslipRad > 0.055` → `> 0.06`): 2 de 19 reprovadas — CHK-TEST-0004-06, CHK-TEST-0004-19
+- M05 (`src/main.ts`, fase recusada só em `COUNTDOWN` (no lugar de `!== 'RUNNING'`)): 1 de 19 reprovadas — CHK-TEST-0004-20
+- M06 (`src/main.ts`, contador `>` → `>=`): 2 de 19 reprovadas — CHK-TEST-0004-06, CHK-TEST-0004-19
+- M07 (`src/main.ts`, termo `&& lap.kart.maneuvers.drifting` acrescentado): 3 de 19 reprovadas — CHK-TEST-0004-06, CHK-TEST-0004-17, CHK-TEST-0004-19
+- M08 (`src/main.ts`, rodas dianteiras (`.slice(0, 2)`)): 2 de 19 reprovadas — CHK-TEST-0004-04, CHK-TEST-0004-06
+- M09 (`src/main.ts`, derrapagem com sinal (`lap.kart.telemetry.sideslip > 0.055`)): 2 de 19 reprovadas — CHK-TEST-0004-06, CHK-TEST-0004-19
+- M10 (`src/main.ts`, `Sprite` acrescentado a `kartRoot`): 1 de 19 reprovadas — CHK-TEST-0004-17
+- M11 (`src/main.ts`, jato `ConeGeometry` acrescentado à cena): 2 de 19 reprovadas — CHK-TEST-0004-17, CHK-TEST-0004-18
+- M12 (`src/kart01Model.ts`, `anchors.exhaustOutlet` de volta (`src/kart01Model.ts`)): 2 de 39 reprovadas — CHK-TEST-0001-21, CHK-TEST-0004-18
+- M13 (`src/kart01Model.ts`, cone acrescentado à raiz do modelo (`src/kart01Model.ts`)): 2 de 20 reprovadas — CHK-TEST-0001-09, CHK-TEST-0001-20
+- M14 (`src/gameCamera.ts`, `TRACK_OVERVIEW` no treino a partir da segunda volta (`decideCameraMode`)): 1 de 15 reprovadas — CHK-TEST-0003-16
+- M15 (`src/gameCamera.ts`, `TRACK_OVERVIEW` no treino `ENDED` (`computeCameraView`)): 1 de 15 reprovadas — CHK-TEST-0003-15
+- M16 (`src/gameCamera.ts`, `baseVerticalFovDeg` de volta na `CameraView` de corrida): 1 de 15 reprovadas — CHK-TEST-0003-04
+- M17 (`src/gameCamera.ts`, `shapeVerticalFovDeg` 64° em paisagem acima de 2:1): 1 de 15 reprovadas — CHK-TEST-0003-04
+- M18 (`src/gameCamera.ts`, +4° no campo vertical acima de 12 m/s): 1 de 15 reprovadas — CHK-TEST-0003-04
+- Registro integral: `reports/mutation-trials-20261030-r4.txt`. Junção e cópia removidas depois; árvore do repositório intacta.
+
+### Itens declinados, com o motivo
+
+- **"velocidades de 0 a mais de 25 m/s" (estratégia, AC-US-0003-04):** a simulação v6 não passa de ~16 m/s na pista sintética
+  com nenhum acerto publicado; a sessão dirigida exige > 15 m/s e os 25 m/s ficam na pose `moving(25)`. Registrado em
+  `98-divergences.md` (interpretação).
+- **Verificação por texto do bloco das marcas (estratégia, AC-US-0005-06/-07):** substituída pela execução do próprio bloco
+  sobre estados dirigidos, como a invocação desta rodada pede; os limites exatos usam uma cópia do passo dirigido com um campo
+  no limite (`seedLap`), ao lado do controle 6 + 1e-6 / 0,055 + 1e-6. Registrado em `98-divergences.md` (interpretação).
+- **ISSUE-01 (expressões regulares sobre `src/main.ts`), ISSUE-02 a -06:** carried, como no relatório (warning/info, não
+  bloqueiam).
+
+## 2026-10-30 — rodada 5, Modo B (nível C da câmera; executor das marcas tolerante a forma)
+
+### Entrada
+
+- `reports/test-validation/test-validation-20261030-1725.md` (FAIL TEST): ISSUE-11 (nível C da estratégia 1.6.0 para
+  AC-US-0003-04 e AC-US-0003-14 sem verificação; a mutação V3 — `RACE_CHASE` na contagem do treino — passava 15/15),
+  ISSUE-12 (falha de extração derrubava as 19 verificações do arquivo; pose sem o `idleKart` de `src/main.ts`), ISSUE-13 e
+  ISSUE-14 (info).
+
+### O que mudou
+
+- `tests/modelo-kart-01-camera.test.ts`: CHK-TEST-0003-15 modificada; CHK-TEST-0003-17 (AC-US-0003-04, nível C) e -18
+  (AC-US-0003-14, nível C) novas; importa `sourceText` e `stripComments` do helper.
+- `tests/helpers/kart01Report.ts`: `tyreMarkRunner` monta a pose como `src/main.ts` (`getKartPose(lap?.kart ?? idleKart)`,
+  terceiro parâmetro opcional), põe no escopo as constantes numéricas de módulo de `src/main.ts` (`const NOME = número;`) e
+  converte qualquer falha de extração ou de execução num único erro "AC-US-0005-06: the tyre-mark block of src/main.ts changed
+  shape (…)"; `tyreMarkBlockOf` aceita o texto já transpilado.
+- `tests/modelo-kart-01-contract.test.ts`: a varredura das marcas é montada na primeira verificação que a usa (`lazySweep`), não no
+  carregamento do módulo; CHK-TEST-0004-20 ganha o quadro sem volta sobre um `idleKart` que escorrega acima dos dois limites.
+- TEST-0003 1.1.0 → 1.2.0, TEST-0004 1.3.0 → 1.4.0, 98-divergences (velocidades medidas no `TEST_PAD`, ISSUE-14; totais da
+  execução).
+
+### Migração de verificações existentes
+
+| Id | Desfecho | O que mudou | Por que o critério continua coberto |
+|---|---|---|---|
+| CHK-TEST-0003-15 | modified | além de corrida, corrida pausada e fim, compara as vistas e o modo de `decideCameraMode` entre `OFFICIAL`, `RECON` e `TRAINING` na contagem e na contagem pausada (`COUNTDOWN_DESCENT` em todos os tipos) e percorre a contagem real de um treino e de uma volta oficial passo a passo, com vistas iguais | AC-US-0003-14 decidido por mais fases; nenhuma afirmação anterior saiu |
+| CHK-TEST-0004-20 | modified | acrescenta o quadro sem volta com `idleKart` | AC-US-0005-07 com as mesmas afirmações e mais um caso |
+| CHK-TEST-0004-06, -19 | modified | só o modo de montar a varredura e o executor (pose com `idleKart`, constantes de módulo, erro único); oráculo e afirmações iguais | AC-US-0005-06/-07 inalterados |
+
+Novas: CHK-TEST-0003-17, CHK-TEST-0003-18. Atrito por arquivo: 64 → 66; nenhuma removida.
+
+### Execução
+
+`npx tsx --test` com os repórteres `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`), 2026-10-30:
+443 verificações, 443 aprovadas, 0 reprovadas, 0 puladas; desta feature, por atributo `file`: `-model` 20, `-pose` 10,
+`-camera` 17, `-contract` 19 = 66.
+
+### Prova de que as verificações novas e modificadas podem falhar
+
+Cópia de `src/`, `tests/`, `tracks/`, `index.html`, `package.json`, `tsconfig.json` no rascunho, com junção para `node_modules`;
+mutação literal, arquivos de teste nomeados com o repórter TAP, arquivos restaurados depois de cada tentativa; cópia e junção
+removidas no fim, árvore do repositório intacta. Registro integral em `reports/mutation-trials-20261030-r5.txt`.
+
+- N01 (`decideCameraMode` sem descida na contagem do treino (V3 do validador)): tests 17 fail 2 | failing CHK-TEST-0003-15, CHK-TEST-0003-18
+- N02 (`src/gameCamera.ts` importa o tipo `Input`): tests 17 fail 1 | failing CHK-TEST-0003-17
+- N03 (`src/gameCamera.ts` importa `src/maneuvers.ts`): tests 17 fail 1 | failing CHK-TEST-0003-17
+- N04 (`turboActive: false` acrescentado à chamada de `computeCameraView` em `src/main.ts`): tests 17 fail 1 | failing CHK-TEST-0003-17
+- N05 (constante `baseVerticalFovDeg` em `src/main.ts`): tests 17 fail 1 | failing CHK-TEST-0003-17
+- N06 (`decideCameraMode` em corrida para o reconhecimento na contagem): tests 17 fail 2 | failing CHK-TEST-0003-15, CHK-TEST-0003-18
+- N07 (limite 6 movido para a constante de módulo `SKID_MIN_SPEED_MPS = 6` (refatoração neutra, V2 do validador): deve passar): tests 19 fail 0 | failing none
+- N08 (a mesma constante com 7): tests 19 fail 2 | failing CHK-TEST-0004-06, CHK-TEST-0004-19
+- N09 (o bloco das marcas passa a ler `keys` (comando do jogador)): tests 19 fail 3 | failing CHK-TEST-0004-06, CHK-TEST-0004-19, CHK-TEST-0004-20 | message: block changed shape
+
+N07 mostra que a refatoração neutra não derruba mais nada; N09 mostra que uma mudança de forma reprova só as verificações de
+marca, com a mensagem de forma, e as outras 16 do arquivo seguem executando.
+
+### Itens declinados, com o motivo
+
+- **ISSUE-13 (estado no limite exato por `seedLap`):** mantido, como o relatório recomenda; é a única verificação que separa `>`
+  de `>=` (M01, M02) e usa só o `LapSession` público.
+- **ISSUE-12, dependência do primeiro `if` que lê `lastSkidStepCount`:** mantida; um bloco reescrito de outra forma passa a dar a
+  mensagem de forma em vez de um falso verde ou uma falha de arquivo.

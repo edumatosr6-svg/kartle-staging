@@ -5,13 +5,14 @@
 // it reads the model and the simulation through their public operations; no module of src/ imports it. No clock,
 // no random, no network: every time is toMs(steps) and every input comes from the fixture or from the test.
 import { readFileSync } from 'node:fs';
+import ts from 'typescript';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 import * as THREE from 'three';
 import {
-  initialState, PUBLISHED_SETUPS, STEP, step, track, wheelPositions, WIDTH,
-  type Input, type KartConfig, type SetupId, type State,
+  getHandlingTelemetry, initialState, PUBLISHED_SETUPS, STEP, step, track, wheelPositions, WIDTH,
+  type Input, type KartConfig, type SetupId, type SetupRef, type State,
 } from '../../src/physics';
 import { getLapResult, getLapState, stepLap, type LapKind, type LapSession } from '../../src/lap';
 import { toMs } from '../../src/lapTiming';
@@ -297,7 +298,7 @@ export function renderNeutralCheck(reading: TrackReading, inputs: readonly Input
     if ('code' in pose) continue;
     spin = advanceWheelSpin(spin, pose);
     simWheelGroundPositions(pose, rendered.config);
-    computeCameraView({ lapState: getLapState(rendered), kartPose: pose, ...DEFAULT_VIEW, turboActive: rendered.kart.maneuvers.boost > 0, trackBounds });
+    computeCameraView({ lapState: getLapState(rendered), kartPose: pose, ...DEFAULT_VIEW, trackBounds });
     updateKart01Pose(model, { steerAngleRad: pose.steerAngleRad, wheelSpinRevs: spin.revs });
   }
   const keys = new Set([...Object.keys(plain), ...Object.keys(rendered)]) as Set<keyof LapSession>;
@@ -525,4 +526,103 @@ export function projectPoint(view: CameraView, world: THREE.Vector3): { x: numbe
 
 export function serializeRecord(record: CheckRecord): string {
   return JSON.stringify(record);
+}
+
+// ---------------------------------------------------------------- the tyre marks of src/main.ts (DES-0005)
+
+// The statement of src/main.ts that decides and lays the tyre marks, found by what it reads (the first `if` after the
+// declaration of lastSkidStepCount whose condition reads it) and transpiled as written, comments and types removed.
+// Nothing is rewritten: a renamed reading or an extra input of the block makes the runner below throw.
+export function tyreMarkBlockOf(mainText: string, js: string = transpiledMain(mainText)): string {
+  const declared = js.search(/\blastSkidStepCount\s*=\s*0\b/);
+  if (declared < 0) throw new Error('src/main.ts declares no lastSkidStepCount');
+  for (let from = declared; ;) {
+    const at = js.indexOf('if (', from);
+    if (at < 0) throw new Error('src/main.ts has no statement deciding on lastSkidStepCount');
+    const close = closingOf(js, at + 3);
+    if (js.slice(at, close).includes('lastSkidStepCount')) return js.slice(at, ifStatementEnd(js, at));
+    from = close;
+  }
+}
+
+// Index of the bracket closing the one at `open`, skipping string and template literals.
+function closingOf(text: string, open: number): number {
+  const pairs: Record<string, string> = { '(': ')', '{': '}', '[': ']' };
+  const stack: string[] = [];
+  for (let i = open; i < text.length; i++) {
+    const c = text[i];
+    if (c === "'" || c === '"' || c === '`') { i++; while (i < text.length && text[i] !== c) { if (text[i] === '\\') i++; i++; } continue; }
+    if (pairs[c]) stack.push(pairs[c]);
+    else if (c === stack[stack.length - 1]) { stack.pop(); if (!stack.length) return i; }
+  }
+  throw new Error(`unbalanced bracket at ${open}`);
+}
+
+// End (exclusive) of the `if (...) { ... } else if (...) { ... } else { ... }` chain starting at `at`.
+function ifStatementEnd(text: string, at: number): number {
+  const skip = (i: number) => { while (/\s/.test(text[i] ?? '')) i++; return i; };
+  let i = skip(closingOf(text, text.indexOf('(', at)) + 1);
+  if (text[i] !== '{') throw new Error('the tyre-mark statement is not a braced if');
+  i = closingOf(text, i) + 1;
+  const next = skip(i);
+  if (!text.startsWith('else', next)) return i;
+  const branch = skip(next + 4);
+  if (text.startsWith('if', branch)) return ifStatementEnd(text, branch);
+  if (text[branch] !== '{') throw new Error('the tyre-mark else is not braced');
+  return closingOf(text, branch) + 1;
+}
+
+// The numeric constants src/main.ts declares at module level (`const NAME = 6;`): a limit moved into a named constant
+// keeps the block runnable with the value the module gives it.
+function moduleConstantsOf(js: string): Record<string, number> {
+  const constants: Record<string, number> = {};
+  for (const m of js.matchAll(/^const ([A-Za-z_$][\w$]*) = (-?\d[\d.eE+-]*);$/gm)) constants[m[1]] = Number(m[2]);
+  return constants;
+}
+
+const transpiledMain = (mainText: string): string =>
+  ts.transpileModule(mainText, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, removeComments: true } }).outputText;
+
+const shapeChanged = (error: unknown): Error => new Error(
+  `AC-US-0005-06: the tyre-mark block of src/main.ts changed shape (${error instanceof Error ? error.message : String(error)}); ` +
+  'the mark checks run the statement that reads lastSkidStepCount with the lap, the pose, the lap state, the handling telemetry and the simulation wheel positions',
+);
+
+// One new mark segment as the screen draws it: the unit box of src/main.ts carried by the instance matrix; `to` is the
+// end at the current wheel point, `from` the one at the previous point.
+export type TyreMarkSegment = { fromXM: number; fromZM: number; toXM: number; toZM: number; heightM: number };
+
+// A frame of src/main.ts reduced to the tyre marks: the block runs over the real lap session, the pose src/main.ts builds
+// (`getKartPose(lap?.kart ?? idleKart)`), the real getLapState / getHandlingTelemetry / simWheelGroundPositions, the
+// module's numeric constants and a real InstancedMesh, and the segments written in this frame are returned. The block
+// sees nothing else: no key, touch, tilt or assembled Input exists in its scope. A block that cannot be found or reads
+// anything outside that scope throws one error saying the block changed shape.
+export type TyreMarkRunner = (lap: LapSession | undefined) => TyreMarkSegment[];
+export function tyreMarkRunner(setupRef: SetupRef, mainText: string = sourceText('src/main.ts'), idleKart?: State): TyreMarkRunner {
+  let run: (scope: object) => void;
+  let constants: Record<string, number>;
+  try {
+    const js = transpiledMain(mainText);
+    constants = moduleConstantsOf(js);
+    run = new Function('scope', `with (scope) {\n${tyreMarkBlockOf(mainText, js)}\n}`) as (scope: object) => void;
+  } catch (error) { throw shapeChanged(error); }
+  const skidMarks = new THREE.InstancedMesh(new THREE.BoxGeometry(0.19, 0.012, 1), new THREE.MeshBasicMaterial(), 320);
+  skidMarks.count = 0;
+  const written: THREE.Matrix4[] = [];
+  const setMatrixAt = skidMarks.setMatrixAt.bind(skidMarks);
+  skidMarks.setMatrixAt = (index: number, matrix: THREE.Matrix4) => { written.push(matrix.clone()); setMatrixAt(index, matrix); };
+  const scope: Record<string, unknown> = {
+    ...constants, THREE, getLapState, getHandlingTelemetry, simWheelGroundPositions, setupRef,
+    skidMarks, skidTransform: new THREE.Object3D(), skidIndex: 0, lastSkidStepCount: 0, previousSkids: [], lap: undefined, pose: undefined,
+  };
+  return lap => {
+    scope.lap = lap;
+    scope.pose = getKartPose(lap?.kart ?? idleKart);
+    written.length = 0;
+    try { run(scope); } catch (error) { throw shapeChanged(error); }
+    return written.map(m => {
+      const to = new THREE.Vector3(0, 0, 0.5).applyMatrix4(m), from = new THREE.Vector3(0, 0, -0.5).applyMatrix4(m);
+      return { fromXM: from.x, fromZM: from.z, toXM: to.x, toZM: to.z, heightM: to.y };
+    });
+  };
 }

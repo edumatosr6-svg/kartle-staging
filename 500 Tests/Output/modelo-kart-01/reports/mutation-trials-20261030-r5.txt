@@ -1,0 +1,9 @@
+N01: tests 17 fail 2 | failing CHK-TEST-0003-15, CHK-TEST-0003-18
+N02: tests 17 fail 1 | failing CHK-TEST-0003-17
+N03: tests 17 fail 1 | failing CHK-TEST-0003-17
+N04: tests 17 fail 1 | failing CHK-TEST-0003-17
+N05: tests 17 fail 1 | failing CHK-TEST-0003-17
+N06: tests 17 fail 2 | failing CHK-TEST-0003-15, CHK-TEST-0003-18
+N07: tests 19 fail 0 | failing none
+N08: tests 19 fail 2 | failing CHK-TEST-0004-06, CHK-TEST-0004-19
+N09: tests 19 fail 3 | failing CHK-TEST-0004-06, CHK-TEST-0004-19, CHK-TEST-0004-20 | message: block changed shape

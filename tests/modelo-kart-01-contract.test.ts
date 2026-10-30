@@ -1,19 +1,23 @@
 // TEST-0004 — the transversal contracts of the feature: the symbols src/main.ts gained and lost, the decals, the
-// declared dependencies, LAYERING, RENDER_NEUTRAL, SIM_CONTRACT, DETERMINISM and WHEEL_POSITIONS against the
+// tyre-mark situation run as written in src/main.ts over driven sessions, the absence of the drift indicator and of the
+// turbo jet, the declared dependencies, LAYERING, RENDER_NEUTRAL, SIM_CONTRACT, DETERMINISM and WHEEL_POSITIONS against the
 // pre-feature baseline, BASELINE_MISSING, and API-0002 field by field (strategy: contract, DES-0004, DES-0005, DES-0006,
 // DES-0007, DM-0001).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PUBLISHED_SETUPS, STEP } from '../src/physics';
+import { getHandlingTelemetry, PUBLISHED_SETUPS, STEP, wheelPositions, type Input } from '../src/physics';
 import { buildKart01Model } from '../src/kart01Model';
 import { syntheticReading } from './fixtures/trackFiles';
-import { autopilot, completeLap } from './helpers/autopilot';
+import { endTraining, getLapState, pauseLap, repositionKart, stepLap, type LapKind, type LapSession } from '../src/lap';
+import { COUNTDOWN_STEPS } from '../src/lapTiming';
+import { autopilot, completeLap, drive, runCountdown, seedLap, startSession } from './helpers/autopilot';
 import {
   BASELINE_PATH, CHECK_IDS, countForbiddenImports, determinismCheck, expandRuns, importsOf, inputTypeLineOf, judgeModelCheck, layeringCheck, recordedFieldsOf,
   measureKart01Model, parseSimBaseline, readSimBaseline, renderNeutralCheck, serializeRecord, SIMULATION_FILES, simContractCheck, sourceText,
-  stripComments, telemetryWheelPositionsCheck, wheelPositionsCheck, wheelSpinCheck, type CheckRecord, type SimBaseline,
+  stripComments, telemetryWheelPositionsCheck, tyreMarkRunner, wheelPositionsCheck, wheelSpinCheck, type CheckRecord, type SimBaseline,
+  type TyreMarkRunner, type TyreMarkSegment,
 } from './helpers/kart01Report';
-import { getKartPose, type KartPose } from '../src/kartPose';
+import { getKartPose, simWheelGroundPositions, type KartPose } from '../src/kartPose';
 
 const reading = syntheticReading();
 const main = stripComments(sourceText('src/main.ts'));
@@ -32,6 +36,65 @@ const wheelPositionsRecord = wheelPositionsCheck(baseline, reading);
 const referenceInputs = 'ok' in baseline ? expandRuns(baseline.baseline.referenceRuns[0].inputRuns) : [];
 const referenceConfig = 'ok' in baseline ? { ...PUBLISHED_SETUPS[baseline.baseline.referenceRuns[0].setupId].config, driverMass: baseline.baseline.referenceRuns[0].driverMassKg } : undefined;
 const renderNeutral = renderNeutralCheck(reading, referenceInputs, referenceConfig);
+// The tyre marks over driven sessions (DES-0005): the published setup whose reference driving slides above both limits
+// on the synthetic track; one frame of src/main.ts advances 0 to 3 steps, as the frame loop does.
+const REALISTA = PUBLISHED_SETUPS.REALISTA_ALUGUEL_4T;
+const realistaRef = { setupId: REALISTA.setupId, setupVersion: REALISTA.setupVersion };
+const FRAME_STEPS = [1, 1, 1, 2, 1, 0, 1, 1, 3, 1, 1, 1];
+const slideInput: Input = { throttle: 1, brake: 0, steer: 1, drift: true };
+const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
+type GroundPoint = { xM: number; zM: number };
+// The rear wheels by their place in wheelPositions (behind the reference point), left first, carried by the pose.
+const rearOf = (lap: LapSession): GroundPoint[] => {
+  const pose = getKartPose(lap.kart);
+  if ('code' in pose) throw new Error(pose.code);
+  const all = simWheelGroundPositions(pose, lap.config);
+  return wheelPositions(lap.config).map((w, i) => ({ w, p: all[i] })).filter(({ w }) => w.forward < 0).sort((a, b) => b.w.left - a.w.left).map(({ p }) => p);
+};
+type SweepFrame = {
+  steps: number; lapPhase: string; speedMps: number; sideslipRad: number; signedSideslipRad: number;
+  segments: TyreMarkSegment[]; rear: GroundPoint[]; previousRear?: GroundPoint[];
+};
+function markSweep(): SweepFrame[] {
+  const run = tyreMarkRunner(realistaRef);
+  const controller = autopilot(0, REALISTA.config);
+  let lap = runCountdown(startSession(reading, 'TRAINING', REALISTA.config));
+  run(lap);
+  let previousRear: GroundPoint[] | undefined;
+  const frames: SweepFrame[] = [];
+  for (let f = 0; lap.kart.stepCount < 6000; f++) {
+    const steps = FRAME_STEPS[f % FRAME_STEPS.length];
+    for (let k = 0; k < steps; k++) lap = stepLap(lap, controller(lap));
+    const segments = run(lap);
+    const t = getHandlingTelemetry(lap.kart, realistaRef);
+    const state = getLapState(lap);
+    if ('code' in t || 'code' in state) throw new Error('the driven lap has no state');
+    const rear = rearOf(lap);
+    frames.push({ steps, lapPhase: state.lapPhase, speedMps: t.speedMps, sideslipRad: t.sideslipRad, signedSideslipRad: lap.kart.telemetry.sideslip, segments, rear, previousRear });
+    if (steps > 0) previousRear = rear;
+  }
+  return frames;
+}
+// Built inside the mark checks, so a change of shape of the block fails only them, with the runner message.
+let sweepFrames: SweepFrame[] | undefined;
+const lazySweep = (): SweepFrame[] => (sweepFrames ??= markSweep());
+// The first driven step of a session of `lapKind` that slides above both limits: `prev` is the frame before it, `next`
+// the step itself; `primed()` is a fresh frame loop that has already shown `prev`.
+type SlidingPair = { prev: LapSession; next: LapSession; primed: () => TyreMarkRunner };
+function slidingPair(lapKind: LapKind): SlidingPair {
+  const controller = autopilot(0, REALISTA.config);
+  let prev = runCountdown(startSession(reading, lapKind, REALISTA.config));
+  for (let i = 0; i < 6000 && prev.phase === 'RUNNING'; i++) {
+    const next = stepLap(prev, controller(prev));
+    const t = getHandlingTelemetry(next.kart, realistaRef);
+    if (!('code' in t) && next.phase === 'RUNNING' && t.speedMps > 6.2 && t.sideslipRad > 0.06) {
+      const before = prev;
+      return { prev: before, next, primed: () => { const run = tyreMarkRunner(realistaRef); run(before); return run; } };
+    }
+    prev = next;
+  }
+  throw new Error(`no sliding step in the ${lapKind} session`);
+}
 const altered = (patch: (b: SimBaseline) => unknown) => 'ok' in baseline ? parseSimBaseline(patch(JSON.parse(JSON.stringify(baseline.baseline)) as SimBaseline), reading) : baseline;
 
 test('CHK-TEST-0004-01 the application draws the Kart 01 and no longer builds the provisional box kart', () => {
@@ -69,16 +132,37 @@ test('CHK-TEST-0004-04 the tyre marks are laid by simulation step at the simulat
   assert.match(main, /simWheelGroundPositions\(pose,\s*lap\.config\)\.slice\(2\)/, 'AC-US-0005-01: the rear two wheelPositions of the lap configuration are used');
 });
 
-test('CHK-TEST-0004-05 the exhaust jet hangs from the exhaust outlet anchor and shows only while the turbo is active', () => {
-  // AC-US-0005-02
-  assert.match(main, /anchors\.exhaustOutlet\.add\(/, 'AC-US-0005-02: the jet must be a child of anchors.exhaustOutlet');
-  assert.match(main, /exhaust\.visible\s*=\s*tricks\.boost\s*>\s*0/, 'AC-US-0005-02: the jet is visible only with tricks.boost > 0');
-});
-
-test('CHK-TEST-0004-06 the situations that draw a tyre mark are unchanged: drifting, above 6 m/s and sideslip', () => {
-  // AC-US-0005-03
-  assert.match(main, /tricks\.drifting\s*&&\s*state\.speed\s*>\s*6\s*&&\s*Math\.abs\(state\.telemetry\.sideslip\)\s*>\s*0\.055/, 'AC-US-0005-03: the mark condition must stay drifting, speed > 6 and sideslip');
-  assert.match(main, /lap\.phase === 'RUNNING'/, 'AC-US-0005-03: marks are drawn only while running');
+test('CHK-TEST-0004-06 a new mark segment is laid under each rear tyre exactly in the frames with a new step, RUNNING, above 6 m/s and above 0.055 rad of sideslip', () => {
+  // AC-US-0005-06
+  const sweep = lazySweep();
+  assert.ok(sweep.length > 4000, `AC-US-0005-06: the driven training gave ${sweep.length} frames`);
+  for (const [i, frame] of sweep.entries()) {
+    const expected = frame.steps > 0 && frame.lapPhase === 'RUNNING' && frame.speedMps > 6 && frame.sideslipRad > 0.055;
+    const situation = `frame ${i} (${frame.steps} steps, ${frame.lapPhase}, ${frame.speedMps.toFixed(3)} m/s, ${frame.sideslipRad.toFixed(4)} rad)`;
+    if (!expected) { assert.equal(frame.segments.length, 0, `AC-US-0005-06: ${situation} is outside the situation and lays no segment`); continue; }
+    assert.equal(frame.segments.length, 2, `AC-US-0005-06: ${situation} lays one new segment under each rear tyre`);
+    assert.ok(frame.previousRear, `AC-US-0005-06: ${situation} has a previous frame with a step`);
+    if (!frame.previousRear) continue;
+    for (const [side, wheel] of frame.rear.entries()) {
+      const at = frame.segments.filter(s => near(s.toXM, wheel.xM, 1e-9) && near(s.toZM, wheel.zM, 1e-9));
+      assert.equal(at.length, 1, `AC-US-0005-06: ${situation} ends exactly one segment under rear wheel ${side} (${wheel.xM.toFixed(3)}, ${wheel.zM.toFixed(3)})`);
+      const from = frame.previousRear[side];
+      assert.ok(near(at[0].fromXM, from.xM, 1e-9) && near(at[0].fromZM, from.zM, 1e-9), `AC-US-0005-06: ${situation} chains the segment of rear wheel ${side} from where it was in the previous frame`);
+      assert.ok(at[0].heightM > 0 && at[0].heightM < 0.1, `AC-US-0005-06: ${situation} lays the segment on the ground (${at[0].heightM} m)`);
+    }
+  }
+  // The driven frames reach both sides of each limit, and both sides of the slide.
+  const stepped = sweep.filter(f => f.steps > 0 && f.lapPhase === 'RUNNING');
+  const drawn = (f: SweepFrame) => f.segments.length > 0;
+  const buckets: Record<string, number> = {
+    'sideslip > 0.055 rad, 6 < speed <= 6.5 m/s, laid': stepped.filter(f => f.sideslipRad > 0.055 && f.speedMps > 6 && f.speedMps <= 6.5 && drawn(f)).length,
+    'sideslip > 0.055 rad, 5.5 < speed <= 6 m/s, not laid': stepped.filter(f => f.sideslipRad > 0.055 && f.speedMps > 5.5 && f.speedMps <= 6 && !drawn(f)).length,
+    'speed > 6 m/s, 0.055 < sideslip <= 0.06 rad, laid': stepped.filter(f => f.speedMps > 6 && f.sideslipRad > 0.055 && f.sideslipRad <= 0.06 && drawn(f)).length,
+    'speed > 6 m/s, 0.05 < sideslip <= 0.055 rad, not laid': stepped.filter(f => f.speedMps > 6 && f.sideslipRad > 0.05 && f.sideslipRad <= 0.055 && !drawn(f)).length,
+    'sliding to the left, laid': stepped.filter(f => f.signedSideslipRad > 0 && drawn(f)).length,
+    'sliding to the right, laid': stepped.filter(f => f.signedSideslipRad < 0 && drawn(f)).length,
+  };
+  for (const [bucket, count] of Object.entries(buckets)) assert.ok(count > 0, `AC-US-0005-06: the driven training reaches the frames "${bucket}" (${count})`);
 });
 
 test('CHK-TEST-0004-07 the feature adds no runtime dependency: three 0.186 stays the only one and the new modules import only three and the project', () => {
@@ -257,4 +341,86 @@ test('CHK-TEST-0004-16 every record of API-0002 carries its checkId, its verdict
   assert.equal(records.filter(r => r.checkId === 'WHEEL_SPIN').length, 3, 'API-0002: WHEEL_SPIN has one record per speed tried');
   assert.equal(serializeRecord(judgeModelCheck('DRAW_COST', measureKart01Model(buildKart01Model()))), serializeRecord(judgeModelCheck('DRAW_COST', measures)), 'API-0002: running the same check twice gives the same record');
   assert.equal(serializeRecord(wheelSpinCheck(10, 120)), serializeRecord(wheelSpinCheck(10, 120)), 'API-0002: WHEEL_SPIN is idempotent');
+});
+
+test('CHK-TEST-0004-17 nothing but the Kart 01 model hangs from the displayed kart and no drift indicator exists in the scene or on the page', () => {
+  // AC-US-0005-04
+  const kartRootChildren = [...main.matchAll(/\bkartRoot\.add\(([^)]*)\)/g)].map(m => m[1].trim());
+  assert.deepEqual(kartRootChildren, ['kart01.root'], 'AC-US-0005-04: the only object src/main.ts attaches to kartRoot is kart01.root');
+  assert.ok(!/\bkart01\.[\w.]+\.add\(/.test(main), 'AC-US-0005-04: src/main.ts attaches nothing to a node of the model');
+  const sceneChildren = [...main.matchAll(/\bscene\.add\(([^;]*)\);/g)].map(m => m[1].replace(/\(.*$/, '').trim());
+  assert.deepEqual([...new Set(sceneChildren)].sort(), ['group', 'ground', 'kartRoot', 'new THREE.HemisphereLight', 'skidMarks', 'sun', 'sun.target', 'syntheticScene'].sort(),
+    'AC-US-0005-04: the scene holds the lights, the ground, the tracks, the kart and the tyre marks only');
+  assert.ok(!/\.drifting\b/.test(main), 'AC-US-0005-04: src/main.ts reads no drifting flag');
+  assert.ok(!/\bmaneuvers\b/.test(main), 'AC-US-0005-04: src/main.ts reads no manoeuvre state');
+  assert.ok(!/drift/i.test(sourceText('index.html')), 'AC-US-0005-04: the page has no drift element');
+});
+
+test('CHK-TEST-0004-18 no turbo smoke or flame exists: no jet, no exhaust outlet and nothing reading the boost', () => {
+  // AC-US-0005-05
+  for (const symbol of [/\bexhaust/i, /\bjet\b/i, /ConeGeometry/, /\bboost\b/i, /\bturbo/i]) assert.ok(!symbol.test(main), `AC-US-0005-05: src/main.ts has no ${symbol}`);
+  const model = stripComments(sourceText('src/kart01Model.ts'));
+  for (const symbol of [/exhaustOutlet/, /escapamentoSaida/]) assert.ok(!symbol.test(model), `AC-US-0005-05: src/kart01Model.ts has no ${symbol}`);
+  assert.ok(!/turbo|boost/i.test(sourceText('index.html')), 'AC-US-0005-05: the page has no turbo element');
+});
+
+test('CHK-TEST-0004-19 at exactly 6 m/s, at exactly 0.055 rad either way, and in a frame without a new step, no mark segment is laid', () => {
+  // AC-US-0005-07
+  const pair = slidingPair('TRAINING');
+  const telemetry = pair.next.kart.telemetry;
+  const cases: [string, LapSession, number][] = [
+    ['the driven sliding step', pair.next, 2],
+    ['the same step at exactly 6 m/s', seedLap(pair.next, { kart: { speed: 6 } }), 0],
+    ['the same step just above 6 m/s', seedLap(pair.next, { kart: { speed: 6 + 1e-6 } }), 2],
+    ['the same step at exactly +0.055 rad', seedLap(pair.next, { kart: { telemetry: { ...telemetry, sideslip: 0.055 } } }), 0],
+    ['the same step just beyond +0.055 rad', seedLap(pair.next, { kart: { telemetry: { ...telemetry, sideslip: 0.055 + 1e-6 } } }), 2],
+    ['the same step at exactly -0.055 rad', seedLap(pair.next, { kart: { telemetry: { ...telemetry, sideslip: -0.055 } } }), 0],
+    ['the same step just beyond -0.055 rad', seedLap(pair.next, { kart: { telemetry: { ...telemetry, sideslip: -0.055 - 1e-6 } } }), 2],
+  ];
+  for (const [label, lap, segments] of cases) {
+    assert.equal(pair.primed()(lap).length, segments, `AC-US-0005-07: ${label} (${lap.kart.speed} m/s, ${lap.kart.telemetry.sideslip} rad) lays ${segments} segments`);
+  }
+  const run = pair.primed();
+  assert.equal(run(pair.next).length, 2, 'AC-US-0005-07: the sliding step lays its two segments');
+  for (let i = 0; i < 3; i++) assert.equal(run(pair.next).length, 0, `AC-US-0005-07: frame ${i + 1} after it, without a new step, lays no segment`);
+});
+
+test('CHK-TEST-0004-20 before the green signal, in the pause, after the lap ended and without a lap, no mark segment is laid whatever the step', () => {
+  // AC-US-0005-07
+  const run = tyreMarkRunner(realistaRef);
+  assert.deepEqual(run(undefined), [], 'AC-US-0005-07: without a lap no segment is laid');
+  let countdown = startSession(reading, 'OFFICIAL', REALISTA.config);
+  for (let i = 0; i < COUNTDOWN_STEPS - 1; i++) {
+    countdown = stepLap(countdown, slideInput);
+    assert.equal(countdown.phase, 'COUNTDOWN', `AC-US-0005-07: countdown step ${i} is still the countdown`);
+    assert.deepEqual(run(countdown), [], `AC-US-0005-07: countdown frame ${i}, with full throttle, full lock and the drift command, lays no segment`);
+  }
+  // A step that advanced and then the lap left RUNNING in the same frame: paused, ended by the player, ended by a
+  // reposition of the official lap. The kart is sliding above both limits in each.
+  const training = slidingPair('TRAINING'), official = slidingPair('OFFICIAL');
+  // Without a lap src/main.ts shows the idle kart of the ready training (getKartPose(lap?.kart ?? idleKart)): a kart that
+  // slides above both limits on a step the frame never saw still lays nothing.
+  const idle = tyreMarkRunner(realistaRef, undefined, training.next.kart);
+  assert.deepEqual(idle(undefined), [], 'AC-US-0005-07: without a lap, over the idle kart, no segment is laid');
+  const paused = pauseLap(training.next, 'ESC_KEY'), ended = endTraining(training.next), repositioned = repositionKart(official.next);
+  assert.ok(paused.ok && ended.ok && repositioned.ok, 'AC-US-0005-07: the lap commands were accepted');
+  if (!paused.ok || !ended.ok || !repositioned.ok) return;
+  const left: [string, SlidingPair, LapSession][] = [['paused', training, paused.lap], ['ended by the player', training, ended.lap], ['ended by a reposition', official, repositioned.lap]];
+  for (const [label, pair, lap] of left) {
+    const t = getHandlingTelemetry(lap.kart, realistaRef);
+    assert.ok(!('code' in t) && t.speedMps > 6 && t.sideslipRad > 0.055 && lap.kart.stepCount > pair.prev.kart.stepCount, `AC-US-0005-07: the ${label} lap advanced a sliding step`);
+    const frames = pair.primed();
+    assert.deepEqual(frames(lap), [], `AC-US-0005-07: the frame of the step that was then ${label} lays no segment`);
+    let after = lap;
+    for (let i = 0; i < 3; i++) { after = stepLap(after, slideInput); assert.deepEqual(frames(after), [], `AC-US-0005-07: frame ${i + 1} ${label} lays no segment`); }
+    assert.equal(after.kart.stepCount, lap.kart.stepCount, `AC-US-0005-07: the simulation did not advance ${label}`);
+  }
+  // An official lap ended by completion: the frames after the end, with the simulation stopped.
+  const finished = drive(runCountdown(startSession(reading, 'OFFICIAL', REALISTA.config)), autopilot(0, REALISTA.config), 20000).lap;
+  assert.equal(finished.phase, 'ENDED', 'AC-US-0005-07: the official lap ended on the finish line');
+  const afterEnd = tyreMarkRunner(realistaRef);
+  afterEnd(finished);
+  let frozen = finished;
+  for (let i = 0; i < 5; i++) { frozen = stepLap(frozen, slideInput); assert.deepEqual(afterEnd(frozen), [], `AC-US-0005-07: frame ${i + 1} after the official lap ended lays no segment`); }
+  assert.equal(frozen.kart.stepCount, finished.kart.stepCount, 'AC-US-0005-07: the simulation is stopped after the official lap ended');
 });

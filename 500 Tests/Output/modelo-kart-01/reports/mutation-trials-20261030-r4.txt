@@ -1,0 +1,22 @@
+M01 src/main.ts: 'skidTelemetry.speedMps > 6' -> 'skidTelemetry.speedMps >= 6' | tests 19 fail 1 | failing CHK-TEST-0004-19
+M02 src/main.ts: 'skidTelemetry.sideslipRad > 0.055' -> 'skidTelemetry.sideslipRad >= 0.055' | tests 19 fail 1 | failing CHK-TEST-0004-19
+M03 src/main.ts: 'skidTelemetry.speedMps > 6' -> 'skidTelemetry.speedMps > 5.5' | tests 19 fail 2 | failing CHK-TEST-0004-06, CHK-TEST-0004-19
+M04 src/main.ts: 'skidTelemetry.sideslipRad > 0.055' -> 'skidTelemetry.sideslipRad > 0.06' | tests 19 fail 2 | failing CHK-TEST-0004-06, CHK-TEST-0004-19
+M05 src/main.ts: 'skidLapState.lapPhase !== 'RUNNING'' -> 'skidLapState.lapPhase === 'COUNTDOWN'' | tests 19 fail 1 | failing CHK-TEST-0004-20
+M06 src/main.ts: '} else if (pose.simStepCount > lastSkidStepCount) {' -> '} else if (pose.simStepCount >= lastSkidStepCount) {' | tests 19 fail 2 | failing CHK-TEST-0004-06, CHK-TEST-0004-19
+M07 src/main.ts: 'skidTelemetry.sideslipRad > 0.055)' -> 'skidTelemetry.sideslipRad > 0.055 && lap.kart.maneuvers.drifting)' | tests 19 fail 3 | failing CHK-TEST-0004-06, CHK-TEST-0004-17, CHK-TEST-0004-19
+M08 src/main.ts: '.slice(2).map(p => new THREE.Vector3(p.xM, 0.055, p.zM))' -> '.slice(0, 2).map(p => new THREE.Vector3(p.xM, 0.055, p.zM))' | tests 19 fail 2 | failing CHK-TEST-0004-04, CHK-TEST-0004-06
+M09 src/main.ts: 'skidTelemetry.sideslipRad > 0.055' -> 'lap.kart.telemetry.sideslip > 0.055' | tests 19 fail 2 | failing CHK-TEST-0004-06, CHK-TEST-0004-19
+M10 src/main.ts: 'kartRoot.add(kart01.root);' -> 'kartRoot.add(kart01.root);
+kartRoot.add(new THREE.Sprite());' | tests 19 fail 1 | failing CHK-TEST-0004-17
+M11 src/main.ts: 'scene.add(skidMarks);' -> 'scene.add(skidMarks);
+const exhaustJet = new THREE.Mesh(new THREE.ConeGeometry(0' | tests 19 fail 2 | failing CHK-TEST-0004-17, CHK-TEST-0004-18
+M12 src/kart01Model.ts: 'anchors: { bumperPlate },' -> 'anchors: { bumperPlate, exhaustOutlet: bumperPlate } as never,' | tests 39 fail 2 | failing CHK-TEST-0001-21, CHK-TEST-0004-18
+M13 src/kart01Model.ts: 'root.add(piloto);' -> 'root.add(piloto);
+  root.add(new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.2, 8)' | tests 20 fail 2 | failing CHK-TEST-0001-09, CHK-TEST-0001-20
+M14 src/gameCamera.ts: 'return 'RACE_CHASE';
+}' -> 'return lapState.lapKind === 'TRAINING' && lapState.lapSequenceCount > 1 ? 'TRACK' | tests 15 fail 1 | failing CHK-TEST-0003-16
+M15 src/gameCamera.ts: 'if (mode === 'TRACK_OVERVIEW') {' -> 'if (mode === 'TRACK_OVERVIEW' || (!('code' in inputs.lapState) && inputs.lapStat' | tests 15 fail 1 | failing CHK-TEST-0003-15
+M16 src/gameCamera.ts: 'return { cameraMode: mode, ...common, ...raceChasePose(kartP' -> 'return { cameraMode: mode, ...common, ...raceChasePose(kartPose), baseVerticalFo' | tests 15 fail 1 | failing CHK-TEST-0003-04
+M17 src/gameCamera.ts: 'if (shape === 'LANDSCAPE') return LANDSCAPE_VERTICAL_FOV_DEG' -> 'if (shape === 'LANDSCAPE') return aspect > 2 ? 64 : LANDSCAPE_VERTICAL_FOV_DEG;' | tests 15 fail 1 | failing CHK-TEST-0003-04
+M18 src/gameCamera.ts: 'return { cameraMode: mode, ...common, ...raceChasePose(kartP' -> 'return { cameraMode: mode, ...common, ...raceChasePose(kartPose), verticalFovDeg' | tests 15 fail 1 | failing CHK-TEST-0003-04

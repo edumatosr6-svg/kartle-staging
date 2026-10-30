@@ -1,11 +1,11 @@
 ---
 id: TEST-0001
-title: Modelo montado em Node — medidas, rodas e bitolas, 16 grupos, cores da ficha, custo de desenho, nós animados e âncoras
+title: Modelo montado em Node — medidas, rodas e bitolas, 16 grupos, cores da ficha, custo de desenho, nós animados, âncora única e nenhum efeito preso ao modelo
 feature: modelo-kart-01
 stage: test
 status: validated
-version: 1.0.0
-sources: [AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16, AC-US-0002-01, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0005-02, NFR-0004]
+version: 1.1.0
+sources: [AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0001-10, AC-US-0001-11, AC-US-0001-12, AC-US-0001-13, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16, AC-US-0002-01, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0005-04, AC-US-0005-05, NFR-0004]
 ---
 
 # TEST-0001 — Modelo montado em Node: medidas, rodas e bitolas, 16 grupos, cores, custo, nós animados e âncoras
@@ -39,4 +39,5 @@ sources: [AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001
 | CHK-TEST-0001-16 | AC-US-0002-04 | both hands stay on the rim of the steering wheel at every wheel angle, with rigid arm segments | luva fora do raio de pegada (0,1386 m) ou fora do plano do aro em algum ângulo, braço superior ou antebraço de comprimento variável (cinemática que estica), malha do antebraço de outro comprimento |
 | CHK-TEST-0001-17 | AC-US-0002-05 | the four wheels rest on the ground: the bottom of their bounding box is at 0 m to the centimetre | nó `steer` a altura diferente do raio, roda abaixo do chão ou flutuando acima de 0,5 cm (a tolerância é a de RULE-0001, ao centímetro; `min.y` medido 0,0033 m pela revolução de 14 segmentos, registrado em `98-divergences.md`) |
 | CHK-TEST-0001-18 | AC-US-0002-06 | the nose is at the model front (-Z), the rear bumper behind, and the root turned by pi puts the nose at +Z of the simulation | nariz em +Z do modelo, para-choque em −Z, ou nariz que não fique em +Z do pai com `root.rotation.y = π` |
-| CHK-TEST-0001-19 | AC-US-0005-02 | the exhaust outlet anchor hangs from the motor group at the end of the tailpipe, (0.39, 0.33, 0.77) m | `anchors.exhaustOutlet` fora de `motor`, em outra posição no referencial do modelo, ou à frente do bloco do motor |
+| CHK-TEST-0001-20 | AC-US-0005-04 | the kart root holds only the 15 part groups and the pilot: no drift indicator hangs from the model | um objeto acrescentado à raiz do modelo (mutação M13: cone sob `root` reprova esta verificação), malha extra dentro de um grupo além das 27 de `DRAW_COST`, objeto criado ao posar o kart em esterço máximo com giro das rodas traseiras |
+| CHK-TEST-0001-21 | AC-US-0005-05 | the model has no exhaust outlet: bumperPlate is its only anchor and no node is the exhaust tip | `anchors` com outra chave além de `bumperPlate` (mutação M12: `exhaustOutlet` de volta reprova esta verificação), nó `escapamentoSaida` no modelo |
