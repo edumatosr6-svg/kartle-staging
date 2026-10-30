@@ -1,8 +1,8 @@
 ---
 stage: dspec
 feature: race-lap-validation
-generated: 2026-10-27T17:27:28Z
-rows: 241
+generated: 2026-10-30T13:11:43Z
+rows: 329
 ---
 
 # Traceability
@@ -74,6 +74,21 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0009 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
 | FEAT-0009 | DES-0011 | - | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` |
 | FEAT-0009 | DES-0012 | - | `core/DES-0012-invariantes-da-simulacao.md` |
+| FEAT-0010 | ADR-0004 | - | `adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| FEAT-0010 | ADR-0005 | - | `adr/ADR-0005-pausa-retomada-e-perda-do-sensor.md` |
+| FEAT-0010 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| FEAT-0010 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| FEAT-0010 | DES-0002 | - | `core/DES-0002-tempo-da-volta-e-interpolacao.md` |
+| FEAT-0010 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| FEAT-0010 | DES-0004 | - | `core/DES-0004-corte-e-grama.md` |
+| FEAT-0010 | DES-0005 | - | `core/DES-0005-tipos-de-volta-e-reposicionamento.md` |
+| FEAT-0010 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
+| FEAT-0010 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| FEAT-0010 | DES-0009 | - | `web/DES-0009-inicio-de-volta-e-erros.md` |
+| FEAT-0010 | DES-0010 | - | `web/DES-0010-resultado-da-volta.md` |
+| FEAT-0010 | DES-0011 | - | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` |
+| FEAT-0010 | DES-0012 | - | `core/DES-0012-invariantes-da-simulacao.md` |
+| FEAT-0010 | DM-0002 | - | `data/DM-0002-estado-da-volta-em-memoria.md` |
 | REQ-FEAT-0001-01 | ADR-0001 | - | `adr/ADR-0001-tempo-inteiro-em-ms-e-interpolacao.md` |
 | REQ-FEAT-0001-01 | DES-0002 | - | `core/DES-0002-tempo-da-volta-e-interpolacao.md` |
 | REQ-FEAT-0001-02 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
@@ -253,7 +268,80 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0009-09 | DES-0011 | - | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` |
 | REQ-FEAT-0009-10 | DES-0012 | - | `core/DES-0012-invariantes-da-simulacao.md` |
 | REQ-FEAT-0009-11 | DES-0011 | - | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` |
+| REQ-FEAT-0009-11 | DES-0012 | - | `core/DES-0012-invariantes-da-simulacao.md` |
 | REQ-FEAT-0009-12 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-01 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| REQ-FEAT-0010-01 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-01 | DES-0002 | - | `core/DES-0002-tempo-da-volta-e-interpolacao.md` |
+| REQ-FEAT-0010-01 | DM-0002 | - | `data/DM-0002-estado-da-volta-em-memoria.md` |
+| REQ-FEAT-0010-02 | ADR-0004 | - | `adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| REQ-FEAT-0010-02 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-02 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-03 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-04 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| REQ-FEAT-0010-04 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-04 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-05 | DES-0002 | - | `core/DES-0002-tempo-da-volta-e-interpolacao.md` |
+| REQ-FEAT-0010-05 | DM-0002 | - | `data/DM-0002-estado-da-volta-em-memoria.md` |
+| REQ-FEAT-0010-06 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| REQ-FEAT-0010-06 | DES-0002 | - | `core/DES-0002-tempo-da-volta-e-interpolacao.md` |
+| REQ-FEAT-0010-06 | DM-0002 | - | `data/DM-0002-estado-da-volta-em-memoria.md` |
+| REQ-FEAT-0010-07 | DES-0004 | - | `core/DES-0004-corte-e-grama.md` |
+| REQ-FEAT-0010-07 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-08 | DES-0004 | - | `core/DES-0004-corte-e-grama.md` |
+| REQ-FEAT-0010-09 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-10 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-11 | ADR-0004 | - | `adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| REQ-FEAT-0010-11 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-11 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-12 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-12 | DM-0002 | - | `data/DM-0002-estado-da-volta-em-memoria.md` |
+| REQ-FEAT-0010-13 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-14 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| REQ-FEAT-0010-14 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-14 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
+| REQ-FEAT-0010-15 | ADR-0005 | - | `adr/ADR-0005-pausa-retomada-e-perda-do-sensor.md` |
+| REQ-FEAT-0010-15 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-15 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
+| REQ-FEAT-0010-15 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-16 | ADR-0004 | - | `adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| REQ-FEAT-0010-16 | ADR-0005 | - | `adr/ADR-0005-pausa-retomada-e-perda-do-sensor.md` |
+| REQ-FEAT-0010-16 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
+| REQ-FEAT-0010-16 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-17 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| REQ-FEAT-0010-17 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-18 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-18 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
+| REQ-FEAT-0010-18 | DES-0009 | - | `web/DES-0009-inicio-de-volta-e-erros.md` |
+| REQ-FEAT-0010-19 | DES-0005 | - | `core/DES-0005-tipos-de-volta-e-reposicionamento.md` |
+| REQ-FEAT-0010-19 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-20 | ADR-0006 | - | `adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md` |
+| REQ-FEAT-0010-20 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-20 | DM-0002 | - | `data/DM-0002-estado-da-volta-em-memoria.md` |
+| REQ-FEAT-0010-21 | DES-0005 | - | `core/DES-0005-tipos-de-volta-e-reposicionamento.md` |
+| REQ-FEAT-0010-21 | DES-0010 | - | `web/DES-0010-resultado-da-volta.md` |
+| REQ-FEAT-0010-22 | ADR-0004 | - | `adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| REQ-FEAT-0010-22 | DES-0005 | - | `core/DES-0005-tipos-de-volta-e-reposicionamento.md` |
+| REQ-FEAT-0010-23 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-23 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-24 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-24 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-25 | DES-0005 | - | `core/DES-0005-tipos-de-volta-e-reposicionamento.md` |
+| REQ-FEAT-0010-25 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-26 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-26 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-27 | ADR-0004 | - | `adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md` |
+| REQ-FEAT-0010-27 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-27 | DES-0008 | - | `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` |
+| REQ-FEAT-0010-28 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-29 | DES-0003 | - | `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` |
+| REQ-FEAT-0010-29 | DES-0004 | - | `core/DES-0004-corte-e-grama.md` |
+| REQ-FEAT-0010-30 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-31 | DES-0001 | - | `core/DES-0001-ciclo-da-volta-e-comandos.md` |
+| REQ-FEAT-0010-31 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao.md` |
+| REQ-FEAT-0010-31 | DES-0011 | - | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` |
+| REQ-FEAT-0010-32 | DES-0011 | - | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` |
+| REQ-FEAT-0010-32 | DES-0012 | - | `core/DES-0012-invariantes-da-simulacao.md` |
 
 ## Items with no upstream source
 

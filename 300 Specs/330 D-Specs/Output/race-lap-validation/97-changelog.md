@@ -3,7 +3,7 @@ title: Registro de mudanças — validação de volta de corrida
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.2
+version: 1.2.1
 sources: []
 ---
 
@@ -322,3 +322,165 @@ versão de esquema, como registrado na rodada 3.
   pela etapa devedora.
 - Nenhum requisito enfraquecido, removido ou dividido; nenhuma verificação existente é removida (§17); nenhum módulo,
   tabela, campo, endpoint, elemento de tela ou componente acrescentado.
+
+## 2026-10-30 — rodada 6, Mode C (F-Spec revalidado: voltas seguidas no treino)
+
+**Entrada**
+
+- F-Spec de `300 Specs/320 F-Specs/Output/race-lap-validation/` revalidado contra o seed `revision: 3`, relatório
+  `reports/fspec-validation/fspec-validation-20261030-1227.md` (SUCCESS, 2 avisos), rodadas 4 e 5 do changelog do
+  F-Spec: novos FEAT-0010 (REQ-FEAT-0010-01 a -32) e FLOW-0005; RULE-0002 1.1.1, RULE-0003 1.1.0, RULE-0005 1.1.1;
+  API-0001 1.2.0 (`listLapResults`, `lapSequenceCount`, `lapStartMs`, `bestValidLapMs`, `trainingLapMs`,
+  `trainingSectorMs`, `PAUSE_BUTTON`), API-0002 1.2.1 (`endTraining`, `NOT_TRAINING`, ordem de precedência das
+  rejeições), API-0003 1.0.2 (o setor 1 começa no início da volta, `lapStartMs` nas voltas seguintes do treino); "—"
+  para setor sem tempo; melhor volta válida do treino. Mudaram também, no texto, REQ-FEAT-0001-01, REQ-FEAT-0002-07,
+  -08, -10, -12, -14, REQ-FEAT-0004-13, REQ-FEAT-0005-06, -11, REQ-FEAT-0006-04 a -06, -12, REQ-FEAT-0007-01, -14 e
+  REQ-FEAT-0009-10.
+- Os dois avisos do relatório do F-Spec (ISSUE-01: observável de REQ-FEAT-0010-32; ISSUE-02: observável de
+  REQ-FEAT-0009-11), endereçados na estratégia de testes deste conjunto a pedido do chamador.
+- Código em execução lido só para posicionamento: `src/lap.ts`, `src/main.ts`, `src/lapMessages.ts`,
+  `src/trainingSession.ts` (de `pista-kart-park`), `src/trackData.ts`, `index.html`, `src/style.css`.
+
+**O que mudou**
+
+- `data/DM-0002` 1.1.0 → 1.2.0: a sessão do treino é uma sequência de voltas; campos `lapSequenceCount`, `lapStartMs`
+  e `results` (lista, no lugar do `result` único); `pauseCause` com `PAUSE_BUTTON`; `sectorBoundsMs` com posições
+  `null` para limite saltado; `lines` de uma leitura `INCOMPLETE` que declara chegada e sentido; valores derivados
+  (`elapsedMs` desde `lapStartMs`, `completedSectorMs`, `bestValidLapMs` derivado de `results`); campos de treino no
+  resultado; invariantes INV-1, INV-3, INV-7 e INV-9 ajustados e INV-10 (soma dos tempos do treino) e INV-11
+  (`lapSequenceCount` sem lacuna) novos; janela de compatibilidade da rodada; retenção sem guardar a melhor volta
+  válida.
+- `core/DES-0001` 1.1.0 → 1.2.0: `pauseLap` com `PAUSE_BUTTON` e `NOT_TRAINING`; novas `endTraining` e
+  `listLapResults`; ordem de precedência das rejeições de API-0002; `getLapResult` devolve o último resultado também
+  com o treino em `RUNNING`; contagem só numa sessão nova; deduplicação do cruzamento por passo; recarga sem
+  resultado.
+- `core/DES-0002` 1.0.0 → 1.1.0: fronteira `b0 = lapStartMs`; tempo de setor só com as duas fronteiras; tempo total
+  `b4 - b0`; um único inteiro como fim de uma volta e início da seguinte; soma dos tempos do treino; `elapsedMs`
+  desde `lapStartMs`.
+- `core/DES-0003` 1.0.0 → 1.1.0: limite de setor registrado depois do limite registrado mais alto
+  (REQ-FEAT-0002-14); chegada no treino por `closeTrainingLap` (resultado e volta seguinte no mesmo instante, motivo
+  `CUT` mantido, kart sem parar); contramão no treino; linhas avaliadas numa leitura `INCOMPLETE`; precedência do corte
+  no treino.
+- `core/DES-0004` 1.0.0 → 1.1.0: efeito do corte por tipo de volta (no treino, `INVALID` sem encerrar, novo corte sem
+  efeito); `offTrackSteps` não recomeça no início de uma volta do treino.
+- `core/DES-0005` 1.0.0 → 1.1.0: reposicionamento no treino sem invalidar nem revalidar; campos de treino em
+  `buildResult`; `sectorMs` só com as três fronteiras; kart parado e nenhuma volta seguinte depois do encerramento de
+  uma volta oficial e de reconhecimento.
+- `core/DES-0012` 1.0.1 → 1.1.0: `tests/lap-training.test.ts` (nome em uso: `tests/race-lap-validation-training.test.ts`)
+  na tabela de verificações; o teste de camada procura também `document.cookie` e verifica `src/lapMessages.ts`.
+- `web/DES-0007` 1.0.0 → 1.1.0: tabela da rodada com os trechos do código em execução: `emitEndTraining`, botão de
+  pausa no treino, botão `#lap-end-training`, gancho de resultado por crescimento de `listLapResults` (registro de
+  `dirigibilidade` uma vez por resultado), tela de resultado só para volta oficial e de reconhecimento.
+- `web/DES-0008` 1.0.0 → 1.1.0: chaves `pauseAction`, `endTrainingAction`, `bestValidLap`, `sectorNoTime` (24 chaves);
+  `formatSectorTime` e `describeTrainingResult`; elementos `#lap-best-valid` e `#lap-training-result`; rótulo de
+  `startTraining` passa a "treino"/"training".
+- `web/DES-0009` 1.1.1 → 1.2.0: volta à oferta no encerramento do treino, sem passar pela tela de resultado.
+- `web/DES-0010` 1.1.1 → 1.2.0: tela de resultado só para volta oficial e de reconhecimento; melhor registro de
+  `dirigibilidade` atualizado a cada resultado novo; trechos de código atualizados (`src/main.ts:289-295`, `:524-538`,
+  `:320-332`).
+- `security/DES-0011` 1.1.0 → 1.2.0: dados do treino na tabela de dados; a melhor volta válida derivada, nunca
+  guardada (REQ-FEAT-0010-31, -32).
+- `adr/ADR-0004` 1.0.0 → 1.1.0: item 3 passa a seguir o F-Spec (linhas declaradas de uma leitura `INCOMPLETE`); item 1
+  com a precedência no treino; novos itens 5 a 9 (duração do painel do resultado do treino, volta `VALID` em leitura
+  `INCOMPLETE` sem uma fronteira, kart depois do reconhecimento, nenhum atalho de teclado, saída de pista que atravessa
+  a chegada no treino).
+- `adr/ADR-0005` 1.0.0 → 1.1.0: botão de pausa no treino pelo mesmo `#pause`; botão de encerrar o treino.
+- Novo `adr/ADR-0006` 1.0.0: o treino como sequência de voltas numa única sessão.
+- `01-architecture.md` 1.1.1 → 1.2.0: `src/lap.ts` com o treino; sequência alterada com o ramo do treino; eventos
+  `PAUSE_BUTTON` e `endTraining`; ADR-0006.
+- `test-strategy.md` 1.1.2 → 1.2.0: FEAT-0010 por nível; fixtures `withoutSectors()` e oráculo de chegada; usos novos de
+  `autopilot` e `seedLap`; E2E-12 (treino, nos dois canais) e E2E-13 (pista sem setores); E2E-02 e E2E-08 ajustados;
+  linhas AC-US-0010-01 a -27; seção "Requisitos sem critério próprio" com o observável de REQ-FEAT-0010-28 a -32 e de
+  REQ-FEAT-0009-11; cobertura de REQ-FEAT-0009-10 com as voltas seguidas.
+- `98-divergences.md` 1.1.0 → 1.2.0: seis linhas novas, `open`, devidas pelo código (treino de voltas seguidas;
+  botão de pausa e encerrar treino; tela do treino; registro de limite depois de limite saltado; linhas de leitura
+  `INCOMPLETE`; `listLapResults` e gancho de resultado); REQ-FEAT-0010-21, -22, -31 e -32 registrados como satisfeitos
+  hoje.
+- Todos os arquivos alterados em `status: draft`. `00-index.md` e `99-traceability.md` não foram escritos: o gate os
+  regenera com `lint_artifacts.py --emit`. Inalterados: `data/DM-0001`, `core/DES-0006`, `adr/ADR-0001` a `ADR-0003`
+  (a mudança de API-0003 é só a redação do início do setor 1, realizada por DES-0002 e DES-0003).
+
+**Migração de itens existentes** (nenhum id removido; todos os itens seguem com o seu id)
+
+| Item | Mudança | Motivo |
+|---|---|---|
+| DM-0002, campo `result` | substituído por `results` (lista); `getLapResult` lê o último item | FEAT-0010: 1 resultado por volta concluída no treino; API-0001 `listLapResults` |
+| DM-0002, `sectorBoundsMs` | posições podem ser `null` | REQ-FEAT-0002-14 e REQ-FEAT-0010-23 |
+| DM-0002, INV-1 | dividido por tipo de volta; no treino, `results.length = lapSequenceCount - 1` | RULE-0002 1.1.1 |
+| ADR-0004, item 3 | de "nenhuma linha avaliada em `INCOMPLETE`" para "linhas declaradas avaliadas quando há chegada e sentido" | `DOMAIN/DEC-13`, REQ-FEAT-0010-27 |
+| test-strategy, AC-US-0001-01, -0002-10, -0002-12, -0004-07, -0006-06, -0007-06, -0008-05, -0009-01 | caminho estendido ao treino ou restrito à volta oficial e de reconhecimento | requisitos reescritos no F-Spec (rodada 4 dele) |
+| test-strategy, E2E-02, E2E-08 | comparação de tempos em treinos; verificação do armazenamento do navegador | treino de voltas seguidas; aviso ISSUE-02 do F-Spec |
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` deste conjunto (não há relatório de validação nem feedback
+novo; a entrada é o upstream revalidado). Os avisos ISSUE-01 e ISSUE-02 do relatório do F-Spec têm o seu observável
+em `test-strategy.md`, seção "Requisitos sem critério próprio".
+
+**Itens recusados ou não decididos, com motivo**
+
+- Feedback a `pista-kart-park`: não escrito por este gerador. O treino de voltas seguidas muda o que acontece numa
+  volta `TRAINING` na Kart Park: REQ-FEAT-0003-14 de `pista-kart-park` pede a "tela de resultado" ao fim de uma volta
+  válida, e a linha de RULE-0003 dela diz que "uma volta já `ENDED` já teve o seu resultado exibido pela tela de
+  resultado"; no treino o resultado passa ao painel de SCR-0001 e a volta não vai a `ENDED`. A verificação
+  CHK-TEST-0005-08 (`tests/pista-kart-park-lap.test.ts`) e o piloto `tests/helpers/kartParkPilot.ts` esperam que a
+  volta `TRAINING` termine na chegada. Pelas conventions §14, o feedback entre features de uma etapa de especificação é
+  escrito pelo validador, no relatório; fica registrado aqui para ele e para o autor.
+- Feedback a `dirigibilidade`: não escrito, pelo mesmo motivo. O D-Spec dela descreve o registro do resultado ao
+  chegar a `ENDED`; este conjunto o move para "a cada resultado novo" (DES-0007, DES-0010), preservando o
+  comportamento em volta oficial e de reconhecimento e estendendo-o a cada volta do treino.
+- Unificar o "Melhor" existente (`#best`, melhor registro comparável de `dirigibilidade`, na memória da página) com a
+  melhor volta válida do treino: não feito. Mudaria um elemento e uma regra de outra feature; os dois coexistem, e
+  DES-0011 registra que `#best` não é a melhor volta válida do treino. Proposta ao autor para `SCOPE-BACKLOG.md`:
+  "decidir se o 'Melhor' do HUD passa a ser a melhor volta válida do treino em andamento (FEAT-0010) ou se os dois
+  ficam, e com que rótulos".
+- Duração da exibição do resultado de cada volta do treino, atalho de teclado para pausar e encerrar o treino,
+  movimento do kart depois de uma volta de reconhecimento, `sectorMs` de uma volta válida em leitura `INCOMPLETE` sem
+  uma fronteira e saída de pista que atravessa a chegada: lacunas do F-Spec decididas no projeto (ADR-0004, itens 5
+  a 9), sem superfície além da que o F-Spec pede.
+- Botão de pausa e pausa manual por toque fora do treino: não projetados (ADR-0004, item 4; o F-Spec os limita ao
+  treino).
+- O que se cronometra numa pista sem linha de chegada: não decidido pelo F-Spec; o projeto mantém o tempo de passos
+  desde o início da volta, sem resultado (ADR-0004, item 3).
+- Persistência da melhor volta válida e dos resultados do treino entre sessões: fora do escopo (etapa 5).
+- Rótulo `startTraining` mudado de "volta de treino" para "treino": é chave de apoio deste projeto (asterisco em
+  DES-0008), não de RULE-0006; o F-Spec chama a opção de "treino" em SCR-0002.
+- ISSUE-10 do relatório de testes de 2026-10-27 (fixture no acerto publicado como padrão): continua fora desta
+  rodada; nenhuma decisão do autor a autoriza.
+- `98-divergences.md`: as linhas existentes não são rejulgadas; só as novas desta rodada.
+- Nenhum requisito enfraquecido, removido ou dividido; nenhuma verificação existente é removida (§17): os caminhos de
+  teste alterados estão na tabela de migração.
+
+## 2026-10-30 — rodada 7, Mode B (relatório `dspec-validation-20261030-1256.md`)
+
+**O que mudou**
+
+- ISSUE-02: `test-strategy.md` 1.2.0 → 1.2.1, linha NFR-0007: a prova bilíngue cobre as 24 chaves de DES-0008 1.1.0,
+  inclusive `pauseAction`, `endTrainingAction`, `bestValidLap` e `sectorNoTime`. Era o único sítio com a contagem 20.
+- ISSUE-01: `core/DES-0006` 1.1.0 → 1.1.1: os usuários de `LapTracker` na árvore são `tests/physics.test.ts`,
+  `tests/race-lap-validation-frozen.test.ts` e `tests/race-lap-validation-layering.test.ts`; a citação de
+  `scripts/keyboard-lap.ts` sai. A regra (exportado, inalterado, fora do jogo) não muda.
+- ISSUE-03: `core/DES-0004` 1.1.0 → 1.1.1: a distância além da borda é a do ambiente da sessão
+  (`trackEdgeDistanceM(session.environment, ponto)`, `src/physics.ts:185-187`, chamada em `src/lap.ts:263-270`), com
+  `edgeDistanceM` como o caso da pista sintética; colaboradores e determinismo carregados.
+- ISSUE-04: `core/DES-0005` 1.1.0 → 1.1.1: o destino do reposicionamento é a linha central do ambiente da sessão
+  (`nearestOnTrack`, `src/lap.ts:174-182`; `nearestOnCenterline` de `src/trackGeometry.ts` com a geometria do
+  arquivo), com a linha central sintética como caso sem geometria; colaboradores carregados.
+- ISSUE-05: `web/DES-0009` 1.2.0 → 1.2.1: o início nomeia `beginLap` (`src/main.ts:296-297`) → `startTrainingLap`
+  (`src/trainingSession.ts:81-87`) → `startLap` com `TRAINING`; citações atualizadas (`setup` em `src/main.ts:131`,
+  `setupRef` em `:165` e `:299`, seletor em `:320-331`).
+- ISSUE-06: `web/DES-0010` 1.2.0 → 1.2.1 e `test-strategy.md` (E2E-02): a frase "uma única pista empacotada" sai; o
+  ramo `TRACK_DIFFERS` é alcançado em E2E-02 pela troca de pista entre as duas pistas de treino (`TRAINING_TRACKS`,
+  `chooseTrack`, `renderBest`); `SETUP_VERSION_DIFFERS` continua provado nos testes de `compareLapRecords` de
+  `dirigibilidade`, pelo motivo verdadeiro (o seletor de acerto só oferece as versões publicadas correntes).
+- Este registro 1.2.0 → 1.2.1. `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Itens fechados**: ISSUE-01, ISSUE-02, ISSUE-03, ISSUE-04, ISSUE-05, ISSUE-06.
+
+**Itens recusados ou não tratados, com motivo**
+
+- DIV-01 a DIV-07: divergências devidas pelo código; nenhuma ação deste estágio. DIV-01 (linha da rodada de 2026-10-22
+  de `98-divergences.md`, satisfeita na árvore segundo o relatório): a passagem a `resolved` é da etapa devedora
+  (código, `dirigibilidade`), e não é rejulgada aqui.
+- Os feedbacks enviados pelo validador a `pista-kart-park` e a `dirigibilidade` são dessas features; nada neste
+  conjunto muda por eles.
+- Nenhum módulo, campo, contrato, elemento de tela ou componente acrescentado (§16); o passo novo de E2E-02 usa o
+  seletor de pistas existente.

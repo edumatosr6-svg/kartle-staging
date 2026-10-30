@@ -4,8 +4,8 @@ title: Invariantes da simulação, física congelada e verificação das regras
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.0.1
-sources: [FEAT-0005, FEAT-0009, REQ-FEAT-0005-07, REQ-FEAT-0009-02, REQ-FEAT-0009-03, REQ-FEAT-0009-04, REQ-FEAT-0009-10]
+version: 1.1.0
+sources: [FEAT-0005, FEAT-0009, FEAT-0010, REQ-FEAT-0005-07, REQ-FEAT-0009-02, REQ-FEAT-0009-03, REQ-FEAT-0009-04, REQ-FEAT-0009-10, REQ-FEAT-0009-11, REQ-FEAT-0010-32]
 ---
 
 # DES-0012 — Invariantes da simulação, física congelada e verificação das regras
@@ -15,7 +15,9 @@ sources: [FEAT-0005, FEAT-0009, REQ-FEAT-0005-07, REQ-FEAT-0009-02, REQ-FEAT-000
 Os `REQ-*` em `sources`: a simulação livre de DOM, relógio de parede e sorteio sem semente (REQ-FEAT-0009-02),
 `STEP` e `Input` inalterados (REQ-FEAT-0009-03), física e presets inalterados com os benchmarks idênticos
 (REQ-FEAT-0009-04, REQ-FEAT-0005-07), e ao menos uma verificação determinística por regra de validade e de
-cronometragem (REQ-FEAT-0009-10; NFR-0009). É o item que fixa o que **não** muda e como se prova.
+cronometragem, inclusive as voltas seguidas do treino (REQ-FEAT-0009-10; NFR-0009), e a prova de que nem o
+resultado da volta nem a melhor volta válida são gravados no navegador (REQ-FEAT-0009-11, REQ-FEAT-0010-32). É o item
+que fixa o que **não** muda e como se prova.
 
 ## Posicionamento
 
@@ -28,7 +30,7 @@ verificações (papel de árvore, não camada). Arquivos de teste novos em `test
 
 | Arquivo de teste | Afirma | Regra de REQ-FEAT-0009-10 que cobre |
 |---|---|---|
-| `tests/lap-layering.test.ts` | lê o texto dos módulos `src/physics.ts`, `src/maneuvers.ts`, `src/track.ts`, `src/trackData.ts`, `src/lap.ts`, `src/lapTiming.ts` e afirma: nenhuma importação de `three`, de `./audio` nem de `./main`; ausência dos símbolos `document`, `window`, `Date`, `performance`, `Math.random`, `fetch`, `XMLHttpRequest`, `WebSocket`, `localStorage`, `sessionStorage`, `indexedDB`; que `src/main.ts` não importa `LapTracker` e não contém essas chamadas de rede ou de armazenamento | camada e privacidade |
+| `tests/lap-layering.test.ts` | lê o texto dos módulos `src/physics.ts`, `src/maneuvers.ts`, `src/track.ts`, `src/trackData.ts`, `src/lap.ts`, `src/lapTiming.ts` e afirma: nenhuma importação de `three`, de `./audio` nem de `./main`; ausência dos símbolos `document`, `window`, `Date`, `performance`, `Math.random`, `fetch`, `XMLHttpRequest`, `WebSocket`, `localStorage`, `sessionStorage`, `indexedDB`; que `src/main.ts` e `src/lapMessages.ts` não importam `LapTracker` e não contêm essas chamadas de rede nem os símbolos de armazenamento `localStorage`, `sessionStorage`, `indexedDB` e `document.cookie`: nenhum resultado, lista de resultados ou melhor volta válida tem caminho para o armazenamento do navegador | camada e privacidade |
 | `tests/lap-frozen.test.ts` | `1 / STEP === 120`; as chaves de `Input` são `throttle`, `brake`, `steer` e `drift?`; os presets mantêm os valores do início desta feature (cópia literal dos campos de `RENTAL_KART` e `ARCADE_KART` registrada no teste) | passo fixo e entradas |
 | `tests/lap-contract.test.ts` | forma e unidades de `getLapState`, `getLapResult` e `readTrackData`; códigos de rejeição por operação; as chaves do resultado são exatamente as de API-0001 (sem dado pessoal) | privacidade do resultado |
 | `tests/lap-timing.test.ts` | DES-0002 | interpolação do cruzamento; soma dos setores |
@@ -37,6 +39,7 @@ verificações (papel de árvore, não camada). Arquivos de teste novos em `test
 | `tests/lap-state.test.ts` | DES-0001 | queima de largada ignorada; suspensão na pausa; pausa repetida e retomada |
 | `tests/lap-cut.test.ts` | DES-0004 | corte pelos limites padrão; corte pelos limites da pista; grama sem corte |
 | `tests/lap-kinds.test.ts` | DES-0005 | reposicionamento; reconhecimento e treino; pista de dado incompleto |
+| `tests/lap-training.test.ts` | DES-0001, DES-0002, DES-0003, DES-0004, DES-0005 no treino: uma única contagem; volta seguinte iniciada no instante de cruzamento que encerrou a anterior, com 0 ms de diferença; tempo total por volta e soma igual ao tempo do sinal verde ao último cruzamento; 1 resultado por volta concluída, `lapSequenceCount` sem lacuna; corte que não encerra e volta inválida até a próxima chegada; volta seguinte sem motivo; setores sem tempo e pista sem setores; melhor volta válida e a sua ausência depois de `endTraining` e num novo treino; botão de pausa e `NOT_TRAINING`; `endTraining` em contagem, corrida e pausa, sem resultado e sem volta depois; reposicionamento sem efeito de validade; contramão no treino; volta oficial sem volta seguinte e com o kart parado | voltas seguidas no treino |
 | `tests/track-data.test.ts` | DES-0006 | dado incompleto; versão anterior; versão desconhecida |
 | `tests/lap-determinism.test.ts` | DES-0001, DES-0002 | duas execuções iguais; 30 e 60 quadros; com e sem pausa |
 

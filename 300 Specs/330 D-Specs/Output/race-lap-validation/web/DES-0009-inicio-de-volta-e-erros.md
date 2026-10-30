@@ -4,8 +4,8 @@ title: Início de volta, oferta de tipo e estados de erro
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.1
-sources: [FEAT-0001, FEAT-0006, FEAT-0008, REQ-FEAT-0001-13, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0008-06]
+version: 1.2.1
+sources: [FEAT-0001, FEAT-0006, FEAT-0008, FEAT-0010, REQ-FEAT-0001-13, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0008-06, REQ-FEAT-0010-18]
 ---
 
 # DES-0009 — Início de volta, oferta de tipo e estados de erro
@@ -15,8 +15,9 @@ sources: [FEAT-0001, FEAT-0006, FEAT-0008, REQ-FEAT-0001-13, REQ-FEAT-0006-09, R
 Os `REQ-*` em `sources`: nenhuma opção de volta oficial e volta de treino pilotável numa pista de dado incompleto
 (AC-US-0008-03, -04); controle por toque com estado visível quando o sensor falta ou a permissão é negada
 (REQ-FEAT-0001-13); erro exibido sem volta quando o dado é ilegível ou de esquema desconhecido
-(REQ-FEAT-0008-11). Telas: SCR-0002 (oferta) e os estados Carregando, Vazio, Erro e Permissão negada de
-SCR-0001. Fluxo: FLOW-0004.
+(REQ-FEAT-0008-11); a volta à oferta depois do encerramento do treino, sem nenhuma volta iniciada
+(AC-US-0010-18). Telas: SCR-0002 (oferta) e os estados Carregando, Vazio, Erro, Permissão negada e Treino encerrado
+de SCR-0001. Fluxos: FLOW-0004 e FLOW-0005, passo 13.
 
 ## Posicionamento
 
@@ -30,18 +31,20 @@ passa a ser a oferta de volta; não há módulo novo. A lista de tipos oferecido
 |---|---|---|
 | Carregando | antes da leitura (a leitura é síncrona e acontece na inicialização; o texto estático inicial é `loadingTrack`) | texto `loadingTrack`; nenhum botão de volta |
 | Vazio | `UNREADABLE` | `noTrackAvailable`; nenhum botão de volta |
-| Completo | `COMPLETE` | um botão por tipo em `offeredLapKinds(reading, [])`, que hoje é só `startTraining` |
+| Completo | `COMPLETE` | um botão por tipo em `offeredLapKinds(reading, [])`, que hoje é só `startTraining` ("treino": inicia um treino de voltas seguidas com uma única contagem, FEAT-0010) |
 | Incompleto | `INCOMPLETE` | o mesmo, nunca `startOfficial`; a pista é pilotável como treino |
 | Erro | `UNSUPPORTED_SCHEMA` ou `UNREADABLE` | `trackDataError`; nenhum botão; o dado de esquema desconhecido não é tocado |
 | Permissão negada | `web-mobile` com inclinação não ativa | linha de texto `controlFallbackTouch`; os botões continuam |
 | Offline | sem rede | idêntico ao online (nenhuma chamada de rede) |
 
-Cada botão tem o texto bilíngue de `message()` e dispara `startLap(lap, {lapKind, trackId, trackVersion, setupId,
-setupVersion}, reading, config)`, com `trackId` e `trackVersion` copiados de `reading` (campos no mesmo nível) e
-`setupId` e `setupVersion` copiados do acerto corrente da aplicação: o `PublishedSetup` que ela já guarda (`setup`,
-`src/main.ts:122`, um dos objetos de `PUBLISHED_SETUPS` de `src/physics.ts`, trocado só pelo seletor
-`#handling-preset` entre voltas, `src/main.ts:248-253`) — o mesmo objeto de que `config` é derivada e cujo par a
-aplicação já guarda como `setupRef` (`src/main.ts:160` e `:228`). A fonte é esse objeto, e não uma chamada a
+Cada botão tem o texto bilíngue de `message()` e chama `beginLap` (`src/main.ts:296-297`), que inicia a volta por
+`startTrainingLap` (`src/trainingSession.ts:81-87`, de `pista-kart-park`): esta chama `startLap(lap, {lapKind:
+'TRAINING', trackId, trackVersion, setupId, setupVersion}, reading, config, environment)`, com `trackId` e
+`trackVersion` copiados da leitura da sessão de treino (campos no mesmo nível) e `setupId` e `setupVersion` copiados
+do acerto corrente da aplicação: o `PublishedSetup` que ela já guarda (`setup`, `src/main.ts:131`, um dos objetos de
+`PUBLISHED_SETUPS` de `src/physics.ts`, trocado só pelo seletor `#handling-preset` fora de volta ou treino ativo,
+`src/main.ts:320-331`) — o mesmo objeto de que `config` é derivada e cujo par a aplicação já guarda como `setupRef`
+(`src/main.ts:165` e `:299`). A fonte é esse objeto, e não uma chamada a
 `getSetupVersion` (`src/setupRecords.ts`): os dois valores são os que o dado publicado de `dirigibilidade` declara,
 os mesmos que aquele contrato devolve, lidos sem chamá-lo. Como o objeto é publicado por construção, `UNKNOWN_SETUP`
 não ocorre neste caminho (ver "Comportamento em falha").
@@ -59,8 +62,12 @@ senão o controle por toque, com o texto do estado de Permissão negada visível
 sem permissão ou sem contexto seguro (`$('tilt').onclick` existente) deixa `tilt` desativado e cai nesse estado.
 A contagem e as regras não mudam.
 
-O painel `#welcome` reaparece com a oferta quando a volta chega a `ENDED` e o Jogador sai da tela de resultado
-(SCR-0003 → SCR-0002), com o botão `newLap`.
+O painel `#welcome` reaparece com a oferta quando uma volta oficial ou de reconhecimento chega a `ENDED` e o Jogador
+sai da tela de resultado (SCR-0003 → SCR-0002), com o botão `newLap`. No treino, o painel reaparece no instante em que
+`endTraining` é aceito (`emitEndTraining`, [DES-0007](DES-0007-integracao-da-aplicacao.md)), sem passar pela tela de
+resultado; o fim de uma volta do treino não reabre a oferta. Com o treino em `ENDED`, nenhum passo avança e nenhuma
+volta começa até o Jogador escolher de novo (REQ-FEAT-0010-18); a nova escolha cria outra sessão, com `results` vazia e
+sem melhor volta válida (REQ-FEAT-0010-32).
 
 ## Colaboradores
 

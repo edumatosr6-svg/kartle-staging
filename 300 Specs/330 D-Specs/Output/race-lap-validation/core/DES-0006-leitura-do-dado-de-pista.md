@@ -4,7 +4,7 @@ title: Leitura e verificação do dado de pista
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [FEAT-0002, FEAT-0008, REQ-FEAT-0002-13, REQ-FEAT-0008-01, REQ-FEAT-0008-02, REQ-FEAT-0008-03, REQ-FEAT-0008-05, REQ-FEAT-0008-08, REQ-FEAT-0008-09, REQ-FEAT-0008-10, REQ-FEAT-0008-11, REQ-FEAT-0008-12, REQ-FEAT-0008-13, REQ-FEAT-0008-14]
 ---
 
@@ -26,9 +26,9 @@ anterior (NFR-0012). Contrato: API-0003. Esquema: [DM-0001](../data/DM-0001-arqu
   ([DES-0003](DES-0003-cruzamentos-marcadores-setores-e-chegada.md)) e a constante `SYNTHETIC_TRACK_FILE`, o arquivo
   da seção "Dado da pista sintética atual" de DM-0001, em literais. `track`, `WIDTH` e `nearest` ficam
   como estão. `LapTracker` (validação preliminar por portões) deixa de ser importado pelo jogo
-  ([DES-0007](../web/DES-0007-integracao-da-aplicacao.md)) e continua exportado, sem alteração de código, só para
-  `scripts/keyboard-lap.ts` (`bench:handling`) e para o teste existente de `tests/physics.test.ts`, de modo que a
-  saída do benchmark permaneça idêntica (NFR-0011).
+  ([DES-0007](../web/DES-0007-integracao-da-aplicacao.md)) e continua exportado, sem alteração de código; os seus usuários na árvore são o teste existente
+  `tests/physics.test.ts` e as verificações `tests/race-lap-validation-frozen.test.ts` e
+  `tests/race-lap-validation-layering.test.ts`, que o mantêm inalterado e fora do jogo (NFR-0011).
 
 ## Interface
 

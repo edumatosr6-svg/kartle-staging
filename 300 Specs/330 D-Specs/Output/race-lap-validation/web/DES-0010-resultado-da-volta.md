@@ -4,8 +4,8 @@ title: Tela de resultado da volta
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.1
-sources: [FEAT-0002, FEAT-0004, FEAT-0006, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-06, REQ-FEAT-0004-03, REQ-FEAT-0006-07]
+version: 1.2.1
+sources: [FEAT-0002, FEAT-0004, FEAT-0006, FEAT-0010, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-06, REQ-FEAT-0004-03, REQ-FEAT-0006-07, REQ-FEAT-0010-21]
 ---
 
 # DES-0010 — Tela de resultado da volta
@@ -14,10 +14,12 @@ sources: [FEAT-0002, FEAT-0004, FEAT-0006, REQ-FEAT-0002-02, REQ-FEAT-0002-03, R
 
 Os `REQ-*` em `sources`: exibir a volta como válida com o tempo total e os quatro tempos de setor (AC-US-0002-01
 a -03), no formato `m:ss.mmm` (AC-US-0002-06); identificar em texto como "não oficial" o tempo de uma volta de
-reconhecimento, de treino ou de pista de dado incompleto (AC-US-0008-01); não exibir tempo oficial numa volta inválida
+reconhecimento ou de pista de dado incompleto (AC-US-0008-01); não exibir tempo oficial numa volta inválida
 e exibir o motivo (AC-US-0004-03, -04); só comparar dois tempos quando a `comparability` dos dois registros é
 `COMPARABLE` (SCR-0003, "Comparação de tempos"; FB-01 de `dirigibilidade`, aceito no F-Spec na rodada de 2026-10-22).
-Tela: SCR-0003.
+Tela: SCR-0003, só para a volta oficial e a de reconhecimento: depois do encerramento delas nenhuma volta seguinte
+começa (AC-US-0010-21). O resultado de cada volta do treino não usa esta tela: aparece em SCR-0001, sem parar o jogo
+([DES-0008](DES-0008-hud-da-volta-mensagens-e-idioma.md), `#lap-training-result`).
 
 ## Posicionamento
 
@@ -27,13 +29,14 @@ Tela: SCR-0003.
 
 ## Interface
 
-O painel aparece quando `lapPhase` chega a `ENDED`, no quadro do encerramento, lendo `getLapResult` (sem espera,
+O painel aparece quando `lapPhase` chega a `ENDED` numa volta `OFFICIAL` ou `RECON`, no quadro do encerramento, lendo
+`getLapResult` (sem espera,
 sem rede). Estados:
 
 | Estado | Condição | Conteúdo |
 |---|---|---|
 | Válida oficial | `lapValidity` `VALID` e `official` verdadeiro | `lapResultValid`; `totalLabel` com `formatLapTime(lapMs)`; os quatro `sectorLabel` n com `formatLapTime(sectorMs[n-1])` |
-| Válida não oficial | `VALID` e `official` falso | o mesmo, mais `lapUnofficial` ao lado do tempo total |
+| Válida não oficial | `VALID` e `official` falso (reconhecimento, ou pista de dado incompleto) | o mesmo, mais `lapUnofficial` ao lado do tempo total |
 | Inválida | `INVALID` | `lapStateInvalid` e o texto do motivo; nenhum tempo total, nenhum tempo de setor, nenhum tempo oficial |
 | Vazio | `getLapResult` devolve `NO_RESULT` (volta na contramão, recarregada ou abandonada) | o painel não é exibido |
 | Erro | volta `ENDED` sem resultado (defesa que não deve ocorrer) | o painel não é exibido e nenhuma mensagem própria é definida |
@@ -65,8 +68,11 @@ A decisão é sempre da simulação e do leitor de registros, nunca da renderiza
 os dois registros e exibe ou não, sem comparar campos por conta própria. Um resultado anterior, sem os dois campos,
 entra na comparação com os padrões de leitura de API-0001, aplicados por `resolveSetupRef` dentro de
 `compareLapRecords` (I5). Quais tempos são comparados e de onde vêm (melhor tempo gravado, tentativa anterior) é
-do desafio diário; esta feature fixa só a precondição. Posicionamento no código em execução: `src/main.ts:217-223`
-(`renderBest`) e `src/main.ts:421-435` (melhor registro ao chegar a `ENDED`), ambos na camada aplicação.
+do desafio diário; esta feature fixa só a precondição. Posicionamento no código em execução: `src/main.ts:289-295`
+(`renderBest`) e `src/main.ts:524-538` (melhor registro), ambos na camada aplicação. A partir da rodada de 2026-10-30
+o melhor registro é atualizado a cada resultado novo, e não só ao chegar a `ENDED`
+([DES-0007](DES-0007-integracao-da-aplicacao.md)): no treino, cada volta concluída na chegada é um resultado e passa
+pela mesma precondição; em volta oficial e de reconhecimento os dois instantes coincidem.
 
 O texto compartilhado e o replay derivados deste resultado são registros de `dirigibilidade`
 (`src/handlingMessages.ts`, `src/setupRecords.ts`): copiam `setupVersion` do resultado e obedecem à mesma
@@ -94,13 +100,16 @@ Exibição pura de um inteiro. Provas: `tests/lap-messages.test.ts` (formato dos
 `official`) e `tests/lap-state.test.ts` (resultado `VALID` com quatro setores e soma igual ao total; resultado
 `INVALID` sem tempos). A decisão de comparabilidade é provada onde é decidida, em `dirigibilidade`
 (`compareLapRecords`); esta tela só a consome. A ausência de comparação fora de `COMPARABLE` é verificada no passo
-"comparação de tempos" do roteiro E2E-02 da test-strategy: volta válida concluída no acerto corrente; troca de acerto
-pelo seletor existente `#handling-preset` (só entre voltas, `src/main.ts:248-253`); outra volta válida — a tela de
-resultado não exibe comparação alguma com o tempo do outro acerto (`SETUP_DIFFERS`); segunda volta válida no mesmo
-acerto — a comparação é exibida (`COMPARABLE`). Os ramos `SETUP_VERSION_DIFFERS` e `TRACK_DIFFERS` não são
-alcançáveis pela tela desta feature (uma única pista empacotada; o seletor só oferece versões publicadas de acerto) e
-não ganham superfície de teste: ficam provados nos testes de `compareLapRecords` de `dirigibilidade`, no ponto de
-decisão.
+"comparação de tempos" do roteiro E2E-02 da test-strategy: treino com uma volta válida concluída no acerto corrente;
+encerramento do treino e troca de acerto pelo seletor existente `#handling-preset` (só fora de volta ou de treino
+ativo, `src/main.ts:320-332`); outro treino com uma volta válida — o melhor tempo exibido não é comparado com o do
+outro acerto (`SETUP_DIFFERS`); segunda volta válida no mesmo acerto — a comparação é exibida (`COMPARABLE`). O ramo
+`TRACK_DIFFERS` é alcançado no mesmo roteiro pela troca de pista: a árvore empacota duas pistas de treino
+(`TRAINING_TRACKS`, `src/trainingSession.ts:12-15`), trocadas por `chooseTrack` (`src/main.ts:227`), e `renderBest`
+compara o melhor registro com a pista corrente (`src/main.ts:289-295`); com o melhor tempo da Kart Park, a pista
+sintética não o exibe nem o compara. O ramo `SETUP_VERSION_DIFFERS` não é alcançável pela tela (o seletor de acerto só
+oferece as versões publicadas correntes) e não ganha superfície de teste: fica provado nos testes de
+`compareLapRecords` de `dirigibilidade`, no ponto de decisão.
 
 ## Feature flag
 

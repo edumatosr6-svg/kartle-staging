@@ -3,7 +3,7 @@ title: Divergências — validação de volta de corrida
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -17,7 +17,9 @@ As linhas da rodada 1 (2026-10-20) citam a árvore anterior ao commit `c41c6c3`,
 projeto (`src/lap.ts`, `src/trackData.ts`, `src/lapTiming.ts`, `src/lapMessages.ts`, `src/frameClock.ts`); a
 resolução delas é registrada pela etapa devedora, e esta rodada (Mode C: só os itens do feedback e do F-Spec
 revalidado) não as re-julga. A linha da rodada de 2026-10-22 cita a árvore atual, depois de `c41c6c3` e da rodada
-de código 1 de `dirigibilidade` (`src/setupRecords.ts`, ainda não commitado).
+de código 1 de `dirigibilidade` (`src/setupRecords.ts`, ainda não commitado). As linhas da rodada de 2026-10-30 (treino
+de voltas seguidas, FEAT-0010, e as mudanças de RULE-0002, RULE-0003, RULE-0005 e de API-0001 a API-0003) citam a
+árvore em execução nesta data, depois das integrações de `pista-kart-park` e `modelo-kart-01`.
 
 | Requisito | O que exige | O que o sistema faz hoje | Etapa devedora | Item de projeto | Estado |
 |---|---|---|---|---|---|
@@ -34,9 +36,18 @@ de código 1 de `dirigibilidade` (`src/setupRecords.ts`, ainda não commitado).
 | REQ-FEAT-0008-01 a -04, -08 a -15, REQ-FEAT-0004-06 | largada, sentido, chegada, setores, marcadores e limites de corte vêm do arquivo de pista versionado, com leitor da forma anterior e de versão desconhecida | a pista é constante de código sem `schemaVersion`, `trackId` nem `trackVersion` (`src/track.ts:2-6`); a largada é fixa no ponto de índice 0 (`src/physics.ts:66`); não há leitor | código | DES-0006, DM-0001 | open |
 | REQ-FEAT-0009-10 | ao menos uma verificação determinística por regra de volta em `npm test` | o único teste de volta cobre os portões preliminares (`tests/physics.test.ts:35`); nenhuma das regras listadas é testada | código e testes | DES-0012 | open |
 | REQ-FEAT-0002-11 com API-0001 e API-0002 (1.1.0: campos opcionais `setupId` e `setupVersion`, FB-01 de `dirigibilidade`) e SCR-0003 ("Comparação de tempos") | o pedido `startLap` aceita `setupId` e `setupVersion`, a sessão os guarda e `getLapResult` os devolve copiados sem interpretação, ausentes quando o pedido não os traz; a tela só compara tempos com `comparability` `COMPARABLE` | `src/lap.ts:23` (`LapRequest` só com `challengeNumber`), `src/lap.ts:25-46` e `:48-58` (`LapSession` e `LapResult` sem os dois campos), `src/lap.ts:113-117` e `:267-270` (só `challengeNumber` é copiado); a identidade do acerto é anexada fora da simulação desta feature, por `buildLapRecord` (`src/setupRecords.ts:91-93`) sobre o par `setupRef` de `src/main.ts:160`, e `beginLap` (`src/main.ts:226`) chama `startLap` sem os campos. A precondição de comparação já é satisfeita: `src/main.ts:217-223` e `:421-435` só exibem e guardam o melhor tempo com `COMPARABLE` | código, da feature `dirigibilidade` (decisão do autor, rodada de 2026-10-22; o D-Spec dela, DES-0003, afirma hoje que o `LapResult` desta feature "fica intacto" e precisa acompanhar) | DM-0002, DES-0001, DES-0009, DES-0010 | open |
+| REQ-FEAT-0010-01, -04 a -06, -09 a -11, -14, -20, -26, -28, -29; REQ-FEAT-0002-12, REQ-FEAT-0004-13 (no treino) | o treino é uma sequência de voltas de um único `startLap`: a chegada no sentido da pista encerra a volta e inicia a seguinte no mesmo instante, sem contagem e sem parar; o corte invalida sem encerrar; a volta seguinte começa sem motivo; 1 resultado por volta concluída | toda volta, também `TRAINING`, termina em `ENDED` na chegada (`src/lap.ts:252-256`, `complete` e `invalidate` em `:272-280`) e no corte (`src/lap.ts:269`); a sessão tem um único `result` (`src/lap.ts:48`) e não tem `lapSequenceCount` nem `lapStartMs` (`src/lap.ts:26-49`); o laço de quadros para em `ENDED` (`src/main.ts:499`) | código | DM-0002, DES-0001, DES-0002, DES-0003, DES-0004, ADR-0006 | open |
+| REQ-FEAT-0010-15, REQ-FEAT-0010-16, REQ-FEAT-0010-17, REQ-FEAT-0010-18, REQ-FEAT-0010-30 | botão de pausa no treino (`PAUSE_BUTTON`, `NOT_TRAINING` fora dele) e ação "encerrar treino" nos dois canais; `endTraining` sem resultado para a volta em andamento e sem volta depois | `PauseCause` não tem `PAUSE_BUTTON` nem `pauseLap` rejeita com `NOT_TRAINING` (`src/lap.ts:12`, `:144-149`); não existe `endTraining` em `src/lap.ts`; o botão `#pause` só aparece em `PAUSED` e só continua (`src/main.ts:341`, `:597-599`); não há ação de encerrar o treino na barra (`index.html:33`) | código | DES-0001, DES-0007, DES-0008, ADR-0005 | open |
+| REQ-FEAT-0010-02, -07, -12, -13, -19, -23 a -25, -27 | na tela do treino, o resultado de cada volta sem parar (tempo total, quatro setores com "—", validade, "não oficial"; só total e validade sem setores), a melhor volta válida, o estado "inválida · corte" com a volta em andamento | só existe a tela de resultado de volta encerrada (`src/main.ts:439-469`, chamada em `:592`), que esconde o jogo; `getLapState` não traz `bestValidLapMs` (`src/lap.ts:198-220`); `LapResult` não tem `trainingLapMs` nem `trainingSectorMs` (`src/lap.ts:51-63`); `src/lapMessages.ts:6-11` não tem `pauseAction`, `endTrainingAction`, `bestValidLap` nem `sectorNoTime` | código | DES-0005, DES-0008, DES-0010 | open |
+| REQ-FEAT-0002-14 | limite de setor registrado no primeiro cruzamento no sentido da pista depois da última fronteira registrada, mesmo quando um limite anterior faltou | só o próximo limite na ordem é testado (`src/lap.ts:247-251`): um limite saltado impede o registro de todos os seguintes | código | DES-0003, DM-0002 | open |
+| REQ-FEAT-0010-27, e REQ-FEAT-0010-02 e -24 numa pista `INCOMPLETE` (`DOMAIN/DEC-13`) | no treino numa pista `INCOMPLETE` que declara chegada e sentido, resultado de cada volta com tempo total e validade, sem setores numa pista sem setores | a sessão descarta as linhas de uma leitura `INCOMPLETE` (`src/lap.ts:111-113`), de modo que nenhuma volta termina nela; `buildResult` monta `sectorMs` com qualquer número de fronteiras (`src/lap.ts:296-300`) | código | DES-0003, DES-0005, ADR-0004 | open |
+| API-0001 1.2.0 (`listLapResults`) e o gancho de resultado da aplicação | leitura de todos os resultados desde o último `startLap`; a aplicação trata cada resultado novo uma vez | não existe `listLapResults`; o registro do resultado (`dirigibilidade`) roda só quando a fase chega a `ENDED` (`src/main.ts:524-538`) | código | DES-0001, DES-0007 | open |
 
 Satisfeitos hoje, sem divergência: `STEP` e significado de `Input` (REQ-FEAT-0009-03), física e presets
 (REQ-FEAT-0009-04), uso sem rede (REQ-FEAT-0009-07, -08), ausência de dado pessoal (REQ-FEAT-0009-09) e de
-gravação no navegador (REQ-FEAT-0009-11). Esses requisitos continuam protegidos pelo teste de camada e de
+gravação no navegador (REQ-FEAT-0009-11; nenhum `localStorage`, `sessionStorage`, IndexedDB ou cookie em `src/` nem
+em `index.html`). Também satisfeitos: nenhuma volta seguinte depois do encerramento de uma volta oficial e o kart
+parado a partir dele (REQ-FEAT-0010-21, -22; `stepLap` devolve a sessão fora de `RUNNING`, `src/lap.ts:190`), e nada
+do treino guardado além da página (REQ-FEAT-0010-31, -32; a sessão só existe em `src/main.ts:162`). Esses requisitos continuam protegidos pelo teste de camada e de
 congelamento (DES-0012). Os requisitos de desempenho (REQ-FEAT-0009-05 e -06) não têm medida registrada hoje e
 dependem do teste registrado no aparelho (test-strategy, E2E-10).

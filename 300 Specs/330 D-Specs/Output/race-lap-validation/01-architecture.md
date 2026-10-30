@@ -3,7 +3,7 @@ title: Arquitetura — validação de volta de corrida
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.1
+version: 1.2.0
 sources: []
 ---
 
@@ -31,14 +31,14 @@ pedido `startLap` sem interpretação: identificam o acerto do resultado e nunca
 |---|---|---|---|
 | Dado de pista | `src/track.ts` | alterado | acrescenta o tipo `Line`, as primitivas `sideOf` e `crossLine` e o arquivo de pista sintético na versão de esquema 2 (literais); `track`, `WIDTH` e `nearest` ficam como estão; `LapTracker` sai do jogo e fica só para o `bench:handling` |
 | Dado de pista | `src/trackData.ts` | novo | tipos do arquivo de pista, `readTrackData` e a verificação de consistência |
-| Simulação | `src/lap.ts` | novo | máquina de estados da volta, comandos, avaliação de validade, resultado |
+| Simulação | `src/lap.ts` | novo; estendido na rodada de 2026-10-30 | máquina de estados da volta, comandos, avaliação de validade, resultado; o treino como sequência de voltas numa sessão, com `endTraining`, `listLapResults` e a melhor volta válida derivada ([ADR-0006](adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md)) |
 | Simulação | `src/lapTiming.ts` | novo | aritmética inteira do tempo da volta e interpolação |
 | Simulação | `src/physics.ts`, `src/maneuvers.ts` | inalterados | `step`, `STEP`, `Input`, presets e ambientes continuam como estão (NFR-0010, NFR-0011) |
 | Adaptadores de controle | em `src/main.ts` | alterado | encaminham Esc, perda de foco, perda do sensor e reposicionamento como comandos; nenhuma regra |
 | Aplicação | `src/main.ts` | alterado | integra a volta ao laço de quadros; telas; remove a validação preliminar |
 | Aplicação | `src/frameClock.ts` | novo | converte o tempo de quadro em número de passos |
 | Aplicação | `src/lapMessages.ts` | novo | textos, idioma e formato `m:ss.mmm`, puros e testáveis sem DOM |
-| Aplicação | `index.html`, `src/style.css` | alterados | elementos e estilos do HUD, da oferta e do resultado |
+| Aplicação | `index.html`, `src/style.css` | alterados | elementos e estilos do HUD, da oferta e do resultado; no treino, o painel do resultado de cada volta, a melhor volta válida e o botão de encerrar o treino |
 
 Por que módulos novos (I10): `src/physics.ts` é o modelo do veículo e precisa permanecer idêntico para que as
 saídas dos benchmarks não mudem; as regras de volta não cabem nele. `src/main.ts` importa Three.js e o DOM, de
@@ -82,17 +82,30 @@ sequenceDiagram
             end
             L-->>M: nova LapSession
         end
-        M->>L: getLapState(lap)
-        L-->>M: LapStateView
+        M->>L: getLapState(lap) e listLapResults(lap)
+        L-->>M: LapStateView e resultados
         M-->>J: HUD pelo lapMessages
     end
-    L-->>M: fase ENDED e LapResult unico
-    M-->>J: tela de resultado
+    alt volta oficial ou de reconhecimento
+        L-->>M: fase ENDED e LapResult unico
+        M-->>J: tela de resultado
+    else treino
+        L-->>M: a cada chegada no sentido da pista, novo LapResult e volta seguinte em RUNNING
+        M-->>J: painel do resultado da volta e melhor volta valida, sem parar
+        J->>M: encerrar treino
+        M->>L: endTraining(lap)
+        L-->>M: fase ENDED, sem resultado para a volta em andamento
+        M-->>J: oferta de volta
+    end
 ```
 
 Eventos externos entram pelo mesmo contrato, entre dois passos: `pauseLap` (Esc, perda de foco, perda do
-sensor), `resumeLap` (botão ou Esc) e `repositionKart` (tecla `R` ou botão). Nenhum deles é campo de `Input`
-(API-0002).
+sensor e, no treino, o botão de pausa), `resumeLap` (botão ou Esc), `repositionKart` (tecla `R` ou botão) e, no
+treino, `endTraining` (botão "encerrar treino"). Nenhum deles é campo de `Input` (API-0002). O treino é iniciado pela
+oferta da sessão de treino de `pista-kart-park` (`startTrainingLap`, `src/trainingSession.ts`), que chama `startLap`
+com `TRAINING` sem outra mudança; a regra de quando cada volta do treino termina e a seguinte começa fica em
+`src/lap.ts`. A aplicação trata cada resultado novo (crescimento de `listLapResults`) uma vez: em volta oficial e de
+reconhecimento ele chega com `ENDED`; no treino, a cada volta concluída ([DES-0007](web/DES-0007-integracao-da-aplicacao.md)).
 
 ## Dependências externas
 
@@ -114,5 +127,6 @@ aposentada do jogo na mesma mudança que introduz a nova ([DES-0007](web/DES-000
 | [ADR-0001](adr/ADR-0001-tempo-inteiro-em-ms-e-interpolacao.md) | tempo da volta em aritmética inteira e arredondamento da interpolação |
 | [ADR-0002](adr/ADR-0002-volta-como-modulo-sobre-step-inalterado.md) | a volta é um módulo novo sobre `step` inalterado; comandos fora de `Input` |
 | [ADR-0003](adr/ADR-0003-esquema-do-arquivo-de-pista-versao-2.md) | esquema do arquivo de pista, versão 2, e leitor da forma anterior |
-| [ADR-0004](adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md) | precedência no mesmo passo, destino do reposicionamento e volta em dado incompleto |
-| [ADR-0005](adr/ADR-0005-pausa-retomada-e-perda-do-sensor.md) | meios de continuar a volta e detecção da perda do sensor |
+| [ADR-0004](adr/ADR-0004-lacunas-do-f-spec-resolvidas-no-projeto.md) | precedência no mesmo passo, destino do reposicionamento, volta em dado incompleto e lacunas do treino |
+| [ADR-0005](adr/ADR-0005-pausa-retomada-e-perda-do-sensor.md) | meios de continuar a volta, botão de pausa e de encerrar o treino, e detecção da perda do sensor |
+| [ADR-0006](adr/ADR-0006-treino-como-sequencia-de-voltas-numa-sessao.md) | o treino é uma sequência de voltas numa única sessão, com lista de resultados e melhor volta válida derivada |
