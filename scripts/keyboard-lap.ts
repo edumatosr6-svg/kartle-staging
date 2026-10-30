@@ -5,7 +5,7 @@
 import { performance } from 'node:perf_hooks';
 import { cpus } from 'node:os';
 import { PUBLISHED_SETUPS, type PublishedSetup } from '../src/physics';
-import { startLap, stepLap } from '../src/lap';
+import { getLapResult, startLap, stepLap } from '../src/lap';
 import { COUNTDOWN_STEPS } from '../src/lapTiming';
 import {
   BENCH_PARAMETERS, handlingBenchReport, loadBaselineText, MAX_LAP_STEPS, readBaseline, serialize, syntheticReading, testPilot,
@@ -29,7 +29,8 @@ function measureStepCost(setup: PublishedSetup, version: 'current' | 'previous')
   for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, { throttle: 0, brake: 0, steer: 0 });
   const pilot = testPilot(config);
   let total = 0, steps = 0;
-  for (let i = 0; i < MAX_LAP_STEPS && lap.phase !== 'ENDED'; i++) {
+  // The same steps as TEST_PILOT_LAP: the lap ends at the first result, not at phase ENDED (DES-0004).
+  for (let i = 0; i < MAX_LAP_STEPS && 'code' in getLapResult(lap); i++) {
     const input = pilot(lap);
     const before = performance.now();
     lap = stepLap(lap, input);

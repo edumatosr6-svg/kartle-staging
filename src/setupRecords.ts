@@ -116,8 +116,9 @@ export function replayLap(record: ReplayRecord, reading: TrackReading, setup: Pu
   let lap = started.lap;
   const idle: Input = { throttle: 0, brake: 0, steer: 0 };
   for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, idle);
+  // The reproduction ends at the first result, not at phase ENDED: a TRAINING lap gives its result while RUNNING (DES-0003).
   for (const input of record.inputs) {
-    if (lap.phase === 'ENDED') break;
+    if (!('code' in getLapResult(lap))) break;
     lap = stepLap(lap, input);
   }
   const result = getLapResult(lap);

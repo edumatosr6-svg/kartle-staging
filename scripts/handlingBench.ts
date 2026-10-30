@@ -4,9 +4,8 @@
 // (measuredAtUtc, stepCost) come from the caller. node:fs is used only to read docs/physics.md and src/physics.ts.
 import { readFileSync } from 'node:fs';
 import {
-  CIRCUIT, classifyHandlingSteps, getHandlingTelemetry, initialState, PUBLISHED_SETUPS, SOLVER_SUBSTEPS, step, STEP, TEST_PAD,
-  testPadArc, testPadLane,
-  type Environment, type HandlingTelemetry, type Input, type KartConfig, type PublishedSetup, type SetupId, type State,
+  CIRCUIT, getHandlingTelemetry, initialState, PUBLISHED_SETUPS, SOLVER_SUBSTEPS, step, STEP, testPadArea,
+  type Environment, type Handling, type HandlingTelemetry, type Input, type KartConfig, type PublishedSetup, type SetupId, type State,
 } from '../src/physics';
 import { getLapResult, getLapState, startLap, stepLap, type LapSession } from '../src/lap';
 import { COUNTDOWN_STEPS, toMs } from '../src/lapTiming';
@@ -20,8 +19,7 @@ import { compareLapRecords, readReplay, resolveSetupRef } from '../src/setupReco
 export const BENCH_PARAMETERS = Object.freeze({
   targetSpeedMps: 50 / 3.6, speedHoldMode: 'THROTTLE_REGULATED' as const, speedHoldBandMps: 0.5,
   holdMs: 600, settleWindowMs: 200, steerInputNormPartial: 0.5,
-  laneWidthM: WIDTH, arcRadiusM: 18, cornerWindowMs: 2500,
-  entrySpeedStepMps: 0.5, plateauMs: 1000, plateauSpeedHoldMode: 'THROTTLE_REGULATED' as const, entrySpeedMaxMps: 25,
+  testAreaRadiusM: 100, straightTestAreaRadiusM: 1500, radiusWindowMs: 200,
   forcingSpeedMps: 16.7, forcingWindowMs: 3000,
   grassEntryIndex: 83, grassEntryOffsetM: 0.2, grassEntryAngleRad: 0.15, grassWindowMs: 1000,
   wallApproachRad: 0.6, wallWindowMs: 10000, topSpeedWindowMs: 60000,
@@ -30,63 +28,68 @@ export const BENCH_PARAMETERS = Object.freeze({
 export const MAX_LAP_STEPS = 6000;
 export const PILOT_DECISION_STEPS = 12;
 
-// Thresholds of RULE-0002 (DOMAIN/REF-02), compared in the unit of the measured field without rounding it.
+// Thresholds of RULE-0002 4.0.1, compared in the unit of the measured field without rounding it.
 export const THRESHOLDS = Object.freeze({
-  riseToNinetyPctMs: 180, fallToTenPctMs: 250, maxUndersteerMs: 200, recoveryMs: 400, maxSideslipRad: 0.65,
-  zeroToSixtyKmhMs: 2500, topSpeedMps: 105 / 3.6, grassSpeedRatio: 0.70, lapTimeMs: 25000,
-  understeerOnsetRatio: 1.15, stepCostRatio: 1.10,
+  riseToNinetyPctMs: 180, fallToTenPctMs: 250, pathRadiusM: 13, turnRad: Math.PI, turnWithinMs: 2000, radiusAtMs: 3000,
+  recoveryMs: 400, maxSideslipRad: 0.65, zeroToSixtyKmhMs: 2500, topSpeedMinMps: 65 / 3.6, topSpeedMaxMps: 72 / 3.6,
+  grassSpeedRatio: 0.70, lapTimeMs: 25000, stepCostRatio: 1.10,
 });
+// Start speeds of CORNER_RADIUS fixed by the criteria (AC-US-0002-07, -08): criterion values, not bench parameters.
+export const CORNER_ENTRY_SPEEDS_MPS: readonly number[] = Object.freeze([50 / 3.6, 70 / 3.6]);
 const SIXTY_KMH_MPS = 60 / 3.6;
 const FIFTY_KMH_MPS = 50 / 3.6;
 const msToSteps = (ms: number) => Math.round(ms / 1000 / STEP);
 
-// ----------------------------------------------------------------------------- records (API-0003)
+// ----------------------------------------------------------------------------- records (API-0003 4.0.1)
 
 export type BenchId =
-  | 'STEER_RESPONSE' | 'REFERENCE_CORNER' | 'UNDERSTEER_ONSET' | 'NORMAL_DRIVING' | 'REAR_RECOVERY' | 'DRIFT_MANEUVER'
+  | 'STEER_RESPONSE' | 'CORNER_RADIUS' | 'CORNER_TURN' | 'NORMAL_DRIVING' | 'REAR_RECOVERY' | 'DRIFT_INERT' | 'SPEED_CAP'
   | 'ACCELERATION' | 'TOP_SPEED' | 'GRASS_LOSS' | 'WALL_CONTACT' | 'DETERMINISM' | 'TEST_PILOT_LAP' | 'STEP_COST'
   | 'SETUP_VERSION' | 'STEP_CONTRACT' | 'REALISTA_UNCHANGED';
 export type BenchEnvironment = 'TEST_PAD' | 'SYNTHETIC_TRACK';
 export type InputMode = 'BINARY' | 'PROPORTIONAL';
 export type Verdict = 'PASS' | 'FAIL';
 export type FailReason = 'THRESHOLD_EXCEEDED' | 'BASELINE_MISSING' | 'OFF_ASPHALT' | 'NON_DETERMINISTIC' | 'CONTRACT_CHANGED'
-  | 'SPEED_NOT_HELD' | 'MEASUREMENT_MISSING';
-export type ThrottleCondition = 'THROTTLE_ZERO' | 'THROTTLE_FULL';
+  | 'SPEED_NOT_HELD' | 'MEASUREMENT_MISSING' | 'TEST_AREA_EXCEEDED';
 export type SpeedHoldMode = 'THROTTLE_CONSTANT' | 'THROTTLE_REGULATED';
-// What a bench saw in its trace and no field of API-0003 carries; the second argument of judge (ADR-0004, decision 3).
-export type Observed = 'OFF_ASPHALT' | 'THRESHOLD_EXCEEDED';
+// What a bench saw in its trace and no field of API-0003 carries; the second argument of judge (only GRASS_LOSS).
+export type Observed = 'THRESHOLD_EXCEEDED';
 
 export type BenchCommon = {
   benchEnvironment: BenchEnvironment; setupId: SetupId; setupVersion: string; inputMode: InputMode;
   verdict: Verdict; failReason?: FailReason; measuredAtUtc: string; baselineAvailable: boolean;
 };
 type OffAsphalt = { offAsphaltStepCount: number; offAsphaltFirstStep?: number; offAsphaltFirstXM?: number; offAsphaltFirstZM?: number };
-type ArcGeometry = { arcRadiusM: number; laneWidthM: number };
-export type SteerResponseRecord = BenchCommon & { benchId: 'STEER_RESPONSE'; steerInputNorm: number; targetSpeedMps: number;
+// The fields of every record with benchEnvironment TEST_PAD (API-0003, open test pad).
+export type TestPadFields = OffAsphalt & { testAreaRadiusM: number };
+export type SteerResponseRecord = BenchCommon & TestPadFields & { benchId: 'STEER_RESPONSE'; steerInputNorm: number; targetSpeedMps: number;
   speedHoldMode: SpeedHoldMode; throttleInputNorm?: number; speedHoldBandMps: number; speedMinMps: number; speedMaxMps: number;
   riseToNinetyPctMs: number; fallToTenPctMs: number; settleWindowMs: number; steadyYawRateRadPerS: number; understeerStepCount: number };
-export type ReferenceCornerRecord = BenchCommon & ArcGeometry & OffAsphalt & { benchId: 'REFERENCE_CORNER'; throttleCondition: ThrottleCondition;
-  maxUndersteerMs: number; entrySpeedMps: number };
-export type UndersteerOnsetRecord = BenchCommon & ArcGeometry & OffAsphalt & { benchId: 'UNDERSTEER_ONSET'; v0Mps?: number; v1Mps?: number;
-  entrySpeedStepMps: number; maxUndersteerMsBySpeed: [number, number][] };
-export type NormalDrivingRecord = BenchCommon & { benchId: 'NORMAL_DRIVING'; normalDrivingStepCount: number; excludedRecoveryStepCount: number;
+export type CornerRadiusRecord = BenchCommon & TestPadFields & { benchId: 'CORNER_RADIUS'; steerInputNorm: number; entrySpeedMps: number;
+  radiusWindowMs: number; pathRadiusAt3sM?: number; speedAt3sMps: number; handlingAt3s: Handling; stoppedAtStep?: number };
+export type CornerTurnRecord = BenchCommon & TestPadFields & { benchId: 'CORNER_TURN'; steerInputNorm: number; entrySpeedMps: number;
+  turnAt2sRad: number; halfTurnReachedMs?: number; speedAt2sMps: number; stoppedAtStep?: number };
+export type NormalDrivingRecord = BenchCommon & { benchId: 'NORMAL_DRIVING'; normalDrivingStepCount: number;
   oversteerOrSlidingStepCount: number; maxSideslipRad: number };
-export type RearRecoveryRecord = BenchCommon & ArcGeometry & OffAsphalt & { benchId: 'REAR_RECOVERY'; gripReached: boolean; recoveryMs?: number;
-  maxSideslipRad: number };
-export type DriftManeuverRecord = BenchCommon & { benchId: 'DRIFT_MANEUVER'; driftScorePoints: number };
-export type AccelerationRecord = BenchCommon & { benchId: 'ACCELERATION'; zeroToSixtyKmhMs: number; driverMassKg: number };
-export type TopSpeedRecord = BenchCommon & { benchId: 'TOP_SPEED'; topSpeedMps: number };
+export type RearRecoveryRecord = BenchCommon & TestPadFields & { benchId: 'REAR_RECOVERY'; steerInputNorm: number; entrySpeedMps: number;
+  rearReleased: boolean; forcingMs: number; gripReached?: boolean; recoveryMs?: number; maxSideslipRad?: number };
+// The area fields exist only on the TEST_PAD sequence (the recovery); the lap sequence is SYNTHETIC_TRACK.
+export type DriftInertRecord = BenchCommon & Partial<TestPadFields> & { benchId: 'DRIFT_INERT'; comparedStepCount: number;
+  differingStepCount: number; firstDifferingStep?: number };
+export type SpeedCapRecord = BenchCommon & { benchId: 'SPEED_CAP'; maxObservedSpeedMps: number; maxObservedBenchId: BenchId; topSpeedMps?: number };
+export type AccelerationRecord = BenchCommon & TestPadFields & { benchId: 'ACCELERATION'; zeroToSixtyKmhMs: number; driverMassKg: number };
+export type TopSpeedRecord = BenchCommon & TestPadFields & { benchId: 'TOP_SPEED'; topSpeedMps: number };
 export type GrassLossRecord = BenchCommon & { benchId: 'GRASS_LOSS'; entrySpeedMps: number; speedAfterOneSMps: number };
 export type WallContactRecord = BenchCommon & { benchId: 'WALL_CONTACT'; contacts: [number, number][] };
-export type DeterminismRecord = BenchCommon & { benchId: 'DETERMINISM'; runCount: number; identical: boolean };
+export type DeterminismRecord = BenchCommon & Partial<TestPadFields> & { benchId: 'DETERMINISM'; runCount: number; identical: boolean };
 export type TestPilotLapRecord = BenchCommon & OffAsphalt & { benchId: 'TEST_PILOT_LAP'; lapTimeMs: number; sectorMs: number[]; baselineLapTimeMs?: number };
 export type StepCostRecord = BenchCommon & { benchId: 'STEP_COST'; meanStepCostUs: number; baselineMeanStepCostUs?: number };
 export type SetupVersionRecord = BenchCommon & { benchId: 'SETUP_VERSION'; declaredSetupVersion: string; previousSetupVersion: string;
   oldRecordsReadCount: number; oldRecordsReadOkCount: number };
 export type StepContractRecord = BenchCommon & { benchId: 'STEP_CONTRACT'; stepUnchanged: boolean; solverRateUnchanged: boolean; inputFieldsUnchanged: boolean };
-export type RealistaUnchangedRecord = BenchCommon & { benchId: 'REALISTA_UNCHANGED'; differingMeasureCount: number; arcadeAssistActiveCount: number };
+export type RealistaUnchangedRecord = BenchCommon & Partial<TestPadFields> & { benchId: 'REALISTA_UNCHANGED'; differingMeasureCount: number; arcadeAssistActiveCount: number };
 export type BenchRecord =
-  | SteerResponseRecord | ReferenceCornerRecord | UndersteerOnsetRecord | NormalDrivingRecord | RearRecoveryRecord | DriftManeuverRecord
+  | SteerResponseRecord | CornerRadiusRecord | CornerTurnRecord | NormalDrivingRecord | RearRecoveryRecord | DriftInertRecord | SpeedCapRecord
   | AccelerationRecord | TopSpeedRecord | GrassLossRecord | WallContactRecord | DeterminismRecord | TestPilotLapRecord | StepCostRecord
   | SetupVersionRecord | StepContractRecord | RealistaUnchangedRecord;
 
@@ -97,8 +100,9 @@ export type BenchOptions = {
   stepCost?: { meanStepCostUs: number; runtimeId: string };
 };
 
+// The suite order: record order, SPEED_CAP tie-break and the first exit of an aggregated TEST_PAD record.
 export const SIMULATION_BENCHES: readonly BenchId[] = Object.freeze([
-  'STEER_RESPONSE', 'REFERENCE_CORNER', 'UNDERSTEER_ONSET', 'NORMAL_DRIVING', 'REAR_RECOVERY', 'DRIFT_MANEUVER',
+  'STEER_RESPONSE', 'CORNER_RADIUS', 'CORNER_TURN', 'NORMAL_DRIVING', 'REAR_RECOVERY', 'DRIFT_INERT', 'SPEED_CAP',
   'ACCELERATION', 'TOP_SPEED', 'GRASS_LOSS', 'WALL_CONTACT', 'DETERMINISM', 'TEST_PILOT_LAP',
 ]);
 export const ALL_BENCHES: readonly BenchId[] = Object.freeze([...SIMULATION_BENCHES, 'STEP_COST', 'SETUP_VERSION', 'STEP_CONTRACT', 'REALISTA_UNCHANGED']);
@@ -106,8 +110,9 @@ const ENVIRONMENTS: readonly BenchEnvironment[] = Object.freeze(['TEST_PAD', 'SY
 
 // ----------------------------------------------------------------------------- environments and helpers
 
-export const laneEnvironment: Environment = testPadLane(BENCH_PARAMETERS.laneWidthM);
-export const arcEnvironment: Environment = testPadArc(BENCH_PARAMETERS.arcRadiusM, BENCH_PARAMETERS.laneWidthM);
+// The open test pad (DES-0001, ADR-0005): the curve area and the straight area, both centred on the start point.
+export const padEnvironment: Environment = testPadArea(BENCH_PARAMETERS.testAreaRadiusM);
+export const straightPadEnvironment: Environment = testPadArea(BENCH_PARAMETERS.straightTestAreaRadiusM);
 
 export type Controller = (lap: LapSession) => Input;
 type Trace = { inputs: Input[]; states: State[]; telemetry: HandlingTelemetry[] };
@@ -122,9 +127,10 @@ const telemetryOf = (s: State, o: BenchOptions): HandlingTelemetry => getHandlin
 const exitFields = (exit: Exit | undefined): OffAsphalt => exit
   ? { offAsphaltStepCount: 1, offAsphaltFirstStep: exit.step, offAsphaltFirstXM: exit.x, offAsphaltFirstZM: exit.z }
   : { offAsphaltStepCount: 0 };
-const arcGeometry = (): ArcGeometry => ({ arcRadiusM: BENCH_PARAMETERS.arcRadiusM, laneWidthM: BENCH_PARAMETERS.laneWidthM });
+const padFields = (radiusM: number, exit: Exit | undefined): TestPadFields => ({ testAreaRadiusM: radiusM, ...exitFields(exit) });
 // The regulated throttle of ADR-0005, decision 2: 1 while the previous speed is below the target, else 0; binary by construction.
 const regulated = (previousSpeedMps: number, targetMps: number) => previousSpeedMps < targetMps ? 1 : 0;
+const wrapAngle = (a: number) => { let w = a; while (w > Math.PI) w -= 2 * Math.PI; while (w <= -Math.PI) w += 2 * Math.PI; return w; };
 
 // Diagnostics that are not fields of API-0003 (the `#` presentation line): kept beside the record, never inside it.
 const DIAGNOSTICS = new WeakMap<object, string[]>();
@@ -143,13 +149,9 @@ export function makeInput(mode: InputMode, throttle: number, brake: number, stee
   return input;
 }
 
-// "Straight at V": the fixture of tests/physics.test.ts:5, on the axis of the lane of testPadLane.
+// "Straight at V": the start point of every bench on the open test pad, centre of the declared area, heading +z.
 export function straight(speedMps: number): State {
   return { ...initialState(), x: 0, z: 0, heading: 0, vx: 0, vz: speedMps, speed: speedMps };
-}
-// Entry of the arc: tangent to the ring at (arcRadiusM, 0), centre to the right of the kart, so steer +1 turns inward.
-export function arcEntry(speedMps: number): State {
-  return { ...initialState(), x: BENCH_PARAMETERS.arcRadiusM, z: 0, heading: 0, vx: 0, vz: speedMps, speed: speedMps };
 }
 // Entry on the grass of the synthetic track: beside the straightest stretch, on the side away from the origin,
 // heading rotated outward by grassEntryAngleRad (positive yaw turns left; the body's left is +n at heading h).
@@ -180,6 +182,7 @@ function advance(state: State, config: KartConfig, environment: Environment, o: 
 }
 const newTrace = (): Trace => ({ inputs: [], states: [], telemetry: [] });
 const lastOf = (trace: Trace) => trace.telemetry[trace.telemetry.length - 1];
+const exitOf = (t: HandlingTelemetry): Exit => ({ step: t.simStepCount, x: t.positionXM, z: t.positionZM });
 
 function deepEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
@@ -227,29 +230,36 @@ export function testPilot(config: KartConfig): Controller {
   };
 }
 
-// ----------------------------------------------------------------------------- test-pad benches
+// ----------------------------------------------------------------------------- open test-pad benches
 
-// STEER_RESPONSE: straight lane, speed held at 50 km/h by the regulated throttle; phase A holds the steer for holdMs,
-// phase B releases it. The verdict depends only on the two times with the speed held (API-0003, AC-US-0001-05).
+// STEER_RESPONSE: open pad, speed held at 50 km/h by the regulated throttle; phase A holds the steer for holdMs, phase B
+// releases it. The verdict depends only on the two times with the speed held (API-0003, AC-US-0001-05). The run stops at
+// the first step off the declared area; every required field is then measured over the executed steps (DES-0004).
 function steerResponse(o: BenchOptions, steerInputNorm: number): { record: SteerResponseRecord; trace: Trace } {
   const config = setupConfig(o), trace = newTrace();
   const hold = msToSteps(BENCH_PARAMETERS.holdMs), settle = msToSteps(BENCH_PARAMETERS.settleWindowMs);
   const target = BENCH_PARAMETERS.targetSpeedMps;
-  let state = straight(target);
+  let state = straight(target), exit: Exit | undefined;
   let speedMin = Infinity, speedMax = -Infinity;
   for (let i = 0; i < hold; i++) {
-    state = advance(state, config, laneEnvironment, o, trace, makeInput(o.inputMode, regulated(state.speed, target), 0, steerInputNorm));
-    const v = lastOf(trace).speedMps;
-    speedMin = Math.min(speedMin, v); speedMax = Math.max(speedMax, v);
+    state = advance(state, config, padEnvironment, o, trace, makeInput(o.inputMode, regulated(state.speed, target), 0, steerInputNorm));
+    const t = lastOf(trace);
+    speedMin = Math.min(speedMin, t.speedMps); speedMax = Math.max(speedMax, t.speedMps);
+    if (t.surface === 'GRASS') { exit = exitOf(t); break; }
   }
   const yaw = trace.telemetry.map(t => Math.abs(t.yawRateRadPerS));
-  const steady = yaw.slice(hold - settle).reduce((a, b) => a + b, 0) / settle;
+  const window = yaw.slice(Math.max(0, yaw.length - settle));
+  const steady = window.reduce((a, b) => a + b, 0) / window.length;
   let riseSteps = yaw.findIndex(y => y >= 0.9 * steady);
   riseSteps = riseSteps < 0 ? hold : riseSteps + 1;
   let fallSteps = hold;
-  for (let i = 0; i < hold; i++) {
-    state = advance(state, config, laneEnvironment, o, trace, makeInput(o.inputMode, regulated(state.speed, target), 0, 0));
-    if (Math.abs(lastOf(trace).yawRateRadPerS) <= 0.1 * steady) { fallSteps = i + 1; break; }
+  if (!exit) {
+    for (let i = 0; i < hold; i++) {
+      state = advance(state, config, padEnvironment, o, trace, makeInput(o.inputMode, regulated(state.speed, target), 0, 0));
+      const t = lastOf(trace);
+      if (t.surface === 'GRASS') { exit = exitOf(t); break; }
+      if (Math.abs(t.yawRateRadPerS) <= 0.1 * steady) { fallSteps = i + 1; break; }
+    }
   }
   const record: SteerResponseRecord = {
     ...common(o, 'TEST_PAD'), benchId: 'STEER_RESPONSE', steerInputNorm,
@@ -258,202 +268,137 @@ function steerResponse(o: BenchOptions, steerInputNorm: number): { record: Steer
     riseToNinetyPctMs: toMs(riseSteps), fallToTenPctMs: toMs(fallSteps),
     settleWindowMs: BENCH_PARAMETERS.settleWindowMs, steadyYawRateRadPerS: steady,
     understeerStepCount: trace.telemetry.filter(t => t.handling === 'understeer').length,
+    ...padFields(BENCH_PARAMETERS.testAreaRadiusM, exit),
   };
   return { record: judge(record), trace };
 }
 
-// REFERENCE_CORNER: the 18 m arc at 50 km/h, steer +1 held, throttle 0 or 1 held. With THROTTLE_FULL the run stops at the
-// first step off the lane (nothing is measured off the asphalt); with THROTTLE_ZERO it runs the whole window wherever the kart
-// is, but maxUndersteerMs is measured only on the lane, up to the first exit (DOMAIN/DEC-13, DEC-14; ADR-0004, decision 9).
-function referenceCornerBench(o: BenchOptions, throttleCondition: ThrottleCondition): { record: ReferenceCornerRecord; trace: Trace } {
-  const config = setupConfig(o), trace = newTrace();
-  const input = makeInput(o.inputMode, throttleCondition === 'THROTTLE_FULL' ? 1 : 0, 0, 1);
-  let state = arcEntry(FIFTY_KMH_MPS), run = 0, maxRun = 0, bad = 0, off = 0, exit: Exit | undefined;
-  for (let i = 0; i < msToSteps(BENCH_PARAMETERS.cornerWindowMs); i++) {
-    state = advance(state, config, arcEnvironment, o, trace, input);
-    const t = lastOf(trace);
-    if (t.surface === 'GRASS') {
-      off++;
-      exit ??= { step: t.simStepCount, x: state.x, z: state.z };
-      if (throttleCondition === 'THROTTLE_FULL') break;
-    }
-    // The measurement window closes at the first lane exit: later steps, on grass or back on asphalt, never enter it (DEC-14).
-    if (!exit) { run = t.handling === 'understeer' ? run + 1 : 0; maxRun = Math.max(maxRun, run); }
-    if (loose(t.handling)) bad++;
+// Path radius around 3 s (RULE-0002, "Medidas da curva de referência"; DES-0004): over the window steps 349 to 372, the
+// change of the direction of motion between consecutive displacements, along the mean of their lengths; radius = L / |Θ|.
+// `positions[j]` is P_j (P_0 the start); only the executed steps enter. A straight path (|Θ| = 0) gives Number.MAX_VALUE.
+function pathRadius(positions: readonly { x: number; z: number }[]): { radiusM: number; lengthM: number; turnRad: number } {
+  const half = msToSteps(BENCH_PARAMETERS.radiusWindowMs / 2), centre = msToSteps(THRESHOLDS.radiusAtMs);
+  let theta = 0, length = 0;
+  for (let j = centre - half + 2; j <= centre + half && j < positions.length; j++) {
+    const d1 = { x: positions[j - 1].x - positions[j - 2].x, z: positions[j - 1].z - positions[j - 2].z };
+    const d2 = { x: positions[j].x - positions[j - 1].x, z: positions[j].z - positions[j - 1].z };
+    const l1 = Math.hypot(d1.x, d1.z), l2 = Math.hypot(d2.x, d2.z);
+    if (l1 === 0 || l2 === 0) continue;
+    theta += wrapAngle(Math.atan2(d2.x, d2.z) - Math.atan2(d1.x, d1.z));
+    length += (l1 + l2) / 2;
   }
-  const record: ReferenceCornerRecord = {
-    ...common(o, 'TEST_PAD'), benchId: 'REFERENCE_CORNER', throttleCondition, ...arcGeometry(),
-    maxUndersteerMs: toMs(maxRun), offAsphaltStepCount: off,
-    ...(exit ? { offAsphaltFirstStep: exit.step, offAsphaltFirstXM: exit.x, offAsphaltFirstZM: exit.z } : {}),
-    entrySpeedMps: FIFTY_KMH_MPS,
-  };
-  const notes = throttleCondition === 'THROTTLE_FULL' ? [`oversteerOrSlidingStepCount ${bad}`] : [];
-  const observed: Observed | undefined = throttleCondition === 'THROTTLE_FULL' && bad > 0 ? 'THRESHOLD_EXCEEDED' : undefined;
-  if (observed) notes.push(`observed ${observed}: oversteer/sliding steps with full throttle`);
-  return { record: withDiagnostics(judge(record, observed), notes), trace };
+  return { radiusM: theta === 0 ? Number.MAX_VALUE : length / Math.abs(theta), lengthM: length, turnRad: theta };
 }
 
-// Baseline resolution (DM-0001 section 5, ADR-0003 decision 3): same bench, environment, inputMode, variant and
-// geometry; the caller adds what its bench needs. Never a record from another environment or another arc.
-export function sameSetting(current: BenchRecord): (candidate: BenchRecord) => boolean {
-  const c = current as Record<string, unknown>;
-  return (r) => {
-    const b = r as Record<string, unknown>;
-    if (r.benchId !== current.benchId || r.benchEnvironment !== current.benchEnvironment || r.inputMode !== current.inputMode) return false;
-    for (const k of ['throttleCondition', 'steerInputNorm']) if (c[k] !== b[k]) return false;
-    for (const k of ['arcRadiusM', 'laneWidthM', 'entrySpeedStepMps', 'entrySpeedMps']) {
-      if (typeof c[k] === 'number' && !(typeof b[k] === 'number' && Math.abs((c[k] as number) - (b[k] as number)) < 1e-9)) return false;
-    }
-    return true;
-  };
-}
-export function baselineRecord<T extends BenchRecord>(baseline: Baseline | undefined, benchId: BenchId, match: (r: BenchRecord) => boolean = () => true): T | undefined {
-  return baseline?.records.find(r => r.benchId === benchId && match(r)) as T | undefined;
-}
-const nearly = (a: number, b: number) => Math.abs(a - b) < 1e-9;
-// Whether v1Mps is the held speed of a complete plateau that understeered for more than 200 ms: 50 / 3.6 (plateau 0, never in
-// the list) or a pair of the list above 200 ms. A v1Mps taken from the interrupted plateau is not (ADR-0003, decision 2).
-function v1FromCompletePlateau(r: UndersteerOnsetRecord): boolean {
-  if (typeof r.v1Mps !== 'number') return false;
-  if (nearly(r.v1Mps, FIFTY_KMH_MPS)) return true;
-  const v1 = r.v1Mps;
-  return Array.isArray(r.maxUndersteerMsBySpeed) && r.maxUndersteerMsBySpeed.some(([speed, ms]) => nearly(speed, v1) && ms > THRESHOLDS.maxUndersteerMs);
-}
-// The UNDERSTEER_ONSET baseline is the same plateau sweep (plateauMs and plateauSpeedHoldMode in the entry's parameters)
-// whose v1Mps is the speed of a complete plateau with understeer, whatever verdict the baseline run gave it; V0 is never
-// taken from a speed at which the baseline reported no understeer (ADR-0003, decisions 2 and 5; ADR-0004, decision 10).
-function understeerBaselineRecord(baseline: Baseline | undefined, current: UndersteerOnsetRecord): UndersteerOnsetRecord | undefined {
-  const p = baseline?.parameters;
-  if (!p || p.plateauMs !== BENCH_PARAMETERS.plateauMs || p.plateauSpeedHoldMode !== BENCH_PARAMETERS.plateauSpeedHoldMode) return undefined;
-  const same = sameSetting(current);
-  return baselineRecord<UndersteerOnsetRecord>(baseline, 'UNDERSTEER_ONSET', r => same(r) && v1FromCompletePlateau(r as UndersteerOnsetRecord));
-}
-
-// UNDERSTEER_ONSET (ADR-0004, decision 8): one continuous run on the ring, steer +1 held, plateaus of held speed from
-// 50 km/h in steps of entrySpeedStepMps; each plateau climbs to its target and holds it for plateauMs; the sweep ends at
-// the first step off the lane, and the speed at that step decides (RULE-0002, "Fim da varredura"). V1 is the lowest
-// complete plateau with understeer above 200 ms or, on a natural end without one, the target of the interrupted plateau
-// (DOMAIN/DEC-12). The two results RULE-0002 does not decide make this throw instead of emitting a record.
-function understeerOnset(o: BenchOptions): { record: UndersteerOnsetRecord; trace: Trace } {
+// CORNER_RADIUS: from the start speed, throttle 1 and full steer from step 1 (the start) to the end of the radius window
+// (step 372), the stop before 3 s, or the exit of the declared area. Judged only by the path radius at 3 s.
+function cornerRadius(o: BenchOptions, entrySpeedMps: number, steerInputNorm: number): { record: CornerRadiusRecord; trace: Trace } {
   const config = setupConfig(o), trace = newTrace();
-  const plateauSteps = msToSteps(BENCH_PARAMETERS.plateauMs), climbLimit = msToSteps(BENCH_PARAMETERS.topSpeedWindowMs);
-  let state = arcEntry(FIFTY_KMH_MPS);
-  let k = 0, target = FIFTY_KMH_MPS, holding = true, held = 0, run = 0, maxRun = 0, climbSteps = 0, flat = 0;
-  // Understeer run of the plateau in progress over its asphalt steps (climb and held phase): presentation only, never V1.
-  let plateauRun = 0, plateauMaxRun = 0;
-  const bySpeed: [number, number][] = [];
-  let v1: number | undefined, completed = 0, exit: Exit | undefined, exitSpeed = 0;
-  for (;;) {
-    const before = state.speed;
-    state = advance(state, config, arcEnvironment, o, trace, makeInput(o.inputMode, regulated(before, target), 0, 1));
+  const at = msToSteps(THRESHOLDS.radiusAtMs), last = at + msToSteps(BENCH_PARAMETERS.radiusWindowMs / 2);
+  const input = makeInput(o.inputMode, 1, 0, steerInputNorm);
+  let state = straight(entrySpeedMps), exit: Exit | undefined, stoppedAtStep: number | undefined;
+  const positions = [{ x: state.x, z: state.z }];
+  for (let j = 1; j <= last; j++) {
+    state = advance(state, config, padEnvironment, o, trace, input);
     const t = lastOf(trace);
-    if (t.surface === 'GRASS') { exit = { step: t.simStepCount, x: state.x, z: state.z }; exitSpeed = t.speedMps; break; }
-    plateauRun = t.handling === 'understeer' ? plateauRun + 1 : 0;
-    plateauMaxRun = Math.max(plateauMaxRun, plateauRun);
-    if (!holding) {
-      climbSteps++;
-      flat = Math.abs(t.speedMps - before) < 1e-6 ? flat + 1 : 0;
-      if (flat >= 120 || climbSteps > climbLimit) throw new Error('UNDERSTEER_ONSET: sweep ended without leaving the lane (climb did not reach the target)');
-      if (t.speedMps >= target) { holding = true; held = 0; run = 0; maxRun = 0; }
-    }
-    if (holding) {
-      run = t.handling === 'understeer' ? run + 1 : 0;
-      maxRun = Math.max(maxRun, run);
-      held++;
-      if (held >= plateauSteps) {
-        const ms = toMs(maxRun);
-        completed++;
-        if (k >= 1) bySpeed.push([target, ms]);
-        if (v1 === undefined && ms > THRESHOLDS.maxUndersteerMs) v1 = target;
-        k++; target = FIFTY_KMH_MPS + k * BENCH_PARAMETERS.entrySpeedStepMps;
-        if (target > BENCH_PARAMETERS.entrySpeedMaxMps) throw new Error('UNDERSTEER_ONSET: sweep ended without leaving the lane (last plateau completed)');
-        holding = false; climbSteps = 0; flat = 0; plateauRun = 0; plateauMaxRun = 0;
-      }
-    }
+    positions.push({ x: t.positionXM, z: t.positionZM });
+    if (t.surface === 'GRASS') { exit = exitOf(t); break; }
+    if (j < at && t.speedMps === 0) { stoppedAtStep = t.simStepCount; break; }
   }
-  if (exitSpeed === FIFTY_KMH_MPS) throw new Error('UNDERSTEER_ONSET: lane left at exactly 50 km/h');
-  // Natural end (RULE-0002, "Fim da varredura"): exit above 50 km/h after at least two complete plateaus above 50 km/h.
-  const naturalEnd = exitSpeed > FIFTY_KMH_MPS && bySpeed.length >= 2;
-  const v1Mps = v1 ?? (naturalEnd ? target : undefined);
-  // Where v1Mps came from, for the `#` line (API-0003 3.3.0: presentation, not a field).
-  const v1Origin = v1 !== undefined ? 'V1 de patamar completo com subesterço'
-    : naturalEnd ? (toMs(plateauMaxRun) > THRESHOLDS.maxUndersteerMs
-      ? 'V1 do patamar interrompido pela saída (subesterço iniciado nele)' : 'sem início de subesterço até a saída da faixa')
-    : 'ausente (a saída reprova por si e nenhum patamar completo teve subesterço acima de 200 ms)';
-  const partial: UndersteerOnsetRecord = {
-    ...common(o, 'TEST_PAD'), benchId: 'UNDERSTEER_ONSET', ...arcGeometry(),
-    entrySpeedStepMps: BENCH_PARAMETERS.entrySpeedStepMps, maxUndersteerMsBySpeed: bySpeed, ...exitFields(exit),
-    ...(v1Mps !== undefined ? { v1Mps } : {}),
+  // The step of 3 s, or the step of the stop or of the exit when it came before.
+  const atStep = trace.telemetry[Math.min(at, trace.telemetry.length) - 1];
+  const radius = pathRadius(positions);
+  const record: CornerRadiusRecord = {
+    ...common(o, 'TEST_PAD'), benchId: 'CORNER_RADIUS', steerInputNorm, entrySpeedMps,
+    radiusWindowMs: BENCH_PARAMETERS.radiusWindowMs,
+    ...(stoppedAtStep === undefined ? { pathRadiusAt3sM: radius.radiusM } : {}),
+    speedAt3sMps: stoppedAtStep === undefined ? atStep.speedMps : 0, handlingAt3s: atStep.handling,
+    ...(stoppedAtStep !== undefined ? { stoppedAtStep } : {}),
+    ...padFields(BENCH_PARAMETERS.testAreaRadiusM, exit),
   };
-  const base = understeerBaselineRecord(o.baseline, partial);
-  const record: UndersteerOnsetRecord = {
-    ...partial, baselineAvailable: base !== undefined,
-    ...(base !== undefined && base.v1Mps !== undefined ? { v0Mps: base.v1Mps } : {}),
-  };
-  const observed: Observed | undefined = exitSpeed < FIFTY_KMH_MPS ? 'OFF_ASPHALT' : undefined;
-  const notes = [
-    `exitSpeedMps ${exitSpeed} (${kmh(exitSpeed)} km/h)`, `interruptedPlateauSpeedMps ${target} (${kmh(target)} km/h)`,
-    `interruptedPlateauMaxUndersteerMs ${toMs(plateauMaxRun)}`, `completePlateauCount ${completed}`, `v1Mps: ${v1Origin}`,
-  ];
-  if (observed) notes.push(`observed ${observed}: lane left below 50 km/h`);
-  return { record: withDiagnostics(judge(record, observed), notes), trace };
+  const notes = stoppedAtStep === undefined ? [`L ${radius.lengthM.toFixed(3)} m · Θ ${radius.turnRad.toFixed(4)} rad`] : [];
+  return { record: withDiagnostics(judge(record), notes), trace };
 }
 
-// REAR_RECOVERY: the arc at 60 km/h, throttle 1 and steer +1 until the rear lets go, then steer 0 with the throttle held.
-function rearRecovery(o: BenchOptions): { record: RearRecoveryRecord; trace: Trace } {
+// CORNER_TURN: from 50 km/h, throttle 0 and full steer from step 1 to step 240 (2 s), the stop, or the exit of the
+// declared area. Judged only by a turn of at least π rad reached within 2 s (or up to the stop).
+function cornerTurn(o: BenchOptions, steerInputNorm: number): { record: CornerTurnRecord; trace: Trace } {
+  const config = setupConfig(o), trace = newTrace();
+  const within = msToSteps(THRESHOLDS.turnWithinMs);
+  const input = makeInput(o.inputMode, 0, 0, steerInputNorm);
+  let state = straight(FIFTY_KMH_MPS), exit: Exit | undefined, stoppedAtStep: number | undefined, halfTurnSteps: number | undefined;
+  const heading0 = state.heading;
+  for (let j = 1; j <= within; j++) {
+    state = advance(state, config, padEnvironment, o, trace, input);
+    const t = lastOf(trace);
+    if (t.surface === 'GRASS') { exit = exitOf(t); break; }
+    if (halfTurnSteps === undefined && Math.abs(t.headingRad - heading0) >= THRESHOLDS.turnRad) halfTurnSteps = j;
+    if (j < within && t.speedMps === 0) { stoppedAtStep = t.simStepCount; break; }
+  }
+  const end = lastOf(trace);
+  const record: CornerTurnRecord = {
+    ...common(o, 'TEST_PAD'), benchId: 'CORNER_TURN', steerInputNorm, entrySpeedMps: FIFTY_KMH_MPS,
+    turnAt2sRad: Math.abs(end.headingRad - heading0),
+    ...(halfTurnSteps !== undefined ? { halfTurnReachedMs: toMs(halfTurnSteps) } : {}),
+    speedAt2sMps: stoppedAtStep === undefined ? end.speedMps : 0,
+    ...(stoppedAtStep !== undefined ? { stoppedAtStep } : {}),
+    ...padFields(BENCH_PARAMETERS.testAreaRadiusM, exit),
+  };
+  return { record: judge(record), trace };
+}
+
+// REAR_RECOVERY: open pad at forcingSpeedMps, throttle 1 and full steer (the forcing condition) until the rear lets go or
+// forcingWindowMs; only if it let go, steer 0 with the throttle held until the first grip or forcingWindowMs.
+function rearRecovery(o: BenchOptions, steerInputNorm: number): { record: RearRecoveryRecord; trace: Trace } {
   const config = setupConfig(o), trace = newTrace();
   const window = msToSteps(BENCH_PARAMETERS.forcingWindowMs);
-  let state = arcEntry(BENCH_PARAMETERS.forcingSpeedMps);
-  const forcing = makeInput(o.inputMode, 1, 0, 1), release = makeInput(o.inputMode, 1, 0, 0);
-  let loosened = false, exit: Exit | undefined;
+  let state = straight(BENCH_PARAMETERS.forcingSpeedMps);
+  const forcing = makeInput(o.inputMode, 1, 0, steerInputNorm), release = makeInput(o.inputMode, 1, 0, 0);
+  let rearReleased = false, forcingSteps = 0, exit: Exit | undefined;
   for (let i = 0; i < window; i++) {
-    state = advance(state, config, arcEnvironment, o, trace, forcing);
+    state = advance(state, config, padEnvironment, o, trace, forcing);
+    forcingSteps++;
     const t = lastOf(trace);
-    if (t.surface === 'GRASS') { exit = { step: t.simStepCount, x: state.x, z: state.z }; break; }
-    if (loose(t.handling)) { loosened = true; break; }
+    if (t.surface === 'GRASS') { exit = exitOf(t); break; }
+    if (t.forcing && loose(t.handling)) { rearReleased = true; break; }
   }
   let gripReached = false, recoverySteps = 0, maxSideslipRad = 0;
-  if (loosened) {
+  if (rearReleased) {
     for (let i = 1; i <= window; i++) {
-      state = advance(state, config, arcEnvironment, o, trace, release);
+      state = advance(state, config, padEnvironment, o, trace, release);
       const t = lastOf(trace);
-      if (t.surface === 'GRASS') { exit = { step: t.simStepCount, x: state.x, z: state.z }; break; }
       maxSideslipRad = Math.max(maxSideslipRad, t.sideslipRad);
+      if (t.surface === 'GRASS') { exit = exitOf(t); break; }
       if (t.handling === 'grip') { gripReached = true; recoverySteps = i; break; }
     }
   }
   const record: RearRecoveryRecord = {
-    ...common(o, 'TEST_PAD'), benchId: 'REAR_RECOVERY', ...arcGeometry(), gripReached,
-    ...(gripReached ? { recoveryMs: toMs(recoverySteps) } : {}), maxSideslipRad, ...exitFields(exit),
+    ...common(o, 'TEST_PAD'), benchId: 'REAR_RECOVERY', steerInputNorm, entrySpeedMps: BENCH_PARAMETERS.forcingSpeedMps,
+    rearReleased, forcingMs: toMs(forcingSteps),
+    ...(rearReleased ? { gripReached, ...(gripReached ? { recoveryMs: toMs(recoverySteps) } : {}), maxSideslipRad } : {}),
+    ...padFields(BENCH_PARAMETERS.testAreaRadiusM, exit),
   };
-  return { record: withDiagnostics(judge(record), loosened ? [] : ['rear did not let go within forcingWindowMs']), trace };
+  return { record: withDiagnostics(judge(record), rearReleased ? [] : ['a traseira não soltou em forcingWindowMs']), trace };
 }
 
-// DRIFT_MANEUVER: the scenario of tests/maneuvers.test.ts with the current setup, on the unbounded asphalt.
-function driftManeuver(o: BenchOptions): { record: DriftManeuverRecord; trace: Trace } {
-  const config = setupConfig(o), trace = newTrace();
-  let state = straight(12);
-  for (let i = 0; i < 240; i++) state = advance(state, config, TEST_PAD, o, trace, { throttle: 1, brake: 0, steer: 0.7, drift: true });
-  for (let i = 0; i < 120; i++) state = advance(state, config, TEST_PAD, o, trace, { throttle: 1, brake: 0, steer: 0 });
-  const record: DriftManeuverRecord = { ...common(o, 'TEST_PAD'), benchId: 'DRIFT_MANEUVER', driftScorePoints: state.maneuvers.score };
-  return { record: judge(record), trace };
-}
-
-// ACCELERATION and TOP_SPEED: the straight lane from rest, throttle 1, until the speed stops growing.
+// ACCELERATION and TOP_SPEED: the straight area from rest, throttle 1, until the speed stops growing.
 function straightLine(o: BenchOptions): { acceleration: AccelerationRecord; topSpeed: TopSpeedRecord; trace: Trace; final: State } {
   const config = setupConfig(o), trace = newTrace();
   const full = makeInput(o.inputMode, 1, 0, 0);
-  let state = straight(0), sixtySteps: number | undefined, flat = 0;
+  let state = straight(0), sixtySteps: number | undefined, flat = 0, exit: Exit | undefined;
   const limit = msToSteps(BENCH_PARAMETERS.topSpeedWindowMs);
   for (let i = 1; i <= limit; i++) {
     const before = state.speed;
-    state = advance(state, config, laneEnvironment, o, trace, full);
+    state = advance(state, config, straightPadEnvironment, o, trace, full);
     if (sixtySteps === undefined && state.speed >= SIXTY_KMH_MPS) sixtySteps = i;
+    const t = lastOf(trace);
+    if (t.surface === 'GRASS') { exit = exitOf(t); break; }
     flat = Math.abs(state.speed - before) < 1e-6 ? flat + 1 : 0;
     if (flat >= 120 && sixtySteps !== undefined) break;
   }
-  const acceleration = judge<AccelerationRecord>({ ...common(o, 'TEST_PAD'), benchId: 'ACCELERATION', zeroToSixtyKmhMs: toMs(sixtySteps ?? limit), driverMassKg: BENCH_PARAMETERS.driverMassKg });
-  const topSpeed = judge<TopSpeedRecord>({ ...common(o, 'TEST_PAD'), benchId: 'TOP_SPEED', topSpeedMps: state.speed });
+  const area = padFields(BENCH_PARAMETERS.straightTestAreaRadiusM, exit);
+  const acceleration = judge<AccelerationRecord>({ ...common(o, 'TEST_PAD'), benchId: 'ACCELERATION', zeroToSixtyKmhMs: toMs(sixtySteps ?? limit), driverMassKg: BENCH_PARAMETERS.driverMassKg, ...area });
+  const topSpeed = judge<TopSpeedRecord>({ ...common(o, 'TEST_PAD'), benchId: 'TOP_SPEED', topSpeedMps: state.speed, ...area });
   return { acceleration, topSpeed, trace, final: state };
 }
 
@@ -491,21 +436,31 @@ function wallContact(o: BenchOptions): { record: WallContactRecord; trace: Trace
 
 export function syntheticReading() { return readTrackData(SYNTHETIC_TRACK_FILE); }
 
-// TEST_PILOT_LAP: a TRAINING lap on the synthetic track; a lap without a time reports the window ceiling (ADR-0004).
-function testPilotLap(o: BenchOptions, controller?: Controller): { record: TestPilotLapRecord; trace: Trace; lap: LapSession } {
-  const config = setupConfig(o), trace = newTrace();
+function startSyntheticLap(o: BenchOptions, config: KartConfig): LapSession {
   const reading = syntheticReading();
   if (reading.trackDataStatus !== 'COMPLETE') throw new Error(`synthetic track is ${reading.trackDataStatus}`);
   const started = startLap(undefined, { lapKind: 'TRAINING', trackId: reading.trackId, trackVersion: reading.trackVersion, ...setupRef(o) }, reading, config);
   if (!started.ok) throw new Error(`startLap rejected the synthetic track: ${started.code}`);
-  let lap = started.lap;
+  return started.lap;
+}
+// The lap ends at the first result getLapResult returns (the first lap completed or invalidated), never at phase ENDED,
+// which the continuous training of race-lap-validation reaches only by endTraining (FB-01; DES-0004).
+const hasLapResult = (lap: LapSession) => !('code' in getLapResult(lap));
+
+// TEST_PILOT_LAP: a TRAINING lap on the synthetic track; a lap without a time reports the window ceiling (ADR-0004).
+// `sequence` is the whole Input sequence applied by stepLap (the countdown steps and the pilot), replayed by DRIFT_INERT.
+function testPilotLap(o: BenchOptions, controller?: Controller): { record: TestPilotLapRecord; trace: Trace; lap: LapSession; sequence: Input[] } {
+  const config = setupConfig(o), trace = newTrace();
+  let lap = startSyntheticLap(o, config);
   const idle: Input = { throttle: 0, brake: 0, steer: 0 };
-  for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, idle);
+  const sequence: Input[] = [];
+  for (let i = 0; i < COUNTDOWN_STEPS; i++) { lap = stepLap(lap, idle); sequence.push(idle); }
   const pilot = controller ?? testPilot(config);
   let off = 0, exit: Exit | undefined;
-  for (let i = 0; i < MAX_LAP_STEPS && lap.phase !== 'ENDED'; i++) {
+  for (let i = 0; i < MAX_LAP_STEPS && !hasLapResult(lap); i++) {
     const input = pilot(lap);
     lap = stepLap(lap, input);
+    sequence.push(input);
     trace.inputs.push(input);
     trace.states.push(lap.kart);
     const t = telemetryOf(lap.kart, o);
@@ -525,49 +480,132 @@ function testPilotLap(o: BenchOptions, controller?: Controller): { record: TestP
     offAsphaltStepCount: off, ...(exit ? { offAsphaltFirstStep: exit.step, offAsphaltFirstXM: exit.x, offAsphaltFirstZM: exit.z } : {}),
     ...(base !== undefined ? { baselineLapTimeMs: base.lapTimeMs } : {}),
   };
-  const notes = [`lapValidity ${valid ? 'VALID' : lap.phase === 'ENDED' ? 'INVALID' : 'NOT_ENDED'}`];
-  return { record: withDiagnostics(judge(record), notes), trace, lap };
+  const notes = [`lapValidity ${valid ? 'VALID' : 'code' in result ? 'NOT_ENDED' : 'INVALID'}`];
+  return { record: withDiagnostics(judge(record), notes), trace, lap, sequence };
+}
+
+// ----------------------------------------------------------------------------- derived benches
+
+// NORMAL_DRIVING: every RUNNING step of the TEST_PILOT_LAP trace of the same run, without exception (RULE-0001).
+function normalDriving(o: BenchOptions, lap: Trace): NormalDrivingRecord {
+  let bad = 0, maxSideslipRad = 0;
+  for (const t of lap.telemetry) {
+    if (loose(t.handling)) bad++;
+    maxSideslipRad = Math.max(maxSideslipRad, t.sideslipRad);
+  }
+  return judge({ ...common(o, 'SYNTHETIC_TRACK'), benchId: 'NORMAL_DRIVING', normalDrivingStepCount: lap.telemetry.length, oversteerOrSlidingStepCount: bad, maxSideslipRad });
+}
+
+const withDrift = (input: Input): Input => ({ throttle: input.throttle, brake: input.brake, steer: input.steer, drift: true });
+const withoutDrift = (input: Input): Input => ({ throttle: input.throttle, brake: input.brake, steer: input.steer });
+const SAME_FIELDS = ['positionXM', 'positionZM', 'speedMps', 'headingRad', 'handling', 'sideslipRad'] as const;
+// Compares two executions step by step; a step present in only one of them counts as differing (DES-0004).
+function compareRuns(a: Trace, b: Trace): { comparedStepCount: number; differingStepCount: number; firstDifferingStep?: number } {
+  const n = Math.max(a.telemetry.length, b.telemetry.length);
+  let differing = 0, first: number | undefined;
+  for (let i = 0; i < n; i++) {
+    const x = a.telemetry[i], y = b.telemetry[i];
+    if (!x || !y || SAME_FIELDS.some(k => x[k] !== y[k])) { differing++; first ??= i + 1; }
+  }
+  return { comparedStepCount: n, differingStepCount: differing, ...(first !== undefined ? { firstDifferingStep: first } : {}) };
+}
+
+// DRIFT_INERT, lap sequence: the TEST_PILOT_LAP Input sequence replayed by startLap/stepLap without and with drift: true.
+function driftInertLap(o: BenchOptions, sequence: readonly Input[]): { record: DriftInertRecord; traces: Trace[] } {
+  const config = setupConfig(o);
+  const replay = (map: (i: Input) => Input): Trace => {
+    const trace = newTrace();
+    let lap = startSyntheticLap(o, config);
+    for (const input of sequence) {
+      const applied = map(input);
+      lap = stepLap(lap, applied);
+      trace.inputs.push(applied); trace.states.push(lap.kart); trace.telemetry.push(telemetryOf(lap.kart, o));
+    }
+    return trace;
+  };
+  const without = replay(withoutDrift), withCommand = replay(withDrift);
+  const record = judge<DriftInertRecord>({ ...common(o, 'SYNTHETIC_TRACK'), benchId: 'DRIFT_INERT', ...compareRuns(without, withCommand) });
+  return { record, traces: [without, withCommand] };
+}
+
+// DRIFT_INERT, recovery sequence: the Input sequence of REAR_RECOVERY side +1 replayed by step on the open pad, without and
+// with drift: true; each run stops at its own exit; the area fields are those of the run with the command.
+function driftInertRecovery(o: BenchOptions, sequence: readonly Input[]): { record: DriftInertRecord; traces: Trace[] } {
+  const config = setupConfig(o);
+  const replay = (map: (i: Input) => Input): { trace: Trace; exit?: Exit } => {
+    const trace = newTrace();
+    let state = straight(BENCH_PARAMETERS.forcingSpeedMps);
+    for (const input of sequence) {
+      state = advance(state, config, padEnvironment, o, trace, map(input));
+      const t = lastOf(trace);
+      if (t.surface === 'GRASS') return { trace, exit: exitOf(t) };
+    }
+    return { trace };
+  };
+  const without = replay(withoutDrift), withCommand = replay(withDrift);
+  const record = judge<DriftInertRecord>({
+    ...common(o, 'TEST_PAD'), benchId: 'DRIFT_INERT', ...compareRuns(without.trace, withCommand.trace),
+    ...padFields(BENCH_PARAMETERS.testAreaRadiusM, withCommand.exit),
+  });
+  return { record, traces: [without.trace, withCommand.trace] };
 }
 
 // ----------------------------------------------------------------------------- suite and aggregates
 
-// Every simulation bench once, with its traces grouped by environment; the building block of NORMAL_DRIVING,
-// DETERMINISM and REALISTA_UNCHANGED.
-type Suite = { records: BenchRecord[]; traces: Record<BenchEnvironment, Trace[]>; normal: Record<BenchEnvironment, Trace[]>; lap: LapSession };
+// Every simulation bench once, with its traces grouped by environment and labelled by benchId; the building block of
+// SPEED_CAP, DETERMINISM and REALISTA_UNCHANGED.
+type Labelled = { benchId: BenchId; trace: Trace; startSpeedMps: number };
+type Suite = { records: BenchRecord[]; traces: Record<BenchEnvironment, Labelled[]>; lap: LapSession };
 const steerSides = (mode: InputMode) => mode === 'PROPORTIONAL' ? [1, -1, BENCH_PARAMETERS.steerInputNormPartial, -BENCH_PARAMETERS.steerInputNormPartial] : [1, -1];
+const order = (id: BenchId) => SIMULATION_BENCHES.indexOf(id);
 function runSuite(o: BenchOptions): Suite {
   const records: BenchRecord[] = [];
-  const traces: Record<BenchEnvironment, Trace[]> = { TEST_PAD: [], SYNTHETIC_TRACK: [] };
-  const normal: Record<BenchEnvironment, Trace[]> = { TEST_PAD: [], SYNTHETIC_TRACK: [] };
-  for (const side of steerSides(o.inputMode)) { const r = steerResponse(o, side); records.push(r.record); traces.TEST_PAD.push(r.trace); }
-  for (const c of ['THROTTLE_ZERO', 'THROTTLE_FULL'] as const) { const r = referenceCornerBench(o, c); records.push(r.record); traces.TEST_PAD.push(r.trace); normal.TEST_PAD.push(r.trace); }
-  const onset = understeerOnset(o); records.push(onset.record); traces.TEST_PAD.push(onset.trace); normal.TEST_PAD.push(onset.trace);
-  const rear = rearRecovery(o); records.push(rear.record); traces.TEST_PAD.push(rear.trace); normal.TEST_PAD.push(rear.trace);
-  const drift = driftManeuver(o); records.push(drift.record); traces.TEST_PAD.push(drift.trace);
-  const line = straightLine(o); records.push(line.acceleration, line.topSpeed); traces.TEST_PAD.push(line.trace);
-  for (const entry of [line.final.speed, FIFTY_KMH_MPS]) { const r = grassLoss(o, entry); records.push(r.record); traces.SYNTHETIC_TRACK.push(r.trace); }
-  const wall = wallContact(o); records.push(wall.record); traces.SYNTHETIC_TRACK.push(wall.trace);
-  const lap = testPilotLap(o); records.push(lap.record); traces.SYNTHETIC_TRACK.push(lap.trace); normal.SYNTHETIC_TRACK.push(lap.trace);
-  return { records, traces, normal, lap: lap.lap };
+  const traces: Record<BenchEnvironment, Labelled[]> = { TEST_PAD: [], SYNTHETIC_TRACK: [] };
+  const keep = (env: BenchEnvironment, benchId: BenchId, trace: Trace, startSpeedMps: number) => traces[env].push({ benchId, trace, startSpeedMps });
+  for (const side of steerSides(o.inputMode)) { const r = steerResponse(o, side); records.push(r.record); keep('TEST_PAD', 'STEER_RESPONSE', r.trace, BENCH_PARAMETERS.targetSpeedMps); }
+  for (const entry of CORNER_ENTRY_SPEEDS_MPS) for (const side of [1, -1]) { const r = cornerRadius(o, entry, side); records.push(r.record); keep('TEST_PAD', 'CORNER_RADIUS', r.trace, entry); }
+  for (const side of [1, -1]) { const r = cornerTurn(o, side); records.push(r.record); keep('TEST_PAD', 'CORNER_TURN', r.trace, FIFTY_KMH_MPS); }
+  const rear = [1, -1].map(side => rearRecovery(o, side));
+  for (const r of rear) { records.push(r.record); keep('TEST_PAD', 'REAR_RECOVERY', r.trace, BENCH_PARAMETERS.forcingSpeedMps); }
+  const line = straightLine(o); records.push(line.acceleration, line.topSpeed); keep('TEST_PAD', 'ACCELERATION', line.trace, 0);
+  for (const entry of [line.final.speed, FIFTY_KMH_MPS]) { const r = grassLoss(o, entry); records.push(r.record); keep('SYNTHETIC_TRACK', 'GRASS_LOSS', r.trace, entry); }
+  const wall = wallContact(o); records.push(wall.record); keep('SYNTHETIC_TRACK', 'WALL_CONTACT', wall.trace, 0);
+  const lap = testPilotLap(o); records.push(lap.record); keep('SYNTHETIC_TRACK', 'TEST_PILOT_LAP', lap.trace, 0);
+  records.push(normalDriving(o, lap.trace));
+  const inertLap = driftInertLap(o, lap.sequence);
+  const inertRecovery = driftInertRecovery(o, rear[0].trace.inputs);
+  records.push(inertLap.record, inertRecovery.record);
+  for (const t of inertLap.traces) keep('SYNTHETIC_TRACK', 'DRIFT_INERT', t, 0);
+  for (const t of inertRecovery.traces) keep('TEST_PAD', 'DRIFT_INERT', t, BENCH_PARAMETERS.forcingSpeedMps);
+  records.push(speedCap(o, traces, line.topSpeed));
+  records.sort((a, b) => order(a.benchId) - order(b.benchId));
+  return { records, traces, lap: lap.lap };
 }
 
-// NORMAL_DRIVING per environment: the steps of class NORMAL on the asphalt (classifyHandlingSteps, RULE-0001);
-// RECOVERY steps on the asphalt are counted and excluded; FORCING and DRIFT steps enter no count.
-function normalDriving(o: BenchOptions, env: BenchEnvironment, suite: Suite): NormalDrivingRecord {
-  let count = 0, excluded = 0, bad = 0, maxSideslipRad = 0;
-  for (const trace of suite.normal[env]) {
-    const classes = classifyHandlingSteps(trace.inputs.map((input, i) => ({ input, telemetry: trace.telemetry[i] })));
-    for (let i = 0; i < classes.length; i++) {
-      const t = trace.telemetry[i];
-      if (t.surface !== 'ASPHALT') continue;
-      if (classes[i] === 'RECOVERY') { excluded++; continue; }
-      if (classes[i] !== 'NORMAL') continue;
-      count++;
-      if (loose(t.handling)) bad++;
-      maxSideslipRad = Math.max(maxSideslipRad, t.sideslipRad);
-    }
-  }
-  return judge({ ...common(o, env), benchId: 'NORMAL_DRIVING', normalDrivingStepCount: count, excludedRecoveryStepCount: excluded, oversteerOrSlidingStepCount: bad, maxSideslipRad });
+// SPEED_CAP: no step of its own; the highest speed after any step of the traces that start at or below topSpeedMps.
+function speedCap(o: BenchOptions, traces: Record<BenchEnvironment, Labelled[]>, topSpeed: TopSpeedRecord | undefined): SpeedCapRecord {
+  const top = topSpeed?.topSpeedMps;
+  const covered = [...traces.TEST_PAD, ...traces.SYNTHETIC_TRACK]
+    .filter(l => top === undefined || l.startSpeedMps <= top)
+    .sort((a, b) => order(a.benchId) - order(b.benchId));
+  let max = -Infinity, at: BenchId = 'STEER_RESPONSE';
+  for (const l of covered) for (const t of l.trace.telemetry) if (t.speedMps > max) { max = t.speedMps; at = l.benchId; }
+  return judge<SpeedCapRecord>({
+    ...common(o, 'SYNTHETIC_TRACK'), benchId: 'SPEED_CAP', maxObservedSpeedMps: max === -Infinity ? 0 : max, maxObservedBenchId: at,
+    ...(top !== undefined ? { topSpeedMps: top } : {}),
+  });
+}
+
+// The area fields of an aggregated TEST_PAD record (DETERMINISM, REALISTA_UNCHANGED): the largest declared area, the sum of
+// the exits, and the first exit of the first covered record, in suite order, that has one.
+function aggregatedPadFields(records: readonly BenchRecord[]): TestPadFields {
+  const pad = records.filter(r => r.benchEnvironment === 'TEST_PAD' && r.benchId !== 'DETERMINISM' && typeof (r as Partial<TestPadFields>).testAreaRadiusM === 'number') as (BenchRecord & TestPadFields)[];
+  const first = pad.find(r => r.offAsphaltStepCount > 0);
+  return {
+    testAreaRadiusM: pad.reduce((m, r) => Math.max(m, r.testAreaRadiusM), 0),
+    offAsphaltStepCount: pad.reduce((s, r) => s + r.offAsphaltStepCount, 0),
+    ...(first ? { offAsphaltFirstStep: first.offAsphaltFirstStep, offAsphaltFirstXM: first.offAsphaltFirstXM, offAsphaltFirstZM: first.offAsphaltFirstZM } : {}),
+  };
 }
 
 // DETERMINISM per environment: the benches of the environment (and the lap on the synthetic track) run runCount times.
@@ -577,11 +615,14 @@ function determinism(o: BenchOptions, first: Suite): DeterminismRecord[] {
     const again = runSuite(o);
     for (const env of ENVIRONMENTS) {
       identical[env] &&= again.traces[env].length === first.traces[env].length
-        && again.traces[env].every((t, i) => deepEqual(t.states, first.traces[env][i].states));
+        && again.traces[env].every((t, i) => deepEqual(t.trace.states, first.traces[env][i].trace.states));
     }
     identical.SYNTHETIC_TRACK &&= deepEqual(getLapResult(again.lap), getLapResult(first.lap));
   }
-  return ENVIRONMENTS.map(env => judge<DeterminismRecord>({ ...common(o, env), benchId: 'DETERMINISM', runCount: BENCH_PARAMETERS.runCount, identical: identical[env] }));
+  return ENVIRONMENTS.map(env => judge<DeterminismRecord>({
+    ...common(o, env), benchId: 'DETERMINISM', runCount: BENCH_PARAMETERS.runCount, identical: identical[env],
+    ...(env === 'TEST_PAD' ? aggregatedPadFields(first.records) : {}),
+  }));
 }
 
 function stepCost(o: BenchOptions): StepCostRecord {
@@ -589,7 +630,7 @@ function stepCost(o: BenchOptions): StepCostRecord {
   const base = o.baseline && o.baseline.runtimeId === o.stepCost.runtimeId
     ? baselineRecord<StepCostRecord>(o.baseline, 'STEP_COST', r => r.inputMode === o.inputMode) : undefined;
   return judge({
-    ...common(o, 'TEST_PAD'), benchId: 'STEP_COST', baselineAvailable: base !== undefined, meanStepCostUs: o.stepCost.meanStepCostUs,
+    ...common(o, 'SYNTHETIC_TRACK'), benchId: 'STEP_COST', baselineAvailable: base !== undefined, meanStepCostUs: o.stepCost.meanStepCostUs,
     ...(base !== undefined ? { baselineMeanStepCostUs: base.meanStepCostUs } : {}),
   });
 }
@@ -617,7 +658,7 @@ function setupVersion(o: BenchOptions): SetupVersionRecord {
     }
   }
   return judge({
-    ...common(o, 'TEST_PAD'), benchId: 'SETUP_VERSION', declaredSetupVersion: s.setupVersion, previousSetupVersion: s.previousSetupVersion ?? '',
+    ...common(o, 'SYNTHETIC_TRACK'), benchId: 'SETUP_VERSION', declaredSetupVersion: s.setupVersion, previousSetupVersion: s.previousSetupVersion ?? '',
     oldRecordsReadCount: old.length, oldRecordsReadOkCount: ok,
   });
 }
@@ -627,11 +668,28 @@ function stepContract(o: BenchOptions): StepContractRecord {
   let source = '';
   try { source = readFileSync(new URL('../src/physics.ts', import.meta.url), 'utf8'); } catch { source = ''; }
   return judge({
-    ...common(o, 'TEST_PAD'), benchId: 'STEP_CONTRACT',
+    ...common(o, 'SYNTHETIC_TRACK'), benchId: 'STEP_CONTRACT',
     stepUnchanged: 1 / STEP === 120,
     solverRateUnchanged: 120 * SOLVER_SUBSTEPS === 480 && /Math\.ceil\(dt \/ \(STEP \/ SOLVER_SUBSTEPS\)\)/.test(source),
     inputFieldsUnchanged: source.split('\n').some(l => l === INPUT_LINE),
   });
+}
+
+// Baseline resolution (DM-0001 section 5): same bench, environment, inputMode and variant (steerInputNorm and entrySpeedMps
+// when the record has them). Never a record from another environment.
+export function sameSetting(current: BenchRecord): (candidate: BenchRecord) => boolean {
+  const c = current as Record<string, unknown>;
+  return (r) => {
+    const b = r as Record<string, unknown>;
+    if (r.benchId !== current.benchId || r.benchEnvironment !== current.benchEnvironment || r.inputMode !== current.inputMode) return false;
+    for (const k of ['steerInputNorm', 'entrySpeedMps']) {
+      if (typeof c[k] === 'number' && !(typeof b[k] === 'number' && Math.abs((c[k] as number) - (b[k] as number)) < 1e-9)) return false;
+    }
+    return true;
+  };
+}
+export function baselineRecord<T extends BenchRecord>(baseline: Baseline | undefined, benchId: BenchId, match: (r: BenchRecord) => boolean = () => true): T | undefined {
+  return baseline?.records.find(r => r.benchId === benchId && match(r)) as T | undefined;
 }
 
 const MEASURE_EXCLUDED = new Set(['measuredAtUtc', 'meanStepCostUs']);
@@ -662,8 +720,8 @@ function realistaUnchanged(o: BenchOptions): RealistaUnchangedRecord[] {
     const suite = runSuite(inner);
     const det = determinism(inner, suite);
     for (const env of ENVIRONMENTS) {
-      records[env].push(...suite.records.filter(r => r.benchEnvironment === env), normalDriving(inner, env, suite), ...det.filter(r => r.benchEnvironment === env));
-      for (const t of suite.traces[env]) for (const s of t.states) if (s.telemetry.assistActive) assists[env]++;
+      records[env].push(...suite.records.filter(r => r.benchEnvironment === env), ...det.filter(r => r.benchEnvironment === env));
+      for (const l of suite.traces[env]) for (const s of l.trace.states) if (s.telemetry.assistActive) assists[env]++;
     }
   }
   const base = o.realistaBaseline;
@@ -671,62 +729,63 @@ function realistaUnchanged(o: BenchOptions): RealistaUnchangedRecord[] {
     ...common(o, env), benchId: 'REALISTA_UNCHANGED', baselineAvailable: base !== undefined,
     differingMeasureCount: base ? countDifferingMeasures(records[env], base.records.filter(r => r.benchEnvironment === env)) : 0,
     arcadeAssistActiveCount: assists[env],
+    ...(env === 'TEST_PAD' ? aggregatedPadFields(records.TEST_PAD) : {}),
   }));
 }
 
 // ----------------------------------------------------------------------------- verdicts (single source)
 
-// Recomputes verdict and failReason from the measured fields of a record and from what the bench observed in its
-// trace (RULE-0002, in the order of the verdict table of DES-0004), so that a test judges a synthetic record the
-// same way the bench does. Without `observed`, the verdict comes from the fields only.
+// Recomputes verdict and failReason from the measured fields of a record and, only for GRASS_LOSS, from what the bench
+// observed in its trace (RULE-0002, in the order of the verdict table of DES-0004), so that a test judges a synthetic
+// record the same way the bench does. A TEST_PAD record that left its declared area fails first with TEST_AREA_EXCEEDED.
 export function judge<T extends BenchRecord>(input: T, observed?: Observed): T {
   const r: T = { ...input };
   delete (r as { failReason?: FailReason }).failReason;
   let fail: FailReason | undefined;
-  switch (r.benchId) {
+  const area = (r as Partial<TestPadFields>).offAsphaltStepCount;
+  if (r.benchEnvironment === 'TEST_PAD' && typeof area === 'number' && area > 0) fail = 'TEST_AREA_EXCEEDED';
+  else switch (r.benchId) {
     case 'STEER_RESPONSE': {
       const low = r.targetSpeedMps - r.speedHoldBandMps, high = r.targetSpeedMps + r.speedHoldBandMps;
       if (r.speedMinMps < low || r.speedMaxMps > high) fail = 'SPEED_NOT_HELD';
       else if (r.riseToNinetyPctMs > THRESHOLDS.riseToNinetyPctMs || r.fallToTenPctMs > THRESHOLDS.fallToTenPctMs) fail = 'THRESHOLD_EXCEEDED';
       break;
     }
-    case 'REFERENCE_CORNER':
-      // With THROTTLE_ZERO staying in the lane is not required (DOMAIN/DEC-13): only the understeer threshold is judged.
-      if (r.throttleCondition === 'THROTTLE_FULL' && r.offAsphaltStepCount > 0) fail = 'OFF_ASPHALT';
-      else if (r.maxUndersteerMs > THRESHOLDS.maxUndersteerMs || (r.throttleCondition === 'THROTTLE_FULL' && observed === 'THRESHOLD_EXCEEDED')) fail = 'THRESHOLD_EXCEEDED';
+    case 'CORNER_RADIUS':
+      // With the kart stopped the radius is not defined; the handling state never enters the verdict.
+      if (r.stoppedAtStep !== undefined || r.pathRadiusAt3sM === undefined) fail = 'MEASUREMENT_MISSING';
+      else if (r.pathRadiusAt3sM > THRESHOLDS.pathRadiusM) fail = 'THRESHOLD_EXCEEDED';
       break;
-    case 'UNDERSTEER_ONSET':
-      // A sweep that never left the lane is a result RULE-0002 does not decide (ADR-0004, decision 8).
-      if (!(r.offAsphaltStepCount > 0)) throw new Error('UNDERSTEER_ONSET: record without a lane exit has no verdict');
-      if (observed === 'OFF_ASPHALT') fail = 'OFF_ASPHALT';
-      else if (r.maxUndersteerMsBySpeed.length < 2) fail = 'MEASUREMENT_MISSING';
-      // The natural end always carries V1 (API-0003 3.3.0): a record without it is malformed, never MEASUREMENT_MISSING.
-      else if (r.v1Mps === undefined) throw new Error('UNDERSTEER_ONSET: natural end of the sweep without v1Mps');
-      else if (!r.baselineAvailable || r.v0Mps === undefined) fail = 'BASELINE_MISSING';
-      else if (r.v1Mps < THRESHOLDS.understeerOnsetRatio * r.v0Mps
-        || r.maxUndersteerMsBySpeed.some(([, ms], i, a) => i > 0 && ms < a[i - 1][1])) fail = 'THRESHOLD_EXCEEDED';
+    case 'CORNER_TURN':
+      if (r.halfTurnReachedMs === undefined || r.halfTurnReachedMs > THRESHOLDS.turnWithinMs) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'NORMAL_DRIVING':
       if (r.oversteerOrSlidingStepCount > 0 || r.maxSideslipRad > THRESHOLDS.maxSideslipRad) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'REAR_RECOVERY':
-      if (r.offAsphaltStepCount > 0) fail = 'OFF_ASPHALT';
-      else if (!r.gripReached || r.recoveryMs === undefined || r.recoveryMs > THRESHOLDS.recoveryMs || r.maxSideslipRad > THRESHOLDS.maxSideslipRad) fail = 'THRESHOLD_EXCEEDED';
+      // A rear that does not let go is not a failure: no criterion requires it to (REQ-FEAT-0003-17).
+      if (r.rearReleased && (!r.gripReached || r.recoveryMs === undefined || r.recoveryMs > THRESHOLDS.recoveryMs
+        || (r.maxSideslipRad ?? 0) > THRESHOLDS.maxSideslipRad)) fail = 'THRESHOLD_EXCEEDED';
       break;
-    case 'DRIFT_MANEUVER':
-      if (!(r.driftScorePoints > 0)) fail = 'THRESHOLD_EXCEEDED';
+    case 'DRIFT_INERT':
+      if (r.differingStepCount > 0) fail = 'THRESHOLD_EXCEEDED';
+      break;
+    case 'SPEED_CAP':
+      if (r.topSpeedMps === undefined) fail = 'MEASUREMENT_MISSING';
+      else if (r.maxObservedSpeedMps > r.topSpeedMps) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'ACCELERATION':
       if (r.zeroToSixtyKmhMs > THRESHOLDS.zeroToSixtyKmhMs) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'TOP_SPEED':
-      if (r.topSpeedMps < THRESHOLDS.topSpeedMps) fail = 'THRESHOLD_EXCEEDED';
+      if (r.topSpeedMps < THRESHOLDS.topSpeedMinMps || r.topSpeedMps > THRESHOLDS.topSpeedMaxMps) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'GRASS_LOSS':
       if (observed === 'THRESHOLD_EXCEEDED' || r.speedAfterOneSMps > THRESHOLDS.grassSpeedRatio * r.entrySpeedMps) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'WALL_CONTACT':
-      if (r.contacts.length === 0 || r.contacts.some(([before, after]) => !(after < before))) fail = 'THRESHOLD_EXCEEDED';
+      if (r.contacts.length === 0) fail = 'MEASUREMENT_MISSING';
+      else if (r.contacts.some(([before, after]) => !(after < before))) fail = 'THRESHOLD_EXCEEDED';
       break;
     case 'DETERMINISM':
       if (!r.identical) fail = 'NON_DETERMINISTIC';
@@ -759,24 +818,32 @@ export function judge<T extends BenchRecord>(input: T, observed?: Observed): T {
 
 // ----------------------------------------------------------------------------- public entry points (API-0003)
 
+// baselineAvailable of every record (API-0003): STEP_COST and REALISTA_UNCHANGED decide it themselves; the others have a
+// record of the same bench, environment, inputMode and variant in the entry of the previous version. Informative only.
+function withBaselineAvailable(records: readonly BenchRecord[], options: BenchOptions): BenchRecord[] {
+  return records.map(r => {
+    if (r.benchId === 'STEP_COST' || r.benchId === 'REALISTA_UNCHANGED') return r;
+    const available = baselineRecord(options.baseline, r.benchId, sameSetting(r)) !== undefined;
+    if (available === r.baselineAvailable) return r;
+    const next = { ...r, baselineAvailable: available };
+    const notes = DIAGNOSTICS.get(r);
+    if (notes) DIAGNOSTICS.set(next, notes);
+    return next;
+  });
+}
+
 export function runBench(benchId: BenchId, options: BenchOptions): BenchRecord[] {
   switch (benchId) {
-    case 'STEER_RESPONSE': return steerSides(options.inputMode).map(s => steerResponse(options, s).record);
-    case 'REFERENCE_CORNER': return (['THROTTLE_ZERO', 'THROTTLE_FULL'] as const).map(c => referenceCornerBench(options, c).record);
-    case 'UNDERSTEER_ONSET': return [understeerOnset(options).record];
-    case 'NORMAL_DRIVING': { const suite = runSuite(options); return ENVIRONMENTS.map(env => normalDriving(options, env, suite)); }
-    case 'REAR_RECOVERY': return [rearRecovery(options).record];
-    case 'DRIFT_MANEUVER': return [driftManeuver(options).record];
+    case 'STEP_COST': return [stepCost(options)];
+    case 'SETUP_VERSION': return [setupVersion(options)];
+    case 'STEP_CONTRACT': return [stepContract(options)];
+    case 'REALISTA_UNCHANGED': return realistaUnchanged(options);
     case 'ACCELERATION': return [straightLine(options).acceleration];
     case 'TOP_SPEED': return [straightLine(options).topSpeed];
     case 'GRASS_LOSS': { const line = straightLine(options); return [line.final.speed, FIFTY_KMH_MPS].map(e => grassLoss(options, e).record); }
     case 'WALL_CONTACT': return [wallContact(options).record];
     case 'DETERMINISM': return determinism(options, runSuite(options));
-    case 'TEST_PILOT_LAP': return [testPilotLap(options).record];
-    case 'STEP_COST': return [stepCost(options)];
-    case 'SETUP_VERSION': return [setupVersion(options)];
-    case 'STEP_CONTRACT': return [stepContract(options)];
-    case 'REALISTA_UNCHANGED': return realistaUnchanged(options);
+    default: return runSuite(options).records.filter(r => r.benchId === benchId);
   }
 }
 
@@ -789,12 +856,11 @@ export function handlingBenchReport(options: BenchOptions, benchIds?: readonly B
   const suite = needsSuite ? runSuite(options) : undefined;
   for (const id of wanted) {
     if (id === 'STEP_COST' && !options.stepCost) continue;
-    if (suite && id === 'NORMAL_DRIVING') records.push(...ENVIRONMENTS.map(env => normalDriving(options, env, suite)));
-    else if (suite && id === 'DETERMINISM') records.push(...determinism(options, suite));
+    if (suite && id === 'DETERMINISM') records.push(...determinism(options, suite));
     else if (suite && SIMULATION_BENCHES.includes(id)) records.push(...suite.records.filter(r => r.benchId === id));
     else records.push(...runBench(id, options));
   }
-  return records;
+  return withBaselineAvailable(records, options);
 }
 
 // The test-pilot lap under a different controller (a deliberately offset pilot in the tests).
@@ -834,9 +900,9 @@ function presentation(r: BenchRecord): string | undefined {
   const parts: string[] = [];
   for (const [k, v] of Object.entries(r)) {
     if (k === 'zeroToSixtyKmhMs' && typeof v === 'number') parts.push(`${k} ${(v / 1000).toFixed(3)} s`);
+    else if (k === 'turnAt2sRad' && typeof v === 'number') parts.push(`${k} ${(v * 180 / Math.PI).toFixed(1)}°`);
     else if (k.endsWith('Mps') && typeof v === 'number') parts.push(`${k} ${kmh(v)} km/h`);
     else if (k === 'contacts' && Array.isArray(v)) parts.push(`contacts ${(v as [number, number][]).map(([a, b]) => `${kmh(a)}>${kmh(b)}`).join(' ')} km/h`);
-    else if (k === 'maxUndersteerMsBySpeed' && Array.isArray(v)) parts.push(`maxUndersteerMsBySpeed ${(v as [number, number][]).map(([s, ms]) => `${kmh(s)}km/h:${ms}ms`).join(' ')}`);
   }
   parts.push(...diagnosticsOf(r));
   return parts.length ? `# ${r.benchId} ${parts.join(' · ')}` : undefined;

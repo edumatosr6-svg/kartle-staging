@@ -15,19 +15,18 @@
         <section class="game-shell" aria-label="Jogo de kart">
           <div id="scene"></div>
           <div class="track-label"><span class="live-dot"></span><div><strong id="track-name"></strong><small id="preset-label">ARCADE ASSISTIDO · TREINO LIVRE</small></div></div>
-          <div class="timing"><small>VOLTA ATUAL</small><strong id="timer">0:00.000</strong><span>Melhor <b id="best">—</b></span><span class="style-score">ESTILO <b id="style-score">0</b> <em id="combo"></em></span></div>
+          <div class="timing"><small>VOLTA ATUAL</small><strong id="timer">0:00.000</strong><span>Melhor <b id="best">—</b></span></div>
           <div id="welcome" class="welcome"><span class="eyebrow">CURVA BOA PEDE BIS</span><h2>Entre de lado. Saia voando.</h2><p>Acelere, encaixe o drift e solte para dar o impulso.<br />Seu próximo recorde começa na curva.</p><div id="track-selector" class="track-selector" role="group" aria-label="Pista"></div><p id="track-credit" class="lap-chip track-credit hidden"></p><p id="track-status" class="lap-chip">carregando a pista</p><div id="lap-offer"></div><small>WASD / setas · Espaço + curva para drift</small></div>
           <div id="lap-countdown" class="lap-chip hidden" role="status" aria-live="assertive"></div>
           <div id="lap-state" class="lap-chip hidden" role="status" aria-live="polite" data-validity="VALID"></div>
           <div id="lap-paused" class="lap-chip hidden" role="status"></div>
           <ul id="lap-sectors" class="hidden" aria-label="Setores"></ul>
           <div id="lap-control-fallback" class="lap-chip hidden" role="status"></div>
-          <div id="lap-result" class="lap-result hidden" role="dialog" aria-labelledby="lap-result-title"><h2 id="lap-result-title" class="lap-chip"></h2><p id="lap-result-total" class="lap-chip"></p><p id="lap-result-setup" class="lap-chip"></p><ul id="lap-result-sectors"></ul><button id="lap-share" class="lap-chip"></button><p id="lap-result-credit" class="lap-chip track-credit hidden"></p><button id="lap-new-lap" class="primary"></button></div>
+          <div id="lap-result" class="lap-result hidden" role="dialog" aria-labelledby="lap-result-title"><h2 id="lap-result-title" class="lap-chip"></h2><p id="lap-result-total" class="lap-chip"></p><ul id="lap-result-sectors"></ul><button id="lap-share" class="lap-chip"></button><p id="lap-result-credit" class="lap-chip track-credit hidden"></p><button id="lap-new-lap" class="primary"></button></div>
           <div id="message" role="status" aria-live="polite"></div>
           <canvas id="minimap" width="220" height="150" aria-label="Minimapa da pista"></canvas>
           <div class="handling-readout"><span id="handling" data-state="grip">Aderência</span><small>Lateral <b id="lateral-g">0.00 g</b></small></div>
           <div class="speed"><strong id="speed">0</strong><span>KM/H</span></div>
-          <div class="drift-hud" id="drift-hud"><strong id="drift-label">ESPAÇO + CURVA</strong><div id="drift-meter" class="drift-meter" role="progressbar" aria-label="Carga do drift" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="drift-fill"></i></div><small id="drift-help">Segure para deslizar. Solte para acelerar.</small></div>
           <div class="touch-controls" aria-label="Controles de toque"><div><button data-control="left" aria-label="Virar à esquerda">←</button><button data-control="right" aria-label="Virar à direita">→</button></div><button data-control="drift" aria-label="Segurar para drift">Drift</button><div><button data-control="brake" aria-label="Frear">Freio</button><button data-control="throttle" aria-label="Acelerar">Acelerar</button></div></div>
         </section>
         <section class="toolbar"><div><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span><span class="control-hint">Dirigir · Espaço: drift → turbo</span></div><div class="actions"><button id="sound" aria-pressed="false">Som desligado</button><button id="tilt">Ativar inclinação</button><button id="reset">↺ Reposicionar</button><button id="pause" class="hidden">▶ continuar</button></div></section>

@@ -3,10 +3,10 @@
 import { formatLapTime, message, type Language } from './lapMessages';
 import type { LapRecord } from './setupRecords';
 
-// `Kartle · <trackId> v<trackVersion> · <time or invalid state> · <setupVersion>`: never a second time nor a difference.
+// `Kartle · <trackId> v<trackVersion> · <time or invalid state>`: never a second time, a difference, the setup version nor drift content.
 export function formatSharedText(record: LapRecord, lang: Language): string {
   const time = record.lapValidity === 'VALID' && record.lapMs !== undefined ? formatLapTime(record.lapMs) : message('lapStateInvalid', lang);
-  return `Kartle · ${record.trackId} v${record.trackVersion} · ${time} · ${record.setupVersion}`;
+  return `Kartle · ${record.trackId} v${record.trackVersion} · ${time}`;
 }
 
 export function shareLabel(lang: Language): string {

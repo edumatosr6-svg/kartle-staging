@@ -3,11 +3,63 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de
 feature: dirigibilidade
 stage: code
 status: validated
-version: 2.1.0
+version: 3.0.0
 sources: []
 ---
 
 # Registro de mudanças
+
+## 2026-10-30 — rodada 5, Mode B (projeto revalidado: D-Spec rodadas 10 e 11, `dspec-validation-20261030-1333`; F-Spec 4.0.1; seed `revision: 5`, `DOMAIN/DEC-15`, `DOMAIN/DEC-16`)
+
+**O que mudou**
+
+- `src/physics.ts` (DES-0001 4.0.1, DES-0002 2.0.0, ADR-0006): `ARCADE_ASSISTIDO_V6` = `ARCADE_ASSISTIDO_V5` com `governorSpeed`
+  19,5, `assistLateralG` 2,4, `maxSteer` 0,5, `friction` 2,1, `frontStiffness` 26; `PUBLISHED_SETUPS.ARCADE_ASSISTIDO` em
+  `arcade-assistido-v6` (`previousSetupVersion` `arcade-assistido-v4`, `previousConfig` `ARCADE_KART`); `testPadArea` no lugar de
+  `testPadLane`/`testPadArc`; a manobra de drift e o turbo saíram de `integrate` e `step` (parcelas de `drifting`/`boosting`,
+  `onRoad`, `advanceManeuvers`, cancelamentos), com a linha 2 mantida como `import` de `./maneuvers` só de `initialManeuvers` e
+  `Maneuvers`; telemetria sem `driftActive` e com `positionXM`, `positionZM`, `headingRad`; `StepClass`, `RECOVERY_MAX_STEPS`,
+  `classifyHandlingSteps` retirados. Invariantes de DES-0001 provados (0 diferenças em 72 000 passos).
+- `scripts/handlingBench.ts` (DES-0004 6.0.1, API-0003 4.0.1): reescrito — `CORNER_RADIUS`, `CORNER_TURN`, `DRIFT_INERT`, `SPEED_CAP`
+  novos; `REFERENCE_CORNER`, `UNDERSTEER_ONSET`, `DRIFT_MANEUVER` e as suas funções retirados; `REAR_RECOVERY` aberto, por lado;
+  `NORMAL_DRIVING` sobre a volta inteira; `TEST_AREA_EXCEEDED` e `TestPadFields` em todo registro `TEST_PAD` (agregados em
+  `DETERMINISM` e `REALISTA_UNCHANGED`); `BENCH_PARAMETERS` e `THRESHOLDS` da revisão 5; `baselineAvailable` preenchido em todo
+  registro; `SPEED_CAP`, `STEP_COST`, `SETUP_VERSION`, `STEP_CONTRACT` em `SYNTHETIC_TRACK`; a volta do piloto de teste termina no
+  primeiro resultado.
+- `scripts/keyboard-lap.ts` (aviso ISSUE-05 do relatório): `measureStepCost` termina no primeiro resultado da volta.
+- `src/setupRecords.ts` (DES-0003 2.1.1): `replayLap` termina no primeiro resultado.
+- `src/main.ts`, `index.html`, `src/style.css`, `src/handlingMessages.ts` (DES-0005 2.0.0, DES-0006 2.0.0; aviso ISSUE-06 do
+  relatório): HUD sem `ESTILO`/combo/medidor de drift/`boosting`, sem mensagem de prêmio; resultado sem `#lap-result-setup`; texto
+  compartilhado sem `· <setupVersion>`; `recordLapResult` trata um `LapResult` sem ler a fase.
+- `docs/physics.md` (DM-0001 M6): entradas `arcade-assistido-v4` e `realista-aluguel-4t-v4` medidas de novo (2026-10-30) e
+  substituídas no bloco; `arcade-assistido-v6` acrescentada (56 registros `PASS`); v5 mantida; seção datada nova.
+- Manifesto: `01-implementation.md` 3.0.0, `98-divergences.md` 3.0.0, mirrors `core/DES-0001` (arquivo renomeado para `…-v6-…`,
+  2.0.0), `core/DES-0002` 2.0.0, `core/DES-0003` 3.0.0, `core/DES-0004` 3.0.0, `data/DM-0001` 3.0.0, `web/DES-0005` 2.0.0,
+  `web/DES-0006` 2.0.0, `web/DES-0007` 1.2.0, `security/DES-0008` 1.1.0; `00-index.md` e `99-traceability.md` gerados por
+  `lint_artifacts.py --emit` (0 erros).
+
+**Itens fechados**: as 13 linhas abertas de código do registro de divergências do projeto 4.0.0 (linhas 1 a 13 de
+`98-divergences.md`); os avisos ISSUE-05 e ISSUE-06 de `dspec-validation-20261030-1333`.
+
+**Decisões de implementação, onde o projeto deixava detalhe em aberto** (nenhuma muda contrato nem requisito)
+
+- Ordem da suíte (registros, desempate de `SPEED_CAP`, primeira saída agregada): a ordem de `BenchId`. O traço da reta, comum a
+  `ACCELERATION` e `TOP_SPEED`, é rotulado `ACCELERATION` em `SPEED_CAP`.
+- `DRIFT_INERT` da volta compara todos os passos da sequência (os `COUNTDOWN_STEPS` parados e os do piloto); a sequência sem o
+  comando é a da volta com `drift` omitido.
+- No agregado `TEST_PAD` de `REALISTA_UNCHANGED`, os registros cobertos são os `TEST_PAD` das suítes do Realista nos dois modos,
+  sem os `DETERMINISM` (que já são agregados).
+
+**Itens recusados, com motivo**
+
+- Implementar o gatilho "cada item novo de `listLapResults`" e os campos de treino de `LapResult` 1.2.0: são código de
+  `race-lap-validation`, que ainda não está na árvore e tem a sua rodada a seguir; implementada só a parte desta feature
+  (`98-divergences.md`, linha R).
+- Deixar de importar `WIDTH` em `scripts/handlingBench.ts` (Colaboradores de DES-0004): `grassEntry`, mantido pelo mesmo item, precisa
+  dele; nenhum efeito sobre o comportamento (`98-divergences.md`, linha W).
+- Retirar `src/maneuvers.ts`, `State.maneuvers` e `tests/maneuvers.test.ts`: o gatilho da retirada final de ADR-0006 não ocorreu
+  (`tests/race-lap-validation-layering.test.ts:9` e `tests/pista-kart-park-layering.test.ts:18` ainda nomeiam o módulo).
+- Editar testes reprovados pela mudança do projeto: são do estágio de testes (desta feature e de `modelo-kart-01`).
 
 ## 2026-10-27 — rodada 4, Mode B (SPEC-ISSUE-03 de `feedback-20261027-1619.md` resolvido pelo D-Spec na rodada 9, `dspec-validation-20261027-1803`; `DOMAIN/DEC-14`; F-Spec API-0003 3.4.0)
 

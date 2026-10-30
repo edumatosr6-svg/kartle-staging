@@ -2,12 +2,11 @@ import * as THREE from 'three';
 import { initialState, nearest, track, WIDTH, PUBLISHED_SETUPS, getHandlingTelemetry, getTrackContact, type PublishedSetup, type SetupRef } from './physics';
 import { buildLapRecord, compareLapRecords, type LapRecord } from './setupRecords';
 import { formatSharedText, shareLabel } from './handlingMessages';
-import { chargeTier } from './maneuvers';
 import { RaceAudio } from './audio';
 import { SYNTHETIC_TRACK_FILE } from './track';
 import type { TrackReading } from './trackData';
 import type { TrackGeometry } from './trackGeometry';
-import { getLapResult, getLapState, offeredLapKinds, pauseLap, repositionKart, resumeLap, stepLap, type LapKind, type LapSession } from './lap';
+import { getLapResult, getLapState, offeredLapKinds, pauseLap, repositionKart, resumeLap, stepLap, type LapKind, type LapResult, type LapSession } from './lap';
 import { advanceClock } from './frameClock';
 import { creditFor, describeLap, formatLapTime, greenSignalVisible, message, optionLabel, resolveLanguage, type Language, type MessageKey } from './lapMessages';
 // The published Kart Park file, bundled as text (ADR-0002 of pista-kart-park): no request between the choice and the lap.
@@ -285,6 +284,20 @@ function renderOffer() {
     offer.appendChild(button);
   }
 }
+// One new lap result (DES-0006): reads neither the phase nor the trigger, which is race-lap-validation's, so it serves the
+// official, the recon and each training lap alike; the same result handled twice gives the same records.
+function recordLapResult(result: LapResult) {
+  lastRecord = buildLapRecord(result, setupRef);
+  if (lastRecord.lapValidity === 'VALID' && lastRecord.lapMs !== undefined) {
+    if (!bestRecord || bestRecord.lapMs === undefined) bestRecord = lastRecord;
+    else {
+      const compared = compareLapRecords(bestRecord, lastRecord);
+      if ('code' in compared) console.warn('lap-record', compared.code);
+      else if (compared.comparability === 'COMPARABLE' && lastRecord.lapMs < bestRecord.lapMs) bestRecord = lastRecord;
+    }
+  }
+  renderBest();
+}
 // The best time is shown only when it is COMPARABLE with the current setup on the current track (RULE-0003, SCR-0002).
 function renderBest() {
   const el = $('best');
@@ -463,7 +476,6 @@ function renderResult() {
   }
   $('lap-new-lap').textContent = message('newLap', lang);
   renderCredit($('lap-result-credit'), creditFor(selectedOption(result.trackId)));
-  $('lap-result-setup').textContent = lastRecord?.setupVersion ?? '';
   $('lap-share').textContent = shareLabel(lang);
   panel.classList.remove('hidden');
 }
@@ -497,13 +509,7 @@ function frame(now: number) {
     const clock = advanceClock(accumulatorS, dt);
     accumulatorS = clock.accumulatorS;
     for (let i = 0; i < clock.steps && lap.phase !== 'ENDED'; i++) {
-      const awards = lap.kart.maneuvers.awards;
       lap = stepLap(lap, input);
-      if (lap.kart.maneuvers.awards > awards) {
-        const tier = lap.kart.maneuvers.boostTier;
-        notify(`${['', 'Boa curva!', 'Drift perfeito!', 'Super drift!'][tier]} +${tier * 100 * lap.kart.maneuvers.chain} estilo`, 1800);
-        audio.reward(tier);
-      }
       // Curb feedback (RULE-0004, DES-0009): decided per advanced step from the contact reading, never from wall time.
       const contact = getTrackContact(lap.kart, lap.environment, lap.config);
       if (!('code' in contact)) {
@@ -523,18 +529,7 @@ function frame(now: number) {
   const running = lap?.phase === 'RUNNING';
   if (lap?.phase === 'ENDED' && lastPhase !== 'ENDED') {
     const result = getLapResult(lap);
-    if (!('code' in result)) {
-      lastRecord = buildLapRecord(result, setupRef);
-      if (lastRecord.lapValidity === 'VALID' && lastRecord.lapMs !== undefined) {
-        if (!bestRecord || bestRecord.lapMs === undefined) bestRecord = lastRecord;
-        else {
-          const compared = compareLapRecords(bestRecord, lastRecord);
-          if ('code' in compared) console.warn('lap-record', compared.code);
-          else if (compared.comparability === 'COMPARABLE' && lastRecord.lapMs < bestRecord.lapMs) bestRecord = lastRecord;
-        }
-      }
-      renderBest();
-    }
+    if (!('code' in result)) recordLapResult(result);
   }
   lastPhase = lap?.phase;
   // The displayed kart is the state of the last completed step (API-0001); nothing is interpolated or estimated.
@@ -610,18 +605,6 @@ function frame(now: number) {
     $('handling').textContent = labels[telemetry.handling];
     $('handling').dataset.state = telemetry.handling;
   }
-  $('style-score').textContent = tricks.score.toLocaleString('pt-BR');
-  $('combo').textContent = tricks.chain > 1 && tricks.chainWindow > 0 ? `×${tricks.chain}` : '';
-  const tier = chargeTier(tricks.charge);
-  const fill = tricks.boost > 0 ? tricks.boost / [1, 0.8, 1.3, 1.8][tricks.boostTier] : tricks.charge / 2.2;
-  $('drift-fill').style.width = `${Math.min(100, fill * 100)}%`;
-  $('drift-meter').setAttribute('aria-valuenow', String(Math.round(Math.min(100, fill * 100))));
-  $('drift-meter').setAttribute('aria-label', tricks.boost > 0 ? 'Duração restante do turbo' : 'Carga do drift');
-  $('drift-hud').dataset.tier = String(tricks.boost > 0 ? tricks.boostTier : tier);
-  $('drift-hud').classList.toggle('hidden', !started || !config.drivingAssists);
-  $('drift-label').textContent = tricks.boost > 0 ? 'TURBO!' : tricks.drifting ? tier > 0 ? `TURBO ${tier} PRONTO` : 'CARREGANDO DRIFT' : 'ESPAÇO + CURVA';
-  $('drift-help').textContent = tricks.boost > 0 ? 'Acelere e aproveite a saída.' : tricks.drifting ? tier > 0 ? 'Solte Espaço para disparar!' : 'Mantenha a curva no asfalto.' : 'Segure para deslizar. Solte para acelerar.';
-  document.querySelector('.game-shell')!.classList.toggle('boosting', tricks.boost > 0);
   const driftButton = document.querySelector<HTMLButtonElement>('[data-control="drift"]')!;
   driftButton.disabled = !config.drivingAssists;
   const t = state.telemetry;

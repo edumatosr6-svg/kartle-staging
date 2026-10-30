@@ -2,7 +2,7 @@
 stage: code
 feature: dirigibilidade
 status: validated
-generated: 2026-10-27T18:23:05Z
+generated: 2026-10-30T14:04:35Z
 files: 12
 ---
 
@@ -12,15 +12,15 @@ files: 12
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-implementation.md` | - | Registro de implementação — dirigibilidade do Arcade assistido | draft | 2.1.0 |
-| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido (estágio de código) | draft | 2.1.0 |
-| `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido (estágio de código) | draft | 2.1.0 |
-| `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` | DES-0001 | Acerto Arcade assistido v5, assistências, pista de teste e classificação do passo — implementação | draft | 1.0.0 |
-| `core/DES-0002-telemetria-de-dirigibilidade.md` | DES-0002 | Telemetria de dirigibilidade por passo (API-0001) — implementação | draft | 1.0.0 |
-| `core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md` | DES-0003 | Versão do acerto, registros de volta e replay e comparabilidade (API-0002) — implementação | draft | 2.0.0 |
-| `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` | DES-0004 | Ensaios de dirigibilidade, ambientes, linha de base e saída (API-0003) — implementação | draft | 2.1.0 |
-| `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` | DM-0001 | Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base — implementação | draft | 2.0.0 |
-| `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` | DES-0008 | Privacidade dos registros, do texto compartilhado e da saída dos ensaios — implementação | draft | 1.0.0 |
-| `web/DES-0005-hud-velocidade-e-aderencia.md` | DES-0005 | HUD de velocidade e estado de aderência — implementação | draft | 1.0.0 |
-| `web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md` | DES-0006 | Resultado com a versão do acerto, melhor tempo comparável e texto compartilhado — implementação | draft | 1.1.0 |
-| `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` | DES-0007 | Integração da aplicação — escolha do acerto publicado e adaptadores de controle — implementação | draft | 1.1.0 |
+| `01-implementation.md` | - | Registro de implementação — dirigibilidade do Arcade assistido | draft | 3.0.0 |
+| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido (estágio de código) | draft | 3.0.0 |
+| `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido (estágio de código) | draft | 3.0.0 |
+| `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` | DES-0001 | Acerto Arcade assistido v6 (acerto C), assistências, pista de teste aberta e passo sem drift nem turbo — implementação | draft | 2.0.0 |
+| `core/DES-0002-telemetria-de-dirigibilidade.md` | DES-0002 | Telemetria de dirigibilidade por passo (API-0001) — implementação | draft | 2.0.0 |
+| `core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md` | DES-0003 | Versão do acerto, registros de volta e replay e comparabilidade (API-0002) — implementação | draft | 3.0.0 |
+| `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` | DES-0004 | Ensaios de dirigibilidade, pista de teste aberta, linha de base e saída (API-0003) — implementação | draft | 3.0.0 |
+| `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` | DM-0001 | Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base — implementação | draft | 3.0.0 |
+| `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` | DES-0008 | Privacidade dos registros, do texto compartilhado e da saída dos ensaios — implementação | draft | 1.1.0 |
+| `web/DES-0005-hud-velocidade-e-aderencia.md` | DES-0005 | HUD de velocidade e estado de aderência, sem indicador de drift ou turbo — implementação | draft | 2.0.0 |
+| `web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md` | DES-0006 | Resultado, melhor tempo só comparável e texto compartilhado, sem a versão do acerto nem o drift — implementação | draft | 2.0.0 |
+| `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` | DES-0007 | Integração da aplicação — escolha do acerto publicado e adaptadores de controle — implementação | draft | 1.2.0 |

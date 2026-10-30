@@ -1,28 +1,27 @@
 ---
 id: DES-0005
-title: HUD de velocidade e estado de aderência — implementação
+title: HUD de velocidade e estado de aderência, sem indicador de drift ou turbo — implementação
 feature: dirigibilidade
 stage: code
 status: validated
-version: 1.0.0
-sources: [SCR-0001, FLOW-0001, API-0001, FEAT-0004, FEAT-0006, REQ-FEAT-0004-06, REQ-FEAT-0004-09, REQ-FEAT-0006-01]
+version: 2.0.0
+sources: [SCR-0001, FLOW-0001, API-0001, FEAT-0003, FEAT-0004, FEAT-0006, REQ-FEAT-0003-14, REQ-FEAT-0004-06, REQ-FEAT-0004-09, REQ-FEAT-0006-01]
 ---
 
-# DES-0005 — HUD de velocidade e estado de aderência — implementação
+# DES-0005 — HUD de velocidade e aderência, sem indicador de drift ou turbo — implementação
 
-`src/main.ts`, camada aplicação, alterado num trecho do laço de quadros; `index.html` e `src/style.css` não mudam para este item
-(`#speed` e `#handling` já existem).
+`src/main.ts`, `index.html` e `src/style.css`, camada aplicação, alterados na rodada de código 5 só por remoção (projeto DES-0005
+2.0.0). `#speed` e `#handling` continuam lidos por quadro pelo contrato API-0001.
 
 ## Realização por requisito
 
 | Requisito | Arquivo e símbolo |
 |---|---|
-| REQ-FEAT-0004-06 | `src/main.ts` `frame` (`const telemetry = getHandlingTelemetry(state, setupRef)`; `#speed` = `Math.round(telemetry.speedMps * 3.6)`, `#handling` = `labels[telemetry.handling]` e `data-state`, em todos os quadros; `NO_STATE` deixa os dois sem valor) |
-| REQ-FEAT-0004-09 | `src/main.ts` `frame` (`state = lap?.kart ?? idleKart`: na pausa `stepLap` devolve a mesma sessão, o `kart` não muda e a leitura repete o último valor) |
-| REQ-FEAT-0006-01 | `src/main.ts` `frame` (a tela só converte `speedMps` em km/h e mapeia `handling` para texto; nenhum literal da condição de forçar nem do teto de derrapagem em `src/main.ts`) |
+| REQ-FEAT-0004-06, -09 | `src/main.ts:600-607` (`getHandlingTelemetry(state, setupRef)`; `NO_STATE` deixa os dois elementos vazios; o último passo fica na suspensão) |
+| REQ-FEAT-0003-14 | removidos: `index.html` `.style-score` (`ESTILO`, `#style-score`, `#combo`) de `.timing` e o bloco `#drift-hud` (`#drift-label`, `#drift-meter`, `#drift-fill`, `#drift-help`); `src/main.ts` o `import { chargeTier } from './maneuvers'`, a leitura de `maneuvers.awards` e a mensagem de prêmio com `audio.reward` no laço de passos (`:512` passa a só `lap = stepLap(lap, input)`), e a escrita de `#style-score`, `#combo`, `#drift-fill`, `#drift-meter`, `#drift-hud`, `#drift-label`, `#drift-help` e da classe `boosting`; `src/style.css` as regras `.style-score`, `.style-score em`, `.drift-hud` (e `strong`, `small`, `[data-tier]`), `.drift-meter`, `.drift-meter i`, `.boosting` e as ocorrências de `.drift-hud` em `@media(max-width:700px)` e `@media(pointer:coarse)` |
+| REQ-FEAT-0006-01 | só remoção de exibição; nenhuma regra nova na renderização |
 
-## Interface
-
-Sem símbolo novo: a tabela de rótulos (`Aderência`, `Saindo de frente`, `Saindo de traseira`, `Derrapando`) é a existente, movida para
-junto da leitura. As leituras de G lateral, G longitudinal, deriva por eixo e carga por roda continuam lendo `state.telemetry`
-diretamente, como o projeto diz.
+Ficam: o botão de toque `[data-control="drift"]` e a leitura do comando (`src/main.ts:507`), as leituras de `state.maneuvers` de
+`modelo-kart-01` (`const tricks = state.maneuvers`, jato, marcas, entrada `turboActive` da câmera), que passam a ler sempre o valor
+inicial (ADR-0006), e os textos de instrução do drift fora do HUD (`index.html` boas-vindas, dica da barra, guia de manobras).
+`src/audio.ts` não muda.

@@ -1,5 +1,5 @@
 import { nearest, track, WIDTH, type Point } from './track';
-import { advanceManeuvers, cancelManeuver, initialManeuvers, type Maneuvers } from './maneuvers';
+import { initialManeuvers, type Maneuvers } from './maneuvers';
 export { nearest, track, WIDTH, LapTracker } from './track';
 import { BARRIER_HALF_WIDTH_M, BARRIER_TOUCH_TOLERANCE_M, beyondTrackEdgeM, classifySurface, closestOnSegment, nearestBarrier, type TrackGeometry } from './trackGeometry';
 
@@ -87,6 +87,12 @@ export const ARCADE_ASSISTIDO_V5: Readonly<KartConfig> = Object.freeze({
   forcingRearFrictionScale: 0.67, grassSpeedLossPerS: 0.7,
   forcingRampMps: 2.4,
 });
+// Arcade assistido v6, the setup C chosen by the product owner on staging (DES-0001, DOMAIN/DEC-15): a new record over v5,
+// which stays intact as the superseded staging round (ADR-0001).
+export const ARCADE_ASSISTIDO_V6: Readonly<KartConfig> = Object.freeze({
+  ...ARCADE_ASSISTIDO_V5,
+  governorSpeed: 19.5, assistLateralG: 2.4, maxSteer: 0.5, friction: 2.1, frontStiffness: 26,
+});
 export const SOLVER_SUBSTEPS = 4;
 export type SetupId = 'ARCADE_ASSISTIDO' | 'REALISTA_ALUGUEL_4T';
 export type SetupRef = { setupId: SetupId; setupVersion: string };
@@ -97,8 +103,8 @@ export type PublishedSetup = {
 // Published setup data (DM-0001, section 1): one frozen record per setupId; no key to pick the previous version.
 export const PUBLISHED_SETUPS: Readonly<Record<SetupId, PublishedSetup>> = Object.freeze({
   ARCADE_ASSISTIDO: Object.freeze({
-    setupId: 'ARCADE_ASSISTIDO' as const, setupVersion: 'arcade-assistido-v5', previousSetupVersion: 'arcade-assistido-v4',
-    config: ARCADE_ASSISTIDO_V5, previousConfig: ARCADE_KART,
+    setupId: 'ARCADE_ASSISTIDO' as const, setupVersion: 'arcade-assistido-v6', previousSetupVersion: 'arcade-assistido-v4',
+    config: ARCADE_ASSISTIDO_V6, previousConfig: ARCADE_KART,
   }),
   REALISTA_ALUGUEL_4T: Object.freeze({
     setupId: 'REALISTA_ALUGUEL_4T' as const, setupVersion: 'realista-aluguel-4t-v4', config: RENTAL_KART,
@@ -186,17 +192,11 @@ export function trackEdgeDistanceM(environment: Environment, point: Point): numb
   return environment.track ? beyondTrackEdgeM(environment.track, point) : Math.max(0, nearest(point).distance - WIDTH / 2);
 }
 export const TEST_PAD: Environment = { surfaceAt: () => 'asphalt', walls: false };
-// Test pad of the handling benches (DES-0001, ADR-0005): a straight lane along z and a ring of radius arcRadiusM,
-// both laneWidthM wide, without walls; outside the lane the surface is 'grass' in the sense of "off the asphalt".
-// Not track data: no trackId, lines, sectors or markers. A non-positive width or radius gives an all-grass pad.
-export function testPadLane(laneWidthM: number): Environment {
-  return { surfaceAt: p => laneWidthM > 0 && Math.abs(p.x) <= laneWidthM / 2 ? 'asphalt' : 'grass', walls: false };
-}
-export function testPadArc(arcRadiusM: number, laneWidthM: number): Environment {
-  return {
-    surfaceAt: p => arcRadiusM > 0 && laneWidthM > 0 && Math.abs(Math.hypot(p.x, p.z) - arcRadiusM) <= laneWidthM / 2 ? 'asphalt' : 'grass',
-    walls: false,
-  };
+// Open test pad of the handling benches (DES-0001, ADR-0005): an asphalt disc of radius testAreaRadiusM centred on the
+// start point (the origin), without walls; outside it the surface is 'grass' in the sense of "off the declared area".
+// Not track data: no trackId, lines, sectors or markers. A non-positive radius gives an all-grass pad.
+export function testPadArea(testAreaRadiusM: number): Environment {
+  return { surfaceAt: p => testAreaRadiusM > 0 && Math.hypot(p.x, p.z) <= testAreaRadiusM ? 'asphalt' : 'grass', walls: false };
 }
 
 export function steeringLimit(speed: number, config: KartConfig) {
@@ -220,22 +220,20 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
   const mass = config.kartMass + config.driverMass, inertia = mass * config.yawRadius ** 2;
   const { u, v } = bodyVelocity(state);
   const sin = Math.sin(state.heading), cos = Math.cos(state.heading);
-  const drifting = config.drivingAssists && state.maneuvers.drifting;
-  const boosting = config.drivingAssists && state.maneuvers.boost > 0;
-  const limit = Math.min(config.maxSteer, steeringLimit(state.speed, config) * (drifting ? 1.2 : 1));
+  const limit = Math.min(config.maxSteer, steeringLimit(state.speed, config));
   const targetSteer = -clamp(input.steer, -1, 1) * limit;
   const returning = Math.abs(targetSteer) < 0.001 || Math.sign(targetSteer) !== Math.sign(state.steering);
   const steerRate = config.drivingAssists
     ? limit * (returning ? (config.steerReturnRatePerS ?? 10) : (config.steerApplyRatePerS ?? 5)) : config.steerRate;
   const forcingScale = config.drivingAssists && forcing ? 1 + ((config.forcingRearFrictionScale ?? 1) - 1) * forcingRamp : 1;
-  const rearFrictionScale = (drifting ? 0.86 : 1) * forcingScale;
+  const rearFrictionScale = forcingScale;
   let assistActive = false, wallContact = false, barrierHit = false;
   const steering = approach(state.steering, targetSteer, steerRate * dt);
   const throttle = approach(state.throttle, clamp(input.throttle, 0, 1), config.throttleRate * dt);
   const brake = approach(state.brake, clamp(input.brake, 0, 1), 6 * dt);
   const loads = wheelLoads(config, state.ax, state.ay);
   const positions = wheelPositions(config);
-  const governor = clamp((config.governorSpeed + (boosting ? 3 : 0) - Math.abs(u)) / 1.5, 0, 1);
+  const governor = clamp((config.governorSpeed - Math.abs(u)) / 1.5, 0, 1);
   // Brake/throttle interlock; single-ratio clutch and governor approximation.
   const drive = throttle * (1 - brake) * governor * Math.min(config.driveForce, config.enginePower * config.transmissionEfficiency / Math.max(Math.abs(u), 1));
   const coastBrake = (1 - throttle) * config.engineBrake * clamp(Math.abs(u) / 3, 0, 1);
@@ -277,7 +275,7 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
     // Without a curb the added term is exactly 0 and k / 4 is exact, so the synthetic track keeps the same bits (ADR-0004).
     const mu = config.grassFriction + (config.friction - config.grassFriction) * asphaltFraction + (CURB_GRIP_PC * config.friction - config.grassFriction) * curbFraction;
     // Arcade lateral damping removes excess sliding, while retaining small tire slip.
-    const allowedSlipVelocity = Math.abs(u) * (drifting ? 0.18 : 0.035);
+    const allowedSlipVelocity = Math.abs(u) * 0.035;
     const excessV = Math.sign(v) * Math.max(0, Math.abs(v) - allowedSlipVelocity);
     const slipCap = mass * mu * GRAVITY * (config.slipDampingCapG ?? 0.45);
     fy -= clamp(mass * excessV * (config.slipDampingGainPerS ?? 4), -slipCap, slipCap);
@@ -288,17 +286,13 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
     const correcting = Math.abs(input.steer) < 0.01 || state.yawRate * intendedYaw < 0;
     const excessYaw = correcting ? state.yawRate
       : Math.sign(state.yawRate) * Math.max(0, Math.abs(state.yawRate) - yawCeiling);
-    moment -= inertia * excessYaw * (drifting ? 5 : (config.yawCorrectGainPerS ?? 9));
-    if (drifting) {
-      // Intentional, bounded arcade rotation aid. Player chooses turn direction.
-      moment += clamp(inertia * (intendedYaw - state.yawRate) * 4, -140, 140);
-    } else if ((config.yawTrackingGainPerS ?? 0) > 0) {
+    moment -= inertia * excessYaw * (config.yawCorrectGainPerS ?? 9);
+    if ((config.yawTrackingGainPerS ?? 0) > 0) {
       // Bounded yaw tracking toward the steering intent (DES-0001); absent, the term does not exist.
       moment += clamp(inertia * (intendedYaw - state.yawRate) * (config.yawTrackingGainPerS ?? 0), -140, 140);
     }
     // Grass speed loss proportional to the fraction of wheels on the grass (DES-0001).
     if ((config.grassSpeedLossPerS ?? 0) > 0) fx -= mass * u * (config.grassSpeedLossPerS ?? 0) * grassFraction;
-    if (boosting) fx += mass * (2.2 + state.maneuvers.boostTier * 0.4) * governor * throttle;
   }
   const ax = fx / mass, ay = fy / mass;
   let vx = state.vx + (ax * sin + ay * cos) * dt;
@@ -330,7 +324,6 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
       if (outgoing > 0) {
         next.vx -= outgoing * 1.12 * nx; next.vz -= outgoing * 1.12 * nz;
         next.yawRate *= 0.65;
-        next.maneuvers = cancelManeuver(next.maneuvers);
         wallContact = true;
       }
       next.speed = Math.hypot(next.vx, next.vz);
@@ -349,7 +342,6 @@ function integrate(state: State, input: Input, dt: number, config: KartConfig, e
       if (outgoing > 0) {
         next.vx -= outgoing * 1.12 * nx; next.vz -= outgoing * 1.12 * nz;
         next.yawRate *= 0.65;
-        next.maneuvers = cancelManeuver(next.maneuvers);
         barrierHit = true;
       }
       next.speed = Math.hypot(next.vx, next.vz);
@@ -384,19 +376,11 @@ function barrierContactPoint(a: Point, b: Point, s: Point, e: Point): { q: Point
 export function step(state: State, input: Input, dt = STEP, config: KartConfig = RENTAL_KART, environment: Environment = CIRCUIT): State {
   if (!Number.isFinite(dt) || dt <= 0 || dt > 0.1) throw new RangeError('Physics dt must be in (0, 0.1].');
   const count = Math.ceil(dt / (STEP / SOLVER_SUBSTEPS));
-  const sin = Math.sin(state.heading), cos = Math.cos(state.heading);
-  // On the road: no wheel on the grass (a curb counts as track for the drift, RULE-0001 of pista-kart-park).
-  const onRoad = wheelPositions(config).every(p => environment.surfaceAt({
-    x: state.x + p.forward * sin + p.left * cos, z: state.z + p.forward * cos - p.left * sin,
-  }) !== 'grass');
   // Forcing and its ramp are decided once per call, on the state at the start of the step (RULE-0001).
   const forcing = isForcing(state, input);
   const forcingRamp = forcingRampFraction(state.speed, config);
-  let next = { ...state, maneuvers: advanceManeuvers(state.maneuvers, {
-    enabled: config.drivingAssists, held: !!input.drift, steer: input.steer,
-    throttle: input.throttle, brake: input.brake, speed: state.speed,
-    slip: state.telemetry.sideslip, yaw: state.yawRate, onRoad,
-  }, dt) };
+  // The drift command of Input is accepted and ignored (DES-0001, ADR-0006): maneuvers is carried unchanged.
+  let next = state;
   let wallContact = false, assistActive = false, barrierHit = false;
   for (let i = 0; i < count; i++) {
     next = integrate(next, input, dt / count, config, environment, forcing, forcingRamp);
@@ -411,7 +395,6 @@ export function step(state: State, input: Input, dt = STEP, config: KartConfig =
   const barrierContact = barrierTouching && !state.telemetry.barrierTouching;
   next.telemetry = { ...next.telemetry, wallContact, assistActive, barrierTouching, barrierContact };
   next.stepCount = state.stepCount + 1;
-  if (next.telemetry.wheels.some(w => w.surface === 'grass')) next.maneuvers = cancelManeuver(next.maneuvers);
   return next;
 }
 export type WheelSurface = 'ASPHALT' | 'CURB' | 'GRASS';
@@ -440,8 +423,9 @@ export function getTrackContact(state: State | undefined, environment: Environme
 }
 export type HandlingTelemetry = {
   simStepCount: number; setupId: SetupId; setupVersion: string;
+  positionXM: number; positionZM: number; headingRad: number;
   speedMps: number; handling: Handling; sideslipRad: number; yawRateRadPerS: number;
-  surface: 'ASPHALT' | 'GRASS'; wallContact: boolean; forcing: boolean; driftActive: boolean;
+  surface: 'ASPHALT' | 'GRASS'; wallContact: boolean; forcing: boolean;
 };
 // API-0001 (DES-0002): a pure reading of the state; the setup identity is passed by whoever started the lap.
 export function getHandlingTelemetry(state: State | undefined, setup: SetupRef): HandlingTelemetry | { code: 'NO_STATE' } {
@@ -449,33 +433,8 @@ export function getHandlingTelemetry(state: State | undefined, setup: SetupRef):
   const t = state.telemetry;
   return {
     simStepCount: state.stepCount, setupId: setup.setupId, setupVersion: setup.setupVersion,
+    positionXM: state.x, positionZM: state.z, headingRad: state.heading,
     speedMps: state.speed, handling: t.handling, sideslipRad: Math.abs(t.sideslip), yawRateRadPerS: state.yawRate,
     surface: t.surface === 'grass' ? 'GRASS' : 'ASPHALT', wallContact: t.wallContact, forcing: t.forcing,
-    driftActive: state.maneuvers.drifting,
   };
-}
-// Step classes of RULE-0001 (DES-0001): decided here, in the simulation, from the Input applied in each step and
-// the telemetry after it, in simStepCount order; the bench library only calls this.
-export type StepClass = 'NORMAL' | 'FORCING' | 'DRIFT' | 'RECOVERY';
-export const RECOVERY_MAX_STEPS = Math.round(0.4 / STEP);
-const loose = (h: Handling) => h === 'oversteer' || h === 'sliding';
-export function classifyHandlingSteps(steps: readonly { input: Input; telemetry: HandlingTelemetry }[]): StepClass[] {
-  const classes: StepClass[] = [];
-  let release = -1;
-  for (let k = 0; k < steps.length; k++) {
-    const { input, telemetry } = steps[k];
-    if (telemetry.driftActive) { classes.push('DRIFT'); release = -1; continue; }
-    if (telemetry.forcing) { classes.push('FORCING'); release = -1; continue; }
-    const previous = k > 0 ? steps[k - 1] : undefined;
-    if (previous && Math.abs(clamp(previous.input.steer, -1, 1)) >= 1 && input.steer === 0
-      && previous.telemetry.forcing && loose(previous.telemetry.handling)) release = k;
-    if (release >= 0 && k - release + 1 <= RECOVERY_MAX_STEPS) {
-      classes.push('RECOVERY');
-      if (telemetry.handling === 'grip') release = -1;
-      continue;
-    }
-    release = -1;
-    classes.push('NORMAL');
-  }
-  return classes;
 }
