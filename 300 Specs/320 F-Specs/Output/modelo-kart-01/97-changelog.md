@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.3.1
+version: 1.4.0
 sources: []
 ---
 
@@ -393,3 +393,70 @@ upstream). Divergências registradas: nenhuma.
   no fim de uma volta `RECON` seria redefinir um invariante de `race-lap-validation` (INV-1) e acrescentar
   comportamento que nenhum critério pede numa rodada de correção (§16). Se o dono do produto quiser a
   regra de `RECON` dita nesta feature, ela tem de entrar pelos requisitos dela.
+
+## 2026-10-30 — rodada 6, Mode C (requisitos revalidados contra o seed `revision: 4`, relatório `req-validation-20261030-1353.md`)
+
+**O que mudou**
+
+- Origem: US-0005 (2.1.1) passou a dizer quando as marcas de pneu aparecem: novos AC-US-0005-06 (em cada
+  quadro em que a simulação avançou pelo menos um passo, com a volta em andamento, velocidade acima de
+  6 m/s e derrapagem lateral da telemetria acima de 0,055 rad, um trecho novo sob cada pneu traseiro) e
+  AC-US-0005-07 (sem alguma dessas condições, inclusive em pausa, nenhum trecho novo, antes da largada e em
+  corrida); sem o drift, é a única situação (`SEED/US-5`, segundo critério; `DOMAIN/DEC-09`, decisão do
+  dono do produto de 2026-10-30). A pré-condição "esta feature muda onde a marca aparece, não quando"
+  saiu dos requisitos.
+- `FEAT-0005` (2.1.0): resumo e canais com a situação de marca de pneu; REQ-FEAT-0005-04 ("manter as
+  situações de antes") retirado, número não reaproveitado; novos REQ-FEAT-0005-11 (AC-US-0005-06) e
+  REQ-FEAT-0005-12 (AC-US-0005-07); REQ-FEAT-0005-07 (reposicionamento) só desenha quando a situação vale;
+  REQ-FEAT-0005-08 (pausa e fim da volta oficial) passa a citar AC-US-0005-07 no lugar de `[DOMAIN]`, sem
+  mudar o que exige. Nova seção "Situação de marca de pneu": `simStepCount` de `getKartPose` maior que no
+  quadro anterior, `lapPhase` `RUNNING` de `getLapState`, `speedMps` maior que 6 e `sideslipRad` maior que
+  0,055 de `getHandlingTelemetry` — todos lidos do que a simulação e a volta informam; a apresentação só
+  desenha. Linhas novas no comportamento: valores no limite, derrapagem para o outro lado, condição que
+  deixa de valer, vários passos entre quadros, quadro sem passo novo, `NO_STATE` da telemetria. Critérios
+  de aceite novos para AC-US-0005-06 e AC-US-0005-07. Configuração: os limites são do seed, não
+  configuração. A citação da ausência de drift e de turbo passou a "`SEED/US-5`, terceiro critério".
+- `RULE-0003` (1.2.0): coluna "Quando" da ancoragem com a situação de marca de pneu; o parágrafo "esta regra
+  muda onde a marca aparece, não quando" saiu; nova "Tabela de decisão — trecho novo de marca de pneu"
+  (passo novo, `lapPhase`, `speedMps`, `sideslipRad`, com os limites estritos, pausa, fim da volta oficial,
+  antes da largada e `NO_STATE`); linha "Trechos de marca já desenhados" de "Estado e repetição": um trecho
+  novo sob cada pneu traseiro por quadro com passo novo em que a situação vale, contador `simStepCount`.
+- `FLOW-0001` (1.4.0): o diagrama lê `getHandlingTelemetry` (`speedMps`, `sideslipRad`) e desenha o trecho
+  novo só no ramo em que a situação vale; passo 9 decide a situação com o `lapPhase` do passo 4 e a
+  telemetria; "Vários passos de `STEP` entre dois quadros" passa de "um trecho por passo" para a situação
+  decidida pelo último passo, sem ler nem estimar passos intermediários (os requisitos dizem que os valores
+  vêm do estado que a simulação informa no quadro); linhas novas "Situação de marca de pneu deixa de valer"
+  e "`getHandlingTelemetry` sem estado"; "Fim de uma volta de treino" desenha trechos novos sempre que a
+  situação vale.
+- `SCR-0001` (1.4.0), por carregar o mesmo fato: o estado "Em corrida" chama também `getLapState` e
+  `getHandlingTelemetry` em todos os quadros e mostra trechos novos só quando o kart escorrega de lado;
+  "Visão geral", "Contagem" e "Pausada" dizem que não há trecho novo de marca (AC-US-0005-07).
+- `02-glossary.md` (1.4.0): "Marcas de pneu" com a situação; termos de domínio "Volta em andamento",
+  "Velocidade do kart" e "Derrapagem lateral" vindos do glossário dos requisitos; termos F-Spec "Situação
+  de marca de pneu" e "Trecho novo de marca"; linha de `getHandlingTelemetry`, `speedMps`, `sideslipRad`,
+  nomeados e não redefinidos; a linha de `lapPhase` diz que `RUNNING` é a volta em andamento.
+- `01-overview.md` (1.4.0): seed `revision: 4`, decisões até `DOMAIN/DEC-09` e a situação das marcas.
+- Os arquivos editados voltaram a `status: draft`; o gate e o validador decidem. `00-index.md` e
+  `99-traceability.md` regenerados pelo gate com `--emit`.
+
+**Itens fechados**: nenhum `ISSUE-<nn>`, `FB-<nn>` ou `FEEDBACK-<nn>` (rodada gerada pela mudança do
+upstream). Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Campo novo em `API-0001` (`getKartPose`) para a velocidade ou a derrapagem lateral: não criado. A
+  telemetria de dirigibilidade já informa `speedMps` e `sideslipRad`; um segundo campo com o mesmo fato
+  seria um fato em dois contratos. `API-0001` já nomeia `getHandlingTelemetry` como contrato de outra
+  feature e não mudou.
+- Usar `rollingSpeedMps` em módulo como velocidade da situação: não feito; a velocidade dos requisitos é a
+  que a simulação informa, e a telemetria a dá já em módulo (`speedMps`).
+- Feedback a `dirigibilidade` para acrescentar a apresentação das marcas entre quem chama
+  `getHandlingTelemetry`: não enviado; a leitura é pura, não muda o contrato nem a sua sondagem, e nenhum
+  requisito daquela feature precisa mudar.
+- Critério com os 0,08 rad de derrapagem "em condução normal" na pista sintética e definição da derrapagem
+  lateral por fórmula: não especificados, pelos mesmos motivos dos requisitos (changelog deles, rodada 8):
+  são da física da `dirigibilidade`, que esta feature não muda.
+- Marcas desenhadas pelas rodas dianteiras: não especificadas; os requisitos falam só das traseiras.
+- Divergência para o código que ainda desenhe marcas por outra situação (por exemplo, o antigo drift): não
+  registrada; esta etapa não lê a raiz de código (conventions §12), e a etapa de código registra o que o
+  sistema ainda não atende.

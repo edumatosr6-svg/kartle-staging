@@ -2,7 +2,7 @@
 stage: fspec
 feature: modelo-kart-01
 status: validated
-generated: 2026-10-30T12:04:37Z
+generated: 2026-10-30T14:06:27Z
 files: 20
 ---
 
@@ -12,9 +12,9 @@ files: 20
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-overview.md` | - | Visão geral — modelo Kart 01 e câmera de jogo | validated | 1.3.0 |
-| `02-glossary.md` | - | Glossário — modelo Kart 01 e câmera de jogo | validated | 1.3.1 |
-| `97-changelog.md` | - | Registro de mudanças — modelo Kart 01 e câmera de jogo | validated | 1.3.1 |
+| `01-overview.md` | - | Visão geral — modelo Kart 01 e câmera de jogo | validated | 1.4.0 |
+| `02-glossary.md` | - | Glossário — modelo Kart 01 e câmera de jogo | validated | 1.4.0 |
+| `97-changelog.md` | - | Registro de mudanças — modelo Kart 01 e câmera de jogo | validated | 1.4.0 |
 | `98-divergences.md` | - | Divergências — modelo Kart 01 e câmera de jogo | validated | 1.0.0 |
 | `api/API-0001-estado-do-kart-para-exibicao.md` | API-0001 | Contrato do estado do kart para exibição | validated | 1.0.0 |
 | `api/API-0002-relatorio-do-modelo-montado.md` | API-0002 | Contrato do relatório do modelo montado e das verificações de npm test | validated | 1.0.0 |
@@ -23,12 +23,12 @@ files: 20
 | `features/FEAT-0002-kart-reage-aos-comandos.md` | FEAT-0002 | Kart reage aos comandos — rodas, volante, braços, posição e rumo | validated | 1.1.0 |
 | `features/FEAT-0003-camera-de-jogo.md` | FEAT-0003 | Câmera de jogo — visão geral, descida na contagem, pose de corrida e campo de visão | validated | 1.3.0 |
 | `features/FEAT-0004-desempenho-do-kart-01.md` | FEAT-0004 | Desempenho do Kart 01 — taxa de quadros e custo de desenho | validated | 1.0.0 |
-| `features/FEAT-0005-efeitos-presos-ao-kart.md` | FEAT-0005 | Efeitos presos ao kart e posições das rodas da simulação | validated | 2.0.0 |
+| `features/FEAT-0005-efeitos-presos-ao-kart.md` | FEAT-0005 | Efeitos presos ao kart e posições das rodas da simulação | validated | 2.1.0 |
 | `features/FEAT-0006-requisitos-transversais.md` | FEAT-0006 | Requisitos transversais — download, dependências, camada de aplicação e simulação inalterada | validated | 1.0.0 |
-| `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` | FLOW-0001 | Quadro de exibição em corrida com o Kart 01 | validated | 1.3.0 |
+| `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` | FLOW-0001 | Quadro de exibição em corrida com o Kart 01 | validated | 1.4.0 |
 | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` | FLOW-0002 | Largada — visão geral, descida durante a contagem e pose de corrida no sinal verde | validated | 1.3.0 |
 | `flows/FLOW-0003-verificacao-do-modelo-montado.md` | FLOW-0003 | Verificação do modelo montado e da simulação em npm test | validated | 1.0.0 |
 | `rules/RULE-0001-medidas-grupos-e-cores-do-kart-01.md` | RULE-0001 | Medidas, grupos de peça, cores e custo de desenho do Kart 01 | validated | 1.0.0 |
 | `rules/RULE-0002-camera-de-jogo.md` | RULE-0002 | Câmera de jogo — modos, pose de corrida e campo de visão | validated | 1.3.0 |
-| `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` | RULE-0003 | Posição, animação e ancoragem dos efeitos do Kart 01 | validated | 1.1.0 |
-| `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` | SCR-0001 | Cena de jogo com o Kart 01 e a câmera | validated | 1.3.0 |
+| `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` | RULE-0003 | Posição, animação e ancoragem dos efeitos do Kart 01 | validated | 1.2.0 |
+| `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` | SCR-0001 | Cena de jogo com o Kart 01 e a câmera | validated | 1.4.0 |

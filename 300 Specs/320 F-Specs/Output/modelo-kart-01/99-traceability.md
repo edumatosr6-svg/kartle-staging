@@ -1,8 +1,8 @@
 ---
 stage: fspec
 feature: modelo-kart-01
-generated: 2026-10-30T12:04:37Z
-rows: 225
+generated: 2026-10-30T14:06:27Z
+rows: 233
 ---
 
 # Traceability
@@ -177,18 +177,26 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | AC-US-0004-02 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0004-02 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0005-01 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
-| AC-US-0005-01 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-01 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | AC-US-0005-01 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0005-01 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | AC-US-0005-01 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
-| AC-US-0005-04 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-04 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | AC-US-0005-04 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0005-04 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | AC-US-0005-04 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
-| AC-US-0005-05 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-05 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | AC-US-0005-05 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0005-05 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | AC-US-0005-05 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
+| AC-US-0005-06 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-06 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
+| AC-US-0005-06 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
+| AC-US-0005-06 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
+| AC-US-0005-07 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-07 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
+| AC-US-0005-07 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
+| AC-US-0005-07 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | NFR-0001 | FEAT-0004 | REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05 | `features/FEAT-0004-desempenho-do-kart-01.md` |
 | NFR-0002 | FEAT-0006 | REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08 | `features/FEAT-0006-requisitos-transversais.md` |
 | NFR-0003 | FEAT-0006 | REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08 | `features/FEAT-0006-requisitos-transversais.md` |
@@ -206,7 +214,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | NFR-0006 | FEAT-0006 | REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08 | `features/FEAT-0006-requisitos-transversais.md` |
 | NFR-0006 | FLOW-0003 | - | `flows/FLOW-0003-verificacao-do-modelo-montado.md` |
 | NFR-0007 | API-0002 | - | `api/API-0002-relatorio-do-modelo-montado.md` |
-| NFR-0007 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| NFR-0007 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | NFR-0007 | FLOW-0003 | - | `flows/FLOW-0003-verificacao-do-modelo-montado.md` |
 | NFR-0007 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | US-0001 | API-0002 | - | `api/API-0002-relatorio-do-modelo-montado.md` |
@@ -234,7 +242,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | US-0004 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | US-0004 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | US-0005 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
-| US-0005 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| US-0005 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0005-12 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | US-0005 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | US-0005 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | US-0005 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |

@@ -4,18 +4,21 @@ title: Posição, animação e ancoragem dos efeitos do Kart 01
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [US-0002, US-0005, NFR-0007, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0005-01, AC-US-0005-04, AC-US-0005-05]
+version: 1.2.0
+sources: [US-0002, US-0005, NFR-0007, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0005-01, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07]
 ---
 
 # RULE-0003 — Posição, animação e ancoragem dos efeitos do Kart 01
 
 Decide onde o Kart 01 exibido fica em relação ao estado da simulação, como as rodas, o volante e os braços se
-movem, onde as marcas de pneu saem do kart e que efeitos retirados nunca aparecem. Fontes: US-0002
-(`SEED/US-2`, `SEED/RD-01`), US-0005 (`SEED/US-5`, `SEED/RE-03`), NFR-0007, a decisão do dono do produto de
-não alinhar as medidas da física às do modelo (`DOMAIN/DEC-02`), o congelamento só ao fim da volta oficial
-(`DOMAIN/DEC-06`, limitada por `DOMAIN/DEC-07`) e a retirada do drift e do turbo do jogo (`DOMAIN/DEC-07`). A apresentação só mostra o estado que a simulação informa
-([API-0001](../api/API-0001-estado-do-kart-para-exibicao.md)) e não decide nada (I2).
+movem, onde e quando as marcas de pneu saem do kart e que efeitos retirados nunca aparecem. Fontes: US-0002
+(`SEED/US-2`, `SEED/RD-01`), US-0005 (`SEED/US-5` na `revision: 4`, `SEED/RE-03`, `SEED/RD-01`), NFR-0007, a
+decisão do dono do produto de não alinhar as medidas da física às do modelo (`DOMAIN/DEC-02`), o
+congelamento só ao fim da volta oficial (`DOMAIN/DEC-06`, limitada por `DOMAIN/DEC-07`), a retirada do drift
+e do turbo do jogo (`DOMAIN/DEC-07`) e a situação em que as marcas de pneu aparecem sem o drift
+(`DOMAIN/DEC-09`, decisão de 2026-10-30). A apresentação só mostra o estado que a simulação informa
+([API-0001](../api/API-0001-estado-do-kart-para-exibicao.md), `getHandlingTelemetry`, `getLapState`) e não
+decide nada (I2).
 
 ## Posição do kart exibido
 
@@ -58,12 +61,40 @@ e ao longo do rumo a diferença é de no máximo 0,01 m (entre-eixos de 1,04 m c
 
 | Efeito | Onde aparece | Quando | Fonte |
 |---|---|---|---|
-| Marcas de pneu | Cada trecho novo, no chão, na posição traseira de `wheelPositions` do lado correspondente, levada pela posição e pelo rumo do kart; aparece sob o pneu traseiro exibido do mesmo lado | Nas situações em que o jogo já desenha marcas, inclusive depois do fim de uma volta de treino; nenhum trecho novo enquanto a simulação está suspensa ou parada depois do fim da volta oficial | AC-US-0005-01; NFR-0007 (`SEED/RE-03`); US-0005, casos anormais "Pausa", "Fim da volta oficial" e "Fim de uma volta de treino" |
+| Marcas de pneu | Cada trecho novo, no chão, na posição traseira de `wheelPositions` do lado correspondente, levada pela posição e pelo rumo do kart; aparece sob o pneu traseiro exibido do mesmo lado | Só nos quadros em que a situação de marca de pneu vale (tabela abaixo), inclusive depois do fim de uma volta de treino; nenhum trecho novo enquanto a simulação está suspensa ou parada depois do fim da volta oficial | AC-US-0005-01, AC-US-0005-06, AC-US-0005-07; NFR-0007 (`SEED/RE-03`); US-0005, casos anormais "Pausa", "Fim da volta oficial" e "Fim de uma volta de treino" |
 
-Esta regra muda onde a marca aparece, não quando: nenhuma situação é acrescentada nem retirada (US-0005,
-Pré-condições). As marcas continuam vindo de `wheelPositions`, nunca das rodas do modelo; se a diferença de
-0,03 m puser uma marca fora do pneu exibido, o critério 01 de US-0005 falha e a decisão volta ao dono do
-produto, sem mudar `wheelPositions` nem as medidas do modelo nesta feature (`DOMAIN/DEC-02`).
+As marcas continuam vindo de `wheelPositions`, nunca das rodas do modelo; se a diferença de 0,03 m puser uma
+marca fora do pneu exibido, os critérios 01 e 06 de US-0005 falham e a decisão volta ao dono do produto, sem
+mudar `wheelPositions` nem as medidas do modelo nesta feature (`DOMAIN/DEC-02`).
+
+## Tabela de decisão — trecho novo de marca de pneu
+
+A situação de marca de pneu é a do segundo critério de `SEED/US-5` (`revision: 4`) e de `DOMAIN/DEC-09`: o
+kart escorrega de lado com a volta em andamento, a mais de 6 m/s e com derrapagem lateral acima de
+0,055 rad. Sem o drift, é a única situação; nenhuma outra é acrescentada (US-0005, caso anormal "Efeito sem
+a situação que o dispara"). Ela é decidida uma vez por quadro, com os valores do estado do último passo de
+`STEP` concluído antes do quadro: `simStepCount` de `getKartPose`, `lapPhase` de `getLapState`
+(`race-lap-validation`) e `speedMps` e `sideslipRad` de `getHandlingTelemetry` (`dirigibilidade`), todos
+nomeados e não redefinidos. `sideslipRad` já vem em módulo, então a derrapagem para os dois lados é
+comparada ao mesmo limite; os limites são estritos. Nenhum valor é calculado a partir do modelo exibido nem
+estimado entre passos (`SEED/RD-01`).
+
+| `simStepCount` em relação ao quadro anterior | `lapPhase` | `speedMps` | `sideslipRad` | Trecho novo sob cada pneu traseiro | Fonte |
+|---|---|---|---|---|---|
+| maior | `RUNNING` | maior que 6 | maior que 0,055 | sim, um sob cada pneu traseiro | AC-US-0005-06 |
+| maior | `RUNNING` | 6 ou menos (inclusive exatamente 6) | qualquer | não | AC-US-0005-07; caso anormal "Valores no limite" |
+| maior | `RUNNING` | qualquer | 0,055 ou menos (inclusive exatamente 0,055) | não | AC-US-0005-07; casos anormais "Valores no limite" e "Derrapagem para o outro lado" |
+| qualquer | `COUNTDOWN` ou `NO_ACTIVE_LAP` (antes da largada) | qualquer | qualquer | não | AC-US-0005-07; caso anormal "Antes da largada" |
+| igual | `PAUSED` (pausa, perda de foco, perda do sensor) | qualquer, inclusive acima de 6 no último estado | qualquer, inclusive acima de 0,055 no último estado | não | AC-US-0005-07; caso anormal "Pausa" |
+| igual | `ENDED` da volta oficial (simulação parada, kart congelado) | o do estado congelado | o do estado congelado | não | AC-US-0005-07; caso anormal "Fim da volta oficial" (`DOMAIN/DEC-06`) |
+| qualquer | qualquer valor diferente de `RUNNING` | qualquer | qualquer | não | AC-US-0005-07 |
+| igual | qualquer | qualquer | qualquer | não | AC-US-0005-07 |
+| qualquer | qualquer | `getHandlingTelemetry` sem estado (`NO_STATE`) | — | não; nada é estimado | AC-US-0005-07 |
+
+No treino, o fim de uma volta não muda a tabela: as voltas são seguidas, o kart não congela e a situação
+continua sendo lida a cada quadro (`DOMAIN/DEC-07`; caso anormal "Fim de uma volta de treino"). Nenhum
+comando do Jogador entra na tabela: tecla, toque ou inclinação só mudam o que a simulação informa
+(caso anormal "Comando que antes acionava o drift ou o turbo").
 
 ## Efeitos retirados — tabela de decisão
 
@@ -81,5 +112,5 @@ Nenhum estado da simulação, da volta ou do controle religa esses efeitos.
 | Estado de exibição | Avança quando | Idempotência e contador |
 |---|---|---|
 | Giro acumulado de cada roda | `simStepCount` avança | Contador de sequência: `simStepCount`; o mesmo passo nunca é aplicado duas vezes; quadro sem passo novo não gira |
-| Trechos de marca já desenhados | Um trecho novo por avanço de `simStepCount` em que o jogo desenha marcas; `simStepCount` não avança depois do fim da volta oficial e continua avançando no treino | Contador: `simStepCount`; o mesmo passo não desenha um segundo trecho; um reposicionamento não move os trechos já desenhados |
+| Trechos de marca já desenhados | Um trecho novo sob cada pneu traseiro por quadro em que `simStepCount` avançou e a situação de marca de pneu vale; `simStepCount` não avança depois do fim da volta oficial e continua avançando no treino | Contador: `simStepCount`; o mesmo `simStepCount` não desenha um segundo trecho; ler de novo o mesmo estado não desenha nada; um reposicionamento não move os trechos já desenhados |
 | Indicação de drift e fumaça ou chama de turbo | Nunca: não são exibidas | Sem estado nem contador; nenhum quadro as desenha |

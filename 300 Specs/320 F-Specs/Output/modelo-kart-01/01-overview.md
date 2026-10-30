@@ -3,7 +3,7 @@ title: Visão geral — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.3.0
+version: 1.4.0
 sources: []
 ---
 
@@ -17,8 +17,8 @@ peças e cores, a sombra, a animação que mostra o estado da simulação, a câ
 visão geral antes da largada e a descida durante a contagem, as marcas de pneu presas ao kart, a ausência
 dos efeitos de drift e de turbo, e o custo de desenho e de taxa de quadros. A base é o conjunto de requisitos validado em
 `200 Requirements/230 Output/modelo-kart-01/` (US-0001 a US-0005, NFR-0001 a NFR-0007), que já carrega as
-decisões do dono do produto de 2026-10-22 e de 2026-10-29 (`DOMAIN/DEC-00` a `DOMAIN/DEC-08`, rótulos
-definidos em `01-context.md` daquele conjunto) e o seed `revision: 3`: o código do Cowork é a fonte do modelo e a ficha é a referência para
+decisões do dono do produto de 2026-10-22, de 2026-10-29 e de 2026-10-30 (`DOMAIN/DEC-00` a
+`DOMAIN/DEC-09`, rótulos definidos em `01-context.md` daquele conjunto) e o seed `revision: 4`: o código do Cowork é a fonte do modelo e a ficha é a referência para
 conferir; no máximo 30 chamadas de desenho do kart com o piloto, agrupando por material sem mudar a forma;
 as medidas da física não são alinhadas ao modelo nesta feature; em retrato, campo de visão horizontal de
 pelo menos 60°; antes da largada a câmera mostra a pista do alto e desce para trás do piloto durante a
@@ -31,7 +31,10 @@ o kart não congela ao fim de uma volta e a câmera continua na pose de corrida 
 movimento (`DOMAIN/DEC-07`, via AC-US-0003-14); o drift e o turbo saíram do jogo (`dirigibilidade` revisão
 4): com o Kart 01 não há indicação de drift nem fumaça ou chama de turbo, e as marcas de pneu continuam
 (`DOMAIN/DEC-07`, via AC-US-0005-01, AC-US-0005-04 e AC-US-0005-05; critérios 02 e 03 de US-0005
-retirados); a câmera de corrida tem só o campo de visão de base, sem efeito de turbo (`DOMAIN/DEC-08`, via
+retirados); sem o drift, um trecho novo de marca de pneu aparece só quando o kart escorrega de lado — passo
+novo da simulação, volta em andamento, velocidade acima de 6 m/s e derrapagem lateral acima de 0,055 rad,
+lidas da volta e da telemetria da simulação, nunca calculadas pela apresentação (`DOMAIN/DEC-09`, via
+AC-US-0005-06 e AC-US-0005-07); a câmera de corrida tem só o campo de visão de base, sem efeito de turbo (`DOMAIN/DEC-08`, via
 AC-US-0003-04 a AC-US-0003-06; critério 09 de US-0003 retirado). Nenhum requisito de pilotagem existe
 nesta feature.
 
