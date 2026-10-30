@@ -1,7 +1,7 @@
 ---
 name: modelo-kart-01
 description: Troca o kart provisório da cena pelo modelo Kart 01 (low-poly, escala real, peças nomeadas, piloto) e a câmera de perseguição alta pela câmera de jogo da ficha, atrás e perto do piloto. Ler antes de qualquer mudança no modelo do kart, no piloto, na câmera de corrida ou nos efeitos presos ao kart.
-revision: 3
+revision: 4
 date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
@@ -58,6 +58,8 @@ modelo, e a ficha é a referência para conferir o resultado.
     celular intermediário.
 - **US-5** Como Jogador, quero que os efeitos que já existem continuem presos ao kart.
   - As marcas de pneu continuam aparecendo nas posições das rodas traseiras do Kart 01.
+  - Elas aparecem quando o kart escorrega de lado: com a volta em andamento, a mais de 6 m/s e com a
+    derrapagem lateral informada pela simulação acima de 0,055 rad. Sem drift, essa é a única situação.
   - Não há indicação de drift nem fumaça ou chama de turbo: o drift e o turbo foram retirados do jogo
     (`dirigibilidade`, 2026-10-29).
 

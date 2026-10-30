@@ -33,3 +33,8 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
 - 2026-10-29 — **Sem efeito de turbo na câmera (Eduardo Matos, "aproveita tira o turbo + drift"):** o efeito de campo de visão só existe com o turbo, que o dono do produto mandou tirar; com o turbo
   retirado, o critério de US-3 "o efeito de campo de visão do turbo continua funcionando" sai do seed
   (rev 3). A câmera de corrida tem só o campo de visão base (62°, e a regra de retrato).
+- 2026-10-30 — **Marcas de pneu sem drift (Eduardo Matos):** perguntado "sem o drift, quando o kart deve deixar
+  marcas de pneu?", o dono do produto escolheu **"quando escorregar"**: a marca aparece com a volta em
+  andamento, a mais de 6 m/s e com derrapagem lateral (telemetria da simulação) acima de 0,055 rad — os dois
+  limites que já existiam, sem o termo do drift. Com o acerto C, a derrapagem lateral chega a 0,08 rad em
+  condução normal na pista sintética, então as marcas aparecem nas curvas mais fortes (seed rev 4, US-5).
