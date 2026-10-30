@@ -30,6 +30,6 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   congela, como hoje") passa a valer só para a volta oficial. O drift e o turbo saíram do jogo
   (`dirigibilidade` rev 4), então a indicação de drift e a fumaça do escapamento ligada ao turbo deixam de
   existir; as marcas de pneu continuam.
-- 2026-10-29 — **Sem efeito de turbo na câmera (condutor, consequência da decisão acima):** com o turbo
+- 2026-10-29 — **Sem efeito de turbo na câmera (Eduardo Matos, "aproveita tira o turbo + drift"):** o efeito de campo de visão só existe com o turbo, que o dono do produto mandou tirar; com o turbo
   retirado, o critério de US-3 "o efeito de campo de visão do turbo continua funcionando" sai do seed
   (rev 3). A câmera de corrida tem só o campo de visão base (62°, e a regra de retrato).
