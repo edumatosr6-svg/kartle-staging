@@ -3,7 +3,7 @@ title: Glossário — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.2.0
+version: 1.4.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -32,7 +32,9 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Rumo | Direção para onde aponta a frente do kart, tal como a simulação informa; o sentido de marcha para a frente | ambos |
 | Ângulo de esterço | Ângulo das rodas dianteiras em relação ao chassi que a simulação informa para cada quadro | ambos |
 | Quadro | Uma imagem exibida na tela | ambos |
-| Em corrida | Do sinal verde até a próxima visão geral da pista. Não termina quando a volta acaba (fim da volta, `ENDED`), válida ou invalidada, inclusive por reposicionamento, nem quando o painel de resultado aparece; depois do fim da volta, com o painel de resultado exibido, a simulação está parada e o kart congelado, como hoje, e só a câmera continua na pose de corrida em relação ao kart parado, até a próxima visão geral (`DOMAIN/DEC-06`, decisão corrigida em 2026-10-22). Nenhum requisito de pilotagem depois do fim da volta existe nesta feature | ambos |
+| Em corrida | Do sinal verde até a próxima visão geral da pista. Não termina quando uma volta acaba, válida ou invalidada, inclusive por reposicionamento, nem quando o painel de resultado aparece. Na volta oficial, depois do fim da volta (`ENDED`), com o painel de resultado exibido, a simulação está parada e o kart congelado, como hoje, e a câmera continua na pose de corrida em relação ao kart parado, até a próxima visão geral (`DOMAIN/DEC-06`). No treino, as voltas são seguidas: no fim de uma volta o kart não congela, continua pilotável, e a câmera continua na pose de corrida em relação a ele (`DOMAIN/DEC-07`). O congelamento e a continuidade das voltas são de `race-lap-validation`; esta feature não cria requisito de pilotagem | ambos |
+| Volta oficial | Volta que, ao terminar (`ENDED`), válida ou invalidada, para a simulação e congela o kart, como hoje (invariante INV-1 de `race-lap-validation`); é a única volta em que o congelamento vale (`DOMAIN/DEC-07`) | ambos |
+| Treino | Modo de jogo em que as voltas são seguidas (`race-lap-validation` revisão 3, US-10): no fim de uma volta, válida ou invalidada, o kart não congela, continua pilotável, e a câmera continua atrás do piloto (`DOMAIN/DEC-07`) | ambos |
 | Câmera de corrida | Câmera de jogo da ficha, usada em corrida: 1,38 m acima do chão, 3,05 m atrás do kart, mirando um ponto 3,2 m à frente do kart e 0,30 m acima do chão (`SEED/US-3`) | ambos |
 | Pose de corrida | Posição e ponto de mira da câmera de corrida em relação ao kart exibido | ambos |
 | Chão | O plano da pista, sem elevação (I10) | ambos |
@@ -40,15 +42,15 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Paisagem | Área de jogo mais larga que alta ou tão larga quanto alta | ambos |
 | Retrato | Área de jogo mais alta que larga; em `web-desktop`, uma janela mais alta que larga também é retrato | ambos |
 | Corte | Quadro em que a câmera deixa a pose de corrida em relação ao kart exibido, passando a outro ponto de vista | ambos |
-| Visão geral da pista | Vista do alto em que a pista aparece inteira no quadro; é a vista antes da contagem regressiva, e existe só antes dela: não volta no fim da volta nem com o painel de resultado exibido (`SEED.md`, ponto aberto 04; `DOMAIN/DEC-04`; `DOMAIN/DEC-06`) | ambos |
+| Visão geral da pista | Vista do alto em que a pista aparece inteira no quadro; é a vista antes da contagem regressiva, e existe só antes dela: não volta no fim de uma volta, oficial ou de treino, nem com o painel de resultado exibido (`SEED.md`, ponto aberto 04; `DOMAIN/DEC-04`; `DOMAIN/DEC-06`; `DOMAIN/DEC-07`) | ambos |
 | Contagem regressiva | Contagem exibida antes da largada, que termina no sinal verde; já existe no jogo | ambos |
 | Sinal verde | Fim da contagem regressiva e início da corrida | ambos |
-| Fim da volta (`ENDED`) | Momento em que a volta termina, válida ou invalidada, inclusive por reposicionamento; a partir dele a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); já existe no jogo, e esta feature não o muda (`SEED/RE-01`; `DOMAIN/DEC-06`) | ambos |
-| Painel de resultado | Painel exibido na tela quando a volta termina, sobre a cena com a simulação parada e o kart congelado; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele (`DOMAIN/DEC-06`) | ambos |
-| Efeito de turbo no campo de visão | Variação do campo de visão vertical aplicada enquanto o turbo está ativo; já existe no jogo e continua a partir da nova base de campo de visão vertical (`SEED/US-3`) | ambos |
+| Fim da volta | Momento em que uma volta termina, válida ou invalidada, inclusive por reposicionamento. Na volta oficial é o estado `ENDED`: a partir dele a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`; `DOMAIN/DEC-06`). No treino, o kart não congela e as voltas são seguidas (`DOMAIN/DEC-07`). Já existe no jogo, e esta feature não o muda (`SEED/RE-01`) | ambos |
+| Painel de resultado | Painel exibido na tela quando a volta oficial termina, sobre a cena com a simulação parada e o kart congelado; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele (`DOMAIN/DEC-06`) | ambos |
+| Efeito de turbo no campo de visão | Variação do campo de visão vertical que o jogo aplicava enquanto o turbo estava ativo; deixou de existir com a retirada do turbo: a câmera de corrida tem só o campo de visão base, 62° em paisagem e a regra de retrato (`SEED/US-3` na `revision: 3`; `DOMAIN/DEC-07`; `DOMAIN/DEC-08`; US-0003, critérios 04 a 06) | ambos |
 | Marcas de pneu | Rastros deixados no chão pelas rodas traseiras | ambos |
-| Fumaça do escapamento | Fumaça exibida saindo do escapamento do kart | ambos |
-| Indicação de drift | Efeito visual exibido junto às rodas traseiras durante o drift | ambos |
+| Fumaça ou chama de turbo | Fumaça ou chama que o jogo exibia saindo do escapamento do kart, ligada ao turbo; deixou de existir com a retirada do turbo (`dirigibilidade` revisão 4; `SEED/US-5`, segundo critério; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01 (US-0005) | ambos |
+| Indicação de drift | Efeito visual que o jogo exibia junto às rodas traseiras durante o drift; deixou de existir com a retirada do drift (`dirigibilidade` revisão 4; `SEED/US-5`, segundo critério; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01 (US-0005) | ambos |
 | `wheelPositions` | Posições das rodas que a simulação informa e usa para marcas de pneu e telemetria; contrato da simulação, citado da seção Restrições do seed (`SEED/RE-03`) | ambos |
 | Sombra do kart | Sombra que o kart exibido projeta no chão (`DOMAIN/DEC-05`) | ambos |
 | Taxa de quadros | Quadros exibidos por segundo (fps), contados a cada segundo | ambos |

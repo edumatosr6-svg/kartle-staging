@@ -3,7 +3,7 @@ title: Contexto — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.2.0
+version: 1.4.1
 sources: [SEED, DOMAIN]
 ---
 
@@ -24,7 +24,7 @@ define medidas, peças, cores, piloto e câmera de jogo (`SEED/RD-04`); o códig
 escrito no chat do Cowork, está salvo sem alteração em `docs/kart-01/kart.js` e é a fonte do modelo,
 enquanto a ficha é a referência para conferir o resultado (`SEED/RD-05`, `DOMAIN/DEC-00`).
 
-Seed: `200 Requirements/220 Input/modelo-kart-01/SEED.md`, `revision: 1`, `date: 2026-10-22`, autor
+Seed: `200 Requirements/220 Input/modelo-kart-01/SEED.md`, `revision: 3`, `date: 2026-10-29`, autor
 `eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de 2026-10-22
 fecham todos os pontos em aberto do seed (01 a 05) e prevalecem sobre eles; uma sexta decisão da mesma
 data, tomada depois da parada do F-Spec, fixa o que a câmera faz depois do fim da volta
@@ -32,7 +32,15 @@ data, tomada depois da parada do F-Spec, fixa o que a câmera faz depois do fim 
 do D-Spec: a frase "o kart continua pilotável" não vale; quando a volta termina (`ENDED`) e o painel de
 resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de
 `race-lap-validation`), e a decisão descreve só a câmera. O rótulo `DOMAIN/DEC-06` carrega a decisão já
-corrigida. Este conjunto usa só os valores dessas decisões.
+corrigida. Uma sétima decisão, de 2026-10-29 (`DOMAIN/DEC-07`), limita esse congelamento à volta oficial:
+no treino as voltas são seguidas (`race-lap-validation` revisão 3, US-10), o kart não congela ao fim de
+uma volta de treino, continua pilotável e a câmera continua atrás do piloto; e registra que o drift e o
+turbo saíram do jogo (`dirigibilidade` revisão 4), então a indicação de drift e a fumaça do escapamento
+ligada ao turbo deixam de existir e as marcas de pneu continuam. O seed `revision: 2` muda a quinta
+história na mesma linha. Uma oitava decisão, da mesma data (`DOMAIN/DEC-08`), tira a consequência para a
+câmera: sem turbo, não há efeito de turbo no campo de visão, e a câmera de corrida tem só o campo de visão
+base (62° e a regra de retrato); o seed `revision: 3` tira da terceira história o critério desse efeito.
+Este conjunto usa só os valores dessas decisões.
 
 ## Atores e canais
 
@@ -86,7 +94,9 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-03` | Ponto aberto 03 fechado: em retrato, o campo de visão horizontal é de pelo menos 60°, então o vertical cresce em retrato; em paisagem, o vertical é de 62° |
 | `DOMAIN/DEC-04` | Ponto aberto 04 fechado: antes da largada, a câmera mostra a pista do alto e desce para trás do piloto durante a contagem regressiva; no sinal verde, ela já está na posição de corrida |
 | `DOMAIN/DEC-05` | Ponto aberto 05 fechado: o kart projeta sombra no chão |
-| `DOMAIN/DEC-06` | Câmera depois do fim da volta (decisão de 2026-10-22, após parada do F-Spec, corrigida na mesma data após feedback do D-Spec): quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel de resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); a decisão descreve só a câmera: ela continua atrás do piloto, na pose de corrida, com o kart parado, até a próxima visão geral (antes da contagem da volta seguinte); a visão geral do alto existe só antes da contagem regressiva; "em corrida", para a câmera, vai do sinal verde até a próxima visão geral, sem terminar em `ENDED`; a frase "o kart continua pilotável" da redação original não vale, nenhum requisito de pilotagem depois de `ENDED` existe nesta feature e nada muda em `race-lap-validation` |
+| `DOMAIN/DEC-06` | Câmera depois do fim da volta (decisão de 2026-10-22, após parada do F-Spec, corrigida na mesma data após feedback do D-Spec): quando a volta termina (`ENDED`), válida ou invalidada, inclusive por reposicionamento, e o painel de resultado aparece, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); a decisão descreve só a câmera: ela continua atrás do piloto, na pose de corrida, com o kart parado, até a próxima visão geral (antes da contagem da volta seguinte); a visão geral do alto existe só antes da contagem regressiva; "em corrida", para a câmera, vai do sinal verde até a próxima visão geral, sem terminar em `ENDED`; a frase "o kart continua pilotável" da redação original não vale, nenhum requisito de pilotagem depois de `ENDED` existe nesta feature e nada muda em `race-lap-validation`; desde `DOMAIN/DEC-07`, o congelamento vale só para a volta oficial |
+| `DOMAIN/DEC-07` | Treino contínuo e fim do drift e do turbo (decisão de 2026-10-29, Eduardo Matos): no treino as voltas são seguidas (`race-lap-validation` revisão 3, US-10), então o kart não congela ao fim de uma volta de treino, continua pilotável e a câmera continua atrás do piloto; o congelamento de `DOMAIN/DEC-06` passa a valer só para a volta oficial; o drift e o turbo saíram do jogo (`dirigibilidade` revisão 4), então a indicação de drift e a fumaça do escapamento ligada ao turbo deixam de existir; as marcas de pneu continuam |
+| `DOMAIN/DEC-08` | Sem efeito de turbo na câmera (decisão de 2026-10-29, registrada em `DOMAIN.md` como consequência de `DOMAIN/DEC-07`): com o turbo retirado, o critério da terceira história "o efeito de campo de visão do turbo continua funcionando" sai do seed (`revision: 3`); a câmera de corrida tem só o campo de visão base, 62° e a regra de retrato |
 
 ## Decisões de domínio aplicadas
 
@@ -98,7 +108,9 @@ rótulo aos itens deste conjunto.
 | `DOMAIN/DEC-03` | US-0003 (campo de visão em paisagem e em retrato) |
 | `DOMAIN/DEC-04` | US-0003 (visão geral antes da contagem, descida durante a contagem, pose de corrida no sinal verde) |
 | `DOMAIN/DEC-05` | US-0001 (sombra do kart), US-0004 e NFR-0001 (taxa de quadros medida com a sombra) |
-| `DOMAIN/DEC-06` | US-0003 (pose de corrida mantida depois do fim da volta, em relação ao kart parado, com a simulação parada e o painel de resultado exibido, até a próxima visão geral); os termos "Em corrida", "Fim da volta (`ENDED`)" e "Painel de resultado" do glossário — "Em corrida" é o termo que os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam |
+| `DOMAIN/DEC-06` | US-0003 (critério 13: pose de corrida mantida depois do fim da volta oficial, em relação ao kart parado, com a simulação parada e o painel de resultado exibido, até a próxima visão geral); US-0002 e US-0005 (caso anormal "Fim da volta oficial"); os termos "Em corrida", "Fim da volta", "Volta oficial" e "Painel de resultado" do glossário — "Em corrida" é o termo que os critérios de US-0002, US-0004, US-0005 e NFR-0001 usam |
+| `DOMAIN/DEC-07` | US-0003 (critério 13 limitado à volta oficial; critério 14: pose de corrida mantida no treino, em relação ao kart em movimento); US-0005 (critérios 04 e 05: sem indicação de drift nem fumaça ou chama de turbo; critérios 02 e 03 retirados); US-0002 e US-0005 (caso anormal "Fim de uma volta de treino"); os termos "Em corrida", "Treino", "Volta oficial", "Fim da volta", "Indicação de drift" e "Fumaça ou chama de turbo" do glossário |
+| `DOMAIN/DEC-08` | US-0003 (critérios 04 a 06: só o campo de visão base, em todos os quadros; critério 09 retirado; caso anormal "Comando que antes acionava o turbo"); o termo "Efeito de turbo no campo de visão" do glossário |
 
 Não resta ponto em aberto neste conjunto.
 
@@ -110,9 +122,10 @@ Esta feature redefine dois comportamentos que o Jogador vê hoje e mantém um te
 |---|---|---|
 | Kart provisório: volume de caixas, maior que um kart real | Retirado. Todo kart exibido é o Kart 01 | US-0001 |
 | Câmera de perseguição alta e distante durante a corrida | Retirada em corrida. Substituída pela câmera de jogo da ficha, atrás e perto do piloto | US-0003 |
-| Câmera inicial alta, vendo a pista toda | Mantida só antes da contagem regressiva; durante a contagem, desce até a posição de corrida (`DOMAIN/DEC-04`); não volta no fim da volta nem com o painel de resultado exibido (`DOMAIN/DEC-06`) | US-0003 |
-| Efeito de campo de visão do turbo | Mantido, aplicado a partir da nova base de campo de visão vertical | US-0003 |
-| Marcas de pneu, fumaça do escapamento e indicação de drift | Mantidos, nas posições das rodas traseiras e do escapamento do Kart 01 | US-0005 |
+| Câmera inicial alta, vendo a pista toda | Mantida só antes da contagem regressiva; durante a contagem, desce até a posição de corrida (`DOMAIN/DEC-04`); não volta no fim da volta oficial nem com o painel de resultado exibido (`DOMAIN/DEC-06`), nem no fim de uma volta de treino (`DOMAIN/DEC-07`) | US-0003 |
+| Efeito de campo de visão do turbo | Não existe mais: o turbo saiu do jogo, e a câmera de corrida tem só o campo de visão base (`SEED/US-3` na `revision: 3`, `DOMAIN/DEC-07`, `DOMAIN/DEC-08`) | US-0003 |
+| Marcas de pneu | Mantidas, nas posições das rodas traseiras do Kart 01 | US-0005 |
+| Fumaça ou chama de turbo e indicação de drift | Não aparecem com o Kart 01: o drift e o turbo saíram do jogo pela `dirigibilidade` (revisão 4), não por esta feature (`SEED/US-5`, `DOMAIN/DEC-07`) | US-0005 |
 
 ## Padrão seguro
 
@@ -139,13 +152,17 @@ abandono muda estado de domínio por causa desta feature.
 - **`dirigibilidade`.** A física e os presets são dessa feature (`SEED/RE-01`). As medidas da simulação
   (entre-eixos de 1,04 m e bitola de 1,20 m) diferem das do modelo (entre-eixos de 1,05 m; bitolas de
   1,00 m na frente e 1,14 m atrás), e o dono do produto decidiu não alinhá-las nesta feature
-  (`DOMAIN/DEC-02`): o alinhamento, se vier, é decisão da `dirigibilidade`, depois dela. Nenhum feedback é
-  enviado: nenhum requisito daquela feature precisa mudar.
+  (`DOMAIN/DEC-02`): o alinhamento, se vier, é decisão da `dirigibilidade`, depois dela. A `dirigibilidade`
+  (revisão 4) retirou o drift e o turbo do jogo; esta feature só garante que o Kart 01 não exibe os
+  efeitos deles (`SEED/US-5`, `DOMAIN/DEC-07`). Nenhum feedback é enviado: nenhum requisito daquela feature
+  precisa mudar.
 - **`race-lap-validation`.** Esta feature usa a contagem regressiva e o sinal verde que já existem, só para
-  posicionar a câmera (`DOMAIN/DEC-04`), e o fim da volta (`ENDED`) e o painel de resultado que já existem,
-  só para manter a câmera na pose de corrida em relação ao kart parado (`DOMAIN/DEC-06`); ao fim da volta a
-  simulação para e o kart congela, como hoje (invariante INV-1 daquela feature), e nada muda nela: nem a
-  validação de volta (`SEED/RE-01`) nem o congelamento. Nenhum feedback é enviado.
+  posicionar a câmera (`DOMAIN/DEC-04`), e o fim da volta que já existe, só para manter a câmera na pose de
+  corrida: na volta oficial, em relação ao kart parado, com o painel de resultado exibido (`DOMAIN/DEC-06`);
+  no treino, cujas voltas são seguidas (revisão 3, US-10), em relação ao kart que continua pilotável
+  (`DOMAIN/DEC-07`). Ao fim da volta oficial a simulação para e o kart congela, como hoje (invariante INV-1
+  daquela feature), e nada muda nela: nem a validação de volta (`SEED/RE-01`), nem o congelamento, nem o
+  treino contínuo. Nenhum feedback é enviado.
 - **`pista-kart-park`.** Novas pistas e cenário estão fora do escopo (`SEED/FE-04`); o Kart 01 e a câmera
   valem em qualquer pista em jogo.
 

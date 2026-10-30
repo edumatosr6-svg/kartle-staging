@@ -4,8 +4,8 @@ title: Kart reage aos comandos
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.1.0
-sources: [SEED/US-2, SEED/RD-01, SEED/IM-I2, DOMAIN/DEC-01]
+version: 1.2.1
+sources: [SEED/US-2, SEED/RD-01, SEED/IM-I2, DOMAIN/DEC-01, DOMAIN/DEC-06, DOMAIN/DEC-07]
 ---
 
 # US-0002 — Kart reage aos comandos
@@ -58,6 +58,11 @@ Como Jogador, quero que o kart reaja ao que faço, para ver o efeito dos meus co
 - **Reposicionamento do kart**: no primeiro quadro depois do reposicionamento, o kart exibido está na nova
   posição e no novo rumo que a simulação informa (critérios 05 e 06); nenhum quadro mostra o kart numa
   posição intermediária que a simulação não informou.
+- **Fim da volta oficial**: a simulação para e o kart congela, como hoje (invariante INV-1 de
+  `race-lap-validation`, que esta feature não muda; `DOMAIN/DEC-06`); o kart exibido fica na última posição, rumo e esterço
+  informados, e as rodas não giram (critérios 01 a 06 sobre o estado parado que a simulação informa).
+- **Fim de uma volta de treino**: as voltas são seguidas e o kart não congela (`DOMAIN/DEC-07`); os
+  critérios 01 a 06 continuam valendo em todos os quadros, sem interrupção por causa do fim da volta.
 - **Derrapagem, travamento ou patinação das rodas**: as rodas exibidas continuam girando à taxa de rolamento
   na velocidade do kart; o seed pede rotação de acordo com a velocidade do kart, não rotação por roda com
   escorregamento.
@@ -76,6 +81,11 @@ Como Jogador, quero que o kart reaja ao que faço, para ver o efeito dos meus co
   posição e rumo).
 - `SEED/RD-01`, `SEED/IM-I2` — a renderização mostra o estado da simulação e não decide nada.
 - `DOMAIN/DEC-01` — rodas, volante e braços continuam animáveis depois do agrupamento por material.
+- `DOMAIN/DEC-06` — ao fim da volta (`ENDED`) a simulação para e o kart congela, como hoje (invariante
+  INV-1 de `race-lap-validation`), na redação corrigida em 2026-10-22 (caso anormal "Fim da volta
+  oficial").
+- `DOMAIN/DEC-07` — no treino o kart não congela ao fim de uma volta; o congelamento vale só para a volta
+  oficial (casos anormais "Fim da volta oficial" e "Fim de uma volta de treino").
 
 ## Pontos em aberto
 

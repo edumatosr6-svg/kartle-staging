@@ -3,7 +3,7 @@ title: Changelog — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: req
 status: validated
-version: 1.3.0
+version: 1.6.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -263,3 +263,147 @@ fechados por `DOMAIN.md`.
   Mode B (§16) e um requisito que a correção do dono do produto diz não existir nesta feature.
 - Entradas das rodadas 1 a 3 deste changelog que citam "o kart continua pilotável": não reescritas; são
   o registro histórico do que cada rodada fez com a redação de `DOMAIN.md` então vigente.
+
+## 2026-10-29 — rodada 5, Mode A (seed `revision: 2` e decisão de 2026-10-29 em `DOMAIN.md`)
+
+**O que mudou**
+
+- Origem: o seed passou a `revision: 2` (`date: 2026-10-29`). Comparado ao que este conjunto cobria, mudou
+  só a quinta história (`SEED/US-5`): as marcas de pneu continuam, e não há indicação de drift nem fumaça
+  ou chama de turbo, porque o drift e o turbo foram retirados do jogo (`dirigibilidade` revisão 4). Em
+  `DOMAIN.md` entrou a decisão de 2026-10-29 (Eduardo Matos), rotulada `DOMAIN/DEC-07` na chave de
+  `01-context.md`: no treino as voltas são seguidas (`race-lap-validation` revisão 3, US-10), o kart não
+  congela ao fim de uma volta de treino e a câmera continua atrás do piloto; o congelamento de
+  `DOMAIN/DEC-06` vale só para a volta oficial. Histórias 1 a 4, regras de domínio, NFRs, restrições,
+  impacto no domínio e fora do escopo do seed não mudaram: US-0001, US-0004, NFR-0001 a NFR-0007 e
+  `98-divergences.md` foram reaproveitados sem edição e mantêm versão e estado.
+- US-0005 (2.0.0): critério 01 (marcas de pneu) mantido. Os critérios 02 (fumaça do escapamento no Kart 01)
+  e 03 (indicação de drift no Kart 01) foram retirados, marcados como retirados no próprio arquivo, sem
+  reaproveitar os números (conventions §4); a retirada é a do próprio seed `revision: 2` e de
+  `DOMAIN/DEC-07`, escritos pelo autor, que é a aprovação humana que §17 exige para remover uma
+  verificação. Entraram AC-US-0005-04 (nenhum quadro mostra a indicação de drift) e AC-US-0005-05 (nenhum
+  quadro mostra fumaça ou chama de turbo no escapamento), do segundo critério de `SEED/US-5`. História
+  (valor), canais, pré-condições, casos anormais (retirados os que falavam de fumaça e drift; novos "Fim
+  da volta oficial", "Fim de uma volta de treino" e "Comando que antes acionava o drift ou o turbo") e
+  fontes reescritos; `sources:` ganhou `DOMAIN/DEC-07`.
+- US-0003 (1.3.0): AC-US-0003-13 passou a valer para a volta oficial, com o kart parado (`DOMAIN/DEC-06`
+  limitada por `DOMAIN/DEC-07`); a pose da câmera que ele exige não mudou. Entrou AC-US-0003-14: no treino,
+  do fim de uma volta até a próxima visão geral, a câmera fica na pose de corrida em relação ao kart em
+  movimento, sem voltar à visão geral. Mesmo fato levado à seção Canais, às pré-condições, aos casos
+  anormais "Reposicionamento do kart em corrida", "Fim da volta oficial" (renomeado) e "Fim de uma volta de
+  treino" (novo), às fontes e aos pontos em aberto; `sources:` ganhou `DOMAIN/DEC-07`.
+- US-0002 (1.2.0): nenhum critério mudou; entraram os casos anormais "Fim da volta oficial" (kart congelado,
+  modelo mostra o estado parado) e "Fim de uma volta de treino" (critérios 01 a 06 continuam valendo);
+  `sources:` e fontes ganharam `DOMAIN/DEC-07`.
+- `02-glossary.md` (1.3.0): "Em corrida" distingue a volta oficial (kart congelado depois de `ENDED`) do
+  treino (kart pilotável, voltas seguidas); termos novos "Volta oficial" e "Treino"; "Fim da volta
+  (`ENDED`)" virou "Fim da volta", com `ENDED` só na volta oficial; "Painel de resultado" ligado à volta
+  oficial; "Visão geral da pista" não volta no fim de volta nenhuma; "Fumaça do escapamento" virou "Fumaça
+  ou chama de turbo" e, com "Indicação de drift", passou a dizer que o efeito deixou de existir; "Efeito de
+  turbo no campo de visão" aponta a contradição pendente.
+- `01-context.md` (1.3.0): seed `revision: 2`; parágrafo de `DOMAIN.md` com a sétima decisão; rótulo
+  `DOMAIN/DEC-07` na chave e na tabela de decisões aplicadas; linha de `DOMAIN/DEC-06` atualizada; tabela
+  Retiradas e substituições (efeitos separados: marcas mantidas; fumaça ou chama de turbo e indicação de
+  drift ausentes; efeito de turbo no campo de visão pendente; câmera inicial não volta no fim de uma volta
+  de treino); Relação com outras features (`dirigibilidade` revisão 4 e `race-lap-validation` revisão 3).
+- Os arquivos editados voltaram a `status: draft`; o gate e o validador decidem a validação.
+  `00-index.md` e `99-traceability.md` não foram escritos à mão: o gate os regenera com `--emit`.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` (rodada gerada pela mudança do seed).
+
+**Item não resolvido, levado ao autor**
+
+- Contradição no seed `revision: 2`: o terceiro critério de `SEED/US-3` ("o efeito de campo de visão que já
+  existe para o turbo continua funcionando a partir dessa base") não mudou, e o segundo critério de
+  `SEED/US-5` e `DOMAIN/DEC-07` dizem que o turbo saiu do jogo. Sem turbo, AC-US-0003-09 não tem estado
+  que o decida, e a condição "sem turbo ativo" dos critérios 04 a 06 de US-0003 vale sempre. Este conjunto
+  não escolheu: o critério 09 continua com o texto do seed e está marcado como pendente em US-0003,
+  `01-context.md` e `02-glossary.md`. Retirá-lo seria largar um item do seed; reescrevê-lo seria decidir
+  pelo autor. Proposta ao autor: na revisão 3 do seed, retirar o terceiro critério de US-3 (e então o
+  critério 09 é marcado como retirado e a condição "sem turbo ativo" sai dos critérios 04 a 06), ou dizer o
+  que esse efeito passa a ser sem turbo.
+
+**Itens recusados, com motivo**
+
+- Critério sobre fumaça do escapamento não ligada ao turbo: não criado; o seed `revision: 2` fala só de
+  "fumaça ou chama de turbo", e `DOMAIN/DEC-07` só da "fumaça do escapamento ligada ao turbo"; exigir ou
+  proibir outra fumaça seria inventar requisito.
+- Critério de pilotagem no treino (por exemplo, "o kart continua pilotável depois do fim de uma volta de
+  treino"): não criado; a continuidade das voltas é da `race-lap-validation` (revisão 3, US-10), e esta
+  feature cuida do que o Jogador vê. O fato entrou na definição de "Em corrida" e de "Treino", e os
+  critérios de US-0002, que valem em corrida, já cobrem o modelo reagindo aos comandos depois do fim de uma
+  volta de treino.
+- Painel de resultado no treino: não citado nos critérios de treino; nem o seed nem `DOMAIN/DEC-07` dizem
+  se o treino mostra um painel ao fim de cada volta, e o critério 14 de US-0003 fixa só a câmera.
+- Leitura do seed ou das saídas de `race-lap-validation` e `dirigibilidade` para conferir "volta oficial",
+  "treino" e a retirada do drift e do turbo: não feita (conventions §12); os nomes vêm de `DOMAIN.md`.
+- Reescrita de NFR-0006 por causa da retirada do drift e do turbo do `Input`: não feita; a mudança do
+  `Input` é da `dirigibilidade`, não "por causa do modelo", e o NFR compara antes e depois desta feature.
+- `SCOPE-BACKLOG.md` (registro da recusa do FB-01 no changelog de D-Spec de `race-lap-validation`): não é
+  item de requisito desta feature; sem mudança, pelo motivo da rodada 4.
+- Decisões de design já registradas nas rodadas 1 a 4 (código na raiz do repositório; entrega depois da
+  `dirigibilidade`): continuam fora dos requisitos.
+
+## 2026-10-29 — rodada 6, Mode A (seed `revision: 3` e segunda decisão de 2026-10-29 em `DOMAIN.md`)
+
+**O que mudou**
+
+- Origem: o seed passou a `revision: 3`, que tira da terceira história o critério "o efeito de campo de
+  visão que já existe para o turbo continua funcionando a partir dessa base"; em `DOMAIN.md` entrou a
+  entrada "Sem efeito de turbo na câmera", rotulada `DOMAIN/DEC-08`: a câmera de corrida tem só o campo de
+  visão base (62° e a regra de retrato). Isso fecha a contradição que a rodada 5 deixou para o autor. Tudo
+  o mais da rodada 5 foi mantido.
+- US-0003 (1.4.0): o critério 09 (efeito de turbo no campo de visão) foi retirado, marcado como retirado no
+  próprio arquivo, sem reaproveitar o número (conventions §4). A condição "sem turbo ativo" saiu dos
+  critérios 04, 05 e 06, porque só existia por causa do turbo; no lugar, cada um diz que o valor vale em
+  todos os quadros (04 e 05) ou em nenhum quadro fica abaixo do limite (06), que é o campo de visão base
+  de `DOMAIN/DEC-08`. Valores (62°, pelo menos 60°, não abaixo de 62°) sem mudança. O caso anormal "Turbo
+  ativo durante a troca de orientação" saiu e entrou "Comando que antes acionava o turbo" (nenhum comando
+  muda o campo de visão). Fontes (`SEED/US-3` com dois critérios; `DOMAIN/DEC-08`), `sources:` e Pontos em
+  aberto (nenhum) atualizados.
+- `01-context.md` (1.4.0): seed `revision: 3`; parágrafo de `DOMAIN.md` com a oitava decisão; rótulo
+  `DOMAIN/DEC-08` na chave e na tabela de decisões aplicadas; o parágrafo da contradição pendente voltou a
+  "Não resta ponto em aberto neste conjunto"; a linha "Efeito de campo de visão do turbo" de Retiradas e
+  substituições diz que o efeito não existe mais.
+- `02-glossary.md` (1.4.0): "Efeito de turbo no campo de visão" diz que o efeito deixou de existir e que a
+  câmera tem só o campo de visão base.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate com `--emit`.
+
+**Itens fechados**: o item não resolvido da rodada 5 (contradição entre o terceiro critério de `SEED/US-3`
+e a retirada do turbo), fechado pelo seed `revision: 3` e por `DOMAIN/DEC-08`. Nenhum `ISSUE-<nn>` ou
+`FB-<nn>`.
+
+**Itens recusados, com motivo**
+
+- Critério novo de "campo de visão constante" além dos critérios 04 a 06: não criado; "em todos os
+  quadros" nos critérios 04 a 06 já decide que nenhuma variação de campo de visão aparece em corrida.
+- Retirada do critério 09 sem aprovação humana registrada: a entrada de `DOMAIN.md` que a autoriza está
+  atribuída a "condutor", não ao dono do produto como as demais; o seed `revision: 3` (autor
+  `eduardo.matos`) traz a mesma retirada. Esta etapa não lê o histórico do repositório para confirmar quem
+  escreveu as duas mudanças; a confirmação de que o autor aprovou a remoção da verificação (§17) fica
+  pedida no relatório da rodada.
+
+## 2026-10-30 — rodada 7, Mode B (relatório `req-validation-20261030-0229.md`, 1 erro, 1 aviso, 1 info)
+
+**O que mudou**
+
+- ISSUE-01 (R4, `01-context.md`, linha `DOMAIN/DEC-06` da tabela de decisões aplicadas): a tabela estava
+  certa, porque o caso anormal "Fim da volta oficial" de US-0002 e de US-0005 vem de `DOMAIN/DEC-06`; as
+  histórias é que não citavam a decisão. US-0002 (1.2.1) e US-0005 (2.0.1) passaram a citar
+  `DOMAIN/DEC-06` em `sources:`, na seção Fontes e no próprio caso anormal "Fim da volta oficial". A
+  matriz foi regenerada com `--emit` e ganhou as linhas `DOMAIN/DEC-06 -> US-0002` e
+  `DOMAIN/DEC-06 -> US-0005`. Nenhum critério mudou. Fechado por edição.
+- ISSUE-02 (R1, `01-context.md`): saiu a linha em branco antes da linha `DOMAIN/DEC-08`, que voltou para
+  dentro da tabela, logo depois de `DOMAIN/DEC-07`. Fechado por edição. `01-context.md` em 1.4.1.
+- Superfície e §16: nenhum requisito, história, critério, NFR, campo ou limite acrescentado, retirado ou
+  enfraquecido; só citações de uma decisão que já constava no conjunto e uma linha em branco a menos.
+
+**Itens fechados**: ISSUE-01 e ISSUE-02, ambos por edição. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- ISSUE-03 (info, AC-US-0005-04 e AC-US-0005-05): sem alteração, como o relatório pede ("Nenhuma
+  alteração"); os critérios são decidíveis em tela do modo que o relatório descreve.
+- Segunda forma oferecida pela ISSUE-01 (tirar US-0002 e US-0005 da linha `DOMAIN/DEC-06` de
+  `01-context.md`): não usada, porque o caso anormal "Fim da volta oficial" dessas histórias vem de fato
+  dessa decisão; tirar a menção esconderia a fonte em vez de citá-la.
