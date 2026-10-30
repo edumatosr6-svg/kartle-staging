@@ -4,8 +4,8 @@ title: Traseira viva mas controlável
 feature: dirigibilidade
 stage: req
 status: validated
-version: 4.2.0
-sources: [SEED/US-3, SEED/RD-01, SEED/RD-05, SEED/RD-06, SEED/RE-01, SEED/NF-03, SEED/IM-I9, DOMAIN/REF-01, DOMAIN/DEC-04, DOMAIN/DEC-15, DOMAIN/DEC-16]
+version: 4.3.0
+sources: [SEED/US-3, SEED/RD-01, SEED/RD-05, SEED/RD-06, SEED/RE-01, SEED/NF-03, SEED/IM-I9, DOMAIN/REF-01, DOMAIN/DEC-04, DOMAIN/DEC-15, DOMAIN/DEC-16, DOMAIN/DEC-17]
 ---
 
 # US-0003 — Traseira viva mas controlável
@@ -21,23 +21,36 @@ Como Jogador, quero uma traseira viva mas controlável, para escorregar e segura
   ausência de drift e de turbo, medidos no estado da simulação. Nenhuma diferença de limite entre os
   canais.
 - `web-desktop`: acelerador e esterço são binários; a condição de forçar é atingida pelas duas teclas
-  mantidas acima de 50 km/h. O comando de drift é a tecla de drift.
+  mantidas acima de 50 km/h. O comando de drift é a tecla de drift; segurá-la não muda nada (critério 08) e
+  nenhuma tela a ensina (critérios 12 a 14).
 - `web-mobile`: a condição de forçar exige inclinação no ângulo mapeado para esterço 1 (ou −1) e toque de
-  acelerador cheio; com esterço parcial a condição de forçar não se mantém. O comando de drift é o
-  controle de drift que o adaptador de toque entregue; mantido ou não, vale o mesmo que em `web-desktop`.
+  acelerador cheio; com esterço parcial a condição de forçar não se mantém. O controle de toque não exibe o
+  botão "Drift" nem outro controle de drift (critério 15); o comando de drift no `Input`, mantido ou não,
+  vale o mesmo que em `web-desktop` (critério 08).
 - `web-mobile` com sensor ausente ou permissão negada: controle por toque, entradas binárias, mesmos
   critérios (I4).
 - Os critérios 01 e 05 são observados na volta do piloto de teste na pista sintética; os critérios 03 e 04,
   na pista de teste aberta (`SEED/US-3`, `SEED/RD-06`); os critérios 08 e 10 valem em qualquer ambiente; o
-  critério 09 é observado na tela, e o critério 11, no texto compartilhado.
+  critério 09 é observado na tela durante a volta e na tela de resultado; o critério 11, no texto
+  compartilhado; os critérios 12, 13 e 14, na tela inicial, na dica da barra de ferramentas e no guia de
+  manobras; o critério 15, no controle de toque exibido durante a volta.
+- Exibição (`SEED/RE-01`): os critérios 09, 11, 12, 13 e 14 valem igual em `web-desktop` e em `web-mobile`. O
+  critério 15 é só de `web-mobile`, porque o botão "Drift" que a restrição do seed nomeia é do controle de
+  toque no celular; `web-desktop` pilota com teclado (seed, Atores e canais) e não tem controle de toque a
+  observar.
 
 ## Pré-condições
 
-- Acerto Arcade assistido selecionado, na sua nova versão (acerto C, `DOMAIN/DEC-15`).
+- Critérios 01 a 11: acerto Arcade assistido selecionado, na sua nova versão (acerto C, `DOMAIN/DEC-15`).
 - Critérios 01 e 05: piloto de teste na volta da pista sintética (`npm run bench:handling`).
 - Critérios 03 e 04: pista de teste aberta — asfalto sem faixa e sem paredes —; o kart está no asfalto, em
   estado `grip`, acima de 50 km/h.
 - Critérios 08 a 11: qualquer volta ou ensaio com o acerto Arcade assistido.
+- Critérios 12 a 14: o jogo aberto em `web-desktop` ou em `web-mobile`, com a tela inicial exibida (critério
+  12), a dica da barra de ferramentas exibida (critério 13) e o guia de manobras aberto (critério 14). A
+  restrição do seed não condiciona a retirada da exibição a um acerto (`SEED/RE-01`).
+- Critério 15: `web-mobile`, durante a volta, com o controle de toque exibido, tanto com o sensor de
+  inclinação ativo quanto no recuo para toque com sensor ausente ou permissão negada (I4).
 
 ## Critérios de aceite
 
@@ -62,6 +75,21 @@ Como Jogador, quero uma traseira viva mas controlável, para escorregar e segura
 - AC-US-0003-11: No texto compartilhado do resultado, gerado em `web-desktop` ou em `web-mobile`, não
   aparece indicador de carga de drift, de turbo ou de impulso, nem combo nem pontuação de drift (`SEED/US-3`, terceiro critério;
   `SEED/RE-01`; `DOMAIN/DEC-15`, `DOMAIN/DEC-16`).
+- AC-US-0003-12: Na tela inicial, em `web-desktop` e em `web-mobile`, nenhum texto, ícone ou controle
+  menciona ou oferece o drift ou o turbo: nem o comando de drift (a tecla de drift ou um controle de drift),
+  nem carga de drift, turbo, mini-turbo ou impulso, nem combo ou pontuação de drift (`SEED/RE-01`;
+  `SEED/US-3`, terceiro critério; `DOMAIN/DEC-17`).
+- AC-US-0003-13: Na dica da barra de ferramentas, em `web-desktop` e em `web-mobile`, nenhum texto, ícone ou
+  controle menciona ou oferece o drift ou o turbo: nem o comando de drift (a tecla de drift ou um controle de
+  drift), nem carga de drift, turbo, mini-turbo ou impulso, nem combo ou pontuação de drift (`SEED/RE-01`;
+  `SEED/US-3`, terceiro critério; `DOMAIN/DEC-17`).
+- AC-US-0003-14: No guia de manobras, em `web-desktop` e em `web-mobile`, nenhum texto, ícone ou controle
+  menciona ou oferece o drift ou o turbo: nem o comando de drift (a tecla de drift ou um controle de drift),
+  nem carga de drift, turbo, mini-turbo ou impulso, nem combo ou pontuação de drift (`SEED/RE-01`;
+  `SEED/US-3`, terceiro critério; `DOMAIN/DEC-17`).
+- AC-US-0003-15: Na tela, em `web-mobile`, durante a volta, o controle de toque não exibe o botão "Drift" nem
+  outro controle que acione o comando de drift ou um turbo (`SEED/RE-01`; `SEED/US-3`, terceiro critério;
+  `DOMAIN/DEC-17`). Em `web-desktop` o critério não se aplica: não há controle de toque.
 - AC-US-0003-10: No estado da simulação, em todo ensaio desta feature que parte de velocidade igual ou
   menor que a velocidade estabilizada e na volta do piloto de teste, inclusive com o comando de drift
   mantido (critério 08), a velocidade do kart nunca passa da velocidade estabilizada que o ensaio do
@@ -106,8 +134,16 @@ são reutilizados; a tabela de migração está em `97-changelog.md`.
   aplica; o critério 03 é medido na pista de teste aberta, que não tem grama nem parede.
 - **Pausa, perda de foco ou perda do sensor durante a recuperação**: simulação suspensa; os 400 ms são de
   tempo simulado.
+- **Tela inicial, dica ou guia cujo conteúdo era só o drift ou o turbo**: retirado esse conteúdo, o seed não
+  pede texto novo no lugar (nenhum texto novo de tela, `01-context.md`); os critérios 12 a 14 só exigem que
+  nada ali mencione ou ofereça o drift ou o turbo, e o seed não exige nem proíbe que a dica ou o guia continue
+  existindo.
+- **Idioma da interface**: os critérios 09 e 11 a 15 valem em cada idioma que a interface oferece (RNF11).
+- **Tecla de drift pressionada em `web-desktop`**: nada muda na simulação (critério 08); nenhuma tela ensina
+  a tecla (critérios 12 a 14) nem mostra indicador de drift ou de turbo (critério 09).
 - **Sensor ausente ou permissão negada antes da volta (`web-mobile`)**: controle por toque com estado
-  visível (I4); critérios inalterados.
+  visível (I4); critérios inalterados, e o controle de toque do recuo também não exibe o botão "Drift"
+  (critério 15).
 
 ## Fontes
 
@@ -125,9 +161,11 @@ são reutilizados; a tabela de migração está em `97-changelog.md`.
 - `DOMAIN/DEC-04` — 400 ms (mantido por `DOMAIN/DEC-15`).
 - `DOMAIN/DEC-15` — acerto C e fim do drift e do turbo de `requirements/11` (carga segurando a tecla,
   mini-turbo, combo e pontuação), 2026-10-29.
-- `SEED/RE-01`, `DOMAIN/DEC-16` — a retirada do drift e do turbo inclui a sua exibição (HUD, resultado,
-  texto compartilhado); isso é só remoção de exibição, sem regra nova na renderização (revisão 5 do seed,
-  2026-10-30).
+- `SEED/RE-01`, `DOMAIN/DEC-16`, `DOMAIN/DEC-17` — retirar o drift e o turbo também tira da tela tudo o que
+  mostrava, ensinava ou oferecia os dois: HUD, resultado e texto compartilhado (revisão 5 do seed,
+  `DOMAIN/DEC-16`), tela inicial, dica da barra de ferramentas, guia de manobras e o botão "Drift" do controle
+  de toque no celular (revisão 6 do seed, `DOMAIN/DEC-17`, 2026-10-30); isso é só remoção de exibição, sem
+  regra nova na renderização.
 
 ## Pontos em aberto
 

@@ -3,7 +3,7 @@ title: Changelog — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 4.3.0
+version: 4.4.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -997,3 +997,74 @@ tela ou limiar novo.
 
 **Itens recusados, com motivo**: nenhum desta rodada. Os itens recusados e as propostas ao autor das rodadas
 12 a 14 seguem valendo pelos mesmos motivos.
+
+## 2026-10-30 — rodada 16, Mode A (seed `revision: 6`, drift fora de todas as telas)
+
+**Gatilho**: o seed passou a `revision: 6` com a segunda entrada de 2026-10-30 de `DOMAIN.md`, "Drift fora de
+todas as telas" (rótulo novo `DOMAIN/DEC-17`). A validação de testes encontrou o drift ainda ensinado na tela
+inicial, na dica da barra de ferramentas e no guia de manobras, e o botão "Drift" no controle de toque; a
+restrição `SEED/RE-01` passa a nomear todas as telas que mostravam, ensinavam ou ofereciam o drift e o turbo:
+HUD, resultado, texto compartilhado, tela inicial, dica da barra de ferramentas, guia de manobras e o botão
+"Drift" do controle de toque no celular. Continua sendo só remoção de exibição. Nenhum outro item do seed mudou
+entre as revisões 5 e 6; o conjunto validado contra a revisão 5 (`req-validation-20261030-1202.md`) é
+reaproveitado e só o que a revisão 6 alcança foi tocado.
+
+**O que mudou**
+
+- US-0003 (4.3.0): quatro critérios atômicos novos na família do critério 09, um por ponto de observação que
+  a revisão 6 nomeia — AC-US-0003-12 (tela inicial), AC-US-0003-13 (dica da barra de ferramentas),
+  AC-US-0003-14 (guia de manobras), os três em `web-desktop` e em `web-mobile`, com a mesma lista dos critérios
+  09 e 11 mais o comando de drift (tecla ou controle), porque essas telas o ensinavam; e AC-US-0003-15 (o
+  controle de toque não exibe o botão "Drift" nem outro controle de drift ou de turbo), só em `web-mobile`.
+  Canais: a tecla de drift não é ensinada em `web-desktop`; o controle de toque de `web-mobile` não oferece
+  controle de drift, e o comando de drift no `Input` continua julgado pelo critério 08; pontos de observação
+  dos critérios 12 a 15; parágrafo de exibição por canal. Pré-condições dos critérios 12 a 14 (jogo aberto, a
+  tela, a dica ou o guia exibidos; a restrição do seed não condiciona a retirada a um acerto) e do critério 15
+  (volta em `web-mobile`, com sensor ou no recuo para toque); a pré-condição do acerto C restrita aos critérios
+  01 a 11. Casos anormais novos: tela, dica ou guia cujo conteúdo era só o drift (nenhum texto novo no lugar);
+  idioma da interface (RNF11); tecla de drift pressionada em `web-desktop`; o recuo para toque também sem o
+  botão "Drift". Fontes com `DOMAIN/DEC-17` e o texto da revisão 6.
+- `01-context.md` (4.3.0): seed `revision: 6`; parágrafo novo "Revisão 6 do seed"; `SEED/RE-01` com o texto
+  da revisão 6; rótulo e linha de aplicação de `DOMAIN/DEC-17`; restrição citada com o texto novo.
+- `02-glossary.md` (4.3.0): termos novos "Tela inicial", "Dica da barra de ferramentas", "Guia de manobras" e
+  "Controle de toque"; "Comando de drift" sem o controle de drift do toque.
+- NFR-0005 (1.4.0): o requisito cita todas as telas da revisão 6 e os critérios 09 e 11 a 15 de US-0003;
+  `DOMAIN/DEC-17` nas fontes.
+- NFR-0004 (4.2.1): "os limites em vigor na revisão 5 do seed" passa a "os limites em vigor", porque o seed
+  está na revisão 6 e os limites (acerto C, giro em até 2 s) não mudaram.
+- US-0001, US-0002, US-0004, US-0005, os outros sete NFRs e `98-divergences.md`: sem mudança.
+  `00-index.md` e `99-traceability.md` regenerados pelo gate. Todos os arquivos tocados ficam `status: draft`
+  até o validador.
+
+**Tabela de migração** (conventions §17): nenhum item retirado nem modificado.
+
+| Item | Antes (rodada 15) | Agora |
+|---|---|---|
+| AC-US-0003-12 | — | novo: tela inicial sem drift nem turbo (`SEED/RE-01`, revisão 6) |
+| AC-US-0003-13 | — | novo: dica da barra de ferramentas sem drift nem turbo |
+| AC-US-0003-14 | — | novo: guia de manobras sem drift nem turbo |
+| AC-US-0003-15 | — | novo: controle de toque de `web-mobile` sem o botão "Drift" |
+| AC-US-0003-09, AC-US-0003-11 | tela (HUD e resultado); texto compartilhado | sem mudança |
+
+Contagem: critérios 6 + 4 + 9 + 7 + 7 antes e 6 + 4 + 13 + 7 + 7 depois.
+
+**Superfície**: Mode A sobre um seed movido; os quatro critérios novos e os quatro termos novos realizam
+`SEED/RE-01` da revisão 6 e `DOMAIN/DEC-17`. Nenhum elemento de tela é acrescentado: os critérios só exigem
+retirada.
+
+**Itens fechados**: nenhum `ISSUE-<nn>`/`FB-<nn>` pendente; o conjunto da rodada 15 passou
+(`req-validation-20261030-1202.md`). Divergências registradas: nenhuma. A constatação da validação de testes
+que motivou a revisão 6 chegou a esta etapa só por `DOMAIN.md`, sem `arquivo:linha`, e esta etapa não lê a
+raiz de código; os critérios 12 a 15 são novos nesta revisão e a retirada é devida pela etapa de código na
+próxima rodada, como os demais critérios ainda não implementados. `98-divergences.md` não muda.
+
+**Itens recusados, com motivo**
+
+- Nomear o arquivo da tela inicial, da dica e do guia (`DOMAIN.md` cita onde a validação de testes os
+  encontrou): recusado, porque o seed não impõe esse arquivo como restrição e nomeá-lo seria decisão de
+  desenho (strict-criteria, regra 8).
+- Os itens recusados das rodadas 12 a 15 seguem recusados pelos mesmos motivos, e as propostas ao autor seguem
+  valendo: atualizar as linhas dos pontos 02, 03 e 06 da lista "Riscos e incógnitas" do seed, que continuam
+  com os valores antigos na revisão 6, e fechar as duas entradas de 2026-10-27 de `SCOPE-BACKLOG.md`, sem
+  objeto desde a revisão 4. Proposta nova ao autor: o `date:` do seed continua 2026-10-29 nas revisões 5 e 6,
+  ambas de 2026-10-30 (conventions §7: `date:` vai para o dia da mudança de revisão).

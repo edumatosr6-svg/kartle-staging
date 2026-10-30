@@ -3,7 +3,7 @@ title: Contexto — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 4.2.0
+version: 4.3.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -68,12 +68,22 @@ a dizer que as regras de pilotagem ficam na simulação (`src/physics.ts` e `src
 da tela (HUD, resultado e texto compartilhado) o que mostrava o drift e o turbo é só remoção de exibição,
 permitida (US-0003, NFR-0005).
 
-Seed: `200 Requirements/220 Input/dirigibilidade/SEED.md`, `revision: 5`, `date: 2026-10-29`, autor
+**Revisão 6 do seed (`DOMAIN/DEC-17`, 2026-10-30).** A validação de testes encontrou o drift ainda ensinado
+na tela inicial, na dica da barra de ferramentas e no guia de manobras, e o botão "Drift" no controle de
+toque. O pedido do dono do produto foi tirar o drift do jogo: a restrição de I2 passa a nomear todas as telas
+que mostravam, ensinavam ou ofereciam o drift e o turbo — HUD, resultado, texto compartilhado, tela inicial,
+dica da barra de ferramentas, guia de manobras e o botão "Drift" do controle de toque no celular —, para que
+nada ofereça um comando que não faz mais nada. Continua sendo só remoção de exibição, sem regra nova na
+renderização (US-0003, critérios 12 a 15; NFR-0005).
+
+Seed: `200 Requirements/220 Input/dirigibilidade/SEED.md`, `revision: 6`, `date: 2026-10-29`, autor
 `eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões prevalecem sobre os
 pontos em aberto correspondentes do seed. A entrada de 2026-10-29 "Acerto C e fim do drift e do turbo"
 (`DOMAIN/DEC-15`) substitui o valor do ponto aberto 06 e os ensaios de esterço cheio no arco de raio 18 m
 (pontos abertos 02 e 03 e o ensaio de início do subesterço), e mantém os pontos 01, 04, 05 e 07; a entrada
-de 2026-10-30 (`DOMAIN/DEC-16`) fixa a medida da curva sem acelerador e o alcance da restrição de I2. A lista
+de 2026-10-30 (`DOMAIN/DEC-16`) fixa a medida da curva sem acelerador e o alcance da restrição de I2, e a
+segunda entrada de 2026-10-30 (`DOMAIN/DEC-17`) estende a retirada da exibição a todas as telas que
+mostravam, ensinavam ou ofereciam o drift e o turbo. A lista
 "Riscos e incógnitas" do seed ainda cita, para os pontos 02, 03 e 06, os valores fechados antes; o corpo do
 seed (US-2 e US-4) e `DOMAIN/DEC-15` concordam entre si e prevalecem. Este conjunto usa só os valores em
 vigor.
@@ -116,7 +126,7 @@ o `sources:` de cada história e de cada NFR cita os que estão em vigor. A matr
 | `SEED/NF-02` | Custo por passo da simulação não aumenta mais de 10 % no bench (RNF03) |
 | `SEED/NF-03` | Teclado e inclinação atendem, ambos, US-1 a US-4 |
 | `SEED/NF-04` | Cada mudança registra parâmetros e resultados em `docs/physics.md` (I9) |
-| `SEED/RE-01` | As regras de pilotagem ficam na simulação (`src/physics.ts` e `src/maneuvers.ts`); nada de regra de pilotagem em renderização ou controle (I2); retirar o drift e o turbo da tela (HUD, resultado e texto compartilhado) é só remoção de exibição, sem regra nova na renderização (revisão 5) |
+| `SEED/RE-01` | As regras de pilotagem ficam na simulação (`src/physics.ts` e `src/maneuvers.ts`); nada de regra de pilotagem em renderização ou controle (I2); retirar o drift e o turbo também tira da tela tudo o que mostrava, ensinava ou oferecia os dois — HUD, resultado, texto compartilhado, tela inicial, dica da barra de ferramentas, guia de manobras e o botão "Drift" do controle de toque no celular —, e isso é só remoção de exibição, sem regra nova na renderização (revisão 6) |
 | `SEED/RE-02` | `STEP`, solver de 480 Hz e `Input` não mudam (I8) |
 | `SEED/RE-03` | O preset Realista não muda |
 | `SEED/RE-04` | A validação de volta (`src/lap.ts`, `src/track.ts`) não muda |
@@ -136,6 +146,7 @@ o `sources:` de cada história e de cada NFR cita os que estão em vigor. A matr
 | `DOMAIN/DEC-10` | Ciclo de teste do ponto 08: cada rodada de código é publicada em staging; o dono do produto testa e devolve feedback curto (vira? acelera? traseira?); os presets são iterados dentro do pipeline até a aprovação dele; nenhum preset experimental extra no painel |
 | `DOMAIN/DEC-15` | Acerto C e fim do drift e do turbo (2026-10-29, dono do produto): o acerto Arcade passa a ser o acerto C (`arcade-assistido-v6`); velocidade estabilizada entre 65 km/h e 72 km/h no lugar de 105 km/h; a curva passa a ser julgada pelo raio na pista de teste aberta (US-2 do seed) no lugar dos ensaios de esterço cheio no arco de 18 m; drift e turbo de `requirements/11` (carga segurando a tecla, mini-turbo, combo e pontuação) retirados; pontos 01, 04, 05 e 07 mantidos |
 | `DOMAIN/DEC-16` | Curva sem acelerador e onde a retirada do drift acontece (2026-10-30, revisão 5 do seed): sem acelerador a partir de 50 km/h com esterço cheio, o critério é o giro de pelo menos 180° em até 2 s (medido no acerto C: 82° no primeiro segundo, 208° em 2 s, 4 km/h aos 3 s), não um raio aos 3 s; a retirada do drift e do turbo inclui a sua exibição (HUD, resultado, texto compartilhado), e a restrição de I2 vale para regras de pilotagem, não para essa remoção |
+| `DOMAIN/DEC-17` | Drift fora de todas as telas (2026-10-30, revisão 6 do seed, dono do produto): a validação de testes encontrou o drift ainda ensinado na tela inicial, na dica da barra de ferramentas e no guia de manobras, e o botão "Drift" no controle de toque; a restrição de exibição passa a nomear essas telas, para que nada ofereça um comando que não faz mais nada |
 
 **Decisões substituídas e não aplicadas.** As entradas de `DOMAIN.md` abaixo não são citadas por nenhum
 item deste conjunto, porque `DOMAIN/DEC-15` as substituiu; os seus rótulos não são reutilizados:
@@ -158,6 +169,7 @@ varredura em patamares) e `DOMAIN/REF-05` (leitura de "sem subesterço" no arco)
 | `DOMAIN/DEC-10` | Ciclo de fechamento humano (ver abaixo); US-0005 (caso anormal de rodada reprovada em staging) |
 | `DOMAIN/DEC-15` | US-0001 (critério 05: onde a aderência em curva é julgada), US-0002 (raio na pista de teste aberta), US-0003 (sem drift nem turbo; condução normal na volta do piloto de teste), US-0004 (velocidade estabilizada entre 65 km/h e 72 km/h), US-0005 (nova versão de acerto); `02-glossary.md` |
 | `DOMAIN/DEC-16` | US-0002 (critério 09: giro em até 2 s), US-0003 (critérios 09 e 11: remoção da exibição do drift e do turbo na tela e no texto compartilhado), NFR-0004, NFR-0005; `02-glossary.md` ("Giro") |
+| `DOMAIN/DEC-17` | US-0003 (critérios 12 a 15: tela inicial, dica da barra de ferramentas, guia de manobras e botão "Drift" do controle de toque), NFR-0005; `02-glossary.md` ("Tela inicial", "Dica da barra de ferramentas", "Guia de manobras", "Controle de toque", "Comando de drift") |
 | `DOMAIN/REF-02` | US-0001, US-0005 (origem dos valores em vigor dos pontos 01 e 07) |
 | `DOMAIN/REF-03`, `SEED/RD-06` | US-0001, US-0002 e US-0003 (pista de teste aberta; em US-0001, partida em reta), US-0003 e US-0005 (pista sintética), NFR-0004 (ambiente de cada ensaio registrado) |
 
@@ -174,8 +186,10 @@ responsabilidade do dono do produto, a ser cumprida depois da etapa de testes.
 
 - "As regras de pilotagem ficam na simulação (`src/physics.ts` e `src/maneuvers.ts`); nada de regra de
   pilotagem em renderização ou controle (I2). Motivo: a simulação roda sem DOM e no servidor futuro.
-  Retirar o drift e o turbo também tira da tela (HUD, resultado e texto compartilhado) o que mostrava os
-  dois; isso é só remoção de exibição, sem regra nova na renderização." — NFR-0005, US-0003.
+  Retirar o drift e o turbo também tira da tela tudo o que mostrava, ensinava ou oferecia os dois: HUD,
+  resultado, texto compartilhado, tela inicial, dica da barra de ferramentas, guia de manobras e o botão
+  "Drift" do controle de toque no celular. Isso é só remoção de exibição, sem regra nova na renderização." —
+  NFR-0005, US-0003.
 - "`STEP`, solver de 480 Hz e `Input` não mudam (I8). Motivo: contrato de todos os replays." — NFR-0006.
 - "O preset Realista não muda. Motivo: é a referência física documentada." — NFR-0007.
 - "A validação de volta (`src/lap.ts`, `src/track.ts`) não muda. Motivo: feature própria já validada." —
