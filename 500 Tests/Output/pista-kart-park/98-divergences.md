@@ -3,14 +3,13 @@ title: Registro de divergências, verificação reprovada e critérios não veri
 feature: pista-kart-park
 stage: test
 status: validated
-version: 1.1.0
+version: 1.2.0
 ---
 
 # 98 — Divergências
 
-A execução de 2026-10-30 (`npx tsx --test tests/*.test.ts`, totais do próprio runner em `reports/npm-test-latest.log` e
-`reports/junit-latest.xml`) coletou 437 verificações; as 102 `CHK-TEST-00nn-nn` desta feature passam todas. As 5 reprovações
-da mesma execução são de `tests/modelo-kart-01-*.test.ts` (outra feature, em revisão em paralelo) e não decidem critério desta.
+A execução de 2026-10-30, depois da rodada 4 do código (`38354bb`) (`npx tsx --test tests/*.test.ts`, totais do próprio runner em `reports/npm-test-latest.log` e
+`reports/junit-latest.xml`) coletou 444 verificações, todas aprovadas; as 103 `CHK-TEST-00nn-nn` desta feature estão entre elas.
 A linha 12 de `400 Code/Output/pista-kart-park/98-divergences.md` (verificações de `npm test` na Kart Park: determinismo,
 camadas, critérios de US-0002 a US-0005) é atendida por `tests/pista-kart-park-*.test.ts`; a linha 13 (promoção) continua da
 etapa de deploy, com a regra provada em CHK-TEST-0012-04.
@@ -58,7 +57,7 @@ vibração, rede do navegador ou relógio de parede fica **unverified** até o r
 | AC-US-0005-10 | unverified | nenhuma repetição sem roda na zebra | CHK-TEST-0008-04 | E2E-04 | registro humano |
 | AC-US-0005-11 | unverified | som desligado, nenhum som | CHK-TEST-0008-05, -07 (`curb()` sem nó com o som desligado) | E2E-04 | registro humano |
 | AC-US-0005-12 | unverified | o som da zebra distinto dos outros | CHK-TEST-0008-07 (fonte de ruído filtrada a 160 Hz; motor `triangle`; recompensa `sine`) | distinguível ao ouvido: E2E-04 | registro humano |
-| AC-US-0006-01 a AC-US-0006-06 | unverified | crédito, menção e link nas duas telas | CHK-TEST-0009-01 a -04 (textos, `href`, os dois `renderCredit`) | os três elementos vistos nas duas telas nos dois canais; o clique abre `https://openstreetmap.org/copyright`; sintética sem crédito: E2E-01, E2E-03, E2E-05 | registro humano |
+| AC-US-0006-01 a AC-US-0006-06 | unverified | crédito, menção e link nas duas telas | CHK-TEST-0009-01 a -04 (textos, `href`, os dois `renderCredit`, o crédito como último filho de `#lap-training-result`), CHK-TEST-0009-11 (resultado da sintética sem crédito, da Kart Park com ele) | os três elementos vistos nas duas telas nos dois canais; o clique abre `https://openstreetmap.org/copyright`; sintética sem crédito: E2E-01, E2E-03, E2E-05 | registro humano |
 | AC-US-0006-07, AC-US-0006-08 | unverified | nome e "687 m" em toda tela que mostra a Kart Park | CHK-TEST-0007-11, CHK-TEST-0009-05, -06 | o rótulo visto no seletor e na etiqueta da pista; navegador em inglês com o nome em português: E2E-01, E2E-08 | registro humano |
 | NFR-0002 | unverified | 60 fps no notebook e 30 fps no celular de referência numa volta completa | nenhuma (I9: só em aparelho nomeado); o custo do desenho é limitado por CHK-TEST-0010-01/-03 (uma malha de asfalto, uma de zebras, 381 instâncias) | medidor de quadros do navegador numa volta completa: E2E-03 (notebook), E2E-05 (celular, paisagem e retrato) | registro humano |
 | NFR-0004 | unverified | 0 requisições a outros serviços da escolha ao fim da volta | CHK-TEST-0011-02 (nenhum símbolo de rede; arquivo empacotado como `?raw`) | registro de rede do navegador com a rede bloqueada depois do carregamento: E2E-07 | registro humano |

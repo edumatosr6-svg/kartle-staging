@@ -7,8 +7,11 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { creditFor, MESSAGE_KEYS, message, optionLabel, OSM_CREDIT } from '../src/lapMessages';
-import { TRAINING_TRACKS } from '../src/trainingSession';
-import { kartParkText } from './fixtures/kartParkFiles';
+import { getTrainingTrackOptions, initialTrainingSession, selectTrainingTrack, startTrainingLap, TRAINING_TRACKS } from '../src/trainingSession';
+import { initialState } from '../src/physics';
+import { SYNTHETIC_TRACK_FILE } from '../src/track';
+import { kartParkGeometry, kartParkText } from './fixtures/kartParkFiles';
+import { constant, drive, IDLE, kartAtLapM, KART_PARK_CONFIG, lapResults, runCountdown, seedLap } from './helpers/kartParkPilot';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const stripComments = (text: string) => text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
@@ -16,6 +19,8 @@ const main = stripComments(readFileSync(join(root, 'src', 'main.ts'), 'utf8'));
 const html = readFileSync(join(root, 'index.html'), 'utf8');
 const kartPark = TRAINING_TRACKS.find(o => o.trackId === 'kart-park')!;
 const synthetic = TRAINING_TRACKS.find(o => o.trackId === 'synthetic')!;
+// The text of one function of src/main.ts, from its declaration to the next top-level function.
+const functionBody = (name: string) => { const from = main.indexOf(`function ${name}(`); assert.ok(from >= 0, `fixture: ${name} not found`); const to = main.indexOf('\nfunction ', from + 1); return main.slice(from, to < 0 ? undefined : to); };
 
 test('CHK-TEST-0009-01 with the Kart Park selected the selector shows "© colaboradores do OpenStreetMap"', () => {
   // AC-US-0006-01
@@ -44,15 +49,18 @@ test('CHK-TEST-0009-03 the credit link goes to openstreetmap.org/copyright and i
   assert.match(main, /link\.setAttribute\('rel', 'noopener noreferrer'\);/, 'AC-US-0006-03: the link opens safely');
 });
 
-test('CHK-TEST-0009-04 the result screen of a Kart Park lap shows the same credit, text, licence and link, chosen by the trackId of the result; the synthetic track shows none', () => {
+test('CHK-TEST-0009-04 the training lap result panel of a Kart Park lap shows the same credit, text, licence and link, as its last child, chosen by the trackId of the result; the old result credit is gone', () => {
   // AC-US-0006-04, AC-US-0006-05, AC-US-0006-06
-  assert.match(main, /renderCredit\(\$\('lap-result-credit'\), creditFor\(selectedOption\(result\.trackId\)\)\);/, 'AC-US-0006-04: the result screen renders the credit of the result track');
-  assert.ok(html.includes('id="lap-result-credit"'), 'AC-US-0006-04: index.html has the result credit element');
+  const panel = functionBody('renderTrainingResult');
+  assert.match(panel, /renderCredit\(\$\('lap-training-result-credit'\), creditFor\(selectedOption\(result\.trackId\)\)\);/, 'AC-US-0006-04: the training result panel renders the credit of the result track (ADR-0007)');
+  assert.match(panel, /if \(child !== credit\) child\.remove\(\);/, 'AC-US-0006-04: the redraw keeps the credit container');
+  assert.match(panel, /credit\.before\(\.\.\.items\);/, 'AC-US-0006-04: the result elements are drawn before the credit, which stays the last child');
+  assert.match(html, /<div id="lap-training-result"[^>]*><p id="lap-training-result-credit"[^>]*><\/p><\/div>/, 'AC-US-0006-06: index.html puts the credit inside the training result panel, as its last child');
+  assert.ok(!/(?<!training-)lap-result-credit/.test(main) && !/(?<!training-)lap-result-credit/.test(html), 'AC-US-0006-04: no #lap-result-credit is left (ADR-0007, item 3)');
   assert.equal(main.split('function renderCredit(').length - 1, 1, 'AC-US-0006-05: one renderer for both screens (same text, licence and link)');
   assert.match(main, /if \(!credit\) \{ container\.classList\.add\('hidden'\); return; \}/, 'AC-US-0006-04: without a credit the element is hidden');
   assert.equal(creditFor(synthetic), undefined, 'AC-US-0006-04: the synthetic track has no credit');
   assert.equal(creditFor(undefined), undefined, 'AC-US-0006-04: an unknown entry has no credit');
-  assert.match(html, /<div id="lap-result"[\s\S]*id="lap-result-credit"[\s\S]*<\/div>/, 'AC-US-0006-06: the credit sits inside the result panel');
 });
 
 test('CHK-TEST-0009-05 every screen names the Kart Park as "Kart Park — São José dos Pinhais (traçado aproximado)" through optionLabel, outside the message table', () => {
@@ -111,4 +119,24 @@ test('CHK-TEST-0009-10 a FAILED session shows the data error and offers no lap',
   // AC-US-0001-03
   assert.match(main, /if \(view\.sessionState === 'FAILED' \|\| reading\.trackDataStatus === 'UNREADABLE' \|\| reading\.trackDataStatus === 'UNSUPPORTED_SCHEMA'\) \{\s*status\.textContent = message\('trackDataError', lang\);\s*return;\s*\}/, 'REQ-FEAT-0001-14: FAILED shows the error and returns before the offer');
   assert.match(main, /offer\.replaceChildren\(\);/, 'REQ-FEAT-0001-14: the offer is emptied first');
+});
+
+test('CHK-TEST-0009-11 the result of a training lap on the synthetic track takes no credit and one on the Kart Park takes the OSM credit, valid or not', () => {
+  // AC-US-0006-04
+  const options = getTrainingTrackOptions(initialTrainingSession()).options;
+  const creditOfResult = (trackId: 'kart-park' | 'synthetic') => {
+    const s = selectTrainingTrack(initialTrainingSession(), undefined, trackId, { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE });
+    if (!s.ok) throw new Error(`fixture: ${trackId} not selected`);
+    const l = startTrainingLap(s.session, undefined, KART_PARK_CONFIG);
+    if (!l.ok) throw new Error(`fixture: ${trackId} lap rejected`);
+    const k = trackId === 'kart-park' ? kartAtLapM(kartParkGeometry().lapLengthM - 6) : { ...initialState(), x: 75, z: -14, heading: 0 };
+    const lap = seedLap(runCountdown(l.lap), { kart: { ...k, vx: Math.sin(k.heading) * 8, vz: Math.cos(k.heading) * 8, speed: 8 } });
+    const items = lapResults(drive(lap, constant(IDLE), 600).lap);
+    assert.equal(items.length, 1, `AC-US-0006-04: ${trackId}: the finish crossing lists one result (${items.length})`);
+    assert.equal(items[0].trackId, trackId, `AC-US-0006-04: ${trackId}: the result carries the track of the lap`);
+    assert.equal(items[0].lapValidity, 'INVALID', `AC-US-0006-04: ${trackId}: a lap with no marker is invalid`);
+    return creditFor(options.find(o => o.trackId === items[0].trackId));
+  };
+  assert.equal(creditOfResult('synthetic'), undefined, 'AC-US-0006-04: a synthetic-track result shows no credit');
+  assert.equal(creditOfResult('kart-park'), OSM_CREDIT, 'AC-US-0006-04: an invalid Kart Park result shows the OSM credit');
 });

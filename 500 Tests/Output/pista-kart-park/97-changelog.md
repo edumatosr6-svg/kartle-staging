@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: pista-kart-park
 stage: test
 status: validated
-version: 1.1.0
+version: 1.2.0
 ---
 
 # 97 — Changelog
@@ -266,3 +266,59 @@ cópia foi descartada. Linha de base na cópia: 102 verificações, 0 reprovadas
 
 Cada verificação modificada reprova em pelo menos uma mutação: CHK-TEST-0005-01 (M2, M3, M9), -02 (M2, M9), -03 (M2, M4, M9),
 -04 (M1, M9), -06 (M1, M2), -08 (M2, M3), -10 (M2, M9), CHK-TEST-0006-03 (M7), CHK-TEST-0007-05 (M1, M2, M4, M5, M6, M9).
+
+## 2026-10-30 — rodada 4, Modo B (crédito no painel do resultado da volta do treino, ADR-0007, código rodada 4)
+
+### Entrada
+
+- `400 Code/Output/pista-kart-park/reports/code-validation/code-validation-20261030-1836.md` (commit `38354bb`): ADR-0007
+  implementado — o crédito OSM/ODbL é `#lap-training-result-credit`, último filho de `#lap-training-result`, desenhado no mesmo
+  redesenho para a pista do resultado (ausente na sintética); `#lap-result-credit` retirado. Reprovava CHK-TEST-0009-04, que
+  ainda afirmava `#lap-result-credit`.
+- `test-strategy.md`, linha AC-US-0006-04 (o crédito dentro de `#lap-training-result`, `renderCredit` com `creditFor` da entrada
+  do `trackId` do resultado exibido, nenhum `lap-result-credit`, sintética sem crédito) e AC-US-0006-05/-06 ("o mesmo").
+
+### Atrito de verificações
+
+Antes: 102 ids nas 12 suítes (os mesmos da rodada 3). Depois: 103. Retiradas 0; adicionada 1 (CHK-TEST-0009-11); modificada 1
+(CHK-TEST-0009-04).
+
+### Migração
+
+| Id | O que mudou | Por que o critério continua coberto |
+|---|---|---|
+| CHK-TEST-0009-04 | `#lap-result-credit` → `#lap-training-result-credit`: a chamada `renderCredit($('lap-training-result-credit'), creditFor(selectedOption(result.trackId)))` dentro de `renderTrainingResult`; o redesenho conserva o contêiner do crédito e põe os elementos do resultado antes dele; em `index.html` o crédito é o último filho de `#lap-training-result`; nenhum `lap-result-credit` em `src/main.ts` nem em `index.html`. Ficam o renderizador único, o ramo que esconde sem crédito e `creditFor` da sintética ausente | AC-US-0006-04/-05/-06 no contrato de ADR-0007: o mesmo crédito, menção e link no painel do resultado de uma volta da Kart Park, escolhido pelo `trackId` do resultado |
+
+### Adicionada
+
+- CHK-TEST-0009-11 (AC-US-0006-04, "sintética sem crédito"): nenhuma verificação ligava o resultado de uma volta real ao crédito;
+  CHK-TEST-0009-04 só afirma `creditFor(synthetic)`. A nova abre o treino pela sessão nas duas pistas, cruza a chegada sem
+  marcadores, lê o item de `listLapResults` e passa a entrada do catálogo do seu `trackId` a `creditFor`, como o painel faz: a
+  sintética dá nenhum crédito, a Kart Park (volta inválida) dá `OSM_CREDIT`. É verificação, não superfície: nenhum elemento,
+  chave ou função nova.
+
+### Ajuste à estratégia, mantido
+
+- AC-US-0003-06 (linha da estratégia que nomeia `describeLap` sobre o estado da volta): continua decidido por
+  `describeTrainingResult` sobre o item de `listLapResults` em CHK-TEST-0005-03, como na rodada 3 — no treino de voltas seguidas
+  o estado nunca carrega `MISSED_MARKER`; é também a função que `renderTrainingResult` usa para o painel em que o crédito agora
+  vive. A linha da estratégia fica para a próxima rodada do D-Spec da feature.
+
+### Execução
+
+`npx tsx --test tests/*.test.ts` com `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`): **444
+coletadas, 444 aprovadas**, 0 reprovadas, 0 puladas (443 de antes desta rodada + CHK-TEST-0009-11).
+
+### Prova de que as verificações mudadas podem falhar
+
+Cópia do repositório no diretório de rascunho da sessão (`node_modules` por junção), as 12 suítes desta feature, uma mutação de
+cada vez; a cópia foi descartada. Linha de base: 103 verificações, 0 reprovadas.
+
+| Mutação | Verificações que reprovaram (103 executadas) |
+|---|---|
+| S1 — `src/main.ts`: o painel credita a Kart Park qualquer que seja a pista do resultado | 1: CHK-TEST-0009-04 |
+| S2 — `index.html`: o crédito sai de `#lap-training-result` | 1: CHK-TEST-0009-04 |
+| S3 — `src/main.ts`: o redesenho apaga todos os filhos do painel, o crédito incluído | 1: CHK-TEST-0009-04 |
+| S4 — `index.html`: `#lap-result-credit` volta | 1: CHK-TEST-0009-04 |
+| S5 — `src/trainingSession.ts`: a entrada `synthetic` passa a ter crédito OSM | 3: CHK-TEST-0007-11, CHK-TEST-0009-04, -11 |
+| S6 — `src/lap.ts`: todo resultado nomeia a Kart Park como pista | 1: CHK-TEST-0009-11 |
