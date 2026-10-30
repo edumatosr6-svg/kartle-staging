@@ -3,7 +3,7 @@ title: Glossário — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 4.0.1
+version: 4.1.0
 sources: []
 ---
 
@@ -56,13 +56,17 @@ glossário dos requisitos; as linhas de enum e de campo são as dos contratos de
 | Condução normal | Todos os passos da volta do piloto de teste na pista sintética, sem exceção — inclusive aqueles em que ele força o kart (`SEED/US-3`, primeiro critério) |
 | Drift | Manobra de `requirements/11` — carga segurando a tecla de drift, mini-turbo, combo e pontuação — retirada por esta feature (`SEED/RD-01`, `DOMAIN/DEC-15`) |
 | Turbo | Impulso de velocidade acima da velocidade estabilizada, como o mini-turbo do drift; não existe com esta feature |
-| Comando de drift | A tecla de drift em `web-desktop`, ou o controle de drift que o adaptador de toque entregue em `web-mobile`; chega à simulação no mesmo campo de `Input`, com a mesma faixa, e não muda o estado da simulação |
+| Comando de drift | A tecla de drift em `web-desktop`; em `web-mobile` o controle de toque não oferece mais controle de drift (`SEED/RE-01`, `DOMAIN/DEC-17`). Presente no `Input`, mantido ou não e de qualquer origem, chega à simulação no mesmo campo, com a mesma faixa, e não muda o estado da simulação |
 | Direção comum | Pilotar a volta com esterço, acelerador e freio, sem manobra especial; permanece fácil (`SEED/RD-01`) |
 | Velocidade estabilizada | Velocidade em reta com acelerador cheio mantido, após deixar de crescer; é a velocidade máxima do kart, a mesma em qualquer situação |
 | Grama | Superfície fora do asfalto que reduz a velocidade; só na pista sintética |
 | Parede | Limite sólido da pista cujo contato reduz a velocidade; só na pista sintética |
 | Asfalto | Superfície da pista, ou a área declarada da pista de teste aberta; "sair do asfalto" é qualquer passo com o kart fora dela |
 | HUD | Elementos de tela que exibem a velocidade em km/h e o estado de aderência em texto durante a volta; já existem e não regridem; não exibem drift nem turbo |
+| Tela inicial | Tela que o jogo exibe ao abrir, antes da volta; ensinava o drift e deixa de mencioná-lo ou oferecê-lo, nos dois canais (`SEED/RE-01`, `DOMAIN/DEC-17`) |
+| Dica da barra de ferramentas | Texto de ajuda exibido junto à barra de ferramentas do jogo; ensinava o drift e deixa de mencioná-lo ou oferecê-lo, nos dois canais |
+| Guia de manobras | Conteúdo de tela que ensina ao Jogador as manobras e os seus comandos; ensinava o drift e deixa de mencioná-lo ou oferecê-lo, nos dois canais |
+| Controle de toque | Controles exibidos na tela do celular para pilotar por toque, durante a volta (`web-mobile`); oferecia o botão "Drift", retirado por esta feature, com o sensor ativo e no recuo para toque |
 | Staging | Publicação de uma rodada de código para o teste do dono do produto no ciclo de fechamento humano (`DOMAIN/DEC-10`); não é critério desta especificação |
 | Replay | Sequência de `Input` por passo gravada para uma pista, com a versão do acerto que a produziu |
 | Texto compartilhado | Texto que o Jogador compartilha com o resultado de uma volta; contrato publicado (I3) |

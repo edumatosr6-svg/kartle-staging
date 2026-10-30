@@ -4,7 +4,7 @@ title: Passo de simulação com o Arcade assistido e exibição no HUD
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 1.2.1
+version: 1.2.2
 sources: [US-0001, US-0002, US-0003, US-0004, NFR-0003, NFR-0005, AC-US-0001-01, AC-US-0002-07, AC-US-0003-03, AC-US-0003-08, AC-US-0003-09, AC-US-0004-06]
 ---
 
@@ -58,6 +58,6 @@ seja ela gerada por teclado, inclinação ou toque (NFR-0003, NFR-0001).
 | Taxa de quadros baixa | A resposta é função dos passos de `STEP`, não dos quadros; o HUD lê o estado corrente a cada quadro renderizado |
 | `getHandlingTelemetry` antes de existir estado | `NO_STATE`; o HUD não exibe valor de telemetria até a primeira leitura válida |
 | Grama ou parede | A velocidade é reduzida pela simulação ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md)); a validade da volta é regra de `race-lap-validation`, inalterada (NFR-0008) |
-| Comando de drift mantido (tecla de drift ou controle de drift do toque) | Chega à simulação no mesmo campo de `Input`, com a mesma faixa (I8); a simulação o ignora: nenhum efeito no estado, sem carga, mini-turbo nem impulso, e a velocidade não passa da estabilizada ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)); o HUD não exibe indicador de drift ou turbo |
+| Comando de drift mantido (tecla de drift em `web-desktop`; em `web-mobile` o controle de toque não oferece controle de drift, e o comando pode chegar de um replay gravado) | Chega à simulação no mesmo campo de `Input`, com a mesma faixa (I8); a simulação o ignora: nenhum efeito no estado, sem carga, mini-turbo nem impulso, e a velocidade não passa da estabilizada ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)); o HUD não exibe indicador de drift ou turbo, e o controle de toque não exibe o botão "Drift" ([SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md)) |
 | Rede indisponível | Sem efeito: nenhuma requisição neste fluxo (D-FS-08) |
 | Replay reproduzido no lugar do Jogador | O `Input` por passo vem do replay; o fluxo é o mesmo a partir do passo 3 ([FLOW-0003](FLOW-0003-leitura-de-replay-e-comparacao.md)) |

@@ -4,7 +4,7 @@ title: Estado de aderência, condução normal, condição de forçar, recupera�
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 4.0.0
+version: 4.1.0
 sources: [US-0003, AC-US-0003-01, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-08, AC-US-0003-10, AC-US-0001-05]
 ---
 
@@ -53,13 +53,17 @@ de soltura até o primeiro passo em `grip` (inclusive).
 
 | Regra | Efeito | Fonte |
 |---|---|---|
-| O comando de drift (a tecla de drift em `web-desktop`; o controle de drift do adaptador de toque em `web-mobile`) não muda o estado da simulação | A mesma sequência de `Input` por passo, no mesmo estado inicial, com o comando de drift mantido do primeiro ao último passo e sem ele, produz o mesmo estado em todos os passos: posição, velocidade, rumo, estado de aderência e derrapagem lateral. O campo de `Input` que transporta o comando continua com o mesmo nome e a mesma faixa (I8, NFR-0006); a simulação o ignora | AC-US-0003-08; `SEED/RD-01`, `DOMAIN/DEC-15` |
+| O comando de drift (a tecla de drift em `web-desktop`; em `web-mobile` o controle de toque não oferece controle de drift, e um comando de drift presente no `Input`, de qualquer origem, vale o mesmo) não muda o estado da simulação | A mesma sequência de `Input` por passo, no mesmo estado inicial, com o comando de drift mantido do primeiro ao último passo e sem ele, produz o mesmo estado em todos os passos: posição, velocidade, rumo, estado de aderência e derrapagem lateral. O campo de `Input` que transporta o comando continua com o mesmo nome e a mesma faixa (I8, NFR-0006); a simulação o ignora | AC-US-0003-08; `SEED/RD-01`, `DOMAIN/DEC-15` |
 | Não há carga, mini-turbo, impulso, combo nem pontuação de drift | Nenhum estado da simulação os acumula nem os reporta; a telemetria não tem campo de drift ([API-0001](../api/API-0001-telemetria-de-dirigibilidade.md)) | AC-US-0003-08; `DOMAIN/DEC-15` |
 | A velocidade máxima é a mesma em qualquer situação | Partindo de velocidade igual ou menor que a velocidade estabilizada, a velocidade do kart nunca passa dela — com ou sem o comando de drift, na reta, na curva, na recuperação | AC-US-0003-10 |
 
-A exibição do drift e do turbo (HUD, resultado, texto compartilhado) sai com a manobra; é remoção de
-exibição, sem regra nova na renderização ([SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md),
-[SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md); `SEED/RE-01`, `DOMAIN/DEC-16`).
+A exibição, o ensino e a oferta do drift e do turbo (HUD, resultado, texto compartilhado, tela inicial,
+dica da barra de ferramentas, guia de manobras e o botão "Drift" do controle de toque no celular) saem com
+a manobra; é remoção de exibição, sem regra nova na renderização nem no adaptador de controle
+([SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md),
+[SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md),
+[SCR-0003](../screens/SCR-0003-tela-inicial-dica-e-guia-de-manobras.md); `SEED/RE-01`, `DOMAIN/DEC-16`,
+`DOMAIN/DEC-17`).
 
 ## O que esta regra não julga
 

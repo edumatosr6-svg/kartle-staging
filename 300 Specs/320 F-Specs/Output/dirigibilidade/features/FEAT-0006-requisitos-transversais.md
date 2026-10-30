@@ -4,7 +4,7 @@ title: Requisitos transversais — camada de simulação, contrato de passo, Rea
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 2.1.0
+version: 2.2.0
 sources: [NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008]
 ---
 
@@ -13,8 +13,8 @@ sources: [NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008]
 ## Resumo
 
 Reúne o que vale para toda a feature e não pertence a uma história só: as regras de pilotagem ficam na
-camada de simulação (I2), e retirar da tela o drift e o turbo é só remoção de exibição (`SEED/RE-01`,
-`DOMAIN/DEC-16`); o contrato de passo não muda (I8); o preset Realista e a
+camada de simulação (I2), e retirar de todas as telas o drift e o turbo é só remoção de exibição
+(`SEED/RE-01`, `DOMAIN/DEC-16`, `DOMAIN/DEC-17`); o contrato de passo não muda (I8); o preset Realista e a
 validação de volta não mudam; o custo por passo não sobe mais de 10 %; teclado e inclinação atendem os
 mesmos critérios; e cada mudança de parâmetro registra parâmetros e resultados em `docs/physics.md` (I9).
 
@@ -28,9 +28,10 @@ objeto do requisito 05.
 - REQ-FEAT-0006-01: O sistema SHALL decidir resposta do volante, aderência, recuperação da traseira,
   aceleração, velocidade máxima, perda na grama e na parede na camada de simulação, com 0 regras de
   pilotagem em renderização ou em adaptador de controle; a retirada do drift e do turbo tira regras de
-  pilotagem da simulação sem criar nenhuma fora dela, e retirar da tela (HUD, resultado e texto
-  compartilhado) o que os mostrava é só remoção de exibição, sem regra nova na renderização (NFR-0005;
-  D-FS-05).
+  pilotagem da simulação sem criar nenhuma fora dela, e retirar da tela o que os mostrava, ensinava ou
+  oferecia — HUD, resultado, texto compartilhado, tela inicial, dica da barra de ferramentas, guia de
+  manobras e o botão "Drift" do controle de toque no celular — é só remoção de exibição, sem regra nova na
+  renderização (NFR-0005; D-FS-05).
 - REQ-FEAT-0006-02: O sistema SHALL manter a simulação com 0 importações de camada externa (DOM,
   renderização, áudio, relógio de parede), de modo que todos os ensaios de `RULE-0002` executem sem DOM em
   `npm test` (NFR-0005).
@@ -58,8 +59,8 @@ objeto do requisito 05.
   acerto, incluindo o ambiente de cada ensaio (`benchEnvironment`) e os parâmetros de ensaio
   (`speedHoldMode`, `throttleInputNorm`, `speedHoldBandMps`, `speedMinMps` e `speedMaxMps` observadas,
   `settleWindowMs`, `radiusWindowMs`, `testAreaRadiusM`, `entrySpeedMps` e a duração máxima do forçar da
-  recuperação), com os limites em vigor na revisão 5 do seed (acerto C, `DOMAIN/DEC-15`; giro de pelo
-  menos 180° em até 2 s, `DOMAIN/DEC-16`) ao lado dos da linha de base (NFR-0004).
+  recuperação), com os limites em vigor (acerto C, `DOMAIN/DEC-15`; giro de pelo menos 180° em até 2 s,
+  `DOMAIN/DEC-16`) ao lado dos da linha de base (NFR-0004).
 - REQ-FEAT-0006-09: O sistema SHALL reportar `FAIL` com `BASELINE_MISSING` em `STEP_COST` quando a linha de
   base do custo por passo não está registrada para a mesma máquina e runtime, sem comparar com linha de
   base de outra máquina [DOMAIN] (I9; NFR-0002).
@@ -75,7 +76,7 @@ Camadas: [FLOW-0001](../flows/FLOW-0001-passo-de-simulacao-e-hud.md).
 | Situação | Comportamento |
 |---|---|
 | Regra de pilotagem encontrada em renderização ou adaptador | Não atende o requisito 01; a regra pertence à simulação |
-| Indicadores do drift e do turbo retirados do HUD, do resultado e do texto compartilhado | Remoção de exibição permitida; nenhuma regra nova na renderização (requisito 01) |
+| Drift e turbo retirados do HUD, do resultado, do texto compartilhado, da tela inicial, da dica da barra de ferramentas, do guia de manobras e do controle de toque (botão "Drift") | Remoção de exibição permitida; nenhuma regra nova na renderização (requisito 01) |
 | Ensaio que precisa de DOM para rodar | Não atende o requisito 02 |
 | `STEP`, solver ou `Input` alterados | `STEP_CONTRACT` dá `FAIL` com `CONTRACT_CHANGED` |
 | Medida do Realista diferente da linha de base | `REALISTA_UNCHANGED` dá `FAIL` com `CONTRACT_CHANGED` |

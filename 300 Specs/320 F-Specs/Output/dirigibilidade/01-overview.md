@@ -3,7 +3,7 @@ title: Visão geral — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 4.0.1
+version: 4.1.0
 sources: []
 ---
 
@@ -18,8 +18,8 @@ mas controlável, acelere e transmita velocidade e risco, sem drift nem turbo �
 justo: mesma sequência de `Input`, mesmo tempo; passo, solver e `Input` inalterados; acerto declarado como
 nova versão, com tempos e replays antigos legíveis mas nunca comparáveis. A base é o conjunto de requisitos
 validado em `200 Requirements/230 Output/dirigibilidade/` (US-0001 a US-0005, NFR-0001 a NFR-0009,
-versão 4.3.0, seed `revision: 5`), que já carrega as decisões do dono do produto (`DOMAIN/DEC-01`,
-`DEC-04`, `DEC-05`, `DEC-07` a `DEC-10`, `DEC-15`, `DEC-16`; `DOMAIN/REF-01` a `REF-03`, rótulos definidos
+changelog na versão 4.4.0, seed `revision: 6`), que já carrega as decisões do dono do produto
+(`DOMAIN/DEC-01`, `DEC-04`, `DEC-05`, `DEC-07` a `DEC-10`, `DEC-15` a `DEC-17`; `DOMAIN/REF-01` a `REF-03`, rótulos definidos
 em `01-context.md` daquele conjunto).
 
 Os limites em vigor são: resposta do volante em 180 ms / 250 ms; raio da trajetória de no máximo 13 m 3 s
@@ -30,7 +30,9 @@ do piloto de teste em 25 s sem sair do asfalto ([RULE-0002](rules/RULE-0002-ensa
 revisão 4 do seed (`DOMAIN/DEC-15`) retirou os ensaios do arco de raio 18 m, a varredura de início do
 subesterço, o piso de 105 km/h e a manobra de drift e o turbo de `requirements/11`; a revisão 5
 (`DOMAIN/DEC-16`) trocou o raio sem acelerador pelo giro em até 2 s e disse que retirar o drift e o turbo
-da tela é só remoção de exibição. Os valores medidos do acerto C que a decisão registra (69,3 km/h; 2,21 s;
+da tela é só remoção de exibição; a revisão 6 (`DOMAIN/DEC-17`) estendeu a retirada a todas as telas que
+ensinavam ou ofereciam os dois — tela inicial, dica da barra de ferramentas, guia de manobras e o botão
+"Drift" do controle de toque no celular. Os valores medidos do acerto C que a decisão registra (69,3 km/h; 2,21 s;
 ≈ 11,7 m; 208°; 23,05 s) são informação, não limites.
 
 **Onde cada ensaio roda (`SEED/RD-06`, `DOMAIN/REF-03`, `DOMAIN/DEC-15`).** Os ensaios de resposta do
@@ -52,8 +54,8 @@ papel é `player` (anônimo). Nomes de campo em `camelCase` plano com a unidade 
 
 | Canal | O que esta especificação fixa |
 |---|---|
-| `web-desktop` | Esterço e acelerador binários pelo teclado (0, 1 ou −1); todos os limites de resposta, curva, recuperação, aceleração e velocidade valem sem diferença; a tecla de drift não tem efeito; HUD de velocidade e aderência em todos os quadros da volta, sem indicador de drift ou turbo |
-| `web-mobile` | Esterço proporcional pela inclinação e acelerador por toque; os mesmos limites para a inclinação mantida no ângulo mapeado para esterço 1 (ou −1); limites próprios de resposta para esterço parcial (90 % em 180 ms; 10 % em 250 ms); sem sensor ou sem permissão, controle por toque com estado visível e entradas binárias (I4); o controle de drift do toque, se entregue, não tem efeito; o mesmo HUD |
+| `web-desktop` | Esterço e acelerador binários pelo teclado (0, 1 ou −1); todos os limites de resposta, curva, recuperação, aceleração e velocidade valem sem diferença; a tecla de drift não tem efeito e nenhuma tela a ensina; HUD de velocidade e aderência em todos os quadros da volta, sem indicador de drift ou turbo; tela inicial, dica da barra de ferramentas e guia de manobras sem drift nem turbo |
+| `web-mobile` | Esterço proporcional pela inclinação e acelerador por toque; os mesmos limites para a inclinação mantida no ângulo mapeado para esterço 1 (ou −1); limites próprios de resposta para esterço parcial (90 % em 180 ms; 10 % em 250 ms); sem sensor ou sem permissão, controle por toque com estado visível e entradas binárias (I4); o controle de toque não exibe o botão "Drift" nem outro controle de drift ou de turbo, com o sensor ativo e no recuo para toque; o mesmo HUD e as mesmas telas sem drift nem turbo |
 | Piloto de teste (`npm run bench:handling`) | Sem canal de jogo: volta determinística na pista sintética (raios mínimos 24 m e 25 m, grampo de 4 m) com comandos binários, em no máximo 25 s, com zero passos fora do asfalto e, em todos os passos, sem `oversteer`, sem `sliding` e com derrapagem lateral de no máximo 0,65 rad; é a régua de regressão |
 | Ensaios na pista de teste aberta (`npm test`, `npm run bench:handling`) | Sem canal de jogo: resposta do volante (partida em reta, 50 km/h mantidos), raio da trajetória (50 km/h e 70 km/h, acelerador cheio), giro (50 km/h, acelerador 0), recuperação da traseira; alimentam a simulação com a mesma forma de `Input` que os adaptadores produzem; o Jogador não pilota na pista de teste |
 
@@ -67,7 +69,7 @@ normalizado de `Input` que o adaptador entrega (I2, I8). Os canais diferem só n
 | Funcionalidades | `features/FEAT-0001` (resposta do volante), `FEAT-0002` (aderência em curva: raio e giro), `FEAT-0003` (traseira viva e controlável, sem drift nem turbo), `FEAT-0004` (aceleração, velocidade, grama, parede e HUD), `FEAT-0005` (determinismo, piloto de teste e versão do acerto), `FEAT-0006` (requisitos transversais) |
 | Fluxos | `flows/FLOW-0001` (passo de simulação e HUD), `FLOW-0002` (ensaio determinístico e volta do piloto de teste), `FLOW-0003` (leitura de replay e comparação entre versões) |
 | Contratos | `api/API-0001` (telemetria de dirigibilidade por passo), `API-0002` (versão do acerto no dado publicado, no replay e no resultado), `API-0003` (saída dos ensaios de dirigibilidade) |
-| Telas | `screens/SCR-0001` (HUD de velocidade e aderência), `SCR-0002` (resultado e texto compartilhado sem comparação entre versões do acerto) |
+| Telas | `screens/SCR-0001` (HUD de velocidade e aderência e controle de toque), `SCR-0002` (resultado e texto compartilhado sem comparação entre versões do acerto), `SCR-0003` (tela inicial, dica da barra de ferramentas e guia de manobras sem drift nem turbo) |
 | Regras | `rules/RULE-0001` (estado de aderência, condução normal, condição de forçar, recuperação e ausência de drift), `RULE-0002` (ambientes, ensaios e limiares de dirigibilidade), `RULE-0003` (versão do acerto e comparabilidade) |
 
 O índice (`00-index.md`) e a matriz de rastreabilidade (`99-traceability.md`) são gerados pelo gate e não
@@ -77,11 +79,11 @@ são escritos à mão.
 
 Resposta do volante, aderência, recuperação da traseira, aceleração, velocidade máxima, perda na grama e na
 parede são decididas pelos parâmetros do acerto e pelas assistências dentro da simulação; a ausência de
-efeito do comando de drift também. A apresentação só exibe (HUD, resultado, texto compartilhado) e os
+efeito do comando de drift também. A apresentação só exibe (HUD, resultado, texto compartilhado, tela inicial, dica, guia, controle de toque) e os
 adaptadores de controle só entregam o `Input` normalizado; nenhuma regra de pilotagem é decidida na
-renderização nem num adaptador (D-FS-05, NFR-0005). Retirar da tela o que mostrava o drift e o turbo é só
-remoção de exibição, permitida pela restrição de I2, sem regra nova na renderização (`SEED/RE-01`,
-`DOMAIN/DEC-16`). A validação de volta e o dado de pista não mudam (NFR-0008). A pista de teste é ambiente
+renderização nem num adaptador (D-FS-05, NFR-0005). Retirar da tela o que mostrava, ensinava ou oferecia
+o drift e o turbo é só remoção de exibição, permitida pela restrição de I2, sem regra nova na renderização
+(`SEED/RE-01`, `DOMAIN/DEC-16`, `DOMAIN/DEC-17`). A validação de volta e o dado de pista não mudam (NFR-0008). A pista de teste é ambiente
 da simulação para ensaio: nenhuma tela a exibe e nenhum adaptador a alcança.
 
 ## Decisões de forma desta especificação
@@ -145,8 +147,9 @@ Cada critério tem ensaio determinístico na saída de `npm test` ou dos benches
 bench de física), avançando a simulação com `STEP` sem renderização nem controles (I9), no ambiente que
 [RULE-0002](rules/RULE-0002-ensaios-e-limiares.md) declara para cada ensaio; os critérios de tela e de
 texto compartilhado (ausência do drift e do turbo; comparação só entre versões iguais) são observados em
-[SCR-0001](screens/SCR-0001-hud-de-velocidade-e-aderencia.md) e
-[SCR-0002](screens/SCR-0002-resultado-e-texto-compartilhado.md). A rodada de teste do dono do produto na
+[SCR-0001](screens/SCR-0001-hud-de-velocidade-e-aderencia.md),
+[SCR-0002](screens/SCR-0002-resultado-e-texto-compartilhado.md) e
+[SCR-0003](screens/SCR-0003-tela-inicial-dica-e-guia-de-manobras.md). A rodada de teste do dono do produto na
 build (`DOMAIN/DEC-08`) é condição humana de fechamento, posterior à etapa de testes, e não é critério
 desta especificação. O ciclo dessa rodada é o de `DOMAIN/DEC-10`: cada rodada de código é publicada em
 staging, o dono do produto devolve feedback curto (vira? acelera? traseira?) e os presets são iterados

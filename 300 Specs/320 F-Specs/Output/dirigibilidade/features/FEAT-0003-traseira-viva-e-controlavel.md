@@ -4,8 +4,8 @@ title: Traseira viva mas controlável
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 4.0.1
-sources: [US-0003, NFR-0005, AC-US-0003-01, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11]
+version: 4.1.0
+sources: [US-0003, NFR-0005, AC-US-0003-01, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13, AC-US-0003-14, AC-US-0003-15]
 ---
 
 # FEAT-0003 — Traseira viva mas controlável
@@ -19,21 +19,27 @@ lateral não passa de 0,65 rad. Na pista de teste aberta, forçando a traseira (
 cheio acima de 50 km/h) até ela soltar, zerar o esterço devolve `grip` em no máximo 400 ms
 (`DOMAIN/DEC-04`) sem rodar. O drift e o turbo de `requirements/11` não existem mais (`SEED/RD-01`,
 `DOMAIN/DEC-15`): segurar o comando de drift não muda nada, não há carga, mini-turbo nem impulso, a
-velocidade máxima é a mesma em qualquer situação, e nenhum indicador de drift ou turbo aparece na tela
-nem no texto compartilhado — a retirada da exibição é só remoção, sem regra nova na renderização
-(`SEED/RE-01`, `DOMAIN/DEC-16`).
+velocidade máxima é a mesma em qualquer situação, nenhum indicador de drift ou turbo aparece na tela
+nem no texto compartilhado, e nenhuma tela ensina ou oferece o drift ou o turbo — nem a tela inicial, nem
+a dica da barra de ferramentas, nem o guia de manobras, nem o controle de toque do celular, que perde o
+botão "Drift". A retirada da exibição é só remoção, sem regra nova na renderização (`SEED/RE-01`,
+`DOMAIN/DEC-16`, `DOMAIN/DEC-17`).
 
 ## Canais
 
 `web-desktop` e `web-mobile`: mesma condição de forçar, mesmo limite de recuperação, mesmo teto de
 derrapagem e mesma ausência de drift e de turbo. No teclado, a condição de forçar são as duas teclas
-mantidas acima de 50 km/h, e o comando de drift é a tecla de drift. Na inclinação, a condição de forçar
-exige o ângulo mapeado para esterço 1 (ou −1) e o toque de acelerador cheio; com esterço parcial ela não se
-mantém; o comando de drift é o controle de drift que o adaptador de toque entregue, e vale o mesmo que no
-teclado. Sem sensor ou sem permissão: toque, entradas binárias, mesmos requisitos (I4). Os requisitos 01 e
+mantidas acima de 50 km/h, e o comando de drift é a tecla de drift, que nenhuma tela ensina. Na
+inclinação, a condição de forçar exige o ângulo mapeado para esterço 1 (ou −1) e o toque de acelerador
+cheio; com esterço parcial ela não se mantém; o controle de toque não exibe o botão "Drift" nem outro
+controle de drift ou de turbo, com o sensor ativo e no recuo para toque; o comando de drift no `Input`,
+mantido ou não, vale o mesmo que no teclado. Sem sensor ou sem permissão: toque, entradas binárias, mesmos requisitos (I4). Os requisitos 01 e
 06 são observados na volta do piloto de teste na pista sintética; os requisitos 04 e 05, na pista de teste
 aberta (`SEED/RD-06`); os requisitos 13 e 16 valem em qualquer ambiente; o requisito 14 é observado na
-tela, nos dois canais, e o requisito 15, no texto compartilhado.
+tela, nos dois canais, e o requisito 15, no texto compartilhado; os requisitos 18, 19 e 20, na tela
+inicial, na dica da barra de ferramentas e no guia de manobras, nos dois canais; o requisito 21, no
+controle de toque exibido durante a volta, só em `web-mobile`, porque `web-desktop` pilota com teclado e
+não tem controle de toque.
 
 ## Requisitos
 
@@ -58,6 +64,21 @@ tela, nos dois canais, e o requisito 15, no texto compartilhado.
 - REQ-FEAT-0003-15: O sistema SHALL NOT incluir no texto compartilhado do resultado, gerado em
   `web-desktop` ou em `web-mobile`, indicador de carga de drift, de turbo ou de impulso, combo ou pontuação
   de drift (AC-US-0003-11).
+- REQ-FEAT-0003-18: O sistema SHALL NOT exibir na tela inicial, em `web-desktop` nem em `web-mobile`,
+  texto, ícone ou controle que mencione ou ofereça o drift ou o turbo: o comando de drift (a tecla de drift
+  ou um controle de drift), carga de drift, turbo, mini-turbo ou impulso, combo ou pontuação de drift
+  (AC-US-0003-12).
+- REQ-FEAT-0003-19: O sistema SHALL NOT exibir na dica da barra de ferramentas, em `web-desktop` nem em
+  `web-mobile`, texto, ícone ou controle que mencione ou ofereça o drift ou o turbo: o comando de drift (a
+  tecla de drift ou um controle de drift), carga de drift, turbo, mini-turbo ou impulso, combo ou pontuação
+  de drift (AC-US-0003-13).
+- REQ-FEAT-0003-20: O sistema SHALL NOT exibir no guia de manobras, em `web-desktop` nem em `web-mobile`,
+  texto, ícone ou controle que mencione ou ofereça o drift ou o turbo: o comando de drift (a tecla de drift
+  ou um controle de drift), carga de drift, turbo, mini-turbo ou impulso, combo ou pontuação de drift
+  (AC-US-0003-14).
+- REQ-FEAT-0003-21: O sistema SHALL NOT exibir, em `web-mobile`, durante a volta, no controle de toque —
+  com o sensor de inclinação ativo e no recuo para toque com sensor ausente ou permissão negada —, o botão
+  "Drift" nem outro controle que acione o comando de drift ou um turbo (AC-US-0003-15).
 - REQ-FEAT-0003-16: O sistema SHALL, no estado da simulação, em todo ensaio desta feature que parte de
   velocidade igual ou menor que a velocidade estabilizada e na volta do piloto de teste, inclusive com o
   comando de drift mantido, manter a velocidade do kart em no máximo a velocidade estabilizada medida por
@@ -73,8 +94,10 @@ tela, nos dois canais, e o requisito 15, no texto compartilhado.
   anormal "Acelerador mantido cheio durante a recuperação").
 - REQ-FEAT-0003-10: O sistema SHALL avaliar a condição de forçar, a recuperação, o estado de aderência e a
   ausência de efeito do comando de drift na simulação, a partir do `Input` e do estado do passo, nunca no
-  adaptador de controle nem na renderização; a retirada da exibição do drift e do turbo não acrescenta
-  regra à renderização [DOMAIN] (I2; D-FS-05; NFR-0005).
+  adaptador de controle nem na renderização; a retirada da exibição, do ensino e da oferta do drift e do
+  turbo — HUD, resultado, texto compartilhado, tela inicial, dica da barra de ferramentas, guia de
+  manobras e o botão "Drift" do controle de toque — não acrescenta regra à renderização nem ao adaptador
+  de controle [DOMAIN] (I2; D-FS-05; NFR-0005).
 - REQ-FEAT-0003-11: O sistema SHALL contar os 400 ms do requisito 04 em tempo simulado, sem incluir o tempo
   em que a simulação esteve suspensa por pausa, perda de foco ou perda do sensor [DOMAIN] (I8; US-0003,
   caso anormal "Pausa, perda de foco ou perda do sensor durante a recuperação").
@@ -101,9 +124,11 @@ Condição de forçar, condução normal, recuperação e ausência de drift e t
 [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md),
 [FLOW-0002](../flows/FLOW-0002-ensaio-deterministico-e-piloto-de-teste.md),
 [API-0003](../api/API-0003-saida-dos-ensaios.md). Telemetria:
-[API-0001](../api/API-0001-telemetria-de-dirigibilidade.md) (`handling`, `sideslipRad`, `forcing`). Tela e
-texto compartilhado: [SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md),
-[SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md).
+[API-0001](../api/API-0001-telemetria-de-dirigibilidade.md) (`handling`, `sideslipRad`, `forcing`). HUD e
+controle de toque: [SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md); resultado e texto
+compartilhado: [SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md); tela inicial, dica da
+barra de ferramentas e guia de manobras:
+[SCR-0003](../screens/SCR-0003-tela-inicial-dica-e-guia-de-manobras.md).
 
 | Situação | Comportamento |
 |---|---|
@@ -118,10 +143,15 @@ texto compartilhado: [SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderenci
 | Comando de drift mantido, inclusive durante a condição de forçar ou a recuperação | Nenhum efeito no estado da simulação; os requisitos 04 e 05 valem igual; a velocidade não passa da estabilizada (requisitos 13 e 16) |
 | Replay gravado com drift na versão anterior do acerto | É de outra versão e não é comparável ([FEAT-0005](FEAT-0005-determinismo-piloto-de-teste-e-versao.md)); reproduzido com o novo acerto, o comando de drift gravado não tem efeito (requisito 13) |
 | HUD, tela de resultado e texto compartilhado | Sem indicador de carga de drift, turbo ou impulso, combo ou pontuação de drift (requisitos 14 e 15) |
+| Tela inicial, dica da barra de ferramentas e guia de manobras, nos dois canais | Nenhum texto, ícone ou controle que mencione ou ofereça o drift ou o turbo, nem a tecla de drift nem um controle de drift (requisitos 18 a 20) |
+| Tela inicial, dica ou guia cujo conteúdo era só o drift ou o turbo | O conteúdo sai sem texto novo no lugar; nenhum requisito exige nem proíbe que a dica ou o guia continue existindo |
+| Controle de toque durante a volta (`web-mobile`), com o sensor ativo ou no recuo para toque | Sem o botão "Drift" e sem outro controle que acione o comando de drift ou um turbo (requisito 21) |
+| Tecla de drift pressionada em `web-desktop` | Nada muda na simulação (requisito 13); nenhuma tela ensina a tecla (requisitos 18 a 20) nem mostra indicador de drift ou de turbo (requisito 14) |
+| Idioma da interface | Os requisitos 14, 15 e 18 a 21 valem em cada idioma que a interface oferece (RNF11) |
 | Kart fora da área de asfalto declarada na pista de teste aberta | `FAIL` com `TEST_AREA_EXCEEDED`, passo e posição: medição inválida ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md)) |
 | Grama ou parede com a traseira solta (pista sintética) | Redução de velocidade de [FEAT-0004](FEAT-0004-aceleracao-velocidade-grama-parede-e-hud.md); o requisito 04 é medido na pista de teste aberta, que não tem grama nem parede |
 | Pausa, perda de foco, perda do sensor | Simulação suspensa; os 400 ms não contam a suspensão (requisito 11) |
-| Sensor ausente ou permissão negada antes da volta (`web-mobile`) | Toque com estado visível; requisitos inalterados |
+| Sensor ausente ou permissão negada antes da volta (`web-mobile`) | Toque com estado visível; requisitos inalterados; o controle de toque do recuo também não exibe o botão "Drift" (requisito 21) |
 | Rede indisponível | Sem efeito (D-FS-08) |
 
 ## Estado
@@ -140,7 +170,7 @@ manobra não existe.
 
 Nenhuma. Nenhuma configuração existe para forçar um evento, injetar um estado ou habilitar um caminho de
 depuração; o ensaio chega à traseira solta pela condição de forçar, pelas mesmas operações públicas.
-Nenhuma configuração religa o drift ou o turbo. A velocidade de partida, a duração máxima do forçar e o
+Nenhuma configuração religa o drift ou o turbo nem devolve à tela o seu ensino ou o botão "Drift". A velocidade de partida, a duração máxima do forçar e o
 raio da área declarada são parâmetros de ensaio reportados e registrados em `docs/physics.md`.
 
 ## Critérios de aceite
@@ -160,6 +190,13 @@ raio da área declarada são parâmetros de ensaio reportados e registrados em `
   drift no HUD durante a volta nem na tela de resultado (satisfaz AC-US-0003-09; cobre o requisito 14).
 - No texto compartilhado, gerado nos dois canais, nenhum desses indicadores (satisfaz AC-US-0003-11; cobre
   o requisito 15).
+- Na tela inicial, na dica da barra de ferramentas e no guia de manobras, nos dois canais e em cada idioma
+  da interface, nenhum texto, ícone ou controle que mencione ou ofereça o drift ou o turbo, inclusive a
+  tecla de drift e um controle de drift (satisfaz AC-US-0003-12, AC-US-0003-13, AC-US-0003-14; cobre os
+  requisitos 18, 19 e 20).
+- No controle de toque de `web-mobile` durante a volta, com o sensor ativo e no recuo para toque, nenhum
+  botão "Drift" nem outro controle que acione o comando de drift ou um turbo (satisfaz AC-US-0003-15;
+  cobre o requisito 21).
 - `SPEED_CAP`: `maxObservedSpeedMps` ≤ `topSpeedMps` (satisfaz AC-US-0003-10; cobre o requisito 16).
 - A saída de `npm test` ou de `npm run bench:handling` contém `REAR_RECOVERY`, `NORMAL_DRIVING`,
   `DRIFT_INERT` e `SPEED_CAP` com os campos nomeados (satisfaz AC-US-0003-07; cobre o requisito 08).

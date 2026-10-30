@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 4.0.1
+version: 4.1.0
 sources: []
 ---
 
@@ -1102,3 +1102,91 @@ nenhuma.
 pelos mesmos motivos. Proposta ao autor, só se ele quiser o rótulo de versão na tela: um critério novo nos
 requisitos, para `SCOPE-BACKLOG.md` (não escrita por esta etapa): "2026-10-30 fspec-loop rodada 12 — exibir
 a versão do acerto ao lado do tempo na tela de resultado e no texto compartilhado?".
+
+## 2026-10-30 — rodada 13, Mode C (requisitos revalidados contra o seed `revision: 6`; US-0003 4.3.0)
+
+**Gatilho**: os requisitos foram revalidados contra a revisão 6 do seed (`req-validation-20261030-1509`,
+SUCCESS, sem issues). A revisão 6 (`DOMAIN/DEC-17`) estende `SEED/RE-01` a todas as telas que ensinavam ou
+ofereciam o drift e o turbo, e US-0003 ganha quatro critérios atômicos: AC-US-0003-12 (tela inicial),
+AC-US-0003-13 (dica da barra de ferramentas), AC-US-0003-14 (guia de manobras), nos dois canais, e
+AC-US-0003-15 (o controle de toque de `web-mobile` sem o botão "Drift"). NFR-0005 (1.4.0) cita essas telas;
+NFR-0004 (4.2.1) troca "os limites em vigor na revisão 5 do seed" por "os limites em vigor"; o glossário dos
+requisitos ganha "Tela inicial", "Dica da barra de ferramentas", "Guia de manobras" e "Controle de toque", e
+"Comando de drift" perde o controle de drift do toque. Nenhum `FEEDBACK-<nn>` pendente.
+
+**O que mudou**
+
+- `FEAT-0003` (4.1.0): requisitos novos REQ-FEAT-0003-18 (tela inicial, AC-US-0003-12), REQ-FEAT-0003-19
+  (dica da barra de ferramentas, AC-US-0003-13), REQ-FEAT-0003-20 (guia de manobras, AC-US-0003-14), os três
+  nos dois canais e com a mesma lista do critério (o comando de drift, tecla ou controle; carga de drift,
+  turbo, mini-turbo ou impulso; combo ou pontuação de drift), e REQ-FEAT-0003-21 (o controle de toque de
+  `web-mobile`, com o sensor ativo e no recuo para toque, sem o botão "Drift" nem outro controle de drift ou
+  de turbo, AC-US-0003-15). Resumo e Canais: a tecla de drift não é ensinada; o controle de toque não
+  oferece controle de drift, e o comando de drift no `Input` continua julgado pelo requisito 13; pontos de
+  observação dos requisitos 18 a 21, com o 21 só em `web-mobile` porque `web-desktop` não tem controle de
+  toque. REQ-FEAT-0003-10 ([DOMAIN]) nomeia todas as telas da retirada e o adaptador de controle. Tabela de
+  comportamento: linhas novas para as três telas, para a tela, dica ou guia cujo conteúdo era só o drift
+  (nenhum texto novo no lugar; nem exigido nem proibido que a dica ou o guia continue), para o controle de
+  toque, para a tecla de drift pressionada em `web-desktop` e para o idioma da interface (RNF11); a linha do
+  recuo para toque diz que o controle do recuo também não exibe o botão. Configuração: nenhuma configuração
+  devolve à tela o ensino do drift ou o botão. Critérios de aceite novos para AC-US-0003-12 a 15. Sources com
+  os quatro critérios.
+- `SCR-0003` (1.0.0, novo): a tela inicial, a dica da barra de ferramentas e o guia de manobras sem drift nem
+  turbo, nos dois canais — propósito, canal, pontos de entrada, estados (Carregando, Populado, Vazio para o
+  conteúdo que era só o drift, Erro, Offline, Permissão negada nos dois canais, idioma), ações e navegação.
+  Nenhum elemento novo: o arquivo especifica só a retirada nas telas existentes, que não redefine.
+- `SCR-0001` (1.2.0): título e propósito passam a cobrir o controle de toque exibido durante a volta, de
+  que só se especifica a retirada do botão "Drift" (AC-US-0003-15); linha "Controle de toque" na tabela de
+  canais; estados Populado e Permissão negada (recuo para toque) sem o botão; parágrafo de idioma; a ação
+  "Manter o comando de drift (tecla de drift; controle de drift do toque)" passa a "Manter a tecla de drift"
+  (`web-desktop`) e "Pilotar pelo controle de toque" (`web-mobile`, sem controle de drift oferecido).
+- Mesmo fato nos outros sites (o controle de drift do toque deixou de existir; a retirada cobre todas as
+  telas): `RULE-0001` (4.1.0), linha "O comando de drift" e parágrafo da exibição, com `SCR-0003` e
+  `DOMAIN/DEC-17`; `FLOW-0001` (1.2.2), linha "Comando de drift mantido"; `02-glossary.md` (4.1.0), "Comando
+  de drift" e os termos novos "Tela inicial", "Dica da barra de ferramentas", "Guia de manobras" e "Controle
+  de toque"; `01-overview.md` (4.1.0), base dos requisitos (seed `revision: 6`, `DEC-15` a `DEC-17`),
+  parágrafo da revisão 6, linhas dos dois canais, mapa do conjunto com `SCR-0003`, camadas e verificação.
+- `FEAT-0006` (2.2.0): REQ-FEAT-0006-01 e a linha de comportamento correspondente nomeiam todas as telas da
+  retirada (NFR-0005 1.4.0); REQ-FEAT-0006-08 diz "os limites em vigor", sem "na revisão 5 do seed"
+  (NFR-0004 4.2.1).
+
+**Versões**: `FEAT-0003`, `RULE-0001`, `01-overview.md` e `02-glossary.md` em 4.1.0; `FEAT-0006` em 2.2.0;
+`SCR-0001` em 1.2.0; `SCR-0003` em 1.0.0; `FLOW-0001` em 1.2.2; este changelog em 4.1.0; todos em
+`status: draft`. Intocados: `FEAT-0001`, `FEAT-0002`, `FEAT-0004`, `FEAT-0005`, `API-0001` a `API-0003`,
+`FLOW-0002`, `FLOW-0003`, `RULE-0002`, `RULE-0003`, `SCR-0002` (AC-US-0003-09 e AC-US-0003-11 não mudaram, e
+o arquivo não nomeia o controle de drift do toque) e `98-divergences.md`. `00-index.md` e
+`99-traceability.md` regenerados pelo gate.
+
+**Superfície**: Mode C sobre requisitos movidos; os quatro requisitos novos e a tela `SCR-0003` realizam
+AC-US-0003-12 a 15 (`SEED/RE-01` da revisão 6, `DOMAIN/DEC-17`). Nenhum contrato, campo, valor de enum,
+ensaio ou elemento de tela acrescentado: os requisitos novos só exigem retirada. Requisitos funcionais: 64
+antes e 68 depois. Critérios `AC-*` realizados: 33 antes e 37 depois.
+
+**Tabela de migração** (conventions §17): nenhum requisito, contrato, campo ou ensaio retirado nem
+renomeado.
+
+| Item | Antes (rodada 12) | Agora |
+|---|---|---|
+| REQ-FEAT-0003-18 a 21 | — | novos: tela inicial, dica, guia e controle de toque sem drift nem turbo |
+| `SCR-0003` | — | nova tela especificada (só a retirada) |
+| Comando de drift em `web-mobile` | o controle de drift que o adaptador de toque entregue | o controle de toque não oferece controle de drift; o campo de `Input` continua, com o mesmo nome e faixa, e a simulação o ignora |
+| REQ-FEAT-0003-14, REQ-FEAT-0003-15 | HUD e resultado; texto compartilhado | sem mudança |
+
+**Itens fechados**: nenhum `ISSUE-<nn>`/`FB-<nn>` pendente; a rodada 12 passou. Divergências registradas:
+nenhuma. A constatação da validação de testes que motivou a revisão 6 chegou aos requisitos só por
+`DOMAIN.md`; esta etapa não lê a raiz de código, e a retirada é devida pela etapa de código na próxima
+rodada, como os demais requisitos ainda não implementados. `98-divergences.md` não muda.
+
+**Itens recusados, com motivo**
+
+- Nomear o arquivo ou o componente da tela inicial, da dica, do guia e do controle de toque: recusado; é
+  decisão de desenho (política de contrato estrito, regra 12), e os requisitos também o recusaram.
+- Nomear a feature dona da tela inicial, da dica e do guia: recusado; os requisitos não a nomeiam, e esta
+  etapa não lê o código para descobri-la (§12). O controle de toque fica na tela da corrida de
+  `race-lap-validation`, já nomeada em `SCR-0001`.
+- Especificar texto substituto para a dica ou o guia cujo conteúdo era só o drift, ou decidir se eles
+  continuam existindo: recusado; os requisitos não pedem texto novo de tela (RNF11) e não exigem nem proíbem
+  que continuem.
+- Estender o critério 15 ao estado de contagem antes do sinal verde: recusado; AC-US-0003-15 é observado
+  "durante a volta", e esta etapa não alarga o critério.
+- Os itens recusados das rodadas 11 e 12 continuam recusados pelos mesmos motivos.
