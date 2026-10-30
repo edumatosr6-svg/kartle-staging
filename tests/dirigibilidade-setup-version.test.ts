@@ -89,9 +89,18 @@ test('CHK-TEST-0008-03 two records are comparable only on the same track, setup 
   assert.deepEqual(compareLapRecords(a, incompleteResult()), { code: 'INCOMPLETE_RECORD' }, 'AC-US-0005-05: a record without trackVersion is INCOMPLETE_RECORD');
   assert.deepEqual(compareLapRecords(oldResult(), a), { comparability: 'SETUP_VERSION_DIFFERS' }, 'AC-US-0005-05: a result without the fields resolves to the previous version and is not comparable with the current one');
   assert.deepEqual(compareLapRecords(oldResult(), { ...SYNTHETIC_IDENTITY, setupVersion: previousVersion }), { comparability: 'COMPARABLE' }, 'AC-US-0005-05: two previous-version records are comparable with each other');
+  // The previous replay is an official v4 lap: with the v4 configuration it reproduces its own valid lap and is comparable
+  // with its recording; with the current setup it gives a result that is never comparable with the recording (abnormal case
+  // of US-0005), ending at its first result (test strategy: never NO_RESULT for a lap that ends).
+  const v4Setup = { ...ARCADE, setupVersion: previousVersion, config: ARCADE_KART };
+  const own = replayLap(v4Replay(), reading, v4Setup);
+  assert.ok(own.ok && own.comparability === 'COMPARABLE' && own.record.lapValidity === 'VALID', `AC-US-0005-05: the previous replay must reproduce its own valid lap with the previous configuration (got ${JSON.stringify(own.ok ? { comparability: own.comparability, lapValidity: own.record.lapValidity } : own)})`);
   const replayed = replayLap(v4Replay(), reading, ARCADE);
-  assert.ok(replayed.ok, 'AC-US-0005-05: the previous replay must reproduce with the current setup');
-  if (replayed.ok) assert.equal(replayed.comparability, 'SETUP_VERSION_DIFFERS', 'AC-US-0005-05: the reproduced previous replay is never comparable with its recording');
+  assert.ok(replayed.ok, `AC-US-0005-05: the previous replay must reproduce with the current setup up to a result (got ${JSON.stringify(replayed.ok ? 'ok' : replayed)})`);
+  if (!replayed.ok || !own.ok) return;
+  assert.equal(replayed.comparability, 'SETUP_VERSION_DIFFERS', 'AC-US-0005-05: the reproduced previous replay is never comparable with its recording');
+  assert.equal(replayed.record.setupVersion, ARCADE.setupVersion, 'AC-US-0005-05: the reproduced record carries the current setup version, not the recorded one');
+  assert.notDeepEqual({ lapValidity: replayed.record.lapValidity, lapMs: replayed.record.lapMs }, { lapValidity: own.record.lapValidity, lapMs: own.record.lapMs }, 'AC-US-0005-05: the result obtained with the current setup is not the recorded one');
 });
 
 test('CHK-TEST-0008-04 the same replay reproduced twice gives the same lap record and the same final state', () => {
@@ -124,7 +133,8 @@ test('CHK-TEST-0008-05 a replay of the previous version is still read and reprod
   for (let i = 0; i < COUNTDOWN_STEPS; i++) lap = stepLap(lap, IDLE);
   const ended = untilFirstResult(lap, l => replay.inputs[l.stepCount], replay.inputs.length);
   lap = ended.lap; applied = ended.steps;
-  assert.ok(applied > 0 && (applied === replay.inputs.length || !('code' in getLapResult(lap))), 'AC-US-0005-06: every input must be applied, or the lap must have given its first result');
+  assert.ok(applied > 0 && applied <= replay.inputs.length, 'AC-US-0005-06: the reproduction applies recorded inputs only');
+  assert.ok(!('code' in getLapResult(lap)), 'AC-US-0005-06: the previous replay must be reproduced up to its first result with the current setup');
   assert.equal(lap.stepCount, applied, 'AC-US-0005-06: one step per input, the contract of the step unchanged');
   assert.ok(replay.inputs.every(i => [0, 1].includes(i.throttle) && [0, 1].includes(i.brake) && [-1, 0, 1].includes(i.steer)), 'AC-US-0005-06: the previous inputs have the same fields and ranges');
 });

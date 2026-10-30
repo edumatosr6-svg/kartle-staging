@@ -1,22 +1,22 @@
-✔ CHK-TEST-0010-01 the step, the solver rate and the Input fields are the same before and after the feature (2.8298ms)
-✔ CHK-TEST-0010-02 the step cost is judged only against a baseline of the same machine and runtime, at most 10 % above it (1.6623ms)
-✔ CHK-TEST-0010-03 docs/physics.md carries a handling-baseline block with one dated entry per setup, version and runtime, the open-pad parameters and every record of API-0003 4.0.1 with its environment, and no retired bench (14.2484ms)
-✔ CHK-TEST-0010-04 the simulation modules of the feature read no DOM, clock, random, perf hooks or os, and the application decides no driving rule (10.986ms)
-✔ CHK-TEST-0010-05 the Realista preset is unchanged: no differing measure against its baseline, no arcade assist active, no new optional field (32405.7926ms)
-✔ CHK-TEST-0010-06 the lap validation and the track data of race-lap-validation do not know the setup: no import of the records module, no test-pad, and the setup fields only copied (2.5824ms)
-✔ CHK-TEST-0010-07 the records of API-0003 carry the common fields with their types, failReason only with FAIL, and every published setup is frozen (1.3039ms)
-✔ CHK-TEST-0010-08 the simulation never advances nor cancels a maneuver and its telemetry has no drift field: the drift command reaches nothing (0.6464ms)
-✔ CHK-TEST-0002-09 from 50 km/h with full throttle and full steer held, the path radius 3 s after the start is at most 13 m, to either side, in both input forms (37.3789ms)
+✔ CHK-TEST-0010-01 the step, the solver rate and the Input fields are the same before and after the feature (1.9368ms)
+✔ CHK-TEST-0010-02 the step cost is judged only against a baseline of the same machine and runtime, at most 10 % above it (1.6032ms)
+✔ CHK-TEST-0010-03 docs/physics.md carries a handling-baseline block with one dated entry per setup, version and runtime, the open-pad parameters and every record of API-0003 4.0.1 with its environment, and no retired bench (16.0292ms)
+✔ CHK-TEST-0010-04 the simulation modules of the feature read no DOM, clock, random, perf hooks or os, and the application decides no driving rule (14.4032ms)
+✔ CHK-TEST-0010-05 the Realista preset is unchanged: no differing measure against its baseline, no arcade assist active, no new optional field (48154.9476ms)
+✔ CHK-TEST-0010-06 the lap validation and the track data of race-lap-validation do not know the setup: no import of the records module, no test-pad, and the setup fields only copied (6.328ms)
+✔ CHK-TEST-0010-07 the records of API-0003 carry the common fields with their types, failReason only with FAIL, and every published setup is frozen (3.0345ms)
+✔ CHK-TEST-0010-08 the simulation never advances nor cancels a maneuver and its telemetry has no drift field: the drift command reaches nothing (2.0234ms)
+✔ CHK-TEST-0002-09 from 50 km/h with full throttle and full steer held, the path radius 3 s after the start is at most 13 m, to either side, in both input forms (85.0231ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_RADIUS","steerInputNorm":1,"entrySpeedMps":13.88888888888889,"radiusWindowMs":200,"pathRadiusAt3sM":11.670991589917488,"speedAt3sMps":15.012436061771231,"handlingAt3s":"understeer","testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # CORNER_RADIUS entrySpeedMps 50 km/h · speedAt3sMps 54.04 km/h · L 2.877 m · Θ -0.2465 rad
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_RADIUS","steerInputNorm":-1,"entrySpeedMps":13.88888888888889,"radiusWindowMs":200,"pathRadiusAt3sM":11.670991589917488,"speedAt3sMps":15.012436061771231,"handlingAt3s":"understeer","testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # CORNER_RADIUS entrySpeedMps 50 km/h · speedAt3sMps 54.04 km/h · L 2.877 m · Θ 0.2465 rad
-✔ CHK-TEST-0002-10 from 70 km/h with full throttle and full steer held, the path radius 3 s after the start is at most 13 m: the kart sheds speed instead of opening the line (52.452ms)
+✔ CHK-TEST-0002-10 from 70 km/h with full throttle and full steer held, the path radius 3 s after the start is at most 13 m: the kart sheds speed instead of opening the line (101.1156ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_RADIUS","steerInputNorm":1,"entrySpeedMps":19.444444444444443,"radiusWindowMs":200,"pathRadiusAt3sM":11.76496672397483,"speedAt3sMps":15.362132715420293,"handlingAt3s":"understeer","testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # CORNER_RADIUS entrySpeedMps 70 km/h · speedAt3sMps 55.3 km/h · L 2.945 m · Θ -0.2503 rad
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_RADIUS","steerInputNorm":-1,"entrySpeedMps":19.444444444444443,"radiusWindowMs":200,"pathRadiusAt3sM":11.764966723974807,"speedAt3sMps":15.362132715420287,"handlingAt3s":"understeer","testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # CORNER_RADIUS entrySpeedMps 70 km/h · speedAt3sMps 55.3 km/h · L 2.945 m · Θ 0.2503 rad
-✔ CHK-TEST-0002-11 from 50 km/h with throttle 0 and full steer held, the kart turns at least 180° within 2 s of the start, to either side (27.2935ms)
+✔ CHK-TEST-0002-11 from 50 km/h with throttle 0 and full steer held, the kart turns at least 180° within 2 s of the start, to either side (88.7495ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_TURN","steerInputNorm":1,"entrySpeedMps":13.88888888888889,"turnAt2sRad":3.6365631661227518,"halfTurnReachedMs":1825,"speedAt2sMps":5.17655137954395,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # CORNER_TURN entrySpeedMps 50 km/h · turnAt2sRad 208.4° · speedAt2sMps 18.64 km/h
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_TURN","steerInputNorm":-1,"entrySpeedMps":13.88888888888889,"turnAt2sRad":3.6365631661227518,"halfTurnReachedMs":1825,"speedAt2sMps":5.17655137954395,"testAreaRadiusM":100,"offAsphaltStepCount":0}
@@ -25,53 +25,57 @@
 ℹ # CORNER_TURN entrySpeedMps 50 km/h · turnAt2sRad 208.4° · speedAt2sMps 18.64 km/h
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"CORNER_TURN","steerInputNorm":-1,"entrySpeedMps":13.88888888888889,"turnAt2sRad":3.6365631661227518,"halfTurnReachedMs":1825,"speedAt2sMps":5.17655137954395,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # CORNER_TURN entrySpeedMps 50 km/h · turnAt2sRad 208.4° · speedAt2sMps 18.64 km/h
-✔ CHK-TEST-0002-06 the output carries, per input form, four CORNER_RADIUS and two CORNER_TURN records of API-0003 4.0.1 with the area fields, the speeds in km/h and the turn in degrees, and no retired corner bench (51.8952ms)
-✔ CHK-TEST-0002-08 the keyboard and the tilt forms give the same radius and the same turn, both passing (1.3553ms)
-✔ CHK-TEST-0007-01 the HUD has a speed element in km/h and a handling element with a non-empty text for each of the four states (2.1676ms)
-✔ CHK-TEST-0007-02 the shared text carries exactly the game, the track, its version and one time or the invalid state: never the setup version, a second time nor a difference (2.232ms)
-✔ CHK-TEST-0007-03 the result screen carries the share control with a label in each language and no setup-version element (0.4137ms)
-✔ CHK-TEST-0007-04 the application shows a best time only when the records are COMPARABLE and clears it when the setup changes (0.4847ms)
-✔ CHK-TEST-0007-05 the shared text of any result, valid or invalid, in either language, carries no drift, turbo, boost, charge, combo, style or score content (0.5413ms)
-✔ CHK-TEST-0007-06 the HUD and the result screen carry no drift meter, turbo label, style score, combo or boost element, and the application never draws one (1.7801ms)
-✔ CHK-TEST-0003-01 over every step of the test-pilot lap the telemetry never reports oversteer or sliding, and the record counts exactly those steps (7.7173ms)
+✔ CHK-TEST-0002-06 the output carries, per input form, four CORNER_RADIUS and two CORNER_TURN records of API-0003 4.0.1 with the area fields, the speeds in km/h and the turn in degrees, and no retired corner bench (124.4022ms)
+✔ CHK-TEST-0002-08 the keyboard and the tilt forms give the same radius and the same turn, both passing (4.9484ms)
+✔ CHK-TEST-0007-01 the HUD has a speed element in km/h and a handling element with a non-empty text for each of the four states (2.444ms)
+✔ CHK-TEST-0007-02 the shared text carries exactly the game, the track, its version and one time or the invalid state: never the setup version, a second time nor a difference (1.2139ms)
+✔ CHK-TEST-0007-03 the result screen carries the share control with a label in each language and no setup-version element (0.5747ms)
+✔ CHK-TEST-0007-04 the application shows a best time only when the records are COMPARABLE and clears it when the setup changes (0.5175ms)
+✔ CHK-TEST-0007-05 the shared text of any result, valid or invalid, in either language, carries no drift, turbo, boost, charge, combo, style or score content (0.6744ms)
+✔ CHK-TEST-0007-06 the HUD and the result screen carry no drift meter, turbo label, style score, combo or boost element, and the application never draws one (2.1136ms)
+✔ CHK-TEST-0007-07 the welcome screen, in both channels, mentions and offers no drift, turbo, boost, combo or score, and still carries the track choice and the lap offer (1.8495ms)
+✔ CHK-TEST-0007-08 the toolbar hint shows only the driving keys, with the hint "Dirigir", and nothing that mentions or offers the drift or the turbo (1.2613ms)
+✔ CHK-TEST-0007-09 there is no maneuver guide teaching the drift or the turbo, in the page, its style or the application (1.2454ms)
+✔ CHK-TEST-0007-10 on mobile the touch controls are exactly left, right, brake and throttle: no "Drift" button nor any control for the drift or a turbo (2.1334ms)
+✔ CHK-TEST-0003-01 over every step of the test-pilot lap the telemetry never reports oversteer or sliding, and the record counts exactly those steps (5.3491ms)
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"NORMAL_DRIVING","normalDrivingStepCount":2766,"oversteerOrSlidingStepCount":0,"maxSideslipRad":0.0768011329024107}
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"NORMAL_DRIVING","normalDrivingStepCount":2766,"oversteerOrSlidingStepCount":0,"maxSideslipRad":0.0768011329024107}
-✔ CHK-TEST-0003-05 over every step of the test-pilot lap the sideslip never exceeds 0.65 rad, and the record carries that maximum (1.8513ms)
-✔ CHK-TEST-0003-03 after forcing the rear on the open pad, taking the steer to 0 brings grip back within 400 ms, with the throttle held or released; a rear that never lets go is reported, not failed (98.3364ms)
-✔ CHK-TEST-0003-04 during the recovery the sideslip never exceeds 0.65 rad: the kart does not spin (66.2874ms)
-✔ CHK-TEST-0003-09 the same Input sequence with the drift command held from the first to the last step gives the same state at every step: no charge, no mini-turbo, no boost (210.9807ms)
-✔ CHK-TEST-0003-10 no bench that starts at or below the top speed, nor the test-pilot lap with the drift command held, ever goes faster than the top speed of the same setup (107.3263ms)
+✔ CHK-TEST-0003-05 over every step of the test-pilot lap the sideslip never exceeds 0.65 rad, and the record carries that maximum (2.1963ms)
+✔ CHK-TEST-0003-03 after forcing the rear on the open pad, taking the steer to 0 brings grip back within 400 ms, with the throttle held or released; a rear that never lets go is reported, not failed (175.8883ms)
+✔ CHK-TEST-0003-04 during the recovery the sideslip never exceeds 0.65 rad: the kart does not spin (138.9188ms)
+✔ CHK-TEST-0003-09 the same Input sequence with the drift command held from the first to the last step gives the same state at every step: no charge, no mini-turbo, no boost (244.7757ms)
+✔ CHK-TEST-0003-10 no bench that starts at or below the top speed, nor the test-pilot lap with the drift command held, ever goes faster than the top speed of the same setup (188.3246ms)
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"SPEED_CAP","maxObservedSpeedMps":19.251444807048465,"maxObservedBenchId":"ACCELERATION","topSpeedMps":19.251444807048465}
 ℹ # SPEED_CAP maxObservedSpeedMps 69.31 km/h · topSpeedMps 69.31 km/h
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"SPEED_CAP","maxObservedSpeedMps":19.251444807048465,"maxObservedBenchId":"ACCELERATION","topSpeedMps":19.251444807048465}
 ℹ # SPEED_CAP maxObservedSpeedMps 69.31 km/h · topSpeedMps 69.31 km/h
-✔ CHK-TEST-0003-07 the output carries the REAR_RECOVERY, NORMAL_DRIVING, DRIFT_INERT and SPEED_CAP records of API-0003 4.0.1 with their environments and units (2.9724ms)
+✔ CHK-TEST-0003-07 the output carries the REAR_RECOVERY, NORMAL_DRIVING, DRIFT_INERT and SPEED_CAP records of API-0003 4.0.1 with their environments and units (12.2585ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"REAR_RECOVERY","steerInputNorm":1,"entrySpeedMps":16.7,"rearReleased":false,"forcingMs":3000,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # REAR_RECOVERY entrySpeedMps 60.12 km/h · a traseira não soltou em forcingWindowMs
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"REAR_RECOVERY","steerInputNorm":-1,"entrySpeedMps":16.7,"rearReleased":false,"forcingMs":3000,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # REAR_RECOVERY entrySpeedMps 60.12 km/h · a traseira não soltou em forcingWindowMs
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"DRIFT_INERT","comparedStepCount":360,"differingStepCount":0,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"DRIFT_INERT","comparedStepCount":3126,"differingStepCount":0}
-✔ CHK-TEST-0003-08 the keyboard and the tilt forms give the same recovery, normal driving, drift comparison and speed cap (1.1008ms)
-✔ CHK-TEST-0008-01 the published Arcade setup declares a version different from the previous one, and replays of the two versions are told apart by that field (4658.4506ms)
-✔ CHK-TEST-0008-02 a lap started with the setup fields returns them copied in its result, one started without them has no such fields, and the record builder fills only what the result lacks (6130.0874ms)
-✔ CHK-TEST-0008-03 two records are comparable only on the same track, setup and version; a previous-version replay reproduced today is SETUP_VERSION_DIFFERS (1299.3536ms)
-✔ CHK-TEST-0008-04 the same replay reproduced twice gives the same lap record and the same final state (5246.5398ms)
-✔ CHK-TEST-0008-05 a replay of the previous version is still read and reproduced step by step with the current setup (1356.7379ms)
-✔ CHK-TEST-0008-06 records of the previous version are read as resolved from absence, an unsupported format and unreadable texts are refused without touching the input (50.0569ms)
-✔ CHK-TEST-0008-07 the setup reference resolves an absent setup to the Arcade and an absent version to the previous one, and keeps a declared one (4.2788ms)
-✔ CHK-TEST-0008-08 a replay of the superseded round recorded with the drift command held reproduces exactly as the same replay without the command (2601.985ms)
-✔ CHK-TEST-0005-01 from rest on the straight with full throttle the kart reaches 60 km/h within 2.5 s (48.1957ms)
+✔ CHK-TEST-0003-08 the keyboard and the tilt forms give the same recovery, normal driving, drift comparison and speed cap (2.6863ms)
+✔ CHK-TEST-0008-01 the published Arcade setup declares a version different from the previous one, and replays of the two versions are told apart by that field (7509.9934ms)
+✔ CHK-TEST-0008-02 a lap started with the setup fields returns them copied in its result, one started without them has no such fields, and the record builder fills only what the result lacks (7467.7653ms)
+✔ CHK-TEST-0008-03 two records are comparable only on the same track, setup and version; a previous-version replay reproduced today is SETUP_VERSION_DIFFERS (3914.0199ms)
+✔ CHK-TEST-0008-04 the same replay reproduced twice gives the same lap record and the same final state (6539.8146ms)
+✔ CHK-TEST-0008-05 a replay of the previous version is still read and reproduced step by step with the current setup (1717.9079ms)
+✔ CHK-TEST-0008-06 records of the previous version are read as resolved from absence, an unsupported format and unreadable texts are refused without touching the input (59.0606ms)
+✔ CHK-TEST-0008-07 the setup reference resolves an absent setup to the Arcade and an absent version to the previous one, and keeps a declared one (6.3308ms)
+✔ CHK-TEST-0008-08 a replay of the superseded round recorded with the drift command held reproduces exactly as the same replay without the command (3068.0177ms)
+✔ CHK-TEST-0005-01 from rest on the straight with full throttle the kart reaches 60 km/h within 2.5 s (176.7117ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"ACCELERATION","zeroToSixtyKmhMs":2208,"driverMassKg":75,"testAreaRadiusM":1500,"offAsphaltStepCount":0}
 ℹ # ACCELERATION zeroToSixtyKmhMs 2.208 s
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"ACCELERATION","zeroToSixtyKmhMs":2208,"driverMassKg":75,"testAreaRadiusM":1500,"offAsphaltStepCount":0}
 ℹ # ACCELERATION zeroToSixtyKmhMs 2.208 s
-✔ CHK-TEST-0005-02 on the straight with full throttle the stabilized speed lies between 65 km/h and 72 km/h, both ends included (31.2004ms)
+✔ CHK-TEST-0005-02 on the straight with full throttle the stabilized speed lies between 65 km/h and 72 km/h, both ends included (29.4546ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"TOP_SPEED","topSpeedMps":19.251444807048465,"testAreaRadiusM":1500,"offAsphaltStepCount":0}
 ℹ # TOP_SPEED topSpeedMps 69.31 km/h
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"TOP_SPEED","topSpeedMps":19.251444807048465,"testAreaRadiusM":1500,"offAsphaltStepCount":0}
 ℹ # TOP_SPEED topSpeedMps 69.31 km/h
-✔ CHK-TEST-0005-03 entering the grass at the stabilized speed with full throttle, the speed after 1 s is at most 70 % of the entry speed (175.3684ms)
+✔ CHK-TEST-0005-03 entering the grass at the stabilized speed with full throttle, the speed after 1 s is at most 70 % of the entry speed (231.6227ms)
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"GRASS_LOSS","entrySpeedMps":19.251444807048465,"speedAfterOneSMps":9.791941645838516}
 ℹ # GRASS_LOSS entrySpeedMps 69.31 km/h · speedAfterOneSMps 35.25 km/h
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"GRASS_LOSS","entrySpeedMps":13.88888888888889,"speedAfterOneSMps":7.687144342797469}
@@ -80,13 +84,13 @@
 ℹ # GRASS_LOSS entrySpeedMps 69.31 km/h · speedAfterOneSMps 35.25 km/h
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"GRASS_LOSS","entrySpeedMps":13.88888888888889,"speedAfterOneSMps":7.687144342797469}
 ℹ # GRASS_LOSS entrySpeedMps 50 km/h · speedAfterOneSMps 27.67 km/h
-✔ CHK-TEST-0005-04 entering the grass at 50 km/h with full throttle, the speed after 1 s is at most 70 % of 50 km/h, and the grass still slows the kart below 50 km/h (237.0903ms)
-✔ CHK-TEST-0005-05 at every wall contact the speed on the step after the contact is below the speed on the step before it (1026.2065ms)
+✔ CHK-TEST-0005-04 entering the grass at 50 km/h with full throttle, the speed after 1 s is at most 70 % of 50 km/h, and the grass still slows the kart below 50 km/h (299.5236ms)
+✔ CHK-TEST-0005-05 at every wall contact the speed on the step after the contact is below the speed on the step before it (1289.232ms)
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"WALL_CONTACT","contacts":[[5.619879048874885,2.999147242035008],[1.031132231736626,0.7819692598708428],[0.6583383364708928,0.5758878564996731],[0.616424054072239,0.5357084576926459],[0.5758878564996731,0.4958615053447259],[0.5357084576926459,0.47811765595874284],[0.4958615053447259,0.46050878601054857],[0.47811765595874284,0.44304748679015493],[0.46050878601054857,0.42574692806093173],[0.44304748679015493,0.40862061409850936],[0.42574692806093173,0.3916825634491554],[0.40862061409850936,0.37494741973475165],[0.3916825634491554,0.35843052858758023],[0.37494741973475165,0.3421479864516236],[0.35843052858758023,0.32611509399268906],[0.3421479864516236,0.31034682095339505],[0.32611509399268906,0.2948616480516419],[0.31034682095339505,0.2796787336586767],[0.2948616480516419,0.2648177269944752],[0.2796787336586767,0.2502985705547931],[0.2648177269944752,0.23614124148930904],[0.2502985705547931,0.22236542998754977],[0.23614124148930904,0.20899015716733868],[0.22236542998754977,0.19603334153880242],[0.20899015716733868,0.1835113319577086],[0.19603334153880242,0.17143843600113265],[0.1835113319577086,0.15982648548791803],[0.17143843600113265,0.14868449463269146],[0.15982648548791803,0.1380184798698623],[0.14868449463269146,0.1278315220609234],[0.1380184798698623,0.11812415916806232],[0.1278315220609234,0.10889519625414452],[0.11812415916806232,0.10014300127805818],[0.10889519625414452,0.09186730261175238],[0.10014300127805818,0.08407138807719612],[0.09186730261175238,0.07676438742265285],[0.08407138807719612,0.06996298342136878],[0.07676438742265285,0.063691523368727],[0.06996298342136878,0.05797937905428032],[0.063691523368727,0.052854991739123384],[0.05797937905428032,0.04833755952445645],[0.052854991739123384,0.04442908957075082],[0.04833755952445645,0.04111129888511414],[0.04442908957075082,0.03838102831328583],[0.04111129888511414,0.03618726315042136],[0.03838102831328583,0.03444253163903427],[0.03618726315042136,0.03306633042465699],[0.03444253163903427,0.03198776072416252],[0.03306633042465699,0.031146580815190117],[0.03198776072416252,0.030492942076568632],[0.031146580815190117,0.029986385059450917],[0.030492942076568632,0.02959453227959679],[0.029986385059450917,0.029291742899787237],[0.02959453227959679,0.02905786823950331],[0.029291742899787237,0.028877167538181196],[0.02905786823950331,0.028737398044658517],[0.028877167538181196,0.028629070140256657],[0.028737398044658517,0.028544847919320368],[0.028629070140256657,0.028479072633419193],[0.028544847919320368,0.02842738710876091],[0.028479072633419193,0.028386441622341274],[0.02842738710876091,0.028353664649077796],[0.028386441622341274,0.028327084795805726],[0.028353664649077796,0.028305192856119616],[0.028327084795805726,0.028286835159484932],[0.028305192856119616,0.02827113124239991],[0.028286835159484932,0.028257410372483725],[0.02827113124239991,0.02824516265710754],[0.028257410372483725,0.02823400141762752],[0.02824516265710754,0.028223634255550453],[0.02823400141762752,0.028213840818892316],[0.028223634255550453,0.028204455729637926],[0.028213840818892316,0.028195355484312234],[0.028204455729637926,0.028186448411454536],[0.028195355484312234,0.028177666979850597],[0.028186448411454536,0.028168961913560577],[0.028177666979850597,0.02816029769489501],[0.028168961913560577,0.028151649132951595],[0.02816029769489501,0.028142998749658976],[0.028151649132951595,0.02813433479253841],[0.028142998749658976,0.028125649727493054],[0.02813433479253841,0.028116939098889338],[0.028125649727493054,0.02810820067033044],[0.028116939098889338,0.028099433779635138],[0.02810820067033044,0.02809063885700958],[0.028099433779635138,0.02808181706730131],[0.02809063885700958,0.028072970046376197],[0.02808181706730131,0.02806409970869201],[0.028072970046376197,0.028055208108546014],[0.02806409970869201,0.02804629734162255],[0.028055208108546014,0.02803736947665024],[0.02804629734162255,0.028028426509419665],[0.02803736947665024,0.0280194703332821],[0.028028426509419665,0.028010502721681763],[0.0280194703332821,0.028001525319367632],[0.028010502721681763,0.02799253963976633],[0.028001525319367632,0.027983547066634033],[0.02799253963976633,0.027974548858589153],[0.027983547066634033,0.027965546155495274],[0.027974548858589153,0.027956539985941293],[0.027965546155495274,0.02794753127527572],[0.027956539985941293,0.02793852085380914],[0.02794753127527572,0.02792950946491704],[0.02793852085380914,0.027920497772861947],[0.02792950946491704,0.027911486370219063],[0.027920497772861947,0.027902475784836085],[0.027911486370219063,0.02789346648629228],[0.027902475784836085,0.027884458891845865],[0.02789346648629228,0.027875453371875743],[0.027884458891845865,0.027866450254834748],[0.027875453371875743,0.027857449831739062],[0.027866450254834748,0.027848452360222726],[0.027857449831739062,0.02783945806818842],[0.027848452360222726,0.027830467157086335],[0.02783945806818842,0.0278214798048526],[0.027830467157086335,0.027812496168538012],[0.0278214798048526,0.02780351638665568],[0.027812496168538012,0.027794540581274927],[0.02780351638665568,0.02778556885988661],[0.027794540581274927,0.027776601317063103],[0.02778556885988661,0.02776763803593421],[0.027776601317063103,0.027758679089498334],[0.02776763803593421,0.027749724541786584],[0.027758679089498334,0.027740774448895632],[0.027749724541786584,0.027731828859903565],[0.027740774448895632,0.02772288781768161],[0.027731828859903565,0.02771395135961343],[0.02772288781768161,0.027705019518231996],[0.02771395135961343,0.02769609232178348],[0.027705019518231996,0.02768716979472638],[0.02769609232178348,0.027678251958173014],[0.02768716979472638,0.027669338830280183],[0.027678251958173014,0.02766043042659455],[0.027669338830280183,0.02765152676035809],[0.02766043042659455,0.027642627842778066],[0.02765152676035809,0.027633733683265674],[0.027642627842778066,0.027624844289646927],[0.027633733683265674,0.02761595966834895],[0.027624844289646927,0.027607079824564652],[0.02761595966834895,0.027598204762398066],[0.027607079824564652,0.027589334484992803],[0.027598204762398066,0.027580468994645457],[0.027589334484992803,0.027571608292905714],[0.027580468994645457,0.02756275238066483],[0.027571608292905714,0.027553901258233607],[0.02756275238066483,0.027545054925411355],[0.027553901258233607,0.027536213381546704],[0.027545054925411355,0.02752737662559126],[0.027536213381546704,0.027518544656147004],[0.02752737662559126,0.027509717471508065],[0.027518544656147004,0.02750089506969758],[0.027509717471508065,0.027492077448500265],[0.02750089506969758,0.027483264605491164],[0.027492077448500265,0.02747445653806091],[0.027483264605491164,0.027465653243438082],[0.02747445653806091,0.027456854718708935],[0.027465653243438082,0.02744806096083473],[0.027456854718708935,0.027439271966667112],[0.02744806096083473,0.027430487732961605],[0.027439271966667112,0.027421708256389517],[0.027430487732961605,0.027412933533548452],[0.027421708256389517,0.027404163560971615],[0.027412933533548452,0.027395398335135917],[0.027404163560971615,0.027386637852469243],[0.027395398335135917,0.027377882109356738],[0.027386637852469243,0.027369131102146418],[0.027377882109356738,0.027360384827154114],[0.027369131102146418,0.027351643280667807],[0.027360384827154114,0.02734290645895148],[0.027351643280667807,0.027334174358248486],[0.02734290645895148,0.027325446974784468],[0.027334174358248486,0.027316724304770067],[0.027325446974784468,0.027308006344403172],[0.027316724304770067,0.027299293089870964],[0.027308006344403172,0.02729058453735173],[0.027299293089870964,0.02728188068301638],[0.02729058453735173,0.027273181523029908],[0.02728188068301638,0.027264487053552573],[0.027273181523029908,0.027255797270740997],[0.027264487053552573,0.027247112170749096],[0.027255797270740997,0.027238431749728894],[0.027247112170749096,0.02722975600383132],[0.027238431749728894,0.027221084929206794],[0.02722975600383132,0.027212418522005836],[0.027221084929206794,0.027203756778379527],[0.027212418522005836,0.027195099694479988],[0.027203756778379527,0.02718644726646074],[0.027195099694479988,0.02717779949047707],[0.02718644726646074,0.027169156362686294],[0.02717779949047707,0.02716051787924804],[0.027169156362686294,0.027151884036324476],[0.02716051787924804,0.027143254830080517],[0.027151884036324476,0.027134630256683993],[0.027143254830080517,0.027126010312305833],[0.027134630256683993,0.02711739499312014],[0.027126010312305833,0.027108784295304337],[0.02711739499312014,0.02710017821503931],[0.027108784295304337,0.027091576748509448],[0.02710017821503931,0.027082979891902784],[0.027091576748509448,0.027074387641410954],[0.027082979891902784,0.027065799993229393],[0.027074387641410954,0.027057216943557297],[0.027065799993229393,0.027048638488597676],[0.027057216943557297,0.02704006462455742],[0.027048638488597676,0.027031495347647337],[0.02704006462455742,0.027022930654082167],[0.027031495347647337,0.027014370540080605],[0.027022930654082167,0.027005815001865312],[0.027014370540080605,0.026997264035662945],[0.027005815001865312,0.0269887176377042],[0.026997264035662945,0.02698017580422378],[0.0269887176377042,0.02697163853146044],[0.02698017580422378,0.026963105815656967],[0.02697163853146044,0.0269545776530602],[0.026963105815656967,0.026946054039921015],[0.0269545776530602,0.02693753497249439],[0.026946054039921015,0.026929020447039348],[0.02693753497249439,0.026920510459818962],[0.026929020447039348,0.026912005007100396],[0.026920510459818962,0.02690350408515487],[0.026912005007100396,0.026895007690257686],[0.02690350408515487,0.026886515818688186],[0.026895007690257686,0.026878028466729785],[0.026886515818688186,0.026869545630669966],[0.026878028466729785,0.026861067306800258],[0.026869545630669966,0.026852593491416242],[0.026861067306800258,0.026844124180817594],[0.026852593491416242,0.02683565937130801],[0.026844124180817594,0.02682719905919524],[0.02683565937130801,0.026818743240791046],[0.02682719905919524,0.026810291912411275],[0.026818743240791046,0.026801845070375762],[0.026810291912411275,0.0267934027110084],[0.026801845070375762,0.026784964830637116],[0.0267934027110084,0.026776531425593823],[0.026784964830637116,0.02676810249221449],[0.026776531425593823,0.026759678026839057],[0.02676810249221449,0.0267512580258115],[0.026759678026839057,0.02674284248547979],[0.0267512580258115,0.026734431402195894],[0.02674284248547979,0.026726024772315754],[0.026734431402195894,0.026717622592199286],[0.026726024772315754,0.026709224858210444],[0.026717622592199286,0.026700831566717126],[0.026709224858210444,0.0266924427140912],[0.026700831566717126,0.026684058296708477],[0.0266924427140912,0.026675678310948765],[0.026684058296708477,0.02666730275319579],[0.026675678310948765,0.026658931619837276],[0.02666730275319579,0.02665056490726484],[0.026658931619837276,0.026642202611874076],[0.02665056490726484,0.026633844730064495],[0.026642202611874076,0.02662549125823953],[0.026633844730064495,0.02661714219280655],[0.02662549125823953,0.026608797530176826],[0.02661714219280655,0.026600457266765572],[0.026608797530176826,0.02659212139899188],[0.026600457266765572,0.02658378992327879],[0.02659212139899188,0.02657546283605318],[0.02658378992327879,0.02656714013374586],[0.02657546283605318,0.0265588218127915],[0.02656714013374586,0.02655050786962868],[0.0265588218127915,0.026542198300699815],[0.02655050786962868,0.026533893102451217],[0.026542198300699815,0.02652559227133308],[0.026533893102451217,0.02651729580379945],[0.02652559227133308,0.02650900369630822],[0.02651729580379945,0.026500715945321104],[0.02650900369630822,0.026492432547303726],[0.026500715945321104,0.02648415349872551],[0.026492432547303726,0.026475878796059716],[0.02648415349872551,0.02646760843578343],[0.026475878796059716,0.026459342414377588],[0.02646760843578343,0.02645108072832691],[0.026459342414377588,0.02644282337411995],[0.02645108072832691,0.026434570348249066],[0.02644282337411995,0.026426321647210434],[0.026434570348249066,0.026418077267504014],[0.026426321647210434,0.026409837205633564],[0.026418077267504014,0.026401601458106626],[0.026409837205633564,0.02639337002143454],[0.026401601458106626,0.026385142892132424],[0.02639337002143454,0.026376920066719132],[0.026385142892132424,0.026368701541717353],[0.026376920066719132,0.02636048731365348],[0.026368701541717353,0.026352277379057674],[0.02636048731365348,0.026344071734463854],[0.026352277379057674,0.026335870376409713],[0.026344071734463854,0.026327673301436653],[0.026335870376409713,0.026319480506089826],[0.026327673301436653,0.02631129198691812],[0.026319480506089826,0.026303107740474164],[0.02631129198691812,0.026294927763314276],[0.026303107740474164,0.026286752051998534],[0.026294927763314276,0.026278580603090712],[0.026286752051998534,0.026270413413158288],[0.026278580603090712,0.02626225047877243],[0.026270413413158288,0.026254091796508026],[0.02626225047877243,0.02624593736294364],[0.026254091796508026,0.026237787174661548],[0.02624593736294364,0.02622964122824766],[0.026237787174661548,0.026221499520291625],[0.02622964122824766,0.02621336204738673],[0.026221499520291625,0.026205228806129924],[0.02621336204738673,0.026197099793121844],[0.026205228806129924,0.026188975004966798],[0.026197099793121844,0.026180854438272713],[0.026188975004966798,0.026172738089651194],[0.026180854438272713,0.026164625955717464],[0.026172738089651194,0.026156518033090406],[0.026164625955717464,0.026148414318392505],[0.026156518033090406,0.026140314808249916],[0.026148414318392505,0.026132219499292394],[0.026140314808249916,0.026124128388153336],[0.026132219499292394,0.026116041471469717],[0.026124128388153336,0.02610795874588217],[0.026116041471469717,0.026099880208034887],[0.02610795874588217,0.026091805854575694],[0.026099880208034887,0.026083735682155995],[0.026091805854575694,0.02607566968743081],[0.026083735682155995,0.02606760786705871],[0.02607566968743081,0.026059550217701857],[0.02606760786705871,0.026051496736026015],[0.026059550217701857,0.026043447418700502],[0.026051496736026015,0.026035402262398203],[0.026043447418700502,0.026027361263795557],[0.026035402262398203,0.026019324419572592],[0.026027361263795557,0.02601129172641285],[0.026019324419572592,0.02600326318100345],[0.02601129172641285,0.025995238780035037],[0.02600326318100345,0.025987218520201798],[0.025995238780035037,0.025979202398201454],[0.025987218520201798,0.02597119041073527],[0.025979202398201454,0.025963182554508017],[0.02597119041073527,0.025955178826227998],[0.025963182554508017,0.025947179222607034],[0.025955178826227998,0.025939183740360444],[0.025947179222607034,0.02593119237620707],[0.025939183740360444,0.025923205126869225],[0.02593119237620707,0.025915221989072763],[0.025923205126869225,0.025907242959547012],[0.025915221989072763,0.02589926803502475],[0.025907242959547012,0.025891297212242308],[0.02589926803502475,0.025883330487939435],[0.025891297212242308,0.02587536785885936],[0.025883330487939435,0.02586740932174883],[0.02587536785885936,0.025859454873358022],[0.02586740932174883,0.025851504510440566],[0.025859454873358022,0.025843558229753566],[0.025851504510440566,0.02583561602805757],[0.025843558229753566,0.02582767790211658],[0.02583561602805757,0.02581974384869801],[0.02582767790211658,0.02581181386457274],[0.02581974384869801,0.025803887946515048],[0.02581181386457274,0.025795966091302695],[0.025803887946515048,0.02578804829571685],[0.025795966091302695,0.025780134556542097],[0.02578804829571685,0.02577222487056642],[0.025780134556542097,0.02576431923458121],[0.02577222487056642,0.025756417645381273],[0.02576431923458121,0.025748520099764822],[0.025756417645381273,0.02574062659453348],[0.025748520099764822,0.025732737126492225],[0.02574062659453348,0.025724851692449455],[0.025732737126492225,0.025716970289216927],[0.025724851692449455,0.025709092913609802],[0.025716970289216927,0.025701219562446604],[0.025709092913609802,0.025693350232549227],[0.025701219562446604,0.025685484920742917],[0.025693350232549227,0.025677623623856297],[0.025685484920742917,0.025669766338721336],[0.025677623623856297,0.025661913062173382],[0.025669766338721336,0.025654063791051108],[0.025661913062173382,0.02564621852219654],[0.025654063791051108,0.025638377252455023],[0.02564621852219654,0.02563053997867526],[0.025638377252455023,0.02562270669770926],[0.02563053997867526,0.02561487740641238],[0.02562270669770926,0.02560705210164329],[0.02561487740641238,0.025599230780263982],[0.02560705210164329,0.025591413439139763],[0.025599230780263982,0.02558360007513927],[0.025591413439139763,0.0255757906851344],[0.02558360007513927,0.025567985266000362],[0.0255757906851344,0.025560183814615663],[0.025567985266000362,0.025552386327862123],[0.025560183814615663,0.02554459280262481],[0.025552386327862123,0.02553680323579212],[0.02554459280262481,0.025529017624255683],[0.02553680323579212,0.025521235964910453],[0.025529017624255683,0.025513458254654602],[0.025521235964910453,0.02550568449038959],[0.025513458254654602,0.02549791466902015],[0.02550568449038959,0.025490148787454234],[0.02549791466902015,0.025482386842603105],[0.025490148787454234,0.02547462883138124],[0.025482386842603105,0.025466874750706376],[0.02547462883138124,0.025459124597499456],[0.025466874750706376,0.025451378368684687],[0.025459124597499456,0.025443636061189493],[0.025451378368684687,0.02543589767194454],[0.025443636061189493,0.025428163197883723],[0.02543589767194454,0.025420432635944124],[0.025428163197883723,0.02541270598306607],[0.025420432635944124,0.025404983236193106],[0.02541270598306607,0.025397264392271954],[0.025404983236193106,0.02538954944825255],[0.025397264392271954,0.025381838401088035],[0.02538954944825255,0.025374131247734726],[0.025381838401088035,0.025366427985152137],[0.025374131247734726,0.025358728610303],[0.025366427985152137,0.025351033120153167],[0.025358728610303,0.025343341511671735],[0.025351033120153167,0.025335653781830916],[0.025343341511671735,0.025327969927606126],[0.025335653781830916,0.025320289945975925],[0.025327969927606126,0.025312613833922044],[0.025320289945975925,0.025304941588429358],[0.025312613833922044,0.025297273206485935],[0.025304941588429358,0.025289608685082957],[0.025297273206485935,0.025281948021214747],[0.025289608685082957,0.025274291211878776],[0.025281948021214747,0.025266638254075668],[0.025274291211878776,0.02525898914480916],[0.025266638254075668,0.025251343881086137],[0.02525898914480916,0.025243702459916598],[0.025251343881086137,0.025236064878313643],[0.025243702459916598,0.025228431133293507],[0.025236064878313643,0.025220801221875526],[0.025228431133293507,0.025213175141082157],[0.025220801221875526,0.02520555288793895],[0.025213175141082157,0.02519793445947457],[0.02520555288793895,0.025190319852720768],[0.02519793445947457,0.025182709064712372],[0.025190319852720768,0.02517510209248733],[0.025182709064712372,0.025167498933086643],[0.02517510209248733,0.025159899583554416],[0.025167498933086643,0.02515230404093782],[0.025159899583554416,0.025144712302287087],[0.02515230404093782,0.025137124364655532],[0.025144712302287087,0.025129540225099563],[0.025137124364655532,0.02512195988067858],[0.025129540225099563,0.0251143833284551],[0.02512195988067858,0.025106810565494655],[0.0251143833284551,0.025099241588865836],[0.025106810565494655,0.02509167639564028],[0.025099241588865836,0.025084114982892668],[0.02509167639564028,0.02507655734770069],[0.025084114982892668,0.025069003487145105],[0.02507655734770069,0.025061453398309685],[0.025069003487145105,0.025053907078281226],[0.025061453398309685,0.025046364524149576],[0.025053907078281226,0.02503882573300756],[0.025046364524149576,0.025031290701951016],[0.02503882573300756,0.02502375942807882],[0.025031290701951016,0.025016231908492823],[0.02502375942807882,0.02500870814029789],[0.025016231908492823,0.025001188120601883],[0.02500870814029789,0.024993671846515665],[0.025001188120601883,0.02498615931515309],[0.024993671846515665,0.02497865052363099],[0.02498615931515309,0.02497114546906919],[0.02497865052363099,0.024963644148590463],[0.02497114546906919,0.024956146559320602],[0.024963644148590463,0.024948652698388325],[0.024956146559320602,0.024941162562925348],[0.024948652698388325,0.024933676150066357],[0.024941162562925348,0.024926193456948957],[0.024933676150066357,0.02491871448071376],[0.024926193456948957,0.024911239218504282],[0.02491871448071376,0.02490376766746702],[0.024911239218504282,0.024896299824751392],[0.02490376766746702,0.024888835687509787],[0.024896299824751392,0.0248813752528975],[0.024888835687509787,0.024873918518072774],[0.0248813752528975,0.024866465480196782],[0.024873918518072774,0.024859016136433616],[0.024866465480196782,0.024851570483950293],[0.024859016136433616,0.024844128519916738],[0.024851570483950293,0.024836690241505796],[0.024844128519916738,0.024829255645893243],[0.024836690241505796,0.02482182473025773],[0.024829255645893243,0.02481439749178083],[0.02482182473025773,0.024806973927647],[0.02481439749178083,0.02479955403504362],[0.024806973927647,0.024792137811160953],[0.02479955403504362,0.024784725253192117],[0.024792137811160953,0.02477731635833315],[0.024784725253192117,0.02476991112378295],[0.02477731635833315,0.024762509546743316],[0.02476991112378295,0.02475511162441892],[0.024762509546743316,0.024747717354017276],[0.02475511162441892,0.024740326732748775],[0.024747717354017276,0.024732939757826693],[0.024740326732748775,0.02472555642646714],[0.024732939757826693,0.024718176735889094],[0.02472555642646714,0.024710800683314382],[0.024718176735889094,0.024703428265967657],[0.024710800683314382,0.02469605948107644],[0.024703428265967657,0.02468869432587109],[0.02469605948107644,0.024681332797584787],[0.02468869432587109,0.024673974893453566],[0.024681332797584787,0.02466662061071631],[0.024673974893453566,0.024659269946614697],[0.02466662061071631,0.024651922898393214],[0.024659269946614697,0.024644579463299194],[0.024651922898393214,0.024637239638582786],[0.024644579463299194,0.024629903421496943],[0.024637239638582786,0.024622570809297428],[0.024629903421496943,0.024615241799242814],[0.024622570809297428,0.024607916388594473],[0.024615241799242814,0.024600594574616542],[0.024607916388594473,0.024593276354576008],[0.024600594574616542,0.024585961725742612],[0.024593276354576008,0.0245786506853889],[0.024585961725742612,0.024571343230790188],[0.0245786506853889,0.024564039359224563],[0.024571343230790188,0.02455673906797291],[0.024564039359224563,0.02454944235431889],[0.02455673906797291,0.024542149215548918],[0.02454944235431889,0.02453485964895217],[0.024542149215548918,0.024527573651820615],[0.02453485964895217,0.024520291221448953],[0.024527573651820615,0.02451301235513464],[0.024520291221448953,0.024505737050177882],[0.02451301235513464,0.024498465303881667],[0.024505737050177882,0.024491197113551695],[0.024498465303881667,0.02448393247649641],[0.024491197113551695,0.024476671390027013],[0.02448393247649641,0.024469413851457424],[0.024476671390027013,0.024462159858104293],[0.024469413851457424,0.024454909407287007],[0.024462159858104293,0.024447662496327675],[0.024454909407287007,0.024440419122551113],[0.024447662496327675,0.02443317928328488],[0.024440419122551113,0.024425942975859243],[0.02443317928328488,0.024418710197607163],[0.024425942975859243,0.02441148094586432],[0.024418710197607163,0.024404255217969073],[0.02441148094586432,0.024397033011262517],[0.024404255217969073,0.024389814323088423],[0.024397033011262517,0.024382599150793254],[0.024389814323088423,0.024375387491726182],[0.024382599150793254,0.02436817934323907],[0.024375387491726182,0.02436097470268643],[0.02436817934323907,0.024353773567425473],[0.02436097470268643,0.024346575934816102],[0.024353773567425473,0.02433938180222086],[0.024346575934816102,0.02433219116700499],[0.02433938180222086,0.024325004026536385],[0.02433219116700499,0.02431782037818563],[0.024325004026536385,0.024310640219325913],[0.02431782037818563,0.024303463547333138],[0.024310640219325913,0.024296290359585818],[0.024303463547333138,0.024289120653465137],[0.024296290359585818,0.024281954426354946],[0.024289120653465137,0.024274791675641692],[0.024281954426354946,0.024267632398714472],[0.024274791675641692,0.02426047659296503],[0.024267632398714472,0.024253324255787776],[0.02426047659296503,0.0242461753845797],[0.024253324255787776,0.024239029976740448],[0.0242461753845797,0.02423188802967227],[0.024239029976740448,0.024224749540780046],[0.02423188802967227,0.0242176145074713],[0.024224749540780046,0.024210482927156118],[0.0242176145074713,0.024203354797247237],[0.024210482927156118,0.02419623011515996],[0.024203354797247237,0.02418910887831222],[0.02419623011515996,0.02418199108412454],[0.02418910887831222,0.02417487673002007],[0.02418199108412454,0.024167765813424516],[0.02417487673002007,0.024160658331766203],[0.024167765813424516,0.024153554282476026],[0.024160658331766203,0.024146453662987483],[0.024153554282476026,0.024139356470736617],[0.024146453662987483,0.024132262703162082],[0.024139356470736617,0.024125172357705112],[0.024132262703162082,0.024118085431809492],[0.024125172357705112,0.024111001922921576],[0.024118085431809492,0.02410392182849029],[0.024111001922921576,0.024096845145967112],[0.02410392182849029,0.024089771872806077],[0.024096845145967112,0.024082702006463782],[0.024089771872806077,0.024075635544399395],[0.024082702006463782,0.024068572484074617],[0.024075635544399395,0.02406151282295368],[0.024068572484074617,0.024054456558503377],[0.02406151282295368,0.02404740368819304],[0.024054456558503377,0.024040354209494522],[0.02404740368819304,0.024033308119882215],[0.024040354209494522,0.02402626541683305],[0.024033308119882215,0.024019226097826488],[0.02402626541683305,0.02401219016034449],[0.024019226097826488,0.024005157601871562],[0.02401219016034449,0.02399812841989472],[0.024005157601871562,0.023991102611903497],[0.02399812841989472,0.023984080175389933],[0.023991102611903497,0.023977061107848592],[0.023984080175389933,0.023970045406776504],[0.023977061107848592,0.023963033069673227],[0.023970045406776504,0.023956024094040813],[0.023963033069673227,0.023949018477383826],[0.023956024094040813,0.023942016217209296],[0.023949018477383826,0.023935017311026756],[0.023942016217209296,0.023928021756348224],[0.023935017311026756,0.023921029550688207],[0.023928021756348224,0.02391404069156368],[0.023921029550688207,0.02390705517649409],[0.02391404069156368,0.023900073003001388],[0.02390705517649409,0.023893094168609963],[0.023900073003001388,0.023886118670846702],[0.023893094168609963,0.02387914650724093],[0.023886118670846702,0.02387217767532445],[0.02387914650724093,0.02386521217263151],[0.02387217767532445,0.023858249996698826],[0.02386521217263151,0.023851291145065585],[0.023858249996698826,0.023844335615273375],[0.023851291145065585,0.02383738340486626],[0.023844335615273375,0.023830434511390747],[0.02383738340486626,0.02382348893239579],[0.023830434511390747,0.02381654666543275],[0.02382348893239579,0.023809607708055465],[0.02381654666543275,0.023802672057820183],[0.023809607708055465,0.023795739712285578],[0.023802672057820183,0.023788810669012735],[0.023795739712285578,0.023781884925565194],[0.023788810669012735,0.02377496247950888],[0.023781884925565194,0.023768043328412182],[0.02377496247950888,0.02376112746984588],[0.023768043328412182,0.02375421490138315],[0.02376112746984588,0.023747305620599565],[0.02375421490138315,0.023740399625073138],[0.023747305620599565,0.023733496912384272],[0.023740399625073138,0.023726597480115755],[0.023733496912384272,0.02371970132585278],[0.023726597480115755,0.02371280844718293],[0.02371970132585278,0.02370591884169619],[0.02371280844718293,0.02369903250698492],[0.02370591884169619,0.023692149440643868],[0.02369903250698492,0.02368526964027017],[0.023692149440643868,0.023678393103463334],[0.02368526964027017,0.02367151982782522],[0.023678393103463334,0.023664649810960097],[0.02367151982782522,0.023657783050474605],[0.023664649810960097,0.023650919543977713],[0.023657783050474605,0.02364405928908077],[0.023650919543977713,0.023637202283397492],[0.02364405928908077,0.023630348524543952],[0.023637202283397492,0.023623498010138556],[0.023630348524543952,0.023616650737802114],[0.023623498010138556,0.023609806705157752],[0.023616650737802114,0.023602965909830926],[0.023609806705157752,0.02359612834944947],[0.023602965909830926,0.023589294021643524],[0.02359612834944947,0.023582462924045602],[0.023589294021643524,0.023575635054290525],[0.023582462924045602,0.023568810410015455],[0.023575635054290525,0.02356198898885989],[0.023568810410015455,0.023555170788465644],[0.02356198898885989,0.02354835580647684],[0.023555170788465644,0.023541544040539944],[0.02354835580647684,0.02353473548830374],[0.023541544040539944,0.02352793014741931],[0.02353473548830374,0.023521128015540065],[0.02352793014741931,0.023514329090321726],[0.023521128015540065,0.023507533369422306],[0.023514329090321726,0.023500740850502126],[0.023507533369422306,0.023493951531223807],[0.023500740850502126,0.023487165409252275],[0.023493951531223807,0.02348038248225475],[0.023487165409252275,0.02347360274790075],[0.02348038248225475,0.023466826203862062],[0.02347360274790075,0.023460052847812773],[0.023466826203862062,0.02345328267742925],[0.023460052847812773,0.02344651569039013],[0.02345328267742925,0.023439751884376355],[0.02344651569039013,0.023432991257071125],[0.023439751884376355,0.023426233806159918],[0.023432991257071125,0.023419479529330475],[0.023426233806159918,0.0234127284242728],[0.023419479529330475,0.023405980488679198],[0.0234127284242728,0.023399235720244202],[0.023405980488679198,0.02339249411666462],[0.023399235720244202,0.023385755675639483],[0.02339249411666462,0.023379020394870113],[0.023385755675639483,0.02337228827206006],[0.023379020394870113,0.023365559304915136],[0.02337228827206006,0.023358833491143392],[0.023365559304915136,0.02335211082845511],[0.023358833491143392,0.023345391314562838],[0.02335211082845511,0.02333867494718134],[0.023345391314562838,0.023331961724027635],[0.02333867494718134,0.02332525164282096],[0.023331961724027635,0.023318544701282782],[0.02332525164282096,0.023311840897136768],[0.023318544701282782,0.023305140228108843],[0.023311840897136768,0.023298442691927157],[0.023305140228108843,0.02329174828632205],[0.023298442691927157,0.0232850570090261],[0.02329174828632205,0.02327836885777408],[0.0232850570090261,0.023271683830302987],[0.02327836885777408,0.023265001924352022],[0.023271683830302987,0.02325832313766258],[0.023265001924352022,0.023251647467978268],[0.02325832313766258,0.023244974913044888],[0.023251647467978268,0.023238305470610447],[0.023244974913044888,0.023231639138425148],[0.023238305470610447,0.023224975914241372],[0.023231639138425148,0.023218315795813693],[0.023224975914241372,0.02321165878089887],[0.023218315795813693,0.023205004867255873],[0.02321165878089887,0.023198354052645816],[0.023205004867255873,0.023191706334832],[0.023198354052645816,0.0231850617115799],[0.023191706334832,0.02317842018065719],[0.0231850617115799,0.023171781739833665],[0.02317842018065719,0.023165146386881316],[0.023171781739833665,0.02315851411957431],[0.023165146386881316,0.02315188493568897],[0.02315851411957431,0.02314525883300376],[0.02315188493568897,0.02313863580929933],[0.02314525883300376,0.023132015862358465],[0.02313863580929933,0.023125398989966083],[0.023132015862358465,0.02311878518990929],[0.023125398989966083,0.02311217445997733],[0.02311878518990929,0.023105566797961576],[0.02311217445997733,0.023098962201655557],[0.023105566797961576,0.023092360668854933],[0.023098962201655557,0.023085762197357498],[0.023092360668854933,0.023079166784963183],[0.023085762197357498,0.023072574429474073],[0.023079166784963183,0.02306598512869433],[0.023072574429474073,0.023059398880430276],[0.02306598512869433,0.023052815682490346],[0.023059398880430276,0.02304623553268511],[0.023052815682490346,0.02303965842882725],[0.02304623553268511,0.02303308436873158],[0.02303965842882725,0.02302651335021499],[0.02303308436873158,0.023019945371096504],[0.02302651335021499,0.023013380429197254],[0.023019945371096504,0.023006818522340478],[0.023013380429197254,0.023000259648351513],[0.023006818522340478,0.022993703805057792],[0.023000259648351513,0.02298715099028888],[0.022993703805057792,0.022980601201876377],[0.02298715099028888,0.022974054437654025],[0.022980601201876377,0.022967510695457632],[0.022974054437654025,0.022960969973125113],[0.022967510695457632,0.022954432268496448],[0.022960969973125113,0.022947897579413717],[0.022954432268496448,0.02294136590372107],[0.022947897579413717,0.02293483723926475],[0.02294136590372107,0.022928311583893045],[0.02293483723926475,0.022921788935456332],[0.022928311583893045,0.022915269291807074],[0.022921788935456332,0.02290875265079979],[0.022915269291807074,0.022902239010291082],[0.02290875265079979,0.022895728368139585],[0.022902239010291082,0.022889220722206022],[0.022895728368139585,0.022882716070353155],[0.022889220722206022,0.022876214410445805],[0.022882716070353155,0.022869715740350852],[0.022876214410445805,0.022863220057937235],[0.022869715740350852,0.022856727361075916],[0.022863220057937235,0.02285023764763992],[0.022856727361075916,0.022843750915504314],[0.02285023764763992,0.0228372671625462],[0.022843750915504314,0.022830786386644743],[0.0228372671625462,0.022824308585681116],[0.022830786386644743,0.02281783375753852],[0.022824308585681116,0.02281136190010222],[0.02281783375753852,0.02280489301125948],[0.02281136190010222,0.022798427088899613],[0.02280489301125948,0.022791964130913955],[0.022798427088899613,0.02278550413519584],[0.022791964130913955,0.02277904709964063],[0.02278550413519584,0.022772593022145734],[0.02277904709964063,0.02276614190061054],[0.022772593022145734,0.022759693732936487],[0.02276614190061054,0.022753248517026977],[0.022759693732936487,0.022746806250787434],[0.022753248517026977,0.0227403669321253],[0.022746806250787434,0.022733930558949986],[0.0227403669321253,0.022727497129172953],[0.022733930558949986,0.02272106664070766],[0.022727497129172953,0.022714639091469504],[0.02272106664070766,0.022708214479375922],[0.022714639091469504,0.022701792802346323],[0.022708214479375922,0.02269537405830211],[0.022701792802346323,0.02268895824516668],[0.02269537405830211,0.022682545360865412],[0.02268895824516668,0.022676135403325647],[0.022682545360865412,0.022669728370476705],[0.022676135403325647,0.022663324260249904],[0.022669728370476705,0.02265692307057852],[0.022663324260249904,0.022650524799397817],[0.02265692307057852,0.02264412944464501],[0.022650524799397817,0.022637737004259292],[0.02264412944464501,0.022631347476181826],[0.022637737004259292,0.022624960858355733],[0.022631347476181826,0.0226185771487261],[0.022624960858355733,0.022612196345239977],[0.0226185771487261,0.02260581844584633],[0.022612196345239977,0.022599443448496122],[0.02260581844584633,0.022593071351142236],[0.022599443448496122,0.02258670215173954],[0.022593071351142236,0.02258033584824482],[0.02258670215173954,0.022573972438616807],[0.02258033584824482,0.022567611920816157],[0.022573972438616807,0.022561254292805494],[0.022567611920816157,0.022554899552549385],[0.022561254292805494,0.02254854769801432],[0.022554899552549385,0.022542198727168714],[0.02254854769801432,0.022535852637982932],[0.022542198727168714,0.022529509428429222],[0.022535852637982932,0.02252316909648181],[0.022529509428429222,0.022516831640116843],[0.02252316909648181,0.02251049705731236],[0.022516831640116843,0.022504165346048325],[0.02251049705731236,0.022497836504306642],[0.022504165346048325,0.022491510530071087],[0.022497836504306642,0.022485187421327386],[0.022491510530071087,0.022478867176063167],[0.022485187421327386,0.022472549792267923],[0.022478867176063167,0.022466235267933118],[0.022472549792267923,0.022459923601052093],[0.022466235267933118,0.022453614789620085],[0.022459923601052093,0.022447308831634226],[0.022453614789620085,0.022441005725093565],[0.022447308831634226,0.022434705467999017],[0.022441005725093565,0.0224284080583534]]}
 ℹ # WALL_CONTACT contacts 20.23>10.8 3.71>2.82 2.37>2.07 2.22>1.93 2.07>1.79 1.93>1.72 1.79>1.66 1.72>1.59 1.66>1.53 1.59>1.47 1.53>1.41 1.47>1.35 1.41>1.29 1.35>1.23 1.29>1.17 1.23>1.12 1.17>1.06 1.12>1.01 1.06>0.95 1.01>0.9 0.95>0.85 0.9>0.8 0.85>0.75 0.8>0.71 0.75>0.66 0.71>0.62 0.66>0.58 0.62>0.54 0.58>0.5 0.54>0.46 0.5>0.43 0.46>0.39 0.43>0.36 0.39>0.33 0.36>0.3 0.33>0.28 0.3>0.25 0.28>0.23 0.25>0.21 0.23>0.19 0.21>0.17 0.19>0.16 0.17>0.15 0.16>0.14 0.15>0.13 0.14>0.12 0.13>0.12 0.12>0.12 0.12>0.11 0.12>0.11 0.11>0.11 0.11>0.11 0.11>0.11 0.11>0.1 0.11>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.1 0.1>0.09 0.1>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.09 0.09>0.08 0.09>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 0.08>0.08 km/h
-✔ CHK-TEST-0005-06 the output carries the four records of API-0003 with their environments, in m/s and ms, presented also in km/h and s (23.5676ms)
-✔ CHK-TEST-0005-07 the keyboard and the tilt forms give the same acceleration, top speed, grass loss and wall contacts (13.0326ms)
-✔ CHK-TEST-0001-01 the yaw rate reaches 90 % of its steady value within 180 ms of a full steer input at 50 km/h held, to either side (8.9639ms)
+✔ CHK-TEST-0005-06 the output carries the four records of API-0003 with their environments, in m/s and ms, presented also in km/h and s (7.0745ms)
+✔ CHK-TEST-0005-07 the keyboard and the tilt forms give the same acceleration, top speed, grass loss and wall contacts (7.7945ms)
+✔ CHK-TEST-0001-01 the yaw rate reaches 90 % of its steady value within 180 ms of a full steer input at 50 km/h held, to either side (14.8544ms)
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"STEER_RESPONSE","steerInputNorm":1,"targetSpeedMps":13.88888888888889,"speedHoldMode":"THROTTLE_REGULATED","speedHoldBandMps":0.5,"speedMinMps":13.829538888496998,"speedMaxMps":13.928865820245425,"riseToNinetyPctMs":108,"fallToTenPctMs":58,"settleWindowMs":200,"steadyYawRateRadPerS":1.2624910735289978,"understeerStepCount":59,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # STEER_RESPONSE targetSpeedMps 50 km/h · speedHoldBandMps 1.8 km/h · speedMinMps 49.79 km/h · speedMaxMps 50.14 km/h
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"STEER_RESPONSE","steerInputNorm":-1,"targetSpeedMps":13.88888888888889,"speedHoldMode":"THROTTLE_REGULATED","speedHoldBandMps":0.5,"speedMinMps":13.829538888496998,"speedMaxMps":13.928865820245425,"riseToNinetyPctMs":108,"fallToTenPctMs":58,"settleWindowMs":200,"steadyYawRateRadPerS":1.2624910735289978,"understeerStepCount":59,"testAreaRadiusM":100,"offAsphaltStepCount":0}
@@ -99,393 +103,558 @@
 ℹ # STEER_RESPONSE targetSpeedMps 50 km/h · speedHoldBandMps 1.8 km/h · speedMinMps 49.86 km/h · speedMaxMps 50.18 km/h
 ℹ {"benchEnvironment":"TEST_PAD","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":false,"benchId":"STEER_RESPONSE","steerInputNorm":-0.5,"targetSpeedMps":13.88888888888889,"speedHoldMode":"THROTTLE_REGULATED","speedHoldBandMps":0.5,"speedMinMps":13.85102968521802,"speedMaxMps":13.939024821192671,"riseToNinetyPctMs":108,"fallToTenPctMs":50,"settleWindowMs":200,"steadyYawRateRadPerS":0.8237118605444241,"understeerStepCount":0,"testAreaRadiusM":100,"offAsphaltStepCount":0}
 ℹ # STEER_RESPONSE targetSpeedMps 50 km/h · speedHoldBandMps 1.8 km/h · speedMinMps 49.86 km/h · speedMaxMps 50.18 km/h
-✔ CHK-TEST-0001-02 the yaw rate falls to 10 % of its steady value within 250 ms of releasing a full steer input at 50 km/h held (0.4998ms)
-✔ CHK-TEST-0001-03 a partial tilt steer reaches 90 % of its own, smaller steady yaw rate within 180 ms at 50 km/h held (0.288ms)
-✔ CHK-TEST-0001-04 releasing a partial tilt steer brings the yaw rate to 10 % of that regime within 250 ms at 50 km/h held (0.1731ms)
-✔ CHK-TEST-0001-05 the verdict depends only on the two measured times and the held speed, never on understeer steps (0.3667ms)
-✔ CHK-TEST-0001-06 the output carries the steering-response record of API-0003 4.0.1 with its times, regime, speed range, settle window and the declared area, and leaving the area fails before any other reason (11.5584ms)
+✔ CHK-TEST-0001-02 the yaw rate falls to 10 % of its steady value within 250 ms of releasing a full steer input at 50 km/h held (9.6485ms)
+✔ CHK-TEST-0001-03 a partial tilt steer reaches 90 % of its own, smaller steady yaw rate within 180 ms at 50 km/h held (0.7837ms)
+✔ CHK-TEST-0001-04 releasing a partial tilt steer brings the yaw rate to 10 % of that regime within 250 ms at 50 km/h held (0.4452ms)
+✔ CHK-TEST-0001-05 the verdict depends only on the two measured times and the held speed, never on understeer steps (6.8575ms)
+✔ CHK-TEST-0001-06 the output carries the steering-response record of API-0003 4.0.1 with its times, regime, speed range, settle window and the declared area, and leaving the area fails before any other reason (5.836ms)
 ℹ STEER_RESPONSE records: 2 BINARY, 4 PROPORTIONAL
-✔ CHK-TEST-0001-07 the keyboard and the tilt forms of the same full steer give the same measured response (7.2433ms)
-✔ CHK-TEST-0001-08 the input forms saturate a steer beyond the range and the keyboard form is binary (6.8009ms)
-✔ CHK-TEST-0006-01 the telemetry is a pure reading of the state with exactly the fields of API-0001, position and heading included and no drift field, from the initial state through every step of a lap up to its first result, and NO_STATE without a state (1792.6154ms)
-✔ CHK-TEST-0006-02 the forcing condition holds only with full throttle, full steer and more than 50 km/h at the start of the step; partial steer never forces (39.6793ms)
-✔ CHK-TEST-0006-03 wallContact is true only on the step of a contact: false when the kart rests against the wall and false everywhere on the open test pad, off the declared area included (122.9441ms)
-✔ CHK-TEST-0006-04 the surface of the telemetry follows the environment: asphalt, then grass, then asphalt again (8.9369ms)
-✔ CHK-TEST-0006-05 the steering, radius and turn sequences give the same state at every step with the drift command held, and the maneuver state never leaves its initial value (400.5897ms)
-✔ CHK-TEST-0009-01 the test pilot completes the synthetic lap with zero steps off the asphalt, and a pilot driven 8 m beside the line fails as OFF_ASPHALT with the step and position of its first exit (2339.8577ms)
+✔ CHK-TEST-0001-07 the keyboard and the tilt forms of the same full steer give the same measured response (0.7865ms)
+✔ CHK-TEST-0001-08 the input forms saturate a steer beyond the range and the keyboard form is binary (0.5305ms)
+✔ CHK-TEST-0006-01 the telemetry is a pure reading of the state with exactly the fields of API-0001, position and heading included and no drift field, from the initial state through every step of a lap up to its first result, and NO_STATE without a state (2499.6136ms)
+✔ CHK-TEST-0006-02 the forcing condition holds only with full throttle, full steer and more than 50 km/h at the start of the step; partial steer never forces (79.3637ms)
+✔ CHK-TEST-0006-03 wallContact is true only on the step of a contact: false when the kart rests against the wall and false everywhere on the open test pad, off the declared area included (217.6162ms)
+✔ CHK-TEST-0006-04 the surface of the telemetry follows the environment: asphalt, then grass, then asphalt again (14.1486ms)
+✔ CHK-TEST-0006-05 the steering, radius and turn sequences give the same state at every step with the drift command held, and the maneuver state never leaves its initial value (630.5794ms)
+✔ CHK-TEST-0009-01 the test pilot completes the synthetic lap with zero steps off the asphalt, and a pilot driven 8 m beside the line fails as OFF_ASPHALT with the step and position of its first exit (3759.4544ms)
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"TEST_PILOT_LAP","lapTimeMs":23049,"sectorMs":[6331,6271,5682,4765],"offAsphaltStepCount":0,"baselineLapTimeMs":26703}
 ℹ # TEST_PILOT_LAP lapValidity VALID
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"PROPORTIONAL","verdict":"PASS","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"TEST_PILOT_LAP","lapTimeMs":23049,"sectorMs":[6331,6271,5682,4765],"offAsphaltStepCount":0,"baselineLapTimeMs":26703}
 ℹ # TEST_PILOT_LAP lapValidity VALID
 ℹ {"benchEnvironment":"SYNTHETIC_TRACK","setupId":"ARCADE_ASSISTIDO","setupVersion":"arcade-assistido-v6","inputMode":"BINARY","verdict":"FAIL","measuredAtUtc":"2026-10-27T00:00:00.000Z","baselineAvailable":true,"benchId":"TEST_PILOT_LAP","lapTimeMs":50000,"sectorMs":[50000,50000,50000,50000],"offAsphaltStepCount":5792,"offAsphaltFirstStep":209,"offAsphaltFirstXM":79.58012348156588,"offAsphaltFirstZM":7.358090613402852,"baselineLapTimeMs":26703,"failReason":"OFF_ASPHALT"}
 ℹ # TEST_PILOT_LAP lapValidity NOT_ENDED
-✔ CHK-TEST-0009-02 the test-pilot lap takes at most 25 s of simulated time and is faster than the recorded baseline (0.6572ms)
-✔ CHK-TEST-0009-03 every test-pilot record carries exactly four integer sector times; a valid lap sums them to the lap time and a lap that never ends reports the window ceiling (3732.8291ms)
-✔ CHK-TEST-0009-04 every bench run twice gives identical states in both environments, and a run that differs is NON_DETERMINISTIC (0.8503ms)
-✔ CHK-TEST-0009-05 the whole set of simulation benches produces the same records on a second run (8147.7021ms)
-✔ CHK-TEST-0009-06 the keyboard and the tilt forms give the same lap time and sector times (0.2151ms)
-✔ a held button alone cannot farm drift rewards (2.9203ms)
-✔ clean releases award increasing boosts only once (1.3244ms)
-✔ grass, braking, slow motion and spins cannot cash a pending drift (1.7093ms)
-✔ reversing drift direction cancels its charge (0.659ms)
-✔ chain multiplier caps at three and expires (3.2564ms)
-✔ cancel clears active maneuvers without removing already earned points (0.9307ms)
-✔ realistic preset ignores the drift input entirely (27.6912ms)
-✔ maneuver replay remains deterministic (26.5351ms)
-✔ CHK-TEST-0003-01 in every race frame, running or ended, the camera is 1.38 m above the ground in RACE_CHASE (4.1027ms)
-✔ CHK-TEST-0003-02 in every race frame the camera is 3.05 m behind the kart position, measured on the ground along the heading (1.7214ms)
-✔ CHK-TEST-0003-03 in every race frame the camera aims 3.2 m ahead of the kart along the heading, 0.30 m above the ground (1.2746ms)
-✔ CHK-TEST-0003-04 in landscape without turbo the vertical field of view is 62 degrees at any speed (1.3764ms)
-✔ CHK-TEST-0003-05 in portrait without turbo the horizontal field of view is at least 60 degrees (0.4449ms)
-✔ CHK-TEST-0003-06 in portrait the vertical field of view never falls below 62 degrees, and a shape change applies in the next frame without moving the pose (3.0725ms)
-✔ CHK-TEST-0003-07 between consecutive frames the aim direction turns exactly as much as the kart heading, in a curve and across a reposition (253.2485ms)
-✔ CHK-TEST-0003-08 in a 90-degree curve at 50 km/h the whole kart with the pilot stays inside the frame, in landscape and in portrait (397.3386ms)
-✔ CHK-TEST-0003-09 with the turbo active the vertical field of view opens by the 4 degrees of the existing effect over the base of the shape (4.7187ms)
-✔ CHK-TEST-0003-10 before the countdown the camera shows the whole track from above, in every shape of the play area, and never after the lap ended (25.7025ms)
-✔ CHK-TEST-0003-11 during the countdown the camera holds the overview and then descends without ever rising, stopping while paused (91.8807ms)
-✔ CHK-TEST-0003-12 at the green signal the camera is already in the race pose, and the last countdown frame is within a centimetre of it (62.7365ms)
-✔ CHK-TEST-0003-13 after the lap ends, by completion or by reposition, the camera stays in the race pose behind the frozen kart until a new countdown starts (5.131ms)
-✔ CHK-TEST-0003-14 the camera mode follows the lap phase: overview only without a lap, descent only during the countdown, chase otherwise (7.5183ms)
-✔ CHK-TEST-0004-01 the application draws the Kart 01 and no longer builds the provisional box kart (4.0615ms)
-✔ CHK-TEST-0004-02 the sun follows the displayed kart and its shadow box covers the track (0.9283ms)
-✔ CHK-TEST-0004-03 the number 01 is painted on the plate texture and the decals are painted at page load (0.5292ms)
-✔ CHK-TEST-0004-04 the tyre marks are laid by simulation step at the simulation wheel positions, never by a clock (0.7427ms)
-✔ CHK-TEST-0004-05 the exhaust jet hangs from the exhaust outlet anchor and shows only while the turbo is active (0.4633ms)
-✔ CHK-TEST-0004-06 the situations that draw a tyre mark are unchanged: drifting, above 6 m/s and sideslip (0.5512ms)
-✔ CHK-TEST-0004-07 the feature adds no runtime dependency: three 0.186 stays the only one and the new modules import only three and the project (24.0232ms)
-✔ CHK-TEST-0004-08 the simulation imports nothing from the model, the camera or the effects of this feature (0.7657ms)
+✔ CHK-TEST-0009-02 the test-pilot lap takes at most 25 s of simulated time and is faster than the recorded baseline (0.9556ms)
+✔ CHK-TEST-0009-03 every test-pilot record carries exactly four integer sector times; a valid lap sums them to the lap time and a lap that never ends reports the window ceiling (6681.1239ms)
+✔ CHK-TEST-0009-04 every bench run twice gives identical states in both environments, and a run that differs is NON_DETERMINISTIC (1.3481ms)
+✔ CHK-TEST-0009-05 the whole set of simulation benches produces the same records on a second run (13012.434ms)
+✔ CHK-TEST-0009-06 the keyboard and the tilt forms give the same lap time and sector times (0.6671ms)
+✔ a held button alone cannot farm drift rewards (24.9867ms)
+✔ clean releases award increasing boosts only once (1.2447ms)
+✔ grass, braking, slow motion and spins cannot cash a pending drift (1.2522ms)
+✔ reversing drift direction cancels its charge (0.4373ms)
+✔ chain multiplier caps at three and expires (2.8804ms)
+✔ cancel clears active maneuvers without removing already earned points (0.6223ms)
+✔ realistic preset ignores the drift input entirely (28.9426ms)
+✔ maneuver replay remains deterministic (30.9417ms)
+✔ CHK-TEST-0003-01 in every race frame, running or ended, the camera is 1.38 m above the ground in RACE_CHASE (4.5217ms)
+✔ CHK-TEST-0003-02 in every race frame the camera is 3.05 m behind the kart position, measured on the ground along the heading (7.9609ms)
+✔ CHK-TEST-0003-03 in every race frame the camera aims 3.2 m ahead of the kart along the heading, 0.30 m above the ground (1.3892ms)
+✔ CHK-TEST-0003-04 in landscape without turbo the vertical field of view is 62 degrees at any speed (1.8842ms)
+✔ CHK-TEST-0003-05 in portrait without turbo the horizontal field of view is at least 60 degrees (0.7655ms)
+✔ CHK-TEST-0003-06 in portrait the vertical field of view never falls below 62 degrees, and a shape change applies in the next frame without moving the pose (3.5181ms)
+✔ CHK-TEST-0003-07 between consecutive frames the aim direction turns exactly as much as the kart heading, in a curve and across a reposition (450.6193ms)
+✔ CHK-TEST-0003-08 in a 90-degree curve at 50 km/h the whole kart with the pilot stays inside the frame, in landscape and in portrait (601.0112ms)
+✔ CHK-TEST-0003-09 with the turbo active the vertical field of view opens by the 4 degrees of the existing effect over the base of the shape (9.8815ms)
+✔ CHK-TEST-0003-10 before the countdown the camera shows the whole track from above, in every shape of the play area, and never after the lap ended (5.993ms)
+✔ CHK-TEST-0003-11 during the countdown the camera holds the overview and then descends without ever rising, stopping while paused (115.004ms)
+✔ CHK-TEST-0003-12 at the green signal the camera is already in the race pose, and the last countdown frame is within a centimetre of it (112.2266ms)
+✔ CHK-TEST-0003-13 after the lap ends, by completion or by reposition, the camera stays in the race pose behind the frozen kart until a new countdown starts (1.779ms)
+✔ CHK-TEST-0003-14 the camera mode follows the lap phase: overview only without a lap, descent only during the countdown, chase otherwise (1.6511ms)
+✔ CHK-TEST-0004-01 the application draws the Kart 01 and no longer builds the provisional box kart (4.9101ms)
+✔ CHK-TEST-0004-02 the sun follows the displayed kart and its shadow box covers the track (1.078ms)
+✔ CHK-TEST-0004-03 the number 01 is painted on the plate texture and the decals are painted at page load (0.6013ms)
+✔ CHK-TEST-0004-04 the tyre marks are laid by simulation step at the simulation wheel positions, never by a clock (0.5375ms)
+✔ CHK-TEST-0004-05 the exhaust jet hangs from the exhaust outlet anchor and shows only while the turbo is active (0.3915ms)
+✔ CHK-TEST-0004-06 the situations that draw a tyre mark are unchanged: drifting, above 6 m/s and sideslip (0.468ms)
+✔ CHK-TEST-0004-07 the feature adds no runtime dependency: three 0.186 stays the only one and the new modules import only three and the project (3.016ms)
+✔ CHK-TEST-0004-08 the simulation imports nothing from the model, the camera or the effects of this feature (0.4262ms)
 ℹ {"checkId":"LAYERING","checkedFileCount":6,"forbiddenImportCount":0,"verdict":"PASS"}
-✖ CHK-TEST-0004-09 the presentation changes nothing in the simulation: the reference lap with and without it ends in the same state (2.8636ms)
-ℹ {"checkId":"RENDER_NEUTRAL","checkStepCount":0,"differingFieldCount":0,"verdict":"PASS"}
-✔ CHK-TEST-0004-10 the pure modules of the feature touch no DOM, clock or random, and no module of the feature uses the network or storage (7.8023ms)
-✖ CHK-TEST-0004-11 the step contract is unchanged: same STEP, same Input fields and ranges, same simulation wheelbase and track (1.6301ms)
-ℹ {"checkId":"SIM_CONTRACT","verdict":"FAIL","checkFailReason":"BASELINE_MISSING"}
-✖ CHK-TEST-0004-12 a baseline with another STEP, another Input line or another wheelbase makes SIM_CONTRACT CONTRACT_CHANGED (0.8147ms)
-✖ CHK-TEST-0004-13 the two reference laps of the baseline replay to the same lap time, sectors, validity and final state (0.8598ms)
-ℹ {"checkId":"DETERMINISM","verdict":"FAIL","checkFailReason":"BASELINE_MISSING"}
-✖ CHK-TEST-0004-14 without a usable baseline the three comparisons are BASELINE_MISSING and nothing is compared (4.4509ms)
-✖ CHK-TEST-0004-15 wheelPositions of both setups equal the baseline value for value, and one altered value is STATE_DIFFERS (0.6499ms)
-ℹ {"checkId":"WHEEL_POSITIONS","verdict":"FAIL","checkFailReason":"BASELINE_MISSING"}
-✖ CHK-TEST-0004-16 every record of API-0002 carries its checkId, its verdict, its measured fields with the contract names, and a reason only on FAIL (3266.6736ms)
-✔ CHK-TEST-0001-01 the assembled kart measures 1.93 m long, 1.45 m wide and 1.05 m between the axles, within 2 cm (3.6502ms)
+✔ CHK-TEST-0004-09 the presentation changes nothing in the simulation: the reference lap with and without it ends in the same state (0.4192ms)
+ℹ {"checkId":"RENDER_NEUTRAL","checkStepCount":3525,"differingFieldCount":0,"verdict":"PASS"}
+✔ CHK-TEST-0004-10 the pure modules of the feature touch no DOM, clock or random, and no module of the feature uses the network or storage (5.6456ms)
+✔ CHK-TEST-0004-11 the step contract is unchanged: same STEP, same Input fields and ranges, same simulation wheelbase and track (1.2197ms)
+ℹ {"checkId":"SIM_CONTRACT","stepUnchanged":true,"inputContractUnchanged":true,"simMeasuresUnchanged":true,"simWheelbaseM":1.04,"simTrackWidthM":1.2,"verdict":"PASS"}
+✔ CHK-TEST-0004-12 a baseline with another STEP, another Input line or another wheelbase makes SIM_CONTRACT CONTRACT_CHANGED (8255.8939ms)
+✔ CHK-TEST-0004-13 the two reference laps of the baseline replay to the same lap time, sectors, validity and final state (8733.8161ms)
+ℹ {"checkId":"DETERMINISM","comparedRunCount":2,"differingRunCount":0,"verdict":"PASS"}
+✔ CHK-TEST-0004-14 without a usable baseline the three comparisons are BASELINE_MISSING and nothing is compared (12.7719ms)
+✔ CHK-TEST-0004-15 wheelPositions of both setups equal the baseline value for value, and one altered value is STATE_DIFFERS (4374.4883ms)
+ℹ {"checkId":"WHEEL_POSITIONS","checkStepCount":8797,"comparedValueCount":16,"differingValueCount":0,"verdict":"PASS"}
+✔ CHK-TEST-0004-16 every record of API-0002 carries its checkId, its verdict, its measured fields with the contract names, and a reason only on FAIL (2234.7434ms)
+✔ CHK-TEST-0001-01 the assembled kart measures 1.93 m long, 1.45 m wide and 1.05 m between the axles, within 2 cm (38.2341ms)
 ℹ {"checkId":"KART_DIMENSIONS","bboxLengthM":1.9265000095367433,"bboxWidthM":1.4500000476837158,"wheelbaseM":1.05,"verdict":"PASS"}
-✔ CHK-TEST-0001-02 a dimension outside the 2 cm tolerance is judged OUT_OF_TOLERANCE, never rounded in (0.8774ms)
-✔ CHK-TEST-0001-03 the front wheels measure 0.26 m, the rear 0.28 m, and the tracks 1.00 m and 1.14 m, to the centimetre (0.7498ms)
+✔ CHK-TEST-0001-02 a dimension outside the 2 cm tolerance is judged OUT_OF_TOLERANCE, never rounded in (0.7513ms)
+✔ CHK-TEST-0001-03 the front wheels measure 0.26 m, the rear 0.28 m, and the tracks 1.00 m and 1.14 m, to the centimetre (1.1971ms)
 ℹ {"checkId":"WHEELS_AND_TRACKS","frontWheelDiametersM":[0.25999999046325684,0.25999999046325684],"rearWheelDiametersM":[0.2800000011920929,0.2800000011920929],"frontTrackM":1,"rearTrackM":1.14,"verdict":"PASS"}
-✔ CHK-TEST-0001-04 a wheel or a track that differs to the centimetre is judged OUT_OF_TOLERANCE (0.6242ms)
-✔ CHK-TEST-0001-05 the 15 part groups and the pilot are present with visible geometry, the pilot outside every part group (2.0197ms)
+✔ CHK-TEST-0001-04 a wheel or a track that differs to the centimetre is judged OUT_OF_TOLERANCE (0.5286ms)
+✔ CHK-TEST-0001-05 the 15 part groups and the pilot are present with visible geometry, the pilot outside every part group (3.4746ms)
 ℹ {"checkId":"PART_GROUPS","partGroups":[{"groupName":"chassi","visibleTriangleCount":516},{"groupName":"eixoTraseiro","visibleTriangleCount":332},{"groupName":"rodaDianteiraEsq","visibleTriangleCount":324},{"groupName":"rodaDianteiraDir","visibleTriangleCount":324},{"groupName":"rodaTraseiraEsq","visibleTriangleCount":324},{"groupName":"rodaTraseiraDir","visibleTriangleCount":324},{"groupName":"nariz","visibleTriangleCount":104},{"groupName":"painelFrontal","visibleTriangleCount":46},{"groupName":"sidepodEsq","visibleTriangleCount":54},{"groupName":"sidepodDir","visibleTriangleCount":54},{"groupName":"paraChoqueTraseiro","visibleTriangleCount":78},{"groupName":"banco","visibleTriangleCount":220},{"groupName":"direcao","visibleTriangleCount":544},{"groupName":"pedais","visibleTriangleCount":160},{"groupName":"motor","visibleTriangleCount":708},{"groupName":"piloto","visibleTriangleCount":1016}],"missingGroupNames":[],"verdict":"PASS"}
-✔ CHK-TEST-0001-06 an emptied group is GROUP_MISSING, a nested pilot is GROUP_NESTED, and missing wins over nested (210.4762ms)
-✔ CHK-TEST-0001-07 the kart uses Kartle orange, the chassis graphite, the bumper plate white and the pilot suit blue, as the sheet names them (2.3128ms)
+✔ CHK-TEST-0001-06 an emptied group is GROUP_MISSING, a nested pilot is GROUP_NESTED, and missing wins over nested (271.9106ms)
+✔ CHK-TEST-0001-07 the kart uses Kartle orange, the chassis graphite, the bumper plate white and the pilot suit blue, as the sheet names them (3.4931ms)
 ℹ {"checkId":"PART_COLORS","kartColorHexes":["#1A1B1F","#1E2024","#26292E","#2B2E34","#33373D","#3A3E45","#5A6069","#8A9099","#B9BEC6","#C5CAD1","#F4F3EF","#FF6A13","#FFFFFF"],"chassisColorHexes":["#2B2E34","#3A3E45"],"bumperPlateColorHex":"#F4F3EF","suitColorHex":"#2F55D4","verdict":"PASS"}
-✔ CHK-TEST-0001-08 a colour that is absent or differs from the sheet is COLOR_MISMATCH (0.5658ms)
-✔ CHK-TEST-0001-09 the kart with the pilot costs at most 30 draw calls and keeps the 5128 triangles of the source (0.5425ms)
+✔ CHK-TEST-0001-08 a colour that is absent or differs from the sheet is COLOR_MISMATCH (1.1028ms)
+✔ CHK-TEST-0001-09 the kart with the pilot costs at most 30 draw calls and keeps the 5128 triangles of the source (43.6826ms)
 ℹ {"checkId":"DRAW_COST","meshCount":27,"drawCallCount":27,"triangleCount":5128,"verdict":"PASS"}
-✔ CHK-TEST-0001-10 31 draw calls is LIMIT_EXCEEDED, 5127 triangles is SHAPE_CHANGED, and the limit is reported first (0.4568ms)
-✔ CHK-TEST-0001-11 building the model twice gives the same Kart 01, with the same measures, groups and colours (109.104ms)
-✔ CHK-TEST-0001-12 every solid mesh of the kart casts a shadow and the decals do not (0.8325ms)
-✔ CHK-TEST-0001-13 the rear bumper carries the plate mesh with the plate material, the anchor the number is painted on (1.7479ms)
-✔ CHK-TEST-0001-14 the two front wheels turn about their vertical axis by the steering angle and the rear wheels do not (46.378ms)
-✔ CHK-TEST-0001-15 the steering wheel is centred at zero, turns to the side of the steer and more for a larger steer (64.1215ms)
-✔ CHK-TEST-0001-16 both hands stay on the rim of the steering wheel at every wheel angle, with rigid arm segments (39.2161ms)
-✔ CHK-TEST-0001-17 the four wheels rest on the ground: the bottom of their bounding box is at 0 m to the centimetre (2.3099ms)
+✔ CHK-TEST-0001-10 31 draw calls is LIMIT_EXCEEDED, 5127 triangles is SHAPE_CHANGED, and the limit is reported first (0.9332ms)
+✔ CHK-TEST-0001-11 building the model twice gives the same Kart 01, with the same measures, groups and colours (92.1257ms)
+✔ CHK-TEST-0001-12 every solid mesh of the kart casts a shadow and the decals do not (1.1433ms)
+✔ CHK-TEST-0001-13 the rear bumper carries the plate mesh with the plate material, the anchor the number is painted on (0.6412ms)
+✔ CHK-TEST-0001-14 the two front wheels turn about their vertical axis by the steering angle and the rear wheels do not (83.6941ms)
+✔ CHK-TEST-0001-15 the steering wheel is centred at zero, turns to the side of the steer and more for a larger steer (106.6147ms)
+✔ CHK-TEST-0001-16 both hands stay on the rim of the steering wheel at every wheel angle, with rigid arm segments (39.8051ms)
+✔ CHK-TEST-0001-17 the four wheels rest on the ground: the bottom of their bounding box is at 0 m to the centimetre (1.8655ms)
 ℹ wheels bounding box min.y 0.003259365558624272 m (14-segment lathe; RULE-0001 tolerance, to the centimetre)
-✔ CHK-TEST-0001-18 the nose is at the model front (-Z), the rear bumper behind, and the root turned by pi puts the nose at +Z of the simulation (28.3571ms)
-✔ CHK-TEST-0001-19 the exhaust outlet anchor hangs from the motor group at the end of the tailpipe, (0.39, 0.33, 0.77) m (1.5096ms)
-✔ CHK-TEST-0002-01 the displayed steering angle is the steering the simulation reports, and no state gives NO_STATE (6.8295ms)
-✔ CHK-TEST-0002-02 after 120 steps at 10, -10 and 0 m/s each wheel spun exactly speed x time / (pi x diameter) revolutions, in the direction of travel (1.7581ms)
+✔ CHK-TEST-0001-18 the nose is at the model front (-Z), the rear bumper behind, and the root turned by pi puts the nose at +Z of the simulation (64.5383ms)
+✔ CHK-TEST-0001-19 the exhaust outlet anchor hangs from the motor group at the end of the tailpipe, (0.39, 0.33, 0.77) m (1.1466ms)
+✔ CHK-TEST-0002-01 the displayed steering angle is the steering the simulation reports, and no state gives NO_STATE (8.1065ms)
+✔ CHK-TEST-0002-02 after 120 steps at 10, -10 and 0 m/s each wheel spun exactly speed x time / (pi x diameter) revolutions, in the direction of travel (1.7698ms)
 ℹ {"checkId":"WHEEL_SPIN","checkStepCount":120,"simulatedTimeMs":1000,"rollingSpeedMps":10,"wheels":[{"groupName":"rodaDianteiraEsq","diameterM":0.26,"spinRevs":12.242687930145795,"expectedSpinRevs":12.242687930145795},{"groupName":"rodaDianteiraDir","diameterM":0.26,"spinRevs":12.242687930145795,"expectedSpinRevs":12.242687930145795},{"groupName":"rodaTraseiraEsq","diameterM":0.28,"spinRevs":11.368210220849665,"expectedSpinRevs":11.368210220849665},{"groupName":"rodaTraseiraDir","diameterM":0.28,"spinRevs":11.368210220849665,"expectedSpinRevs":11.368210220849665}],"verdict":"PASS"}
 ℹ {"checkId":"WHEEL_SPIN","checkStepCount":120,"simulatedTimeMs":1000,"rollingSpeedMps":-10,"wheels":[{"groupName":"rodaDianteiraEsq","diameterM":0.26,"spinRevs":-12.242687930145795,"expectedSpinRevs":-12.242687930145795},{"groupName":"rodaDianteiraDir","diameterM":0.26,"spinRevs":-12.242687930145795,"expectedSpinRevs":-12.242687930145795},{"groupName":"rodaTraseiraEsq","diameterM":0.28,"spinRevs":-11.368210220849665,"expectedSpinRevs":-11.368210220849665},{"groupName":"rodaTraseiraDir","diameterM":0.28,"spinRevs":-11.368210220849665,"expectedSpinRevs":-11.368210220849665}],"verdict":"PASS"}
 ℹ {"checkId":"WHEEL_SPIN","checkStepCount":120,"simulatedTimeMs":1000,"rollingSpeedMps":0,"wheels":[{"groupName":"rodaDianteiraEsq","diameterM":0.26,"spinRevs":0,"expectedSpinRevs":0},{"groupName":"rodaDianteiraDir","diameterM":0.26,"spinRevs":0,"expectedSpinRevs":0},{"groupName":"rodaTraseiraEsq","diameterM":0.28,"spinRevs":0,"expectedSpinRevs":0},{"groupName":"rodaTraseiraDir","diameterM":0.28,"spinRevs":0,"expectedSpinRevs":0}],"verdict":"PASS"}
-✔ CHK-TEST-0002-03 the spin advances only with the step counter: no step gives the same object, a counter that went back resets without spinning, and two frames equal one (1.1406ms)
-✔ CHK-TEST-0002-04 the pose carries the simulation position, and the reference offset puts the model axles within 6 mm of the simulation axles (0.7519ms)
-✔ CHK-TEST-0002-05 in a real session the pose after k steps is the state of step k, one step per frame, never an intermediate one (328.5612ms)
-✔ CHK-TEST-0002-06 while paused the simulation does not advance: two frames give the same pose and the wheels do not spin (127.7021ms)
-✔ CHK-TEST-0002-07 the first frame after a reposition shows the new position and heading, and the spin counter restarts without spinning (218.0272ms)
-✔ CHK-TEST-0002-08 the displayed heading is the heading the simulation reports (1.0896ms)
-✔ CHK-TEST-0002-09 the ground positions of the four simulation wheels are wheelPositions(config) carried by the pose, value for value (1.8259ms)
-✔ CHK-TEST-0002-10 over a whole lap the telemetry wheel positions equal wheelPositions at every step, and the model rear wheels sit 3 cm inside them (3146.5473ms)
+✔ CHK-TEST-0002-03 the spin advances only with the step counter: no step gives the same object, a counter that went back resets without spinning, and two frames equal one (1.3187ms)
+✔ CHK-TEST-0002-04 the pose carries the simulation position, and the reference offset puts the model axles within 6 mm of the simulation axles (0.8404ms)
+✔ CHK-TEST-0002-05 in a real session the pose after k steps is the state of step k, one step per frame, never an intermediate one (472.5178ms)
+✔ CHK-TEST-0002-06 while paused the simulation does not advance: two frames give the same pose and the wheels do not spin (226.7326ms)
+✔ CHK-TEST-0002-07 the first frame after a reposition shows the new position and heading, and the spin counter restarts without spinning (212.8366ms)
+✔ CHK-TEST-0002-08 the displayed heading is the heading the simulation reports (1.122ms)
+✔ CHK-TEST-0002-09 the ground positions of the four simulation wheels are wheelPositions(config) carried by the pose, value for value (1.291ms)
+✔ CHK-TEST-0002-10 over a whole lap the telemetry wheel positions equal wheelPositions at every step, and the model rear wheels sit 3 cm inside them (5640.4052ms)
 ℹ {"checkId":"TELEMETRY_WHEEL_POSITIONS","comparedStepCount":3767,"differingValueCount":0,"verdict":"PASS"}
-✔ fixed-step replay reproduces the same state (160.5989ms)
-✔ braking stops without reversing (21.2001ms)
-✔ grass slows the kart more than asphalt (22.0438ms)
-✔ crossing the start alone cannot complete a lap (0.511ms)
-✔ steering at rest cannot rotate or translate the chassis (10.5627ms)
-✔ heavier driver accelerates slower with the same engine (37.3353ms)
-✔ load transfer conserves weight and shifts load forward during braking and outward in turns (0.6449ms)
-✔ braking and cornering share tire grip; unloading reduces total axle capacity (0.3123ms)
-✔ excess steering at speed saturates the front and reduces yaw response (7.8056ms)
-✔ rear braking mid-corner creates oversteer through tire forces (8.8112ms)
-✔ early countersteer and brake release can arrest rear-brake oversteer (10.0151ms)
-✔ left and right cornering are mirrored, without directional bias (11.8631ms)
-✔ releasing steering does not erase lateral velocity or yaw instantaneously (3.0786ms)
-✔ passive sliding dissipates kinetic energy and stays finite (86.889ms)
-✔ extra yaw inertia slows transient turn-in with identical tire forces (3.8436ms)
-✔ smaller integration intervals converge to the same trajectory (21.507ms)
-✔ each tire samples its own surface (0.6506ms)
-✔ governor limits acceleration without hard-clamping velocity (103.2032ms)
-✔ arcade improves launch and corner-exit acceleration without changing mass (106.2443ms)
-✔ arcade full-key steering keeps useful grip and speed instead of excessive front scrub (26.5595ms)
-✔ arcade braking while holding full steering avoids the previous spin (13.5196ms)
-✔ arcade release straightens smoothly without snapping or rotating at rest (11.3922ms)
-✔ arcade preserves low-speed steering lock but limits high-speed digital inputs (0.5827ms)
-✔ CHK-TEST-0004-01 the Kart Park environment has no wall derived from the centerline: the barriers of the file are its only obstacles (848.7154ms)
-✔ CHK-TEST-0004-02 a kart driven against the barrier from either side, at every speed the kart reaches and at 90 or 30 degrees, never ends a step on the other side (5055.5396ms)
-✔ CHK-TEST-0004-03 the barrier also holds at 60 and 200 m/s, the speeds DES-0003 names beyond the reach of the kart (509.451ms)
-✔ CHK-TEST-0004-04 after a collision with a barrier line the kart has the position and velocity it has after the same collision with the existing wall, step by step (786.2865ms)
-✔ CHK-TEST-0004-05 barrierContact is true only in the step the touching begins, barrierTouching while it lasts, and the contact reading mirrors it (391.0264ms)
-✔ CHK-TEST-0004-06 a copy of the file without barriers gives an environment where a seeded 2000-step run never touches a barrier and never throws (473.9631ms)
-✔ CHK-TEST-0006-01 two laps of the Kart Park pilot with the same input sequence give the same lap time to the millisecond and the same 4 sector times (26.5449ms)
-✔ CHK-TEST-0006-02 the whole session, kart included, is deepEqual after the two laps (2.2763ms)
-✔ CHK-TEST-0006-03 replaying the recorded inputs step by step, without the pilot, reproduces the same lap; one input changed does not (4315.0463ms)
-✔ CHK-TEST-0006-04 a seeded 2000-step input sequence from the Kart Park start gives deepEqual states in two runs (1861.8239ms)
-✔ CHK-TEST-0008-01 on web-mobile with vibration available, a wheel on the curb starts a 20 ms pulse every 30 steps, which is every 250 ms of simulated time (6.2606ms)
-✔ CHK-TEST-0008-02 without a wheel on the curb no new pulse starts, and a step already handled (the lap paused) starts nothing (1.3055ms)
-✔ CHK-TEST-0008-03 on web-desktop with the sound on, a wheel on the curb repeats the curb sound every 12 steps (100 ms), and never vibrates (2.0832ms)
-✔ CHK-TEST-0008-04 without a wheel on the curb no new repeat of the sound starts (1.0011ms)
-✔ CHK-TEST-0008-05 with the sound off riding the curb produces no sound; on web-mobile the sound follows the same rule and a missing vibration only removes the pulses (0.9151ms)
-✔ CHK-TEST-0008-06 over the contact sequence of a real curb run, every pulse and repeat starts with a wheel on the curb, at the declared intervals, several times (1.6817ms)
-✔ CHK-TEST-0008-07 the curb sound is a filtered noise burst unlike the engine (triangle) and the reward (sine), built only with the sound on (2.9808ms)
-✔ CHK-TEST-0008-08 the application plays the curb sound and vibrates only from the per-step decision inside the step loop (2.9695ms)
-✔ CHK-TEST-0005-01 the Kart Park pilot passes every marker in order and crosses the finish without a cut: the lap ends VALID (2.6658ms)
-✔ CHK-TEST-0005-02 a valid lap on the Kart Park has a total time and 4 sector times that add up to it, as a valid lap on the synthetic track has (2994.2018ms)
-✔ CHK-TEST-0005-03 a lap that skips a marker, passing it 3.5 m beyond the edge for less than the cut window, ends INVALID with MISSED_MARKER at the finish (3613.6994ms)
-✔ CHK-TEST-0005-04 standing more than 3 m beyond the edge of the Kart Park invalidates the lap by CUT in the 121st consecutive step (154.8408ms)
-✔ CHK-TEST-0005-05 up to 1000 ms beyond 3 m followed by a return to 3 m or less does not invalidate, and the count restarts (216.0752ms)
-✔ CHK-TEST-0005-06 a lap that crosses the grass inside curve 4, leaving near 147 m and returning near 200 m, is invalid (1237.7728ms)
-✔ CHK-TEST-0005-07 riding a curb for more than 1000 ms with no wheel beyond it is not a cut: the curb counts as track (3219.1093ms)
-✔ CHK-TEST-0005-08 crossing the finish again after the lap ended produces no second result and adds no time (1.7595ms)
-✔ CHK-TEST-0005-09 crossing the finish of the Kart Park against the track sense does not end the lap and counts no marker (79.4489ms)
-✔ CHK-TEST-0005-10 a pause freezes the Kart Park lap, the resume continues it, and the markers passed before the pause still count (2654.9686ms)
-✔ CHK-TEST-0005-11 the reposition of a training lap on the Kart Park puts the kart on the nearest point of the file centerline, facing the travel sense, at rest (15.8343ms)
-✔ CHK-TEST-0005-12 the lap on the Kart Park uses the default cut limits of 3 m and 1000 ms and the lines of the file (12.5968ms)
-✔ CHK-TEST-0011-01 the simulation and track-data modules import nothing from three, the audio or the application, and use no DOM, clock or random (15.2093ms)
-✔ CHK-TEST-0011-02 no module of the feature, the application included, uses the network or the browser storage; the Kart Park comes bundled (10.3283ms)
-✔ CHK-TEST-0011-03 the session knows no credit text, no licence and no label separator: the screen rule lives in src/lapMessages.ts (1.9351ms)
-✔ CHK-TEST-0011-04 the step contract is unchanged: STEP 1/120, the Input fields, the step signature, and no Input field for the curb (1.6597ms)
-✔ CHK-TEST-0011-05 the synthetic track stays the track of the other features: none of their tests or benches names the Kart Park, and the test-pilot lap still passes on it (1647.7831ms)
-✔ CHK-TEST-0011-06 the feature adds no runtime dependency: three stays the only one and the dev dependencies are unchanged (9.6048ms)
-✔ CHK-TEST-0011-07 no check of this feature needs the renderer: the suites import three only to build geometry in Node, and the scene module creates no renderer (6.2064ms)
-✔ CHK-TEST-0012-01 the Kart Park is published as trackVersion 1 and the registry records its digest, size, STAGING state and preparation facts (64.7053ms)
-✔ CHK-TEST-0012-02 the (trackId, trackVersion) pairs of the registry are unique and the bundled Kart Park is the highest published version (1.9649ms)
-✔ CHK-TEST-0012-03 the preparation reproduces the published file byte for byte from the origin, with the preparation record of the registry (8848.0807ms)
-✔ CHK-TEST-0012-04 no production entry exists without a recorded Esri decision, and the program refuses to promote without one (5334.9703ms)
-✔ CHK-TEST-0012-05 the program verifies the published version, refuses to regenerate it, treats a second publish as already registered, and validates its arguments before touching a file (10135.9354ms)
-✔ CHK-TEST-0012-06 the published size is below the 200 000 byte limit the registry and the program apply (0.6232ms)
-✔ CHK-TEST-0010-01 the asphalt mesh is the ribbon between the left and right edges of the file geometry, vertex for vertex (3.4906ms)
-✔ CHK-TEST-0010-02 every curb stripe is drawn on the side of the track its span declares, alternating two colours every metre (206.6895ms)
-✔ CHK-TEST-0010-03 the barrier is drawn in its whole length: one instance per segment, centred on it, scaled to its length, 0.2 m thick (7.3579ms)
-✔ CHK-TEST-0010-04 the start line is drawn across the asphalt at point 0, as wide as the track there (0.9465ms)
-✔ CHK-TEST-0010-05 the minimap transform fits the track box into the canvas with a margin (1.4352ms)
-✔ CHK-TEST-0009-01 with the Kart Park selected the selector shows "© colaboradores do OpenStreetMap" (5.7983ms)
-✔ CHK-TEST-0009-02 the credit carries the ODbL licence mention (0.7006ms)
-✔ CHK-TEST-0009-03 the credit link goes to openstreetmap.org/copyright and is the href of the anchor (0.8975ms)
-✔ CHK-TEST-0009-04 the result screen of a Kart Park lap shows the same credit, text, licence and link, chosen by the trackId of the result; the synthetic track shows none (0.9829ms)
-✔ CHK-TEST-0009-05 every screen names the Kart Park as "Kart Park — São José dos Pinhais (traçado aproximado)" through optionLabel, outside the message table (3.1041ms)
-✔ CHK-TEST-0009-06 the label of the Kart Park ends with the 687 m length next to the name (0.7105ms)
-✔ CHK-TEST-0009-07 no screen text, module or data of the game carries the 41.45 s record of the real track (5.2255ms)
-✔ CHK-TEST-0009-08 the opening screen builds one selector button per catalogue entry, marks the selected one, opens on the Kart Park and offers the training lap only (1.2778ms)
-✔ CHK-TEST-0009-09 an invalid lap shows its reason in the result title, and the missed-marker reason reads "marcador pulado" (1.2962ms)
-✔ CHK-TEST-0009-10 a FAILED session shows the data error and offers no lap (3.967ms)
-✔ CHK-TEST-0007-01 the catalogue offers exactly two options, the Kart Park and the synthetic track, with the contract fields and nothing else (4.3907ms)
-✔ CHK-TEST-0007-02 at the opening the selected track is the Kart Park, and selecting it loads the published file: READY, COMPLETE, version 1, kart on its start (47.8608ms)
-✔ CHK-TEST-0007-03 a training lap started on the Kart Park session has the trackId of the Kart Park and runs on its environment (50.8181ms)
-✔ CHK-TEST-0007-04 a training lap started on the synthetic session has the trackId of the synthetic track and runs on the synthetic circuit (4.6173ms)
-✔ CHK-TEST-0007-05 every lap of a session is TRAINING without a challenge number and never official, completed, invalidated or discarded, on both tracks (5626.2975ms)
-✔ CHK-TEST-0007-06 after a switch the session kart stands on the start of the chosen track, at rest, and the idle kart is that one (44.0162ms)
-✔ CHK-TEST-0007-07 switching track with a lap in COUNTDOWN, RUNNING or PAUSED discards it: no active lap and no result (99.4307ms)
-✔ CHK-TEST-0007-08 selecting the READY track again changes nothing and keeps the lap; an unknown track is refused without touching the session (34.399ms)
-✔ CHK-TEST-0007-09 an unreadable or unsupported Kart Park source gives a FAILED session with the code of API-0002, no lap, and no training lap can start (21.8249ms)
-✔ CHK-TEST-0007-10 a training session offers the training lap only, and a second start while a lap is active is refused (12.6173ms)
-✔ CHK-TEST-0007-11 the catalogue names the Kart Park as the real track, with 687 m fixed by the product and not derived from the smoothed length (0.8366ms)
-✔ CHK-TEST-0003-01 the tyre capacity on the curb is 85 % of the capacity of the same tyre on the asphalt, for every load, slip and published setup (7.7782ms)
-✔ CHK-TEST-0003-02 stepping the simulation with every wheel on a curb gives each tyre 85 % of the capacity it has on the asphalt from the same state (45.6681ms)
-✔ CHK-TEST-0003-03 a kart with the wheels of one side on the curb and the others on the asphalt reads CURB on those wheels, grip 0.85 there, and edge distance 0 (34.6827ms)
-✔ CHK-TEST-0003-04 the contact reading has exactly the fields of API-0003, NO_STATE without a state, and never CURB nor barrier contact on the synthetic track (238.1561ms)
-✔ CHK-TEST-0003-05 the wheel surfaces of the reading are the surfaces at the four wheel positions of the state, front-left first (3.3793ms)
-✔ CHK-TEST-0002-01 the reading of the published file carries the centerline, the widths, the curbs and the barriers of the file, value for value (25.6015ms)
-✔ CHK-TEST-0002-02 the geometry is built from the declared points: edges at half width along the neighbour normal, cumulative lap distance from the points (5.3237ms)
-✔ CHK-TEST-0002-03 the synthetic file still reads COMPLETE in schema 2, without geometry fields, while the reader is at schema 3 (9.3572ms)
-✔ CHK-TEST-0002-04 a schema-3 copy without a usable centerline, or with a curb, barrier or osmDerived out of form, reads UNREADABLE and stays intact (18.2027ms)
-✔ CHK-TEST-0002-05 curbs and barriers are optional with a neutral default: without them the file is still COMPLETE and the geometry has no curb and no obstacle (59.1651ms)
-✔ CHK-TEST-0002-06 a reversed or rescaled centerline under the same lines reads INCOMPLETE, naming the consistency check that fails (40.1004ms)
-✔ CHK-TEST-0002-07 the surface rule of the file geometry: asphalt inside the edges, curb on the declared strip, grass beyond, with the edge distance 0 on asphalt and curb (12.1836ms)
-✔ CHK-TEST-0002-08 lap distance and position are inverse of each other along the declared line (7.4836ms)
-✔ CHK-TEST-0001-01 the smoothed centerline is a closed lap of the origin points: the last point links back to point 0 without repeating it (2.619ms)
-✔ CHK-TEST-0001-02 the lap length re-measured on the published points is within 687.5 m +/- 1 % and is the one the registry records (1.5426ms)
-✔ CHK-TEST-0001-03 the start line and the finish line are the same transversal line at point 0, with the start just after it on the first segment (1.2213ms)
-✔ CHK-TEST-0001-04 the centerline in the game axes winds anticlockwise seen from above, like the origin, and the file declares COUNTER_CLOCKWISE (0.8581ms)
-✔ CHK-TEST-0001-05 every width is the width of the corresponding origin point, varying from 4.4 m to 10.8 m with no fixed value (0.9018ms)
-✔ CHK-TEST-0001-06 no published point is farther than 0.30 m from its origin point nor from the original polyline, and the registry records the largest offset (58.7206ms)
-✔ CHK-TEST-0001-07 the asphalt edges never cross themselves nor each other, including at the tightest hairpin near 218 m (1124.655ms)
-✔ CHK-TEST-0001-08 the lap has 4 sectors: exactly 3 internal limits, each crossed once in the track sense and in lap order (1.8123ms)
-✔ CHK-TEST-0001-09 each internal limit crosses the centerline at the point whose original lap distance is nearest to 201.6, 350.3 and 529.9 m (7.3307ms)
-✔ CHK-TEST-0001-10 consecutive markers are at most 25 m of lap apart, the last to the first included, each crossed once in the track sense (11.0108ms)
-✔ CHK-TEST-0001-11 a barrier separates the 371-414 m and 580-615 m stretches wherever their asphalt edges are 6 m or less apart (184.3245ms)
-✔ CHK-TEST-0001-12 no barrier stands where the grass between the stretches exceeds 6 m, and the 12-26 m shortcuts of curve 4 get none (170.668ms)
-✔ CHK-TEST-0001-13 no barrier point, vertex or sample, lies on the asphalt or the curb of either stretch; the contact surface stays off the track (1493.6499ms)
-✔ CHK-TEST-0001-14 there are 34 curb spans: the 33 of the origin, with the one crossing the start split in two at the start line (1.3326ms)
-✔ CHK-TEST-0001-15 each span keeps the side and covers the lap stretch declared for it in the origin, mapped by fractional index (0.9627ms)
-✔ CHK-TEST-0001-16 the file carries exactly the declared keys and identity, and no record of the real track (0.7872ms)
-✔ CHK-TEST-0001-17 the published file is smaller than 200 000 bytes as delivered (2.6509ms)
-✔ CHK-TEST-0001-18 verifyTrackFile passes V01 to V18 on the published file against the origin, twice with the same result (1063.5578ms)
-✔ CHK-TEST-0001-19 every verification can fail: a copy with one deviation fails the check named after it and nothing else that is sound (2483.5478ms)
-✔ CHK-TEST-0001-20 the derived geometry of the file keeps every curb quad on its declared side and every lap distance inside the lap (25.9253ms)
-✔ CHK-TEST-0012-01 getLapState carries exactly the fields of API-0001, with the optional ones only in their phase (230.9722ms)
-✔ CHK-TEST-0012-02 getLapResult carries exactly the fields of API-0001 and nothing else, so no personal data can travel in it (2953.5152ms)
-✔ CHK-TEST-0012-03 every time value of the result and of the state is an integer number of milliseconds (3543.9247ms)
-✔ CHK-TEST-0012-04 without a lap the reads answer NO_ACTIVE_LAP and NO_RESULT with no other field (62.9241ms)
-✔ CHK-TEST-0012-05 startLap rejects with the code of API-0002 for each condition and creates no lap (2.1038ms)
-✔ CHK-TEST-0012-06 pauseLap, resumeLap and repositionKart reject with the code of API-0002 for each phase (2012.8033ms)
-✔ CHK-TEST-0012-07 a rejected command leaves the session exactly as it was (152.8396ms)
-✔ CHK-TEST-0012-08 a repeated startLap does not restart the countdown nor create a second lap; after ENDED a new lap gets its own result (2024.0082ms)
-✔ CHK-TEST-0012-09 challengeNumber is copied to the result when given and absent otherwise, without changing the lap (3917.0863ms)
-✔ CHK-TEST-0012-10 readTrackData answers UNREADABLE with no other field and UNSUPPORTED_SCHEMA with the version only (15.4356ms)
-✔ CHK-TEST-0012-11 an invalid result carries its reason and no time field (220.6899ms)
-✔ CHK-TEST-0012-12 setupId and setupVersion are copied verbatim to the result when startLap carries them, with no other field added (1329.3841ms)
-✔ CHK-TEST-0012-13 without setupId and setupVersion in startLap the result carries neither field, not defaulted, and the lap is the same (2254.1231ms)
-✔ CHK-TEST-0002-01 a displacement from the right side to the left side of the line is a FORWARD crossing inside the step (3.2543ms)
-✔ CHK-TEST-0002-02 the opposite displacement is a REVERSE crossing (0.5851ms)
-✔ CHK-TEST-0002-03 a displacement that ends on the line has fraction exactly 1 (6.9733ms)
-✔ CHK-TEST-0002-04 the fraction is the proportion of the displacement travelled before the line (0.7607ms)
-✔ CHK-TEST-0002-05 a displacement beyond the reach of the segment does not cross it (0.5385ms)
-✔ CHK-TEST-0002-06 the centerline of the synthetic track crosses every declared line exactly once, in the track sense (17.4969ms)
-✔ CHK-TEST-0006-01 driving straight off the track invalidates the lap in the step in which 1000 ms beyond 3 m are exceeded (447.1693ms)
-✔ CHK-TEST-0006-02 up to 1000 ms beyond 3 m followed by a return to 3 m or less does not invalidate, and a new exit restarts the count (147.841ms)
-✔ CHK-TEST-0006-03 a kart beyond the edge by 3 m or less, for any duration while driving, is not invalidated (397.5472ms)
-✔ CHK-TEST-0006-04 a kart standing 2 m beyond the edge for 5 s is not invalidated (306.8696ms)
-✔ CHK-TEST-0006-05 a track that declares its own cut limits invalidates by those limits, not by 3 m and 1000 ms (268.4013ms)
-✔ CHK-TEST-0006-06 a lap invalid by cut ends at the cut step: no lap time and no sector time is added afterwards (301.9205ms)
-✔ CHK-TEST-0006-07 from the same state and input, the kart is slower after N steps on grass than on the track (35.7163ms)
-✔ CHK-TEST-0006-08 driving on the grass within the cut limits keeps the lap shown as valid in progress (359.2172ms)
-✔ CHK-TEST-0006-09 time spent paused while off the track does not count towards the 1000 ms (83.0854ms)
-✔ CHK-TEST-0006-10 the result of a cut lap carries the reason CUT and is not official (295.8148ms)
-✔ CHK-TEST-0008-01 two runs of the same input sequence on the same track give the same total time (4381.4793ms)
-✔ CHK-TEST-0008-02 two runs of the same input sequence on the same track give the same four sector times (1796.1289ms)
-✔ CHK-TEST-0008-03 the same input sequence rendered at 30 fps and at 60 fps gives the same total time (3723.4648ms)
-✔ CHK-TEST-0008-04 the same input sequence rendered at 30 fps and at 60 fps gives the same four sector times (2921.4893ms)
-✔ CHK-TEST-0008-05 the same input sequence with a pause of any length in the middle gives the same total and sector times (3486.502ms)
-✔ CHK-TEST-0008-06 the whole session, kart state included, is identical after two runs of the same sequence (1140.4515ms)
-✔ CHK-TEST-0003-01 a 60 fps frame runs 2 steps and a 30 fps frame runs 4 steps (2.1986ms)
-✔ CHK-TEST-0003-02 one second rendered at 30 fps and at 60 fps runs the same number of steps (0.9451ms)
-✔ CHK-TEST-0003-03 a stalled frame is capped so a frame drop cannot run more than 12 steps at once (0.3285ms)
-✔ CHK-TEST-0014-01 the fixed step is still 1/120 s (2.0813ms)
-✔ CHK-TEST-0014-02 the Input type still has exactly throttle, brake, steer and the optional drift (0.5331ms)
-✔ CHK-TEST-0014-03 the rental preset keeps every value it had at the start of the feature (1.5946ms)
-✔ CHK-TEST-0014-04 the arcade preset keeps every value it had at the start of the feature (0.5375ms)
-✔ CHK-TEST-0014-05 the preset table, the physics version and the re-export line of the physics module are unchanged (0.461ms)
-✔ CHK-TEST-0011-01 the countdown numeral and green signal have a minimum size of 48 px (9.849ms)
-✔ CHK-TEST-0011-02 the countdown text has a contrast of at least 4.5:1 with its own background (1.0246ms)
-✔ CHK-TEST-0011-03 the state and reason texts have a contrast of at least 4.5:1 on both the valid and the invalid chip (0.8458ms)
-✔ CHK-TEST-0011-04 the state and reason texts have a minimum size of 16 px (0.4897ms)
-✔ CHK-TEST-0007-01 repositioning the kart in an official running lap invalidates it with REPOSITION (216.3376ms)
-✔ CHK-TEST-0007-02 an official lap invalidated by repositioning ends at that step: no lap time is added afterwards (210.154ms)
-✔ CHK-TEST-0007-03 repositioning in a recon or training lap, repeatedly, keeps the lap valid in progress (674.5335ms)
-✔ CHK-TEST-0007-04 repositioning in a recon or training lap sets no invalidation reason (307.6397ms)
-✔ CHK-TEST-0007-05 in a recon or training lap the time after N steps is N x STEP with repositionings in between (610.9271ms)
-✔ CHK-TEST-0007-06 the result of a completed recon or training lap is identified as not official (4303.8683ms)
-✔ CHK-TEST-0007-07 official is false for recon and training results and true only for an official valid lap on complete data (5724.5156ms)
-✔ CHK-TEST-0007-08 incomplete track data offers no official lap and an official start is rejected (4.7366ms)
-✔ CHK-TEST-0007-09 incomplete track data offers a training lap that can be driven: the kart moves and the timer advances (406.4179ms)
-✔ CHK-TEST-0007-10 on incomplete track data every result is identified as not official (187.581ms)
-✔ CHK-TEST-0007-11 a second repositioning in an official lap is rejected with LAP_ENDED and the reason stays REPOSITION (141.769ms)
-✔ CHK-TEST-0013-01 the simulation modules import nothing from the renderer, the audio or the application (9.2176ms)
-✔ CHK-TEST-0013-02 the simulation never touches the DOM, the wall clock or an unseeded random (5.2063ms)
-✔ CHK-TEST-0013-03 no module of the feature, the application included, uses the network or browser storage (7.838ms)
-✔ CHK-TEST-0013-04 the application no longer decides lap validity with the retired gate tracker (6.4611ms)
-✔ CHK-TEST-0010-01 each countdown value is a text numeral 3, 2 or 1 for the whole second it covers (6.1388ms)
-✔ CHK-TEST-0010-02 the green signal is shown as text on the first running frame, in both languages (0.8509ms)
-✔ CHK-TEST-0010-03 the timer shown during the countdown is 0:00.000 (8.971ms)
-✔ CHK-TEST-0010-04 a valid running lap is described as valid in progress, with no reason (0.8902ms)
-✔ CHK-TEST-0010-05 times are shown as m:ss.mmm with three decimals and no rounding (0.8742ms)
-✔ CHK-TEST-0010-06 a lap invalid by marker shows the reason "marcador pulado" (1.2836ms)
-✔ CHK-TEST-0010-07 a lap invalid by cut shows the reason "corte" (1.6383ms)
-✔ CHK-TEST-0010-08 a lap invalid by repositioning shows the reason "reposicionamento" (0.6227ms)
-✔ CHK-TEST-0010-09 a recon or training lap that stays valid shows no reason text (0.832ms)
-✔ CHK-TEST-0010-10 a recon or training result is identified in text as not official (0.7979ms)
-✔ CHK-TEST-0010-11 while the lap has no invalidation reason the state reads "válida em andamento" (0.8672ms)
-✔ CHK-TEST-0010-12 an invalid lap reads "inválida" with its reason, for every reason (0.8352ms)
-✔ CHK-TEST-0010-13 every state and reason is conveyed by a non-empty text (1.0249ms)
-✔ CHK-TEST-0010-14 a Portuguese browser language gives Portuguese state and reason (0.7551ms)
-✔ CHK-TEST-0010-15 an English browser language gives English state and reason (0.4133ms)
-✔ CHK-TEST-0010-16 a browser language other than Portuguese or English, or none, gives English (0.5627ms)
-✔ CHK-TEST-0010-17 all twenty message keys exist with a non-empty text in both languages (0.973ms)
-✔ CHK-TEST-0010-18 the paused text is shown only while paused and the state after resume is the state of the pause (0.6797ms)
-✔ CHK-TEST-0004-01 the countdown runs 360 steps from 3000 ms to 0 and then the lap is RUNNING (11.5297ms)
-✔ CHK-TEST-0004-02 the lap timer reads 0 during the whole countdown (3.095ms)
-✔ CHK-TEST-0004-03 after N steps from the green signal the lap time is N x STEP, with the kart before or after the finish line (1000.3142ms)
-✔ CHK-TEST-0004-04 full throttle during the countdown leaves the kart at speed 0 on the start position at the green signal (1.0525ms)
-✔ CHK-TEST-0004-05 a jump start gives no invalidation reason: the lap is valid in progress at the green signal (1.439ms)
-✔ CHK-TEST-0004-06 the lap time after N steps is the same with and without throttle during the countdown (318.8581ms)
-✔ CHK-TEST-0004-07 the result of a complete lap carries the total time (2234.7436ms)
-✔ CHK-TEST-0004-08 the result of a complete lap carries exactly four sector times (2287.4401ms)
-✔ CHK-TEST-0004-09 the four sector times add up to the total time with 0 ms difference, for the autopilot and for seeded offsets (3679.0937ms)
-✔ CHK-TEST-0004-10 completed sector times appear one at a time, in order, during the lap (1466.3237ms)
-✔ CHK-TEST-0004-11 the result identifies the track and its version as read from the data (1207.623ms)
-✔ CHK-TEST-0004-12 pausing by the Esc key stops the lap timer until the lap is resumed (147.9782ms)
-✔ CHK-TEST-0004-13 losing the tab focus pauses the lap and the timer shows the same value when it returns (152.4314ms)
-✔ CHK-TEST-0004-14 losing the tilt sensor pauses the lap and the timer stops advancing (152.4497ms)
-✔ CHK-TEST-0004-15 no step advances during the pause: the session is unchanged and the time on resume is the time of the pause (230.1272ms)
-✔ CHK-TEST-0004-16 a paused and resumed official lap stays official and valid in progress (185.8654ms)
-✔ CHK-TEST-0004-17 repeated pauses in the same lap each freeze the timer and the lap stays official (189.8602ms)
-✔ CHK-TEST-0004-18 a pause during the countdown keeps the timer at 0 and resumes the countdown where it stopped (0.6568ms)
-✔ CHK-TEST-0004-19 getLapState answers with a complete, well-typed view at every step from the green signal to the end (1167.2318ms)
-✔ CHK-TEST-0001-01 the countdown lasts 360 steps, which convert to exactly 3000 ms (3.5116ms)
-✔ CHK-TEST-0001-02 every step count converts to an integer millisecond value, growing by 8 or 9 (8.3035ms)
-✔ CHK-TEST-0001-03 the step count converts to N x STEP within half a millisecond (1.235ms)
-✔ CHK-TEST-0001-04 a crossing strictly inside the step gets an instant strictly between the two steps (1.1169ms)
-✔ CHK-TEST-0001-05 a crossing that coincides with the step gets the instant of that step (0.4745ms)
-✔ CHK-TEST-0001-06 a sector limit crossed inside the step gets an instant strictly between the two steps (0.7786ms)
-✔ CHK-TEST-0001-07 120 steps beyond the edge are exactly 1000 ms and do not exceed the default limit; 121 do (0.5713ms)
-✔ CHK-TEST-0001-08 a track-declared duration is compared in the same integer arithmetic (0.559ms)
-✔ CHK-TEST-0009-01 a track file in the previous schema version is read without error as INCOMPLETE, keeping its identity (3.7984ms)
-✔ CHK-TEST-0009-02 the schema version the reader knows is greater than the previous one and the published synthetic file declares a version the reader accepts (5.0719ms)
-✔ CHK-TEST-0009-03 a file with a later schema version is reported as UNSUPPORTED_SCHEMA and left untouched (4.2235ms)
-✔ CHK-TEST-0009-04 corrupted or absent data is reported as UNREADABLE with no other field (0.8358ms)
-✔ CHK-TEST-0009-05 a file without markers is INCOMPLETE and keeps what it declares (0.9439ms)
-✔ CHK-TEST-0009-06 a direction opposite to the winding of the centerline fails C1 and makes the data INCOMPLETE (5.8907ms)
-✔ CHK-TEST-0009-07 a line the centerline does not cross exactly once in the track sense fails C2 (1.9117ms)
-✔ CHK-TEST-0009-08 a start position off the track fails C3 (1.6044ms)
-✔ CHK-TEST-0009-09 markers declared out of their order along the track fail C4 (1.9633ms)
-✔ CHK-TEST-0009-10 a sector limit without a marker before and after it fails C5 (1.5053ms)
-✔ CHK-TEST-0009-11 a finish line too short to act as a barrier fails C6 (3.0814ms)
-✔ CHK-TEST-0009-12 two lines closer than 2 m along the centerline fail C7 (3.0131ms)
-✔ CHK-TEST-0009-13 the published synthetic file is COMPLETE with three sector limits and markers distinct from them (2.5599ms)
-✔ CHK-TEST-0009-14 a marker equal to a sector limit makes the data INCOMPLETE (0.9942ms)
-✔ CHK-TEST-0009-15 the cut limits are read from the file when declared and default to 3 m and 1000 ms when absent (7.2685ms)
-✔ CHK-TEST-0009-16 reading never mutates the source and reading the same file twice gives the same reading (4.7735ms)
-✔ CHK-TEST-0005-01 crossing the finish in the track sense after every marker in order ends the lap as valid (1967.6385ms)
-✔ CHK-TEST-0005-02 the total time lies strictly inside the step in which the finish line was crossed (2212.8252ms)
-✔ CHK-TEST-0005-03 the end of each sector lies strictly inside the step in which its limit was crossed (2165.3319ms)
-✔ CHK-TEST-0005-04 each sector ends at the crossing of its declared limit and the first sector starts at the green signal (1817.9217ms)
-✔ CHK-TEST-0005-05 crossing the finish again after the lap ended produces no second result (1526.9124ms)
-✔ CHK-TEST-0005-06 a complete lap on the published synthetic track is valid with four sector times (1202.5801ms)
-✔ CHK-TEST-0005-07 crossing the finish without having passed every marker ends the lap as invalid (1159.8556ms)
-✔ CHK-TEST-0005-08 markers passed out of the declared order do not count and the finish is invalid (945.7581ms)
-✔ CHK-TEST-0005-09 a lap invalid by marker has a result without lap time, without sector times and not official (1157.8309ms)
-✔ CHK-TEST-0005-10 crossing the three sector limits but missing a marker is still a missed-marker lap (999.0181ms)
-✔ CHK-TEST-0005-11 on the published synthetic track, skipping marker 2 makes the finish a missed-marker lap (542.5618ms)
-✔ CHK-TEST-0005-12 a lap invalid by marker ends at the finish step: no time is added afterwards and no second result appears (975.8683ms)
-✔ CHK-TEST-0005-13 crossing the finish against the track sense does not end the lap (72.5416ms)
-✔ CHK-TEST-0005-14 crossing the finish against the track sense records no result (65.1315ms)
-✔ CHK-TEST-0005-15 only the crossing in the track sense ends the lap, even after several reverse crossings (246.3184ms)
-✔ CHK-TEST-0005-16 crossing a marker against the track sense does not count as passing it (66.579ms)
-✔ CHK-TEST-0005-17 marker passages recorded before a pause still count after the lap resumes (795.2142ms)
-ℹ tests 393
+✔ fixed-step replay reproduces the same state (234.7358ms)
+✔ braking stops without reversing (43.9717ms)
+✔ grass slows the kart more than asphalt (8.3292ms)
+✔ crossing the start alone cannot complete a lap (0.5305ms)
+✔ steering at rest cannot rotate or translate the chassis (12.3628ms)
+✔ heavier driver accelerates slower with the same engine (56.6383ms)
+✔ load transfer conserves weight and shifts load forward during braking and outward in turns (0.5472ms)
+✔ braking and cornering share tire grip; unloading reduces total axle capacity (0.3107ms)
+✔ excess steering at speed saturates the front and reduces yaw response (20.5646ms)
+✔ rear braking mid-corner creates oversteer through tire forces (8.3803ms)
+✔ early countersteer and brake release can arrest rear-brake oversteer (7.3741ms)
+✔ left and right cornering are mirrored, without directional bias (6.1507ms)
+✔ releasing steering does not erase lateral velocity or yaw instantaneously (2.0637ms)
+✔ passive sliding dissipates kinetic energy and stays finite (124.8639ms)
+✔ extra yaw inertia slows transient turn-in with identical tire forces (2.0977ms)
+✔ smaller integration intervals converge to the same trajectory (70.0603ms)
+✔ each tire samples its own surface (0.9505ms)
+✔ governor limits acceleration without hard-clamping velocity (200.7022ms)
+✔ arcade improves launch and corner-exit acceleration without changing mass (196.9128ms)
+✔ arcade full-key steering keeps useful grip and speed instead of excessive front scrub (30.2407ms)
+✔ arcade braking while holding full steering avoids the previous spin (15.439ms)
+✔ arcade release straightens smoothly without snapping or rotating at rest (48.0287ms)
+✔ arcade preserves low-speed steering lock but limits high-speed digital inputs (0.4911ms)
+✔ CHK-TEST-0004-01 the Kart Park environment has no wall derived from the centerline: the barriers of the file are its only obstacles (1044.2114ms)
+✔ CHK-TEST-0004-02 a kart driven against the barrier from either side, at every speed the kart reaches and at 90 or 30 degrees, never ends a step on the other side (5740.8607ms)
+✔ CHK-TEST-0004-03 the barrier also holds at 60 and 200 m/s, the speeds DES-0003 names beyond the reach of the kart (580.9785ms)
+✔ CHK-TEST-0004-04 after a collision with a barrier line the kart has the position and velocity it has after the same collision with the existing wall, step by step (991.3808ms)
+✔ CHK-TEST-0004-05 barrierContact is true only in the step the touching begins, barrierTouching while it lasts, and the contact reading mirrors it (504.3966ms)
+✔ CHK-TEST-0004-06 a copy of the file without barriers gives an environment where a seeded 2000-step run never touches a barrier and never throws (399.4971ms)
+✔ CHK-TEST-0006-01 two laps of the Kart Park pilot with the same input sequence give the same lap time to the millisecond and the same 4 sector times (48.8336ms)
+✔ CHK-TEST-0006-02 the whole session, kart included, is deepEqual after the two laps (1.2956ms)
+✖ CHK-TEST-0006-03 replaying the recorded inputs step by step, without the pilot, reproduces the same lap; one input changed does not (4553.2145ms)
+✔ CHK-TEST-0006-04 a seeded 2000-step input sequence from the Kart Park start gives deepEqual states in two runs (2083.9392ms)
+✔ CHK-TEST-0008-01 on web-mobile with vibration available, a wheel on the curb starts a 20 ms pulse every 30 steps, which is every 250 ms of simulated time (7.2696ms)
+✔ CHK-TEST-0008-02 without a wheel on the curb no new pulse starts, and a step already handled (the lap paused) starts nothing (1.4241ms)
+✔ CHK-TEST-0008-03 on web-desktop with the sound on, a wheel on the curb repeats the curb sound every 12 steps (100 ms), and never vibrates (1.6707ms)
+✔ CHK-TEST-0008-04 without a wheel on the curb no new repeat of the sound starts (1.2521ms)
+✔ CHK-TEST-0008-05 with the sound off riding the curb produces no sound; on web-mobile the sound follows the same rule and a missing vibration only removes the pulses (1.007ms)
+✔ CHK-TEST-0008-06 over the contact sequence of a real curb run, every pulse and repeat starts with a wheel on the curb, at the declared intervals, several times (1.7758ms)
+✔ CHK-TEST-0008-07 the curb sound is a filtered noise burst unlike the engine (triangle) and the reward (sine), built only with the sound on (3.0676ms)
+✔ CHK-TEST-0008-08 the application plays the curb sound and vibrates only from the per-step decision inside the step loop (1.871ms)
+✖ CHK-TEST-0005-01 the Kart Park pilot passes every marker in order and crosses the finish without a cut: the lap ends VALID (20.5509ms)
+✖ CHK-TEST-0005-02 a valid lap on the Kart Park has a total time and 4 sector times that add up to it, as a valid lap on the synthetic track has (3.4171ms)
+✖ CHK-TEST-0005-03 a lap that skips a marker, passing it 3.5 m beyond the edge for less than the cut window, ends INVALID with MISSED_MARKER at the finish (12415.3036ms)
+✖ CHK-TEST-0005-04 standing more than 3 m beyond the edge of the Kart Park invalidates the lap by CUT in the 121st consecutive step (212.4162ms)
+✔ CHK-TEST-0005-05 up to 1000 ms beyond 3 m followed by a return to 3 m or less does not invalidate, and the count restarts (365.4882ms)
+✖ CHK-TEST-0005-06 a lap that crosses the grass inside curve 4, leaving near 147 m and returning near 200 m, is invalid (7286.9329ms)
+✔ CHK-TEST-0005-07 riding a curb for more than 1000 ms with no wheel beyond it is not a cut: the curb counts as track (3633.941ms)
+✖ CHK-TEST-0005-08 crossing the finish again after the lap ended produces no second result and adds no time (409.3495ms)
+✔ CHK-TEST-0005-09 crossing the finish of the Kart Park against the track sense does not end the lap and counts no marker (75.4448ms)
+✖ CHK-TEST-0005-10 a pause freezes the Kart Park lap, the resume continues it, and the markers passed before the pause still count (4550.914ms)
+✔ CHK-TEST-0005-11 the reposition of a training lap on the Kart Park puts the kart on the nearest point of the file centerline, facing the travel sense, at rest (16.1651ms)
+✔ CHK-TEST-0005-12 the lap on the Kart Park uses the default cut limits of 3 m and 1000 ms and the lines of the file (20.8097ms)
+✔ CHK-TEST-0011-01 the simulation and track-data modules import nothing from three, the audio or the application, and use no DOM, clock or random (13.693ms)
+✔ CHK-TEST-0011-02 no module of the feature, the application included, uses the network or the browser storage; the Kart Park comes bundled (11.7159ms)
+✔ CHK-TEST-0011-03 the session knows no credit text, no licence and no label separator: the screen rule lives in src/lapMessages.ts (1.2585ms)
+✔ CHK-TEST-0011-04 the step contract is unchanged: STEP 1/120, the Input fields, the step signature, and no Input field for the curb (1.3852ms)
+✔ CHK-TEST-0011-05 the synthetic track stays the track of the other features: none of their tests or benches names the Kart Park, and the test-pilot lap still passes on it (1715.1143ms)
+✔ CHK-TEST-0011-06 the feature adds no runtime dependency: three stays the only one and the dev dependencies are unchanged (9.8795ms)
+✔ CHK-TEST-0011-07 no check of this feature needs the renderer: the suites import three only to build geometry in Node, and the scene module creates no renderer (13.933ms)
+✔ CHK-TEST-0012-01 the Kart Park is published as trackVersion 1 and the registry records its digest, size, STAGING state and preparation facts (96.5734ms)
+✔ CHK-TEST-0012-02 the (trackId, trackVersion) pairs of the registry are unique and the bundled Kart Park is the highest published version (3.3478ms)
+✔ CHK-TEST-0012-03 the preparation reproduces the published file byte for byte from the origin, with the preparation record of the registry (10725.8035ms)
+✔ CHK-TEST-0012-04 no production entry exists without a recorded Esri decision, and the program refuses to promote without one (5841.4689ms)
+✔ CHK-TEST-0012-05 the program verifies the published version, refuses to regenerate it, treats a second publish as already registered, and validates its arguments before touching a file (14469.0983ms)
+✔ CHK-TEST-0012-06 the published size is below the 200 000 byte limit the registry and the program apply (4.6809ms)
+✔ CHK-TEST-0010-01 the asphalt mesh is the ribbon between the left and right edges of the file geometry, vertex for vertex (2.6952ms)
+✔ CHK-TEST-0010-02 every curb stripe is drawn on the side of the track its span declares, alternating two colours every metre (194.6963ms)
+✔ CHK-TEST-0010-03 the barrier is drawn in its whole length: one instance per segment, centred on it, scaled to its length, 0.2 m thick (6.2276ms)
+✔ CHK-TEST-0010-04 the start line is drawn across the asphalt at point 0, as wide as the track there (0.5008ms)
+✔ CHK-TEST-0010-05 the minimap transform fits the track box into the canvas with a margin (0.7871ms)
+✔ CHK-TEST-0009-01 with the Kart Park selected the selector shows "© colaboradores do OpenStreetMap" (4.6433ms)
+✔ CHK-TEST-0009-02 the credit carries the ODbL licence mention (0.4797ms)
+✔ CHK-TEST-0009-03 the credit link goes to openstreetmap.org/copyright and is the href of the anchor (0.4545ms)
+✔ CHK-TEST-0009-04 the result screen of a Kart Park lap shows the same credit, text, licence and link, chosen by the trackId of the result; the synthetic track shows none (0.5723ms)
+✔ CHK-TEST-0009-05 every screen names the Kart Park as "Kart Park — São José dos Pinhais (traçado aproximado)" through optionLabel, outside the message table (0.6339ms)
+✔ CHK-TEST-0009-06 the label of the Kart Park ends with the 687 m length next to the name (0.2764ms)
+✔ CHK-TEST-0009-07 no screen text, module or data of the game carries the 41.45 s record of the real track (3.8463ms)
+✔ CHK-TEST-0009-08 the opening screen builds one selector button per catalogue entry, marks the selected one, opens on the Kart Park and offers the training lap only (7.2973ms)
+✔ CHK-TEST-0009-09 an invalid lap shows its reason in the result title, and the missed-marker reason reads "marcador pulado" (1.1298ms)
+✔ CHK-TEST-0009-10 a FAILED session shows the data error and offers no lap (0.7398ms)
+✔ CHK-TEST-0007-01 the catalogue offers exactly two options, the Kart Park and the synthetic track, with the contract fields and nothing else (4.9335ms)
+✔ CHK-TEST-0007-02 at the opening the selected track is the Kart Park, and selecting it loads the published file: READY, COMPLETE, version 1, kart on its start (89.8129ms)
+✔ CHK-TEST-0007-03 a training lap started on the Kart Park session has the trackId of the Kart Park and runs on its environment (35.0177ms)
+✔ CHK-TEST-0007-04 a training lap started on the synthetic session has the trackId of the synthetic track and runs on the synthetic circuit (14.0495ms)
+✖ CHK-TEST-0007-05 every lap of a session is TRAINING without a challenge number and never official, completed, invalidated or discarded, on both tracks (10425.6767ms)
+✔ CHK-TEST-0007-06 after a switch the session kart stands on the start of the chosen track, at rest, and the idle kart is that one (112.7294ms)
+✔ CHK-TEST-0007-07 switching track with a lap in COUNTDOWN, RUNNING or PAUSED discards it: no active lap and no result (387.1977ms)
+✔ CHK-TEST-0007-08 selecting the READY track again changes nothing and keeps the lap; an unknown track is refused without touching the session (113.9095ms)
+✔ CHK-TEST-0007-09 an unreadable or unsupported Kart Park source gives a FAILED session with the code of API-0002, no lap, and no training lap can start (59.523ms)
+✔ CHK-TEST-0007-10 a training session offers the training lap only, and a second start while a lap is active is refused (68.1147ms)
+✔ CHK-TEST-0007-11 the catalogue names the Kart Park as the real track, with 687 m fixed by the product and not derived from the smoothed length (5.4403ms)
+✔ CHK-TEST-0003-01 the tyre capacity on the curb is 85 % of the capacity of the same tyre on the asphalt, for every load, slip and published setup (5.7688ms)
+✔ CHK-TEST-0003-02 stepping the simulation with every wheel on a curb gives each tyre 85 % of the capacity it has on the asphalt from the same state (49.5742ms)
+✔ CHK-TEST-0003-03 a kart with the wheels of one side on the curb and the others on the asphalt reads CURB on those wheels, grip 0.85 there, and edge distance 0 (45.349ms)
+✔ CHK-TEST-0003-04 the contact reading has exactly the fields of API-0003, NO_STATE without a state, and never CURB nor barrier contact on the synthetic track (255.1787ms)
+✔ CHK-TEST-0003-05 the wheel surfaces of the reading are the surfaces at the four wheel positions of the state, front-left first (4.2438ms)
+✔ CHK-TEST-0002-01 the reading of the published file carries the centerline, the widths, the curbs and the barriers of the file, value for value (74.4154ms)
+✔ CHK-TEST-0002-02 the geometry is built from the declared points: edges at half width along the neighbour normal, cumulative lap distance from the points (10.3861ms)
+✔ CHK-TEST-0002-03 the synthetic file still reads COMPLETE in schema 2, without geometry fields, while the reader is at schema 3 (3.484ms)
+✔ CHK-TEST-0002-04 a schema-3 copy without a usable centerline, or with a curb, barrier or osmDerived out of form, reads UNREADABLE and stays intact (13.9278ms)
+✔ CHK-TEST-0002-05 curbs and barriers are optional with a neutral default: without them the file is still COMPLETE and the geometry has no curb and no obstacle (53.0615ms)
+✔ CHK-TEST-0002-06 a reversed or rescaled centerline under the same lines reads INCOMPLETE, naming the consistency check that fails (49.9559ms)
+✔ CHK-TEST-0002-07 the surface rule of the file geometry: asphalt inside the edges, curb on the declared strip, grass beyond, with the edge distance 0 on asphalt and curb (3.3123ms)
+✔ CHK-TEST-0002-08 lap distance and position are inverse of each other along the declared line (5.5245ms)
+✔ CHK-TEST-0001-01 the smoothed centerline is a closed lap of the origin points: the last point links back to point 0 without repeating it (2.0794ms)
+✔ CHK-TEST-0001-02 the lap length re-measured on the published points is within 687.5 m +/- 1 % and is the one the registry records (8.6809ms)
+✔ CHK-TEST-0001-03 the start line and the finish line are the same transversal line at point 0, with the start just after it on the first segment (1.7568ms)
+✔ CHK-TEST-0001-04 the centerline in the game axes winds anticlockwise seen from above, like the origin, and the file declares COUNTER_CLOCKWISE (10.2125ms)
+✔ CHK-TEST-0001-05 every width is the width of the corresponding origin point, varying from 4.4 m to 10.8 m with no fixed value (1.4291ms)
+✔ CHK-TEST-0001-06 no published point is farther than 0.30 m from its origin point nor from the original polyline, and the registry records the largest offset (65.6291ms)
+✔ CHK-TEST-0001-07 the asphalt edges never cross themselves nor each other, including at the tightest hairpin near 218 m (1196.5744ms)
+✔ CHK-TEST-0001-08 the lap has 4 sectors: exactly 3 internal limits, each crossed once in the track sense and in lap order (10.3286ms)
+✔ CHK-TEST-0001-09 each internal limit crosses the centerline at the point whose original lap distance is nearest to 201.6, 350.3 and 529.9 m (1.3699ms)
+✔ CHK-TEST-0001-10 consecutive markers are at most 25 m of lap apart, the last to the first included, each crossed once in the track sense (2.5135ms)
+✔ CHK-TEST-0001-11 a barrier separates the 371-414 m and 580-615 m stretches wherever their asphalt edges are 6 m or less apart (129.4886ms)
+✔ CHK-TEST-0001-12 no barrier stands where the grass between the stretches exceeds 6 m, and the 12-26 m shortcuts of curve 4 get none (131.9825ms)
+✔ CHK-TEST-0001-13 no barrier point, vertex or sample, lies on the asphalt or the curb of either stretch; the contact surface stays off the track (1674.4263ms)
+✔ CHK-TEST-0001-14 there are 34 curb spans: the 33 of the origin, with the one crossing the start split in two at the start line (0.8808ms)
+✔ CHK-TEST-0001-15 each span keeps the side and covers the lap stretch declared for it in the origin, mapped by fractional index (1.457ms)
+✔ CHK-TEST-0001-16 the file carries exactly the declared keys and identity, and no record of the real track (0.7603ms)
+✔ CHK-TEST-0001-17 the published file is smaller than 200 000 bytes as delivered (1.377ms)
+✔ CHK-TEST-0001-18 verifyTrackFile passes V01 to V18 on the published file against the origin, twice with the same result (1420.9391ms)
+✔ CHK-TEST-0001-19 every verification can fail: a copy with one deviation fails the check named after it and nothing else that is sound (3930.0139ms)
+✔ CHK-TEST-0001-20 the derived geometry of the file keeps every curb quad on its declared side and every lap distance inside the lap (23.4182ms)
+✔ CHK-TEST-0012-01 getLapState carries exactly the fields of API-0001, with the optional ones only in their phase (2348.9348ms)
+✔ CHK-TEST-0012-02 getLapResult carries exactly the fields of API-0001 and nothing else, so no personal data can travel in it (5641.232ms)
+✔ CHK-TEST-0012-03 every time value of the result and of the state is an integer number of milliseconds (5678.1432ms)
+✔ CHK-TEST-0012-04 without a lap the reads answer NO_ACTIVE_LAP and NO_RESULT with no other field (107.6958ms)
+✔ CHK-TEST-0012-05 startLap rejects with the code of API-0002 for each condition and creates no lap (7.0604ms)
+✔ CHK-TEST-0012-06 pauseLap, resumeLap and repositionKart reject with the code of API-0002 for each phase (3548.9273ms)
+✔ CHK-TEST-0012-07 a rejected command leaves the session exactly as it was (156.4379ms)
+✔ CHK-TEST-0012-08 a repeated startLap does not restart the countdown nor create a second lap; after ENDED a new lap gets its own result (3126.1883ms)
+✔ CHK-TEST-0012-09 challengeNumber is copied to the result when given and absent otherwise, without changing the lap (3761.2641ms)
+✔ CHK-TEST-0012-10 readTrackData answers UNREADABLE with no other field and UNSUPPORTED_SCHEMA with the version only (1.816ms)
+✔ CHK-TEST-0012-11 an invalid result carries its reason and no time field (374.1636ms)
+✔ CHK-TEST-0012-12 setupId and setupVersion are copied verbatim to the result when startLap carries them, with no other field added (1920.6053ms)
+✔ CHK-TEST-0012-13 without setupId and setupVersion in startLap the result carries neither field, not defaulted, and the lap is the same (3431.8783ms)
+✔ CHK-TEST-0012-14 a training result carries the four training fields and an official or recon result none of them (7149.6084ms)
+✔ CHK-TEST-0012-15 endTraining and the pause button reject with the codes of API-0002 in its precedence order, leaving the session as it was (2371.6069ms)
+✔ CHK-TEST-0012-16 endTraining is accepted in countdown, running and paused, and the pause button in countdown and running of a training (50.6889ms)
+✔ CHK-TEST-0012-17 listLapResults answers an empty list without a result and, outside training, at most the one result of getLapResult (1061.2372ms)
+✔ CHK-TEST-0002-01 a displacement from the right side to the left side of the line is a FORWARD crossing inside the step (1.8927ms)
+✔ CHK-TEST-0002-02 the opposite displacement is a REVERSE crossing (0.5577ms)
+✔ CHK-TEST-0002-03 a displacement that ends on the line has fraction exactly 1 (0.3239ms)
+✔ CHK-TEST-0002-04 the fraction is the proportion of the displacement travelled before the line (0.4159ms)
+✔ CHK-TEST-0002-05 a displacement beyond the reach of the segment does not cross it (0.5008ms)
+✔ CHK-TEST-0002-06 the centerline of the synthetic track crosses every declared line exactly once, in the track sense (21.6414ms)
+✔ CHK-TEST-0006-01 driving straight off the track invalidates the lap in the step in which 1000 ms beyond 3 m are exceeded (404.67ms)
+✔ CHK-TEST-0006-02 up to 1000 ms beyond 3 m followed by a return to 3 m or less does not invalidate, and a new exit restarts the count (166.9518ms)
+✔ CHK-TEST-0006-03 a kart beyond the edge by 3 m or less, for any duration while driving, is not invalidated (373.2513ms)
+✔ CHK-TEST-0006-04 a kart standing 2 m beyond the edge for 5 s is not invalidated (334.9684ms)
+✔ CHK-TEST-0006-05 a track that declares its own cut limits invalidates by those limits, not by 3 m and 1000 ms (253.056ms)
+✔ CHK-TEST-0006-06 a lap invalid by cut ends at the cut step: no lap time and no sector time is added afterwards (300.6872ms)
+✔ CHK-TEST-0006-07 from the same state and input, the kart is slower after N steps on grass than on the track (35.4328ms)
+✔ CHK-TEST-0006-08 driving on the grass within the cut limits keeps the lap shown as valid in progress (673.359ms)
+✔ CHK-TEST-0006-09 time spent paused while off the track does not count towards the 1000 ms (92.7603ms)
+✔ CHK-TEST-0006-10 the result of a cut lap carries the reason CUT and is not official (435.0548ms)
+✔ CHK-TEST-0008-01 two runs of the same input sequence on the same track give the same total time (7153.9574ms)
+✔ CHK-TEST-0008-02 two runs of the same input sequence on the same track give the same four sector times (2434.5028ms)
+✔ CHK-TEST-0008-03 the same input sequence rendered at 30 fps and at 60 fps gives the same total time (4135.0357ms)
+✔ CHK-TEST-0008-04 the same input sequence rendered at 30 fps and at 60 fps gives the same four sector times (4063.0511ms)
+✔ CHK-TEST-0008-05 the same input sequence with a pause of any length in the middle gives the same total and sector times (5527.7726ms)
+✔ CHK-TEST-0008-06 the whole session, kart state included, is identical after two runs of the same sequence (1905.9775ms)
+✔ CHK-TEST-0003-01 a 60 fps frame runs 2 steps and a 30 fps frame runs 4 steps (1.3538ms)
+✔ CHK-TEST-0003-02 one second rendered at 30 fps and at 60 fps runs the same number of steps (0.5088ms)
+✔ CHK-TEST-0003-03 a stalled frame is capped so a frame drop cannot run more than 12 steps at once (0.3001ms)
+✔ CHK-TEST-0014-01 the fixed step is still 1/120 s (6.9929ms)
+✔ CHK-TEST-0014-02 the Input type still has exactly throttle, brake, steer and the optional drift (0.4116ms)
+✔ CHK-TEST-0014-03 the rental preset keeps every value it had at the start of the feature (1.6992ms)
+✔ CHK-TEST-0014-04 the arcade preset keeps every value it had at the start of the feature (0.4952ms)
+✔ CHK-TEST-0014-05 the preset table, the physics version and the re-export line of the physics module are unchanged (0.7239ms)
+✔ CHK-TEST-0011-01 the countdown numeral and green signal have a minimum size of 48 px (2.21ms)
+✔ CHK-TEST-0011-02 the countdown text has a contrast of at least 4.5:1 with its own background (0.9297ms)
+✔ CHK-TEST-0011-03 the state and reason texts have a contrast of at least 4.5:1 on both the valid and the invalid chip (0.6327ms)
+✔ CHK-TEST-0011-04 the state and reason texts have a minimum size of 16 px (1.1026ms)
+✔ CHK-TEST-0007-01 repositioning the kart in an official running lap invalidates it with REPOSITION (254.4473ms)
+✔ CHK-TEST-0007-02 an official lap invalidated by repositioning ends at that step: no lap time is added afterwards (209.278ms)
+✔ CHK-TEST-0007-03 repositioning in a recon or training lap, repeatedly, keeps the lap valid in progress (616.896ms)
+✔ CHK-TEST-0007-04 repositioning in a recon or training lap sets no invalidation reason (321.8163ms)
+✔ CHK-TEST-0007-05 in a recon or training lap the time after N steps is N x STEP with repositionings in between (682.5988ms)
+✔ CHK-TEST-0007-06 the result of a completed recon or training lap is identified as not official (9678.58ms)
+✔ CHK-TEST-0007-07 official is false for recon and training results and true only for an official valid lap on complete data (9101.7175ms)
+✔ CHK-TEST-0007-08 incomplete track data offers no official lap and an official start is rejected (11.2707ms)
+✔ CHK-TEST-0007-09 incomplete track data offers a training lap that can be driven: the kart moves and the timer advances (761.0128ms)
+✔ CHK-TEST-0007-10 on incomplete track data every result is identified as not official (5906.09ms)
+✔ CHK-TEST-0007-11 a second repositioning in an official lap is rejected with LAP_ENDED and the reason stays REPOSITION (153.3719ms)
+✔ CHK-TEST-0013-01 the simulation modules import nothing from the renderer, the audio or the application (7.2546ms)
+✔ CHK-TEST-0013-02 the simulation never touches the DOM, the wall clock or an unseeded random (5.1339ms)
+✔ CHK-TEST-0013-03 no module of the feature, the application included, uses the network or browser storage (5.1331ms)
+✔ CHK-TEST-0013-04 the application no longer decides lap validity with the retired gate tracker (1.0494ms)
+✔ CHK-TEST-0013-05 nothing the lap or the training produces is written to browser storage or cookies by the feature modules (13.4095ms)
+✔ CHK-TEST-0010-01 each countdown value is a text numeral 3, 2 or 1 for the whole second it covers (6.7029ms)
+✔ CHK-TEST-0010-02 the green signal is shown as text on the first running frame, in both languages (0.3202ms)
+✔ CHK-TEST-0010-03 the timer shown during the countdown is 0:00.000 (10.9436ms)
+✔ CHK-TEST-0010-04 a valid running lap is described as valid in progress, with no reason (0.5915ms)
+✔ CHK-TEST-0010-05 times are shown as m:ss.mmm with three decimals and no rounding (1.0719ms)
+✔ CHK-TEST-0010-06 a lap invalid by marker shows the reason "marcador pulado" (0.5501ms)
+✔ CHK-TEST-0010-07 a lap invalid by cut shows the reason "corte" (0.391ms)
+✔ CHK-TEST-0010-08 a lap invalid by repositioning shows the reason "reposicionamento" (0.2891ms)
+✔ CHK-TEST-0010-09 a recon or training lap that stays valid shows no reason text (0.587ms)
+✔ CHK-TEST-0010-10 a recon or training result is identified in text as not official (1.1755ms)
+✔ CHK-TEST-0010-11 while the lap has no invalidation reason the state reads "válida em andamento" (0.5084ms)
+✔ CHK-TEST-0010-12 an invalid lap reads "inválida" with its reason, for every reason (1.3294ms)
+✔ CHK-TEST-0010-13 every state and reason is conveyed by a non-empty text (0.6299ms)
+✔ CHK-TEST-0010-14 a Portuguese browser language gives Portuguese state and reason (0.5119ms)
+✔ CHK-TEST-0010-15 an English browser language gives English state and reason (0.4211ms)
+✔ CHK-TEST-0010-16 a browser language other than Portuguese or English, or none, gives English (0.3372ms)
+✔ CHK-TEST-0010-17 all twenty-four message keys exist with a non-empty text in both languages (0.7575ms)
+✔ CHK-TEST-0010-18 the paused text is shown only while paused and the state after resume is the state of the pause (0.2496ms)
+✔ CHK-TEST-0010-19 a training result reads its total time, "válida" or "inválida" with the reason, and "não oficial", in both languages (0.623ms)
+✔ CHK-TEST-0010-20 a sector without time in a training result reads "—" and the others m:ss.mmm (1.5595ms)
+✔ CHK-TEST-0010-21 a training result without sector times builds no sector line, only the total time and the validity (0.3621ms)
+✔ CHK-TEST-0010-22 a training past its first second shows no countdown and no green signal, in any lap and in the pause (0.3888ms)
+✔ CHK-TEST-0010-23 a training lap reads "inválida · corte" once cut and "válida em andamento" when the next lap starts (0.2895ms)
+✔ CHK-TEST-0010-24 the training labels read "pausar", "encerrar treino" and "melhor volta válida", and their English texts (0.2512ms)
+✔ CHK-TEST-0004-01 the countdown runs 360 steps from 3000 ms to 0 and then the lap is RUNNING (7.4898ms)
+✔ CHK-TEST-0004-02 the lap timer reads 0 during the whole countdown (2.3435ms)
+✔ CHK-TEST-0004-03 after N steps from the green signal the lap time is N x STEP, with the kart before or after the finish line (1058.8337ms)
+✔ CHK-TEST-0004-04 full throttle during the countdown leaves the kart at speed 0 on the start position at the green signal (1.2599ms)
+✔ CHK-TEST-0004-05 a jump start gives no invalidation reason: the lap is valid in progress at the green signal (0.9144ms)
+✔ CHK-TEST-0004-06 the lap time after N steps is the same with and without throttle during the countdown (296.5714ms)
+✔ CHK-TEST-0004-07 the result of a complete lap carries the total time (3460.5091ms)
+✔ CHK-TEST-0004-08 the result of a complete lap carries exactly four sector times (4405.2882ms)
+✔ CHK-TEST-0004-09 the four sector times add up to the total time with 0 ms difference, for the autopilot and for seeded offsets (5953.4824ms)
+✔ CHK-TEST-0004-10 completed sector times appear one at a time, in order, during the lap (2511.6286ms)
+✔ CHK-TEST-0004-11 the result identifies the track and its version as read from the data (2197.7458ms)
+✔ CHK-TEST-0004-12 pausing by the Esc key stops the lap timer until the lap is resumed (366.6316ms)
+✔ CHK-TEST-0004-13 losing the tab focus pauses the lap and the timer shows the same value when it returns (295.2907ms)
+✔ CHK-TEST-0004-14 losing the tilt sensor pauses the lap and the timer stops advancing (253.1134ms)
+✔ CHK-TEST-0004-15 no step advances during the pause: the session is unchanged and the time on resume is the time of the pause (317.4353ms)
+✔ CHK-TEST-0004-16 a paused and resumed official lap stays official and valid in progress (293.9364ms)
+✔ CHK-TEST-0004-17 repeated pauses in the same lap each freeze the timer and the lap stays official (286.4267ms)
+✔ CHK-TEST-0004-18 a pause during the countdown keeps the timer at 0 and resumes the countdown where it stopped (1.3016ms)
+✔ CHK-TEST-0004-19 getLapState answers with a complete, well-typed view at every step from the green signal to the end (1762.5345ms)
+✔ CHK-TEST-0015-01 in training the next lap starts at the finish crossing instant that closed the previous one, with 0 ms difference (4460.4174ms)
+✔ CHK-TEST-0015-02 each training lap time is its closing crossing instant minus its start: the green signal, then the previous crossing (0.362ms)
+✔ CHK-TEST-0015-03 the training lap times add up to the simulation time from the green signal to the last crossing, with 0 ms difference (0.3492ms)
+✔ CHK-TEST-0015-04 listLapResults grows by exactly one per forward finish crossing, numbered 1, 2, 3 without repetition (4.5594ms)
+✔ CHK-TEST-0015-05 from the green signal on, through lap ends and a pause, the training never shows a countdown nor ends by itself (4.5394ms)
+✔ CHK-TEST-0015-06 the best valid lap is absent before the first valid lap and then is the smallest valid lap time of the training (9.7417ms)
+✔ CHK-TEST-0015-07 every training result is valid without a reason and not official (1.1707ms)
+✔ CHK-TEST-0015-08 a lap end at the finish does not stop the kart: one step after the crossing under full throttle the speed is above 0 (29.3548ms)
+✔ CHK-TEST-0015-09 each forward finish crossing closes at most one lap; reverse crossings close none (89.172ms)
+✔ CHK-TEST-0015-10 a training cut is marked at once with the reason CUT, the training keeps running and the kart keeps moving (217.5089ms)
+✔ CHK-TEST-0015-11 after a training cut no lap starts until the next forward finish crossing, and the next lap starts at its instant (1376.3921ms)
+✔ CHK-TEST-0015-12 the finish crossing that makes a training lap a missed-marker lap also starts the next lap at that instant (1123.8148ms)
+✔ CHK-TEST-0015-13 the lap after an invalid training lap starts valid in progress: no reason, no marker, no sector (1042.9239ms)
+✔ CHK-TEST-0015-14 an invalid training lap shorter than the best valid lap does not change the best valid lap (16.7184ms)
+✔ CHK-TEST-0015-15 only a pause or the end of the training stops the steps: lap ends, a cut and a repositioning do not (1139.5969ms)
+✔ CHK-TEST-0015-16 the pause button suspends a training lap and its timer: on resume the lap time is the time of the pause (68.6946ms)
+✔ CHK-TEST-0015-17 ending the training does not conclude the lap in progress: no result for it, in running, paused or countdown (116.2088ms)
+✔ CHK-TEST-0015-18 after ending the training no lap starts and nothing changes, and a second end is rejected with LAP_ENDED (99.3963ms)
+✔ CHK-TEST-0015-19 repositioning in training neither invalidates a valid lap nor revalidates a cut lap: the state shown is the same (125.5771ms)
+✔ CHK-TEST-0015-20 in a following training lap the lap time is the time since the crossing that started it, with repositionings in between (147.7708ms)
+✔ CHK-TEST-0015-21 an official lap is unchanged: once ended by the finish or by a cut, no lap follows and no second result appears (1014.8907ms)
+✔ CHK-TEST-0015-22 an official lap stops the kart at its end: the position does not change in the steps after it (925.7358ms)
+✔ CHK-TEST-0015-23 a training lap that did not cross a sector limit has null, shown as "—", in the sectors without time (644.0114ms)
+✔ CHK-TEST-0015-24 every training lap closed at the finish carries its total time and its validity with the reason, sectors declared or not (1643.6587ms)
+✔ CHK-TEST-0015-25 on a track without declared sectors a training result carries only the total time and the validity (831.0235ms)
+✔ CHK-TEST-0015-26 a training lap already cut that is cut again and skips a marker ends at the finish with the single reason CUT (643.9544ms)
+✔ CHK-TEST-0015-27 the best valid lap is not kept beyond its training: gone after the end and absent in a new training until its first valid lap (35.248ms)
+✔ CHK-TEST-0015-28 the same training inputs replayed from the same start give the same sessions, results and lap times (2439.1302ms)
+✔ CHK-TEST-0001-01 the countdown lasts 360 steps, which convert to exactly 3000 ms (16.7106ms)
+✔ CHK-TEST-0001-02 every step count converts to an integer millisecond value, growing by 8 or 9 (7.207ms)
+✔ CHK-TEST-0001-03 the step count converts to N x STEP within half a millisecond (0.7633ms)
+✔ CHK-TEST-0001-04 a crossing strictly inside the step gets an instant strictly between the two steps (3.1779ms)
+✔ CHK-TEST-0001-05 a crossing that coincides with the step gets the instant of that step (0.7144ms)
+✔ CHK-TEST-0001-06 a sector limit crossed inside the step gets an instant strictly between the two steps (0.5254ms)
+✔ CHK-TEST-0001-07 120 steps beyond the edge are exactly 1000 ms and do not exceed the default limit; 121 do (0.6058ms)
+✔ CHK-TEST-0001-08 a track-declared duration is compared in the same integer arithmetic (0.4614ms)
+✔ CHK-TEST-0009-01 a track file in the previous schema version is read without error as INCOMPLETE, keeping its identity (6.6168ms)
+✔ CHK-TEST-0009-02 the schema version the reader knows is greater than the previous one and the published synthetic file declares a version the reader accepts (7.3724ms)
+✔ CHK-TEST-0009-03 a file with a later schema version is reported as UNSUPPORTED_SCHEMA and left untouched (2.808ms)
+✔ CHK-TEST-0009-04 corrupted or absent data is reported as UNREADABLE with no other field (1.0513ms)
+✔ CHK-TEST-0009-05 a file without markers is INCOMPLETE and keeps what it declares (1.1714ms)
+✔ CHK-TEST-0009-06 a direction opposite to the winding of the centerline fails C1 and makes the data INCOMPLETE (7.1511ms)
+✔ CHK-TEST-0009-07 a line the centerline does not cross exactly once in the track sense fails C2 (1.0937ms)
+✔ CHK-TEST-0009-08 a start position off the track fails C3 (0.6947ms)
+✔ CHK-TEST-0009-09 markers declared out of their order along the track fail C4 (0.8814ms)
+✔ CHK-TEST-0009-10 a sector limit without a marker before and after it fails C5 (0.8595ms)
+✔ CHK-TEST-0009-11 a finish line too short to act as a barrier fails C6 (1.4539ms)
+✔ CHK-TEST-0009-12 two lines closer than 2 m along the centerline fail C7 (1.1653ms)
+✔ CHK-TEST-0009-13 the published synthetic file is COMPLETE with three sector limits and markers distinct from them (0.7564ms)
+✔ CHK-TEST-0009-14 a marker equal to a sector limit makes the data INCOMPLETE (0.3363ms)
+✔ CHK-TEST-0009-15 the cut limits are read from the file when declared and default to 3 m and 1000 ms when absent (0.7129ms)
+✔ CHK-TEST-0009-16 reading never mutates the source and reading the same file twice gives the same reading (0.915ms)
+✔ CHK-TEST-0005-01 crossing the finish in the track sense after every marker in order ends the lap as valid (2018.8426ms)
+✔ CHK-TEST-0005-02 the total time lies strictly inside the step in which the finish line was crossed (4286.8383ms)
+✔ CHK-TEST-0005-03 the end of each sector lies strictly inside the step in which its limit was crossed (3090.3346ms)
+✔ CHK-TEST-0005-04 each sector ends at the crossing of its declared limit and the first sector starts at the green signal (2895.3145ms)
+✔ CHK-TEST-0005-05 crossing the finish again after the lap ended produces no second result (2383.5303ms)
+✔ CHK-TEST-0005-06 a complete lap on the published synthetic track is valid with four sector times (2237.0133ms)
+✔ CHK-TEST-0005-07 crossing the finish without having passed every marker ends the lap as invalid (2156.5609ms)
+✔ CHK-TEST-0005-08 markers passed out of the declared order do not count and the finish is invalid (1640.7086ms)
+✔ CHK-TEST-0005-09 a lap invalid by marker has a result without lap time, without sector times and not official (1664.9953ms)
+✔ CHK-TEST-0005-10 crossing the three sector limits but missing a marker is still a missed-marker lap (1385.1781ms)
+✔ CHK-TEST-0005-11 on the published synthetic track, skipping marker 2 makes the finish a missed-marker lap (802.9183ms)
+✔ CHK-TEST-0005-12 a lap invalid by marker ends at the finish step: no time is added afterwards and no second result appears (1336.236ms)
+✔ CHK-TEST-0005-13 crossing the finish against the track sense does not end the lap (98.7618ms)
+✔ CHK-TEST-0005-14 crossing the finish against the track sense records no result (100.0752ms)
+✔ CHK-TEST-0005-15 only the crossing in the track sense ends the lap, even after several reverse crossings (379.8124ms)
+✔ CHK-TEST-0005-16 crossing a marker against the track sense does not count as passing it (96.8761ms)
+✔ CHK-TEST-0005-17 marker passages recorded before a pause still count after the lap resumes (1156.4158ms)
+ℹ tests 436
 ℹ suites 0
-ℹ pass 386
-ℹ fail 7
+ℹ pass 427
+ℹ fail 9
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 36146.6916
+ℹ duration_ms 61411.9998
 
 ✖ failing tests:
 
-test at tests\modelo-kart-01-contract.test.ts:105:1
-✖ CHK-TEST-0004-09 the presentation changes nothing in the simulation: the reference lap with and without it ends in the same state (2.8636ms)
-  AssertionError [ERR_ASSERTION]: NFR-0005: the reference lap of the baseline is replayed
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:108:10)
+test at tests\pista-kart-park-determinism.test.ts:33:1
+✖ CHK-TEST-0006-03 replaying the recorded inputs step by step, without the pilot, reproduces the same lap; one input changed does not (4553.2145ms)
+  AssertionError [ERR_ASSERTION]: NFR-0003: and the same final kart
+  + actual - expected
+  ... Skipped lines
+  
+    {
+  +   ax: -0.5773665915001222,
+  +   ay: 1.1270076331519558,
+  -   ax: -0.797470523403157,
+  -   ay: 4.664023367894061,
+      brake: 0,
+  +   elapsed: 75.08333333330613,
+  +   heading: 6.543494460965199,
+  -   elapsed: 74.99999999997287,
+  -   heading: 6.534805950453303,
+      maneuvers: {
+        awards: 0,
+        boost: 0,
+        boostTier: 0,
+        chain: 0,
+  ...
+      },
+  +   speed: 8.527050223011269,
+  +   steering: 0,
+  +   stepCount: 9010,
+  -   speed: 8.570130299068584,
+  -   steering: 0.07519429933325136,
+  -   stepCount: 9000,
+      telemetry: {
+        assistActive: true,
+        barrierContact: false,
+        barrierTouching: false,
+        forcing: false,
+  +     frontSlip: 0.00009635711189014091,
+  -     frontSlip: 0.026752226300564095,
+        handling: 'grip',
+  +     lateralG: -0.0008134020734418475,
+  +     longitudinalG: -0.04953738309199515,
+  +     rearSlip: 0.000012307517586291756,
+  +     sideslip: 0.000033331626775356994,
+  -     lateralG: 0.49668533225399963,
+  -     longitudinalG: -0.08488452849094615,
+  -     rearSlip: 0.02045946137353733,
+  -     sideslip: 0.0085391231009652,
+        surface: 'asphalt',
+        wallContact: false,
+        wheels: [
+          {
+  +         capacity: 739.8923186849406,
+  +         lateralForce: -1.0226806172187437,
+  +         load: 461.4447492247354,
+  +         longitudinalForce: -8.305651300264381,
+  +         slipAngle: 0.00009636315262655464,
+  +         steerAngle: 0,
+  -         capacity: 638.2202592956505,
+  -         lateralForce: 239.63989217726925,
+  -         load: 390.0924208262552,
+  -         longitudinalForce: -6.67798355750744,
+  -         slipAngle: -0.028083966039754583,
+  -         steerAngle: 0.07859724006662326,
+            surface: 'asphalt',
+  +         utilization: 0.011310744531389853
+  -         utilization: 0.3949587711561203
+          },
+          {
+  +         capacity: 813.0056717108392,
+  +         lateralForce: -1.1381272881324804,
+  +         load: 513.6005199966327,
+  +         longitudinalForce: -9.244404880879708,
+  +         slipAngle: 0.00009635107115372717,
+  +         steerAngle: 0,
+  -         capacity: 929.7390809563473,
+  -         lateralForce: 334.11607135481347,
+  -         load: 598.1891558690846,
+  -         longitudinalForce: -10.286276077686916,
+  -         slipAngle: -0.025420486561373606,
+  -         steerAngle: 0.07207330782495287,
+            surface: 'asphalt',
+  +         utilization: 0.011457004133368958
+  -         utilization: 0.37635254837185
+          },
+          {
+  +         capacity: 925.1089082544386,
+  +         lateralForce: 0.16100409196535478,
+  +         load: 594.805047475387,
+  +         longitudinalForce: -30.564850339400003,
+  +         slipAngle: -0.000012308289158505166,
+  -         capacity: 766.7327161312317,
+  -         lateralForce: 218.47827075492881,
+  -         load: 480.51337078942413,
+  -         longitudinalForce: 37.18364879787236,
+  -         slipAngle: -0.021273376643046595,
+            steerAngle: 0,
+            surface: 'asphalt',
+  +         utilization: 0.03305167994904298
+  -         utilization: 0.2975233738740652
+          },
+          {
+  +         capacity: 1023.001588536871,
+  +         lateralForce: 0.18048366375995786,
+  +         load: 666.8296833032452,
+  +         longitudinalForce: -32.138669495721636,
+  +         slipAngle: -0.000012306746014078346,
+  -         capacity: 1158.2540922241694,
+  -         lateralForce: 321.564197336459,
+  -         load: 767.8850525152362,
+  -         longitudinalForce: -136.3932137674415,
+  -         slipAngle: -0.019645546104028067,
+            steerAngle: 0,
+            surface: 'asphalt',
+  +         utilization: 0.031426887972023136
+  -         utilization: 0.3112455887603776
+          }
+        ]
+      },
+      throttle: 0,
+  +   vx: 2.1949328092412452,
+  +   vz: 8.239712098652044,
+  +   x: 27.16305696371815,
+  +   yawRate: 0.0007016347269056727,
+  +   z: 26.878939727958645
+  -   vx: 2.204541907622649,
+  -   vz: 8.281734620268201,
+  -   x: 26.97928695169144,
+  -   yawRate: 0.569067028191867,
+  -   z: 26.190795691579375
+    }
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-determinism.test.ts:38:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1397:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
@@ -494,58 +663,66 @@ test at tests\modelo-kart-01-contract.test.ts:105:1
       at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: false,
-    expected: true,
-    operator: '==',
+    actual: { x: 27.16305696371815, z: 26.878939727958645, vx: 2.1949328092412452, vz: 8.239712098652044, heading: 6.543494460965199, yawRate: 0.0007016347269056727, speed: 8.527050223011269, elapsed: 75.08333333330613, steering: 0, throttle: 0, brake: 0, ax: -0.5773665915001222, ay: 1.1270076331519558, telemetry: { wheels: [Array], longitudinalG: -0.04953738309199515, lateralG: -0.0008134020734418475, frontSlip: 0.00009635711189014091, rearSlip: 0.000012307517586291756, sideslip: 0.000033331626775356994, handling: 'grip', forcing: false, surface: 'asphalt', wallContact: false, assistActive: true, barrierTouching: false, barrierContact: false }, maneuvers: { drifting: false, direction: 0, charge: 0, boost: 0, boostTier: 0, score: 0, chain: 0, chainWindow: 0, awards: 0 }, stepCount: 9010 },
+    expected: { x: 26.97928695169144, z: 26.190795691579375, vx: 2.204541907622649, vz: 8.281734620268201, heading: 6.534805950453303, yawRate: 0.569067028191867, speed: 8.570130299068584, elapsed: 74.99999999997287, steering: 0.07519429933325136, throttle: 0, brake: 0, ax: -0.797470523403157, ay: 4.664023367894061, telemetry: { wheels: [Array], longitudinalG: -0.08488452849094615, lateralG: 0.49668533225399963, frontSlip: 0.026752226300564095, rearSlip: 0.02045946137353733, sideslip: 0.0085391231009652, handling: 'grip', forcing: false, surface: 'asphalt', wallContact: false, assistActive: true, barrierTouching: false, barrierContact: false }, maneuvers: { drifting: false, direction: 0, charge: 0, boost: 0, boostTier: 0, score: 0, chain: 0, chainWindow: 0, awards: 0 }, stepCount: 9000 },
+    operator: 'deepStrictEqual',
     diff: 'simple'
   }
 
-test at tests\modelo-kart-01-contract.test.ts:129:1
-✖ CHK-TEST-0004-11 the step contract is unchanged: same STEP, same Input fields and ranges, same simulation wheelbase and track (1.6301ms)
-  AssertionError [ERR_ASSERTION]: NFR-0006: SIM_CONTRACT must be PASS
+test at tests\pista-kart-park-lap.test.ts:44:1
+✖ CHK-TEST-0005-01 the Kart Park pilot passes every marker in order and crosses the finish without a cut: the lap ends VALID (20.5509ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-10: the lap must end
   
-  'FAIL' !== 'PASS'
+  'RUNNING' !== 'ENDED'
   
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:132:10)
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:47:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1397:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-      at Test.postRun (node:internal/test_runner/test:1537:19)
-      at Test.run (node:internal/test_runner/test:1462:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: 'FAIL',
-    expected: 'PASS',
+    actual: 'RUNNING',
+    expected: 'ENDED',
     operator: 'strictEqual',
     diff: 'simple'
   }
 
-test at tests\modelo-kart-01-contract.test.ts:143:1
-✖ CHK-TEST-0004-12 a baseline with another STEP, another Input line or another wheelbase makes SIM_CONTRACT CONTRACT_CHANGED (0.8147ms)
-  AssertionError [ERR_ASSERTION]: NFR-0006: the baseline fixture is readable
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:145:10)
+test at tests\pista-kart-park-lap.test.ts:56:1
+✖ CHK-TEST-0005-02 a valid lap on the Kart Park has a total time and 4 sector times that add up to it, as a valid lap on the synthetic track has (3.4171ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-11: the state view shows the same sectors
+  + actual - expected
+  
+    [
+  +   18287
+  -   19443,
+  -   11716,
+  -   11460,
+  -   13003
+    ]
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:63:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1397:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
       at Test.postRun (node:internal/test_runner/test:1537:19)
       at Test.run (node:internal/test_runner/test:1462:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: false,
-    expected: true,
-    operator: '==',
+    actual: [ 18287 ],
+    expected: [ 19443, 11716, 11460, 13003 ],
+    operator: 'deepStrictEqual',
     diff: 'simple'
   }
 
-test at tests\modelo-kart-01-contract.test.ts:159:1
-✖ CHK-TEST-0004-13 the two reference laps of the baseline replay to the same lap time, sectors, validity and final state (0.8598ms)
-  AssertionError [ERR_ASSERTION]: NFR-0006: DETERMINISM must be PASS
+test at tests\pista-kart-park-lap.test.ts:78:1
+✖ CHK-TEST-0005-03 a lap that skips a marker, passing it 3.5 m beyond the edge for less than the cut window, ends INVALID with MISSED_MARKER at the finish (12415.3036ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-05: the lap ends at the finish
   
-  'FAIL' !== 'PASS'
+  'RUNNING' !== 'ENDED'
   
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:162:10)
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:100:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1397:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
@@ -554,16 +731,19 @@ test at tests\modelo-kart-01-contract.test.ts:159:1
       at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: 'FAIL',
-    expected: 'PASS',
+    actual: 'RUNNING',
+    expected: 'ENDED',
     operator: 'strictEqual',
     diff: 'simple'
   }
 
-test at tests\modelo-kart-01-contract.test.ts:182:1
-✖ CHK-TEST-0004-14 without a usable baseline the three comparisons are BASELINE_MISSING and nothing is compared (4.4509ms)
-  AssertionError [ERR_ASSERTION]: NFR-0006: the unaltered copy is still read
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:190:10)
+test at tests\pista-kart-park-lap.test.ts:109:1
+✖ CHK-TEST-0005-04 standing more than 3 m beyond the edge of the Kart Park invalidates the lap by CUT in the 121st consecutive step (212.4162ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-07: the 121st step ends the lap
+  
+  'RUNNING' !== 'ENDED'
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:120:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1397:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
@@ -572,37 +752,19 @@ test at tests\modelo-kart-01-contract.test.ts:182:1
       at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: false,
-    expected: true,
-    operator: '==',
-    diff: 'simple'
-  }
-
-test at tests\modelo-kart-01-contract.test.ts:199:1
-✖ CHK-TEST-0004-15 wheelPositions of both setups equal the baseline value for value, and one altered value is STATE_DIFFERS (0.6499ms)
-  AssertionError [ERR_ASSERTION]: NFR-0007: WHEEL_POSITIONS must be PASS
-  
-  'FAIL' !== 'PASS'
-  
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:202:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1397:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
-      at Test.postRun (node:internal/test_runner/test:1537:19)
-      at Test.run (node:internal/test_runner/test:1462:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
-    generatedMessage: false,
-    code: 'ERR_ASSERTION',
-    actual: 'FAIL',
-    expected: 'PASS',
+    actual: 'RUNNING',
+    expected: 'ENDED',
     operator: 'strictEqual',
     diff: 'simple'
   }
 
-test at tests\modelo-kart-01-contract.test.ts:212:1
-✖ CHK-TEST-0004-16 every record of API-0002 carries its checkId, its verdict, its measured fields with the contract names, and a reason only on FAIL (3266.6736ms)
-  AssertionError [ERR_ASSERTION]: API-0002: SIM_CONTRACT.stepUnchanged must be present with the contract type
-      at TestContext.<anonymous> (C:\dev\kartle\tests\modelo-kart-01-contract.test.ts:249:81)
+test at tests\pista-kart-park-lap.test.ts:141:1
+✖ CHK-TEST-0005-06 a lap that crosses the grass inside curve 4, leaving near 147 m and returning near 200 m, is invalid (7286.9329ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-09: the lap ends
+  
+  'RUNNING' !== 'ENDED'
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:152:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1397:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
@@ -611,8 +773,71 @@ test at tests\modelo-kart-01-contract.test.ts:212:1
       at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
     generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: false,
-    expected: true,
-    operator: '==',
+    actual: 'RUNNING',
+    expected: 'ENDED',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\pista-kart-park-lap.test.ts:182:1
+✖ CHK-TEST-0005-08 crossing the finish again after the lap ended produces no second result and adds no time (409.3495ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-11: elapsedMs does not change after the end
+  
+  24378 !== 19378
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:188:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 24378,
+    expected: 19378,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\pista-kart-park-lap.test.ts:208:1
+✖ CHK-TEST-0005-10 a pause freezes the Kart Park lap, the resume continues it, and the markers passed before the pause still count (4550.914ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0003-11: the lap ends after the resume
+  
+  'RUNNING' !== 'ENDED'
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-lap.test.ts:227:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'RUNNING',
+    expected: 'ENDED',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\pista-kart-park-session.test.ts:90:1
+✖ CHK-TEST-0007-05 every lap of a session is TRAINING without a challenge number and never official, completed, invalidated or discarded, on both tracks (10425.6767ms)
+  AssertionError [ERR_ASSERTION]: AC-US-0001-05: kart-park: the far kart is cut
+  
+  'RUNNING' !== 'ENDED'
+  
+      at TestContext.<anonymous> (C:\dev\kartle\tests\pista-kart-park-session.test.ts:103:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 'RUNNING',
+    expected: 'ENDED',
+    operator: 'strictEqual',
     diff: 'simple'
   }

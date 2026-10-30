@@ -1,20 +1,20 @@
 ---
 id: TEST-0007
-title: HUD, tela de resultado e texto compartilhado sem versão do acerto, drift nem turbo
+title: HUD, tela de resultado, texto compartilhado e telas fora da volta sem versão do acerto, drift nem turbo
 feature: dirigibilidade
 stage: test
 status: validated
-version: 1.1.0
-sources: [AC-US-0004-06, AC-US-0005-05, AC-US-0005-07, AC-US-0003-09, AC-US-0003-11]
+version: 1.2.0
+sources: [AC-US-0004-06, AC-US-0005-05, AC-US-0005-07, AC-US-0003-09, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13, AC-US-0003-14, AC-US-0003-15]
 ---
 
-# TEST-0007 — HUD, tela de resultado e texto compartilhado sem versão do acerto, drift nem turbo
+# TEST-0007 — HUD, tela de resultado, texto compartilhado e telas fora da volta sem versão do acerto, drift nem turbo
 
 | | |
 |---|---|
 | Arquivo | `tests/dirigibilidade-hud-text.test.ts` (estratégia: `hud-text`) |
-| Nível | unitário, sem DOM: `formatSharedText` e `shareLabel` sobre registros sintéticos; contrato por texto: `src/main.ts`, `index.html` e `src/style.css` lidos como texto |
-| Interface exercitada | `formatSharedText`, `shareLabel` (`src/handlingMessages.ts`); `formatLapTime`, `message` (`src/lapMessages.ts`) |
+| Nível | unitário, sem DOM: `formatSharedText` e `shareLabel` sobre registros sintéticos; contrato por texto: `src/main.ts`, `index.html` e `src/style.css` lidos como texto; para AC-US-0003-12 a -15, o texto servido de `index.html` (nós de texto e nomes acessíveis: `aria-label`, `title`, `alt`, `placeholder`, `value`) da tela inicial, da barra de ferramentas e do controle de toque, o texto gerado por `content:` de `src/style.css`, a lista de `data-control` do controle de toque e a tabela de mensagens que a aplicação escreve na página, nunca nomes de variáveis |
+| Interface exercitada | `formatSharedText`, `shareLabel` (`src/handlingMessages.ts`); `formatLapTime`, `message`, `MESSAGE_KEYS` (`src/lapMessages.ts`) |
 | Fixtures | `record(patch)`: `LapRecord` sintético da pista `synthetic` v2, válido (83 456 ms) e inválido (`CUT`), com `setupVersion` `arcade-assistido-v4`, `-v5`, `-v6` e `fixture-setup-9.9.9`; pt e en |
 
 ## Verificações
@@ -27,3 +27,7 @@ sources: [AC-US-0004-06, AC-US-0005-05, AC-US-0005-07, AC-US-0003-09, AC-US-0003
 | CHK-TEST-0007-04 | AC-US-0005-05 | the application shows a best time only when the records are COMPARABLE and clears it when the setup changes | melhor tempo exibido sem `COMPARABLE`, troca de acerto que mantém `bestRecord`, substituição do melhor sem comparar, diferença entre tempos calculada em `src/main.ts` |
 | CHK-TEST-0007-05 | AC-US-0003-11 | the shared text of any result, valid or invalid, in either language, carries no drift, turbo, boost, charge, combo, style or score content | palavra de drift, turbo, impulso, carga, combo, estilo ou pontos no texto de qualquer registro, válido ou inválido, em pt ou en (mutação M5, "drift 300": reprova), texto com mais de três partes |
 | CHK-TEST-0007-06 | AC-US-0003-09 | the HUD and the result screen carry no drift meter, turbo label, style score, combo or boost element, and the application never draws one | `style-score`, `combo`, `drift-hud`, `drift-meter`, `drift-label`, `drift-help` ou `lap-result-setup` em `index.html` (mutação M6 reprova) ou endereçados por `src/main.ts`, `chargeTier`, import de `./maneuvers`, leitura de pontos, combo, cadeia, carga ou prêmio, literal de turbo, carga de drift, combo ou pontos de estilo em `src/main.ts`, regra `.drift-hud`/`.drift-meter`/`.style-score`/`.boosting` em `src/style.css`, conteúdo de drift na tela de resultado |
+| CHK-TEST-0007-07 | AC-US-0003-12 | the welcome screen, in both channels, mentions and offers no drift, turbo, boost, combo or score, and still carries the track choice and the lap offer | texto ou nome acessível da tela inicial (`#welcome`) ou de qualquer parte de `index.html` com drift, Espaço, carga de drift, turbo, impulso, combo ou pontos (mutação H1, " · Espaço + curva para drift": reprova); `index.html` com `drift`, `turbo`, `impulso`, `combo` ou `Espaço` em qualquer texto, atributo ou nome; texto gerado por `content:` com drift; mensagem pt ou en de `src/lapMessages.ts` com drift, turbo ou mini-turbo (mutação H7 reprova); tela inicial sem `#track-selector`, `#track-credit`, `#track-status` ou `#lap-offer`, para que a ausência não passe por tela vazia (mutação H6 reprova) |
+| CHK-TEST-0007-08 | AC-US-0003-13 | the toolbar hint shows only the driving keys, with the hint "Dirigir", and nothing that mentions or offers the drift or the turbo | dica `.control-hint` com texto diferente de `Dirigir` (mutação H2, "Dirigir · Espaço: drift → turbo": reprova), tecla na dica que não seja W, A, S, D ou seta (a tecla Espaço), texto ou nome acessível da barra de ferramentas com drift ou turbo |
+| CHK-TEST-0007-09 | AC-US-0003-14 | there is no maneuver guide teaching the drift or the turbo, in the page, its style or the application | `maneuver-guide`, "Como fazer drift", "How to drift" ou "guia de manobras" em `index.html`; regra `.maneuver-guide` em `src/style.css` (mutação H3 reprova); literal de `src/main.ts` que escreva o guia; mensagem de `src/lapMessages.ts` de manobra |
+| CHK-TEST-0007-10 | AC-US-0003-15 | on mobile the touch controls are exactly left, right, brake and throttle: no "Drift" button nor any control for the drift or a turbo | `.touch-controls` com outro `data-control` além de `left`, `right`, `brake`, `throttle` (mutação H4, botão "Drift": reprova), mais de um conjunto de controles de toque (o mesmo serve o sensor ativo e o recuo, DES-0007), `data-control` fora do conjunto, rótulo ou nome acessível de drift ou turbo, regra de estilo para `data-control=drift`, literal `'drift'`/`'turbo'` em `src/main.ts` que leia um controle de toque de drift (mutação H5 reprova) |

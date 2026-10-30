@@ -161,8 +161,13 @@ test('CHK-TEST-0010-06 the lap validation and the track data of race-lap-validat
   assert.equal(copies.length, 2, 'NFR-0008: src/lap.ts copies the setup version from the request into the session and from the session into the result');
   assert.equal(mentions.length, declarations.length + 3 * copies.length, 'NFR-0008: in src/lap.ts the setup version appears only as an optional field and inside the two verbatim copies');
   assert.ok(!/setupVersion\s*(!==|===|!=(?!=)|==(?!=)|<|>)(?!\s*undefined\b)/.test(lap) && !/(===|!==|==|!=)\s*\w*\.setupVersion/.test(lap), 'NFR-0008: src/lap.ts never compares the setup version with anything but its absence');
+  // The suites of race-lap-validation this feature depends on (NFR-0008): every one still in the tree and inside the glob of
+  // npm test; that feature may add suites of its own, which the same glob runs.
   const suites = readdirSync(join(root, 'tests')).filter(f => /^race-lap-validation-.*\.test\.ts$/.test(f));
-  assert.equal(suites.length, 14, 'NFR-0008: the 14 suites of race-lap-validation must still be in the tree and run by the same npm test');
+  const REQUIRED_SUITES = ['contract', 'crossing', 'cut', 'determinism', 'frame-clock', 'frozen', 'hud-css', 'kinds', 'layering', 'messages', 'state', 'timing', 'track-data', 'validity'];
+  for (const name of REQUIRED_SUITES) assert.ok(suites.includes(`race-lap-validation-${name}.test.ts`), `NFR-0008: tests/race-lap-validation-${name}.test.ts must still be in the tree`);
+  const testScript = (JSON.parse(source('package.json')) as { scripts?: Record<string, string> }).scripts?.test ?? '';
+  assert.match(testScript, /(^|\s)tests\/\*\.test\.ts(\s|$)/, 'NFR-0008: npm test must run every tests/*.test.ts, the race-lap-validation suites included');
   assert.match(source('tests/race-lap-validation-contract.test.ts'), /CHK-TEST-0012-02/, 'NFR-0008: CHK-TEST-0012-02 (result fields without the setup) must still be present');
 });
 

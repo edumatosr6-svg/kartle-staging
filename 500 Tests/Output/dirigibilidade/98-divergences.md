@@ -3,27 +3,30 @@ title: Registro de divergências e de critérios não verificados em npm test
 feature: dirigibilidade
 stage: test
 status: validated
-version: 2.0.0
+version: 2.1.0
 ---
 
 # 98 — Divergências
 
 Nenhuma verificação desta feature falha contra a implementação atual. A execução de 2026-10-30 (`npx tsx --test tests/*.test.ts`,
-totais do próprio runner em `reports/npm-test-latest.log` e `reports/junit-latest.xml`) coletou 393 verificações: 386 aprovadas e 7
-reprovadas, as 7 de `modelo-kart-01` (tabela abaixo). As 61 `CHK-TEST-00nn-nn` desta feature e as suítes `physics`, `maneuvers`,
-`race-lap-validation-*` e `pista-kart-park-*` passam. A linha 14 de `400 Code/Output/dirigibilidade/98-divergences.md` (provas em
-`npm test` de test-strategy 6.0.0) é atendida pelas suítes `tests/dirigibilidade-*.test.ts`, exceto a metade humana abaixo.
+totais do próprio runner em `reports/npm-test-latest.log` e `reports/junit-latest.xml`) coletou 436 verificações: 427 aprovadas e 9
+reprovadas, as 9 de `pista-kart-park` (tabela abaixo). As 65 `CHK-TEST-00nn-nn` desta feature e as suítes `physics`, `maneuvers`,
+`race-lap-validation-*` e `modelo-kart-01-*` passam. A linha 14 de `400 Code/Output/dirigibilidade/98-divergences.md` (provas em
+`npm test` de test-strategy 6.1.0, inclusive AC-US-0003-12 a -15 em `tests/dirigibilidade-hud-text.test.ts`, e CHK-TEST-0008-03) é
+atendida pelas suítes `tests/dirigibilidade-*.test.ts`, exceto a metade humana abaixo.
 
 ## Verificações reprovadas na mesma execução, de outra feature
 
 | Verificação | Arquivo | Motivo | Quem deve |
 |---|---|---|---|
-| CHK-TEST-0004-09, -11, -12, -13, -14, -15, -16 de `modelo-kart-01` | `tests/modelo-kart-01-contract.test.ts` | a linha de base da simulação daquela feature (`tests/fixtures/kart01-sim-baseline.json`) é chaveada em `arcade-assistido-v5`; com o acerto publicado `arcade-assistido-v6` ela é `BASELINE_MISSING` (FB-02 de `modelo-kart-01`, ISSUE-11 de `dspec-validation-20261030-1333`) | estágio de testes de `modelo-kart-01`; fora da cerca de escrita desta feature (conventions §14), não tocada |
+| CHK-TEST-0005-01, -02, -03, -04, -06, -08, -10 de `pista-kart-park` | `tests/pista-kart-park-lap.test.ts` | suítes de `pista-kart-park`, que esta feature não lê; a validação de código desta feature (`code-validation-20261030-1613`, evidência) lista estas mesmas reprovações como devidas àquela feature (FB-02 da linha 14) | estágio de testes de `pista-kart-park`; fora da cerca de escrita desta feature (conventions §14), não tocadas |
+| CHK-TEST-0006-03 de `pista-kart-park` | `tests/pista-kart-park-determinism.test.ts` | idem | idem |
+| CHK-TEST-0007-05 de `pista-kart-park` | `tests/pista-kart-park-session.test.ts` | idem | idem |
 
 ## Critérios cuja metade de tela, aparelho ou navegador só é verificável pelo roteiro registrado
 
 O projeto não tem ferramenta de E2E e a estratégia define os níveis web E2E e mobile E2E como roteiro registrado (`E2E-01` a
-`E2E-03` em `test-strategy.md`), gravado por um humano em `docs/handling-device-log.md` (arquivo que este estágio não cria:
+`E2E-04` em `test-strategy.md`), gravado por um humano em `docs/handling-device-log.md` (arquivo que este estágio não cria:
 escreve só em `tests/` e em `500 Tests/Output/<feature>/`, conventions §14). Cada linha abaixo tem a sua regra provada em
 `npm test` (coluna "Verificado por"); a parte que exige tela, sensor, aparelho ou relógio de parede fica **unverified** até o
 registro humano. Não é um teste pulado: é um nível sem execução.
@@ -31,6 +34,10 @@ registro humano. Não é um teste pulado: é um nível sem execução.
 | Id | Estado | O que a especificação exige | Verificado por (`npm test`) | Parte não verificada e roteiro que a decide | Quem deve |
 |---|---|---|---|---|---|
 | AC-US-0003-09 | unverified | nenhum indicador de carga de drift, turbo ou impulso, combo ou pontuação no HUD e na tela de resultado, em `web-desktop` e `web-mobile` | CHK-TEST-0007-06 (elementos, identificadores, textos e estilos ausentes de `index.html`, `src/main.ts` e `src/style.css`), CHK-TEST-0003-09 e CHK-TEST-0010-08 (o comando não alcança o estado) | observação por quadro com Espaço e o botão de drift segurados em curvas e retas: E2E-01 em desktop e celular | registro humano em `docs/handling-device-log.md` |
+| AC-US-0003-12 | unverified | nenhum texto, ícone ou controle da tela inicial menciona ou oferece o drift ou o turbo, em `web-desktop` e `web-mobile` | CHK-TEST-0007-07 (texto servido e nomes acessíveis de `#welcome` e de todo `index.html`, texto gerado por `src/style.css`, mensagens pt e en de `src/lapMessages.ts`; a tela continua com a escolha de pista e a oferta de volta) | a tela inicial renderizada nos dois canais e nos dois idiomas, antes e depois de uma volta: E2E-04 | registro humano em `docs/handling-device-log.md` |
+| AC-US-0003-13 | unverified | a dica da barra de ferramentas não menciona nem oferece o drift ou o turbo | CHK-TEST-0007-08 (dica `Dirigir`, só teclas de direção, texto servido da barra sem drift ou turbo) | a barra renderizada no desktop e a área abaixo dela: E2E-04 | registro humano |
+| AC-US-0003-14 | unverified | não há guia de manobras que ensine o drift ou o turbo | CHK-TEST-0007-09 (`index.html`, `src/style.css`, literais de `src/main.ts` e mensagens) | a página renderizada nos dois canais e nos dois idiomas: E2E-04 | registro humano |
+| AC-US-0003-15 | unverified | no celular, durante a volta, o controle de toque não exibe o botão "Drift" nem outro controle de drift ou turbo | CHK-TEST-0007-10 (exatamente `left`, `right`, `brake`, `throttle` num único `.touch-controls`, sem rótulo de drift, sem estilo nem leitura de um controle de drift) | o controle de toque na contagem e na volta, com a inclinação ativa e com o recuo para toque: E2E-04 no celular | registro humano |
 | AC-US-0003-11 | unverified | nenhum conteúdo de drift, turbo, combo ou pontuação no texto compartilhado | CHK-TEST-0007-05 (`formatSharedText` sobre registros válidos e inválidos de quatro versões, pt e en) | o compartilhar real (área de transferência no desktop, Web Share no celular): E2E-02 | registro humano |
 | AC-US-0004-06 | unverified | HUD exibe a velocidade em km/h e o estado de aderência em texto em todos os quadros entre o sinal verde e o fim da volta; a pausa mantém o último valor | CHK-TEST-0006-01 (telemetria em todo passo da volta até o primeiro resultado), CHK-TEST-0007-01 (elementos e rótulos) | observação por quadro na tela, inclusive na grama e após bater, e a pausa: E2E-01 | registro humano |
 | AC-US-0005-05 | unverified | nenhum tempo da versão anterior apresentado na tela como comparável; melhor tempo `—` ao trocar de acerto; resultado sem a versão do acerto | CHK-TEST-0007-03, CHK-TEST-0007-04, CHK-TEST-0008-03 | exibição do resultado e a troca Arcade → Realista → Arcade: E2E-02 | registro humano |
@@ -41,9 +48,3 @@ registro humano. Não é um teste pulado: é um nível sem execução.
 
 Nenhuma linha acima contribui para o veredito deste estágio (conventions §6); cada uma permanece aberta até a execução
 registrada, que é uma decisão humana e não uma verificação pulada.
-
-## Observação fora dos critérios
-
-| Item | O que foi visto | Por que não é verificação | Para quem |
-|---|---|---|---|
-| tela de boas-vindas e guia de manobra | `index.html:19` ("encaixe o drift e solte para dar o impulso") e `index.html:33` (seção `maneuver-guide`, "Como fazer drift") ainda ensinam o drift e o impulso retirados por `DOMAIN/DEC-15` | AC-US-0003-09 restringe a ausência ao HUD durante a volta e à tela de resultado; a tela de boas-vindas e o guia não são nenhum dos dois, e nenhum critério desta feature os cobre | dono do produto (decidir se a retirada do drift inclui o texto de instrução; um critério novo pediria revisão do seed) |

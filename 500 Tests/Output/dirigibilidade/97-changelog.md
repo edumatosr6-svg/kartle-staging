@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: dirigibilidade
 stage: test
 status: validated
-version: 2.0.0
+version: 2.1.0
 ---
 
 # 97 — Changelog
@@ -257,3 +257,92 @@ reprovava CHK-TEST-0010-01 por artefato; corrigido e repetido.
   fora dos critérios", para o dono do produto.
 - **Falhas de `modelo-kart-01` (CHK-TEST-0004-09, -11 a -16):** não tocadas; pertencem àquela feature (cerca de escrita, §14).
 - **Criação de `docs/handling-device-log.md`:** declinada, como na rodada 1 (escrita só em `tests/` e neste diretório).
+
+## 2026-10-30 — rodada 3, Modo B (seed revisão 6: drift e turbo fora da tela inicial, da dica, do guia e do botão de toque)
+
+### Entrada
+
+- Requisitos do seed revisão 6 (AC-US-0003-12 a -15, `DOMAIN/DEC-17`); D-Spec com `test-strategy.md` 6.1.0 (linhas de
+  AC-US-0003-12 a -15, E2E-04) e DES-0009; manifesto de código `01-implementation.md` 3.1.0 (rodadas 5 e 6) e
+  `code-validation-20261030-1613` (SUCCESS; DIV-14 devida a este estágio: verificações de AC-US-0003-12 a -15 inexistentes e
+  CHK-TEST-0008-03 reprovada); validação anterior deste estágio `test-validation-20261030-1455`.
+- Reprovadas antes da rodada (desta feature): CHK-TEST-0008-03 — `replayLap(v4Replay())` dava `NO_RESULT`: as entradas v4
+  reproduzidas com o acerto v6 cortam a pista, e desde ADR-0006 de `race-lap-validation` a volta `TRAINING` invalidada por corte
+  segue em `RUNNING` até as entradas acabarem (DES-0003: `NO_RESULT` quando os `Input` acabam antes do fim).
+
+### O que foi escrito
+
+- `tests/dirigibilidade-hud-text.test.ts`: CHK-TEST-0007-07 a -10 (AC-US-0003-12 a -15), sobre o texto que a página serve —
+  nós de texto e nomes acessíveis de `index.html` (por elemento: `#welcome`, `.toolbar`/`.control-hint`, `.touch-controls`), texto
+  gerado por `content:` de `src/style.css`, a lista `data-control` do controle de toque e a tabela de mensagens pt/en de
+  `src/lapMessages.ts` — e não sobre nomes de variáveis de `src/main.ts` (atende a direção de ISSUE-02 da validação anterior
+  para as verificações novas). Em `src/main.ts` só se leem literais de texto (nenhum literal `'drift'`/`'turbo'` que nomeie um
+  controle de toque, nenhum guia).
+- `tests/fixtures/records.ts`: `v4Replay()` passa a ser uma volta `OFFICIAL` de `arcade-assistido-v4` (as mesmas entradas do
+  `autopilot` gravadas com `ARCADE_KART`, volta válida de 31 388 ms com aquela configuração). A estratégia prescreve, para
+  AC-US-0005-05, `replayLap(v4Replay())` dá `SETUP_VERSION_DIFFERS` e, para AC-US-0005-06, `v4Replay()` reproduzido passo a passo
+  até o primeiro resultado com o acerto corrente; numa volta oficial o corte encerra a volta com resultado `INVALID` (`CUT`),
+  que é o primeiro resultado. Afirmar `NO_RESULT` contrariaria as duas linhas da estratégia e foi descartado.
+- `tests/dirigibilidade-setup-version.test.ts`, `tests/dirigibilidade-contract.test.ts`: CHK-TEST-0008-03, -0008-05 e -0010-06
+  modificadas (tabela abaixo).
+- `TEST-0007` 1.2.0, `TEST-0008` 1.2.0, `TEST-0010` 1.2.0 e `98-divergences.md` 2.1.0 (linhas AC-US-0003-12 a -15 com E2E-04;
+  reprovações de outra feature agora de `pista-kart-park`; a "Observação fora dos critérios" sai, coberta pelos critérios novos).
+  `00-index.md` e `99-traceability.md` emitidos por `lint_artifacts.py --emit`.
+- Nenhum arquivo de `src/`, `scripts/`, `index.html`, `package.json` ou suíte de outra feature foi editado.
+
+### Migração das verificações (inventário antes: 61 ids; depois: 65)
+
+| Id | Critério que decide | Destino | Motivo |
+|---|---|---|---|
+| CHK-TEST-0007-07, -08, -09, -10 | AC-US-0003-12, -13, -14, -15 | acrescentadas | critérios novos do seed revisão 6 (`DOMAIN/DEC-17`); linha `hud-text` de `test-strategy.md` 6.1.0 |
+| CHK-TEST-0008-03 | AC-US-0005-05 | modificada | o replay v4 é uma volta oficial (fixture); a verificação passa a exigir também que, com a configuração v4, o replay reproduza a própria volta válida e `COMPARABLE` (a fixture é de fato uma volta da versão anterior que chega ao fim), que o registro obtido com o acerto corrente leve a versão corrente e que o resultado obtido não seja o gravado (caso anormal de US-0005). A afirmação `SETUP_VERSION_DIFFERS` da estratégia continua; nada foi afrouxado |
+| CHK-TEST-0008-05 | AC-US-0005-06 | modificada | exige o primeiro resultado (estratégia: "reproduzido passo a passo até o primeiro resultado"), em vez de "todas as entradas aplicadas ou resultado"; fecha a sugestão de ISSUE-09 da validação anterior |
+| CHK-TEST-0010-06 | NFR-0008 | modificada | "exatamente 14 suítes `race-lap-validation-*`" passa a "cada uma das 14 suítes nomeadas presente" e o script `test` de `package.json` roda `tests/*.test.ts` (o que o critério pede: a mesma execução de `npm test` roda as suítes daquela feature); uma 15.ª suíte daquela feature não reprova, uma das 14 removida ou um `npm test` que não as rode reprova |
+| demais ids | os mesmos | carregadas | sem mudança |
+
+Contagem: 61 antes, 0 removidas, 4 acrescentadas, 65 depois.
+
+### Execução
+
+`npx tsx --test tests/*.test.ts` com os repórteres `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`):
+436 verificações, 427 aprovadas, 9 reprovadas, 0 puladas. As 9 são de `pista-kart-park`: CHK-TEST-0005-01 a -04, -06, -08, -10,
+CHK-TEST-0006-03 e CHK-TEST-0007-05; nenhuma desta feature (65 de 65 aprovadas).
+
+### Prova de que as verificações podem falhar
+
+`tests/dirigibilidade-hud-text|setup-version|contract.test.ts` (26 testes) rodaram contra uma cópia de `src/`, `scripts/`,
+`tests/`, `docs/`, `index.html` e `package.json` no diretório de rascunho da sessão, uma mutação de cada vez, restaurada em
+seguida; base e final 26/26 aprovadas.
+
+| Mutação | Verificações que reprovaram |
+|---|---|
+| H1 — tela inicial com " · Espaço + curva para drift" | CHK-TEST-0007-07 |
+| H2 — dica "Dirigir · Espaço: drift → turbo" | CHK-TEST-0007-07, -08 |
+| H3 — só a regra `.maneuver-guide` de volta em `src/style.css` | CHK-TEST-0007-09 |
+| H4 — botão `data-control="drift"` "Drift" em `.touch-controls` | CHK-TEST-0007-07, -10 |
+| H5 — `src/main.ts` lê o controle de toque `'drift'` | CHK-TEST-0007-10 |
+| H6 — `#lap-offer` retirado da tela inicial (tela vazia não passa) | CHK-TEST-0007-07 |
+| H7 — mensagem de `src/lapMessages.ts` com "mini-turbo" | CHK-TEST-0007-07 |
+| H8 — `replayLap` compara ignorando a versão do acerto | CHK-TEST-0008-03, -08 |
+| H9 — corte em volta oficial não encerra a volta (`NO_RESULT`) | CHK-TEST-0008-03, -05 |
+| H10 — `replayLap` grava no registro obtido a versão do replay | CHK-TEST-0008-03, -08 |
+| H11 — `tests/race-lap-validation-cut.test.ts` removida | CHK-TEST-0010-06 |
+| H12 — script `test` restrito a `tests/dirigibilidade-*.test.ts` | CHK-TEST-0010-06 |
+| H13 — controle: 15.ª suíte `race-lap-validation-*` acrescentada | nenhuma (o afrouxamento pedido) |
+
+Toda verificação acrescentada ou modificada nesta rodada reprovou em pelo menos uma mutação.
+
+### Itens declinados, com o motivo
+
+- **`#lap-end-training` continua dentro de `.actions` (linha AC-US-0003-13 de `test-strategy.md` 6.1.0):** não afirmado nesta
+  rodada, por direção do test-loop (o botão é de `race-lap-validation` e a sua presença não decide nenhum critério desta
+  feature: AC-US-0003-13 pede ausência de drift e turbo na dica); a ausência na barra é decidida por CHK-TEST-0007-08 e o botão
+  durante o treino é registrado por E2E-04.
+- **Padrões da estratégia sobre nomes de `src/main.ts` (`touch.has('drift')`, `drift: keys.has(' ')`, linha AC-US-0003-15):**
+  substituídos por afirmações sobre o que a página serve e a lista de controles de toque (nenhum literal `'drift'`/`'turbo'` em
+  `src/main.ts`), para não fixar nomes de variáveis (ISSUE-02 da validação anterior); a mutação H5 prova que a forma usada
+  reprova a leitura de um controle de drift.
+- **ISSUE-01, -03, -04 a -06 e -08 da validação anterior (warning/info):** fora do escopo desta rodada (frozen surface, §16);
+  continuam abertas como estavam. ISSUE-07 fica sem objeto (AC-US-0003-12 a -15 agora decidem a tela inicial, a dica, o guia e o
+  botão de toque); ISSUE-09 fechada em CHK-TEST-0008-05; ISSUE-10 sem objeto (as reprovações de `modelo-kart-01` não ocorrem
+  mais nesta execução).

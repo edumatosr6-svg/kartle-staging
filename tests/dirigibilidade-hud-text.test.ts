@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { formatSharedText, shareLabel } from '../src/handlingMessages';
-import { formatLapTime, message } from '../src/lapMessages';
+import { formatLapTime, message, MESSAGE_KEYS } from '../src/lapMessages';
 import type { LapRecord } from '../src/setupRecords';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -99,4 +99,85 @@ test('CHK-TEST-0007-06 the HUD and the result screen carry no drift meter, turbo
   const result = html.match(/<div id="lap-result"[\s\S]*?<\/div>/)?.[0] ?? '';
   assert.ok(result.length > 0, 'AC-US-0003-09: the result screen must be found in index.html');
   assert.doesNotMatch(result, /drift|turbo|combo|estilo|score/i, 'AC-US-0003-09: the result screen must carry no drift, turbo, combo or score content');
+});
+
+// ----------------------------------------------------------------------- AC-US-0003-12 to -15: the screens outside the lap
+// The checks read what the page serves — the visible text and the accessible names of index.html, the CSS-generated text and
+// the language table the application writes into the page — never the names of variables. index.html is the single page of
+// both channels (web-desktop and web-mobile); the media queries of src/style.css only show or hide its elements.
+
+// What a screen must not mention or offer (AC-US-0003-12 to -15): the drift command (the key or a control), drift charge,
+// turbo, mini-turbo, boost, combo or drift score.
+// The tyre load ("Carga nos pneus") and the driving style picker ("Estilo de pilotagem") of the setup panel are not drift
+// content, so only the drift charge and the style points are named.
+const OFF_SCREEN = /drift|turbo|impulso|boost|carga d[eo] drift|charge|combo|pontos|points|score|estilo de drift|pontos de estilo|espa[cç]o|\bspace\b|entre de lado|saia voando/i;
+// The element whose opening tag matches `open`, up to its own closing tag (nested tags of the same name balanced).
+function element(page: string, open: RegExp): string {
+  const start = page.search(open);
+  if (start < 0) return '';
+  const name = /^<([a-z0-9]+)/i.exec(page.slice(start))?.[1] ?? '';
+  const tags = new RegExp(`<(/?)${name}\\b[^>]*>`, 'gi');
+  tags.lastIndex = start;
+  let depth = 0;
+  for (let m = tags.exec(page); m; m = tags.exec(page)) {
+    depth += m[1] ? -1 : 1;
+    if (depth === 0) return page.slice(start, m.index + m[0].length);
+  }
+  return page.slice(start);
+}
+// The text a fragment serves: its text nodes and the accessible names and hints of its elements.
+function servedText(fragment: string): string {
+  const body = fragment.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' ');
+  const names = [...body.matchAll(/\b(aria-label|title|alt|placeholder|value)="([^"]*)"/gi)].map(m => m[2]);
+  return [...names, body.replace(/<[^>]*>/g, ' ')].join(' ').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
+}
+const stringLiterals = (text: string) => [...text.replace(/\/\/[^\n]*/g, '').matchAll(/'[^'\n]*'|"[^"\n]*"|`[^`]*`/g)].map(m => m[0].slice(1, -1));
+const cssGeneratedText = [...css.matchAll(/content\s*:\s*(['"])(.*?)\1/g)].map(m => m[2]).join(' ');
+const languageTable = (['pt', 'en'] as const).flatMap(lang => MESSAGE_KEYS.map(key => ({ lang, key, text: message(key, lang) })));
+
+test('CHK-TEST-0007-07 the welcome screen, in both channels, mentions and offers no drift, turbo, boost, combo or score, and still carries the track choice and the lap offer', () => {
+  // AC-US-0003-12
+  const welcome = element(html, /<[a-z]+[^>]*\bid="welcome"/i);
+  assert.ok(welcome.length > 0, 'AC-US-0003-12: the welcome screen (#welcome) must be found in index.html');
+  for (const id of ['track-selector', 'track-credit', 'track-status', 'lap-offer']) assert.ok(welcome.includes(`id="${id}"`), `AC-US-0003-12: the welcome screen must still carry #${id}`);
+  assert.doesNotMatch(servedText(welcome), OFF_SCREEN, `AC-US-0003-12: the welcome screen must not mention or offer the drift or the turbo ("${servedText(welcome)}")`);
+  assert.doesNotMatch(servedText(html), OFF_SCREEN, 'AC-US-0003-12: no text or accessible name served by index.html mentions the drift, its key, its charge, the turbo, a combo or a score');
+  assert.doesNotMatch(html, /drift|turbo|impulso|combo|espa[cç]o/i, 'AC-US-0003-12: index.html carries no drift, turbo, boost, combo or Space content in any text, attribute or name');
+  assert.doesNotMatch(cssGeneratedText, OFF_SCREEN, 'AC-US-0003-12: src/style.css generates no drift or turbo text');
+  for (const { lang, key, text } of languageTable) assert.doesNotMatch(text, /drift|turbo|impulso|mini-?turbo|boost|combo/i, `AC-US-0003-12 (${lang}): the message ${key} written into the screens must not mention the drift or the turbo ("${text}")`);
+});
+
+test('CHK-TEST-0007-08 the toolbar hint shows only the driving keys, with the hint "Dirigir", and nothing that mentions or offers the drift or the turbo', () => {
+  // AC-US-0003-13
+  const toolbar = element(html, /<[a-z]+[^>]*\bclass="[^"]*\btoolbar\b/i);
+  assert.ok(toolbar.length > 0, 'AC-US-0003-13: the toolbar must be found in index.html');
+  const hint = element(toolbar, /<[a-z]+[^>]*\bclass="[^"]*\bcontrol-hint\b/i);
+  assert.equal(servedText(hint), 'Dirigir', 'AC-US-0003-13: the toolbar hint reads exactly "Dirigir"');
+  const keys = [...toolbar.matchAll(/<([a-z]+)[^>]*\bclass="[^"]*\bkey\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/gi)].map(m => servedText(m[2]));
+  assert.ok(keys.length > 0, 'AC-US-0003-13: the toolbar hint shows its keys');
+  for (const key of keys) assert.ok(['W', 'A', 'S', 'D', '←', '→', '↑', '↓'].includes(key), `AC-US-0003-13: the toolbar hint shows only driving keys, not "${key}"`);
+  assert.doesNotMatch(servedText(toolbar), OFF_SCREEN, `AC-US-0003-13: the toolbar must not mention or offer the drift or the turbo ("${servedText(toolbar)}")`);
+});
+
+test('CHK-TEST-0007-09 there is no maneuver guide teaching the drift or the turbo, in the page, its style or the application', () => {
+  // AC-US-0003-14
+  const GUIDE = /maneuver-guide|maneuver guide|como fazer drift|how to drift|guia de manobras/i;
+  assert.doesNotMatch(html, GUIDE, 'AC-US-0003-14: index.html must carry no maneuver guide');
+  assert.ok(!css.includes('.maneuver-guide'), 'AC-US-0003-14: src/style.css must not style a maneuver guide');
+  for (const text of stringLiterals(main)) assert.doesNotMatch(text, GUIDE, `AC-US-0003-14: src/main.ts must not write a maneuver guide ('${text}')`);
+  for (const { lang, key, text } of languageTable) assert.doesNotMatch(text, /manobra|maneuver/i, `AC-US-0003-14 (${lang}): the message ${key} must not be a maneuver guide ("${text}")`);
+});
+
+test('CHK-TEST-0007-10 on mobile the touch controls are exactly left, right, brake and throttle: no "Drift" button nor any control for the drift or a turbo', () => {
+  // AC-US-0003-15
+  const groups = html.match(/\bclass="[^"]*\btouch-controls\b/g) ?? [];
+  assert.equal(groups.length, 1, 'AC-US-0003-15: one set of touch controls serves the active sensor and the touch fallback (DES-0007)');
+  const pad = element(html, /<[a-z]+[^>]*\bclass="[^"]*\btouch-controls\b/i);
+  const controls = [...pad.matchAll(/\bdata-control="([^"]*)"/g)].map(m => m[1]);
+  assert.deepEqual([...controls].sort(), ['brake', 'left', 'right', 'throttle'], `AC-US-0003-15: the touch controls are exactly left, right, brake and throttle (got ${controls.join(', ')})`);
+  const everywhere = [...html.matchAll(/\bdata-control="([^"]*)"/g)].map(m => m[1]);
+  assert.deepEqual(everywhere, controls, 'AC-US-0003-15: no touch control lives outside the touch-control pad');
+  assert.doesNotMatch(servedText(pad), OFF_SCREEN, `AC-US-0003-15: no touch control is labelled for the drift or a turbo ("${servedText(pad)}")`);
+  assert.ok(!/data-control\s*=\s*["']?(drift|turbo)/i.test(css), 'AC-US-0003-15: src/style.css must not style a drift or turbo touch control');
+  for (const text of stringLiterals(main)) assert.ok(!/^(drift|turbo|boost)$/i.test(text) && !/data-control\s*=\s*["']?(drift|turbo)/i.test(text), `AC-US-0003-15: src/main.ts must not name a drift or turbo touch control ('${text}')`);
 });

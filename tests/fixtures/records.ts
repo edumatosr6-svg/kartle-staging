@@ -62,9 +62,14 @@ export function newResult(): LapRecord {
   if ('code' in r || r.setupId === undefined || r.setupVersion === undefined) throw new Error('fixture: the current lap must carry the setup fields');
   return clone(r as LapRecord);
 }
+// A replay of an OFFICIAL lap of the previous version (arcade-assistido-v4): the inputs of the autopilot lap recorded with
+// ARCADE_KART, which is a valid lap with that configuration. Official because, since ADR-0006 of race-lap-validation, a
+// training lap invalidated by a cut goes on: reproduced with the current setup these inputs leave the asphalt, and as a
+// training lap they would run out with the lap RUNNING (NO_RESULT, DES-0003) instead of giving the first result that
+// RULE-0003 compares (test strategy, AC-US-0005-05 and -06). An official lap ends on the cut with an INVALID result.
 export function v4Replay(): ReplayRecord {
   if (!ARCADE.previousSetupVersion) throw new Error('fixture: the Arcade setup must declare a previous version');
-  return { ...newReplay(), setupVersion: ARCADE.previousSetupVersion, inputs: clone(previousLap().inputs) };
+  return { ...newReplay(), lapKind: 'OFFICIAL', setupVersion: ARCADE.previousSetupVersion, inputs: clone(previousLap().inputs) };
 }
 // A replay of the superseded staging round (arcade-assistido-v5, DOMAIN/DEC-15), with the drift command held in part of
 // its inputs (blocks of 60 steps out of every 120), as a player of that round could have recorded it.
