@@ -1,8 +1,8 @@
 ---
 name: dirigibilidade
 description: Sensação de pilotagem do acerto Arcade assistido — resposta do volante, aderência em curva, aceleração e sensação de velocidade — com referência em Karting Superstars. Ler antes de qualquer mudança nos presets de kart, nas assistências de direção ou no bench de volta.
-revision: 3
-date: 2026-10-21
+revision: 4
+date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
 ---
@@ -42,19 +42,22 @@ sensação de velocidade. O acerto **Realista — aluguel 4T** continua existind
   - Ao soltar o esterço, a guinada cai a 10 % do regime em no máximo `OPEN-01` ms.
   - O comportamento vale para entrada binária (teclado) e proporcional (inclinação).
 - **US-2** Como Jogador, quero que o kart faça a curva que eu pedi, para não sair de frente.
-  - Em **ensaio de pista de teste** — arco de raio 18 m, faixa da largura da pista, sem paredes, fora da
-    pista sintética (cujos raios mínimos são 24 m e um grampo de 4 m) — a `OPEN-02` km/h com esterço
-    cheio, a telemetria não reporta `understeer` por mais de `OPEN-03` ms consecutivos.
-  - Acima dessa velocidade, o kart perde a frente de forma progressiva: a velocidade em que o
-    subesterço começa é pelo menos 15 % maior que a de hoje no mesmo ensaio.
+  - Em **pista de teste aberta** (sem faixa, sem paredes), partindo de 50 km/h com acelerador cheio e
+    esterço cheio, o kart descreve uma curva de raio de no máximo **13 m** depois de 3 s (acerto escolhido
+    mede ≈ 11,7 m).
+  - Partindo de 70 km/h nas mesmas condições, o raio também fica em no máximo **13 m** (o kart perde
+    velocidade na curva em vez de abrir a trajetória).
+  - Sem acelerador, partindo de 50 km/h com esterço cheio, o raio fica em no máximo **3 m**.
 - **US-3** Como Jogador, quero uma traseira viva mas controlável, para escorregar e segurar.
-  - Em curva com acelerador cheio, o kart entra em `oversteer`/`sliding` só quando o jogador força
-    (acelerador + esterço cheio acima de `OPEN-02` km/h), nunca em curva normal.
-  - Ao reduzir o esterço com a traseira solta, o kart volta a `grip` em no máximo `OPEN-04` ms, sem
-    rodar (derrapagem lateral nunca passa de 0,65 rad em condução normal).
-  - A manobra de drift de `requirements/11` continua possível e continua pontuando.
+  - Em condução normal (pista sintética, piloto de teste), a telemetria nunca reporta `oversteer` nem
+    `sliding`, e a derrapagem lateral nunca passa de 0,65 rad.
+  - Na pista de teste aberta, depois de forçar a traseira (acelerador e esterço cheios acima de 50 km/h),
+    ao reduzir o esterço o kart volta a `grip` em no máximo `OPEN-04` ms, sem rodar.
+  - Não existe manobra de drift nem turbo: segurar a tecla de drift não muda nada, não há carga, impulso,
+    combo nem pontuação de drift, e a velocidade máxima é a mesma em qualquer situação.
 - **US-4** Como Jogador, quero sentir velocidade e risco, para a volta ter tensão.
-  - 0–60 km/h em no máximo `OPEN-05` s; velocidade estabilizada em reta de pelo menos `OPEN-06` km/h.
+  - 0–60 km/h em no máximo `OPEN-05` s; velocidade estabilizada em reta entre **65 e 72 km/h**, perto de
+    um kart de aluguel de verdade (acerto escolhido mede 69,3 km/h).
   - Sair para a grama reduz a velocidade de forma perceptível (pelo menos 30 % em 1 s), e a parede
     custa tempo.
   - O HUD comunica a velocidade e o estado de aderência durante toda a volta (já existe; não regride).
@@ -69,7 +72,7 @@ sensação de velocidade. O acerto **Realista — aluguel 4T** continua existind
 
 | Regra | Fonte |
 |---|---|
-| Direção comum permanece fácil sem exigir drift | `requirements/11` |
+| Direção comum permanece fácil; não há drift nem turbo | decisão do dono do produto, 2026-10-29 (substitui `requirements/11`) |
 | Realista permanece sem assistências arcade e não muda | `requirements/10`, README |
 | Passo fixo `STEP`, solver e significado de `Input` não mudam | I8 |
 | Mudar acerto que altera tempos é mudança versionada | I3 |
@@ -114,7 +117,7 @@ sensação de velocidade. O acerto **Realista — aluguel 4T** continua existind
 
 ## Fora do escopo
 
-- Novas pistas, novas manobras ou mudança nas regras do drift (`requirements/11`).
+- Novas pistas ou novas manobras. O drift e o turbo de `requirements/11` foram retirados (2026-10-29).
 - Mudanças no preset Realista.
 - Som de motor, vibração, câmera (RF13, RF11).
 - Volante remoto e desafio diário.

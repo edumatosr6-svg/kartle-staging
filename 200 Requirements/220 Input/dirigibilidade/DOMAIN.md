@@ -76,3 +76,16 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   `understeer` conta **só no asfalto, até a primeira saída da faixa**; passos na grama depois da saída
   não entram na medição (escorregar na grama não é "sair de frente"). O limiar continua 200 ms. O mesmo
   vale para qualquer ensaio em que a permanência na faixa não é exigida.
+- 2026-10-29 — **Acerto C e fim do drift e do turbo (Eduardo Matos):** testando a staging, o dono do produto
+  disse que "o kart simplesmente não vira". Medido: o acerto v5 limita o esterço ao que 1,48 g permite e
+  chega a 110 km/h, então com acelerador e esterço cheios o menor raio é de 17 a 25 m (os grampos da Kart
+  Park têm 6 m). Duas prévias foram publicadas na staging (`?acerto=c`, `?acerto=d`) e ele escolheu a **C**.
+  O acerto Arcade passa a ser `arcade-assistido-v6`, que é o v5 com estes valores: `governorSpeed` 19,5 m/s,
+  `assistLateralG` 2,4, `maxSteer` 0,5, `friction` 2,1, `frontStiffness` 26. Medido em 2026-10-29: velocidade
+  estabilizada 69,3 km/h; 0–60 km/h em 2,21 s; acelerador e esterço cheios a partir de 50 km/h dão raio
+  ≈ 11,7 m; piloto de teste completa a volta sintética em 23,05 s sem sair do asfalto. No mesmo pedido:
+  **tirar o turbo e o drift** (a manobra de `requirements/11`: carga segurando a tecla, mini-turbo,
+  combo e pontuação). Substitui o OPEN-06 de 105 km/h (agora 65 a 72 km/h) e os ensaios de esterço cheio
+  no arco de 18 m (OPEN-02/OPEN-03 e o início do subesterço), que não valem para um kart que faz curva
+  mais fechada que o arco: a curva passa a ser julgada pelo raio na pista de teste aberta (US-2). OPEN-01,
+  OPEN-04, OPEN-05 e OPEN-07 permanecem.

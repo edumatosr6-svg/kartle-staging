@@ -24,3 +24,9 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   a simulação para e o kart **congela, como hoje** (invariante INV-1 de `race-lap-validation`). A decisão
   descreve **só a câmera**: ela continua atrás do piloto, na pose de corrida, com o kart parado, até a
   próxima visão geral (antes da contagem da volta seguinte). Nada muda em `race-lap-validation`.
+- 2026-10-29 — **Treino contínuo e fim do drift e do turbo (Eduardo Matos):** no treino as voltas passam a
+  ser seguidas (`race-lap-validation` rev 3, US-10), então o kart **não congela** ao fim de uma volta de
+  treino: ele continua pilotável e a câmera continua atrás do piloto. A decisão de 2026-10-22 ("o kart
+  congela, como hoje") passa a valer só para a volta oficial. O drift e o turbo saíram do jogo
+  (`dirigibilidade` rev 4), então a indicação de drift e a fumaça do escapamento ligada ao turbo deixam de
+  existir; as marcas de pneu continuam.

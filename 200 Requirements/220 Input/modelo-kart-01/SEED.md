@@ -1,8 +1,8 @@
 ---
 name: modelo-kart-01
 description: Troca o kart provisório da cena pelo modelo Kart 01 (low-poly, escala real, peças nomeadas, piloto) e a câmera de perseguição alta pela câmera de jogo da ficha, atrás e perto do piloto. Ler antes de qualquer mudança no modelo do kart, no piloto, na câmera de corrida ou nos efeitos presos ao kart.
-revision: 1
-date: 2026-10-22
+revision: 2
+date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
 ---
@@ -58,8 +58,9 @@ modelo, e a ficha é a referência para conferir o resultado.
   - Com o Kart 01 em cena, a taxa de quadros continua dentro de RNF03: 60 fps em notebook e 30 fps em
     celular intermediário.
 - **US-5** Como Jogador, quero que os efeitos que já existem continuem presos ao kart.
-  - Marcas de pneu, fumaça do escapamento e indicação de drift continuam aparecendo nas posições das
-    rodas traseiras e do escapamento do Kart 01.
+  - As marcas de pneu continuam aparecendo nas posições das rodas traseiras do Kart 01.
+  - Não há indicação de drift nem fumaça ou chama de turbo: o drift e o turbo foram retirados do jogo
+    (`dirigibilidade`, 2026-10-29).
 
 ## Regras de domínio
 

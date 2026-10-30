@@ -1,8 +1,8 @@
 ---
 name: race-lap-validation
 description: Largada, cronometragem oficial pela simulação, quatro setores, marcadores de percurso e regras que separam volta válida de volta inválida (corte, marcador pulado, chegada na contramão, reposicionamento). Ler antes de qualquer trabalho em corrida, tempo de volta, setores ou validação de percurso.
-revision: 2
-date: 2026-10-20
+revision: 3
+date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
 ---
@@ -78,6 +78,18 @@ validação**, porque quatro checkpoints não bastam para detectar atalhos.
   - O estado da volta (válida em andamento / inválida + motivo) é exibido durante toda a volta, em texto
     além de cor, em português e em inglês conforme o idioma do navegador.
 
+- **US-10** Como Jogador, quero dar quantas voltas quiser no treino sem o jogo parar, para treinar a
+  pista em sequência.
+  - No treino, ao cruzar a chegada no sentido da pista, a volta termina, o resultado dela (tempo, quatro
+    setores, válida ou inválida com o motivo) aparece na tela sem parar o kart, e a próxima volta começa
+    no mesmo instante, sem nova contagem regressiva.
+  - No treino, uma volta que fica inválida (corte ou marcador pulado) é marcada inválida na hora, com o
+    motivo, e o kart continua andando; a próxima volta começa na próxima passagem pela chegada no sentido
+    da pista.
+  - A contagem regressiva só acontece no começo do treino.
+  - A melhor volta válida do treino fica visível durante todo o treino.
+  - O treino só para quando o Jogador pausa (botão ou perda de foco, como hoje) ou encerra o treino.
+  - A volta oficial não muda: termina na chegada, ou na hora em que fica inválida, e o kart para.
 ## Regras de domínio
 
 | Regra | Fonte |

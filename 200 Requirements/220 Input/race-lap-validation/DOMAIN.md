@@ -42,3 +42,10 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   só a requisição de carregamento). Embutir as fontes no build é item de backlog.
 - 2026-10-21 — **Link da marca (Eduardo Matos):** o `href="/"` da marca, que sai de `/<repo>/` no GitHub
   Pages, é aceito nesta release; a correção (href relativo) vai para o backlog da próxima release.
+- 2026-10-29 — **Voltas seguidas no treino (Eduardo Matos):** "podemos dar quantas voltas quisermos antes do
+  jogo pausar". No treino, a volta não encerra mais a sessão: ao cruzar a chegada, o resultado da volta
+  aparece, o kart continua e a próxima volta começa na hora, sem contagem (US-10). Para o treino, isso
+  substitui o OPEN-06 ("volta invalidada termina imediatamente"): a volta inválida é marcada na hora e o
+  kart segue até a próxima passagem pela chegada. A volta oficial mantém o OPEN-06 e o INV-1 (depois de
+  `ENDED`, nada muda). Pressupostos do condutor, a confirmar pelo dono do produto: o treino só termina por
+  pausa ou por "encerrar treino"; a melhor volta válida fica visível; reposicionar segue livre no treino.
