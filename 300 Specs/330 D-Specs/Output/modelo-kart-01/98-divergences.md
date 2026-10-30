@@ -3,7 +3,7 @@ title: Divergências — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.3.0
+version: 1.5.0
 sources: []
 ---
 
@@ -16,8 +16,9 @@ linhas da rodada 1 citam `src/main.ts` do commit `0068a57`, que já carregava as
 a primeira rodada de código desta feature trabalhou sobre elas e registra a resolução no seu próprio
 registro. As linhas da rodada 5 (F-Spec 1.3: drift e turbo fora do jogo, treino com voltas seguidas) citam a
 árvore de trabalho corrente, que já tem aquela rodada de código. As linhas dos requisitos que o F-Spec 1.3
-retirou (o 10 de FEAT-0003, os 02 e 03 de FEAT-0005) saíram deste registro com eles. Caminhos relativos à raiz
-do repositório.
+retirou (o 10 de FEAT-0003, os 02 e 03 de FEAT-0005) saíram deste registro com eles. As linhas das rodadas 6 e 7
+(feedback da `dirigibilidade`, FB-01 e FB-02; FEAT-0005 2.1.0, com a situação de marca de pneu e sem o requisito 04)
+citam a árvore corrente de 2026-10-30, que já publica `arcade-assistido-v6`. Caminhos relativos à raiz do repositório.
 
 | Requisito | O que exige | O que o sistema faz hoje | Etapa devedora | Item de projeto | Estado |
 |---|---|---|---|---|---|
@@ -38,9 +39,11 @@ do repositório.
 | REQ-FEAT-0005-01, -07, -08 | marcas de pneu nas posições traseiras de `wheelPositions` da configuração da volta, um trecho por avanço de `simStepCount`, nenhum na suspensão, trechos antigos parados no reposicionamento | `:451-455` usa `wheelPositions(config)` da aplicação (igual a `lap.config` hoje) com a transformação correta; a cadência é de relógio de parede (`skidClock += dt`, `:448-449`), não de `simStepCount`; o reinício em reposicionamento é indireto (velocidade 0 esvazia `previousSkids`, `:472`) | código | DES-0005 | open |
 | REQ-FEAT-0003-05, -06, -07, -17 (rodada 5) | só o campo de visão de base da forma, em todos os quadros; nenhum comando do Jogador muda o campo de visão; API-0003 2.0.0 sem `baseVerticalFovDeg` nem `turboFovDeltaDeg` | árvore corrente: `src/main.ts:586` passa `turboActive` (`drivingAssists`, sem `prefers-reduced-motion`, `tricks.boost > 0`) e `src/gameCamera.ts:181-182` soma `TURBO_FOV_DELTA_DEG` (`:48`, 4°) à base: com o turbo acionado pelo Jogador, 66° em paisagem e base + 4° em retrato; `src/gameCamera.ts:26-27` e `:185` publicam os dois campos retirados | código | DES-0003, DES-0004, ADR-0002 | open |
 | REQ-FEAT-0005-10 (rodada 5) | nenhuma fumaça ou chama de turbo saindo do escapamento do Kart 01, antes da largada e em corrida, com qualquer comando | árvore corrente: `src/main.ts:150-157` prende um cone (`ConeGeometry(0.18, 1.2, 8)`) a `kart01.anchors.exhaustOutlet` e `:555-556` o mostra com `tricks.boost > 0`, pulsando; o nó `escapamentoSaida` existe só para ele (`src/kart01Model.ts:45`, `:526-530`, `:539`) | código | DES-0005, DES-0001, ADR-0001 | open |
-| REQ-FEAT-0005-09 (rodada 5) | nenhuma indicação de drift junto ao Kart 01, antes da largada e em corrida, com qualquer comando | árvore corrente: o drift ainda existe no jogo (`src/main.ts:495` lê o comando de drift; `src/maneuvers.ts`); não há objeto próprio de indicação na cena, mas as marcas de pneu só nascem com `maneuvers.drifting` (`src/main.ts:559`) e a versão 1.1.0 de DES-0005 as designava como a indicação de drift. Esta feature retira a designação e não cria efeito; a retirada do drift do jogo, e com ela a troca da condição de situação das marcas, é da `dirigibilidade` (revisão 4, `DOMAIN/DEC-07`) | código (`dirigibilidade`, retirada do drift; esta feature só em DES-0005) | DES-0005, ADR-0003 | open |
+| REQ-FEAT-0005-09 (rodada 5) | nenhuma indicação de drift junto ao Kart 01, antes da largada e em corrida, com qualquer comando | árvore corrente: o drift ainda existe no jogo (`src/main.ts:495` lê o comando de drift; `src/maneuvers.ts`); não há objeto próprio de indicação na cena, mas as marcas de pneu só nascem com `maneuvers.drifting` (`src/main.ts:559`) e a versão 1.1.0 de DES-0005 as designava como a indicação de drift. Esta feature retira a designação e não cria efeito; a retirada do drift do jogo é da `dirigibilidade` (revisão 4, `DOMAIN/DEC-07`); a situação em que as marcas nascem é a da linha seguinte | código (`dirigibilidade`, retirada do drift; esta feature em DES-0005) | DES-0005, ADR-0003 | open |
+| REQ-FEAT-0005-11, -12 (rodada 7) | um trecho novo sob cada pneu traseiro em cada quadro com passo novo, `lapPhase` `RUNNING`, `speedMps` maior que 6 e `sideslipRad` maior que 0,055 em `getHandlingTelemetry`; nenhum em qualquer outro quadro, com qualquer comando | árvore corrente: o `if` do bloco das marcas (`src/main.ts:554`) exige `tricks.drifting`, lê `state.speed` e `state.telemetry.sideslip` direto de `State` e não `getHandlingTelemetry`, e desenha no máximo um trecho a cada `SKID_STEP_INTERVAL` (5) passos (`:147`, `:555`); `State.maneuvers` vale sempre `initialManeuvers()` na janela de compatibilidade da `dirigibilidade` (ADR-0006 daquela feature, decisão 2), logo o `if` nunca vale e nenhuma marca é desenhada | código (esta feature, na próxima rodada de código) | DES-0005, ADR-0003 | open |
 | REQ-FEAT-0003-16; REQ-FEAT-0005-01 depois do fim de uma volta de treino (rodada 5) | no treino, do fim de uma volta até a próxima visão geral, câmera em `RACE_CHASE` em relação ao kart **em movimento**; trechos novos de marca sob os pneus traseiros depois do fim de uma volta de treino | árvore corrente: a câmera já atende — `decideCameraMode` dá `RACE_CHASE` para toda fase de volta ativa fora da contagem e não lê `lapKind` (`src/gameCamera.ts:72-76`); mas toda volta, de qualquer tipo, termina em `ENDED` e para a simulação (`src/lap.ts:190`; o laço de passos de `src/main.ts:499` para em `ENDED`): no treino o kart congela, contra `DOMAIN/DEC-07`. O encadeamento das voltas seguidas é de `race-lap-validation` (revisão 3, US-10), nomeado e não redefinido aqui; a parte "kart em movimento" da verificação de AC-US-0003-14 falha até lá | código (`race-lap-validation`, US-10 da revisão 3) | DES-0003, DES-0005 (nada a mudar nesta feature) | open |
 | REQ-FEAT-0005-05, -06 | `WHEEL_POSITIONS` e `TELEMETRY_WHEEL_POSITIONS` em `npm test` contra a linha de base | nenhum registro; nenhuma linha de base (`tests/fixtures/kart01-sim-baseline.json` não existe) | código | DES-0006, DM-0001, ADR-0004 | open |
+| REQ-FEAT-0005-05; REQ-FEAT-0006-07, -08 (rodada 6) | registros comparados com a linha de base do acerto publicado; `BASELINE_MISSING` só quando ela falta | árvore corrente: `tests/fixtures/kart01-sim-baseline.json` gravado com `arcade-assistido-v5` (`recordedOnCommit` `b86b200`); a árvore já publica `arcade-assistido-v6` (`src/physics.ts:106`), e `tests/helpers/kart01Report.ts:340` devolve `BASELINE_MISSING` até a regravação | código (esta feature, na próxima rodada de código) | DM-0001, ADR-0004, ADR-0003 | open |
 | REQ-FEAT-0006-04, -05 | `LAYERING` e `RENDER_NEUTRAL` em `npm test` | `tests/race-lap-validation-layering.test.ts` protege a simulação dos módulos que existem hoje, mas não conhece os módulos desta feature; nenhum `RENDER_NEUTRAL` | código | DES-0006 | open |
 | REQ-FEAT-0006-07, -08 | `SIM_CONTRACT` e `DETERMINISM` em `npm test` contra a linha de base | `tests/race-lap-validation-determinism.test.ts` prova determinismo entre execuções da mesma sessão; nenhum registro de API-0002 nem linha de base anterior à feature | código | DES-0006, DM-0001, ADR-0004 | open |
 
@@ -48,8 +51,7 @@ Satisfeitos hoje, sem divergência, e protegidos pelo projeto: o kart exibido no
 informa (REQ-FEAT-0002-06: `src/main.ts:442`); o estado do último passo concluído, sem interpolação
 (REQ-FEAT-0002-07: `:424` lê `lap.kart` depois do laço de `:412-423`); kart parado na pausa
 (REQ-FEAT-0002-08: `src/lap.ts:173` devolve a sessão em `PAUSED`); nova posição no primeiro quadro depois
-do reposicionamento (REQ-FEAT-0002-09: `src/lap.ts:158-164` substitui `kart`); marcas de pneu nas mesmas
-situações (REQ-FEAT-0005-04: a condição de `:447`, hoje `:559`, não é tocada por esta feature); download de 579 177 + 11 407 bytes sem
+do reposicionamento (REQ-FEAT-0002-09: `src/lap.ts:158-164` substitui `kart`); download de 579 177 + 11 407 bytes sem
 compressão (REQ-FEAT-0006-01); `three` como única dependência de execução, `^0.186.1` (REQ-FEAT-0006-02,
 -03: `package.json`); os três arquivos da simulação e os presets intactos (REQ-FEAT-0006-06: nenhum item de
 projeto os toca).

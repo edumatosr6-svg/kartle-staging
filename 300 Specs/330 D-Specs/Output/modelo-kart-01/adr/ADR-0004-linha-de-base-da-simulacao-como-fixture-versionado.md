@@ -4,7 +4,7 @@ title: A linha de base anterior à feature é um fixture JSON versionado em test
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [API-0002, FLOW-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0005-05, REQ-FEAT-0006-07, REQ-FEAT-0006-08, NFR-0006, NFR-0007]
 ---
 
@@ -57,9 +57,17 @@ mesma sessão, mas não contra uma medida feita **antes** desta feature.
 - Uma feature que publique outro acerto ou outra pista regrava o fixture no seu ciclo (`--force --commit`)
   ou aceita `BASELINE_MISSING` até fazê-lo. Esta feature não altera a simulação, logo uma regravação feita
   com o código desta feature presente dá o mesmo resultado que uma feita antes dele.
+- **Regravação com `arcade-assistido-v6` (rodada 6; FB-02 da `dirigibilidade`).** O arquivo gravado na
+  primeira rodada de código traz `arcade-assistido-v5` (`recordedOnCommit` `b86b200`). A `dirigibilidade`
+  publica `arcade-assistido-v6`, e a leitura passa a `BASELINE_MISSING` (`tests/helpers/kart01Report.ts:340`
+  exige `setupVersion` igual ao publicado). A rodada de código desta feature que seguir a entrega do código da
+  `dirigibilidade` regrava o arquivo (`npm run baseline:kart01 -- --force --commit <sha>`) sobre a árvore
+  com o acerto novo, as duas execuções de referência juntas, e só então as verificações voltam a comparar
+  ([ADR-0003](ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md), decisão 6). Até lá, os
+  registros que dependem dela reportam `BASELINE_MISSING`, nunca uma comparação contra o acerto anterior.
 - `tests/helpers/kart01Report.ts` lê o arquivo com `node:fs` por caminho relativo à raiz do repositório;
   nada é impresso além dos registros.
 
 ## Estado
 
-Aceita nesta rodada.
+Aceita na rodada 1; regravação com `arcade-assistido-v6` acrescentada na rodada 6.

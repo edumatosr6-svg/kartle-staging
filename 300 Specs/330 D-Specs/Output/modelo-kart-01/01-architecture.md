@@ -3,7 +3,7 @@ title: Arquitetura — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.3.0
+version: 1.5.0
 sources: []
 ---
 
@@ -41,7 +41,13 @@ paisagem e a regra de retrato).
 Decisões de entrega: a feature é só camada de aplicação (não muda `src/physics.ts`, `src/lap.ts`,
 `src/track.ts` nem os presets); o código fica na raiz do repositório; **o código desta feature entrou depois
 do da `dirigibilidade`, que também altera `src/main.ts`, e as mudanças da rodada 5 não dependem de ordem**
-([ADR-0003](adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md), decisões 1 e 4).
+([ADR-0003](adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md), decisões 1 e 4). **Rodadas 6
+e 7** (feedback da `dirigibilidade`; seed `revision: 4`, `DOMAIN/DEC-09`, FEAT-0005 2.1.0): as marcas de pneu
+aparecem só na situação de marca de pneu do F-Spec — quadro com passo novo, `lapPhase` `RUNNING`, `speedMps`
+maior que 6 e `sideslipRad` maior que 0,055 em `getHandlingTelemetry`, um trecho sob cada pneu traseiro por
+quadro (REQ-FEAT-0005-11, -12; [DES-0005](web/DES-0005-efeitos-presos-ao-kart.md)) —, sem ler o estado do
+drift, e a linha de base da simulação é regravada com `arcade-assistido-v6`; as duas mudanças entram na próxima
+rodada de código desta feature, depois da entrega do código da `dirigibilidade` (ADR-0003, decisão 6).
 
 **Estado do código lido como as-built.** `src/main.ts` (540 linhas, commit `0068a57`; em HEAD `aadd01f` a
 pasta `src/` é igual à desse commit) já
@@ -170,7 +176,8 @@ declarar (D-DS-03); a idempotência é a de leituras puras e de contadores de se
 | Kart provisório de caixas e câmera alta de perseguição em corrida | retirados na mesma mudança que introduz o Kart 01 e a câmera de corrida; a câmera alta inicial sobrevive só como `TRACK_OVERVIEW` antes da contagem; nenhum campo publicado os descrevia, então não há campo a rejeitar; o teste de contrato afirma que `src/main.ts` não constrói mais o kart de caixas nem suaviza a câmera (I3) |
 | Efeito de turbo no campo de visão e campos `baseVerticalFovDeg`, `turboFovDeltaDeg` de API-0003 | **retirados** (API-0003 2.0.0, `DOMAIN/DEC-08`): a câmera tem só o campo de visão de base da forma, e o substituto declarado é `verticalFovDeg`, com nome, unidade e significado mantidos; a retirada é a remoção da constante, da entrada `turboActive` e dos dois campos, e o teste de contrato afirma a ausência dos quatro nomes em `src/gameCamera.ts` e `src/main.ts` ([DES-0003](web/DES-0003-camera-de-jogo.md), Retirada; [ADR-0002](adr/ADR-0002-camera-como-funcao-pura-do-quadro.md)). A suavização temporal e o termo de velocidade já tinham saído na rodada 1 |
 | Fumaça ou chama de turbo e indicação de drift junto ao Kart 01 | **retiradas** (`DOMAIN/DEC-07`): o jato de escapamento e o nó `escapamentoSaida` saem; nenhum objeto da cena indica drift; nenhum campo publicado os descrevia, então não há campo a rejeitar; o teste de contrato afirma a ausência ([DES-0005](web/DES-0005-efeitos-presos-ao-kart.md)) |
-| Linha de base da simulação | arquivo novo, `schemaVersion` 1; versão desconhecida é `BASELINE_MISSING`, nunca lida ([DM-0001](data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md)) |
+| Linha de base da simulação | arquivo novo, `schemaVersion` 1; versão desconhecida é `BASELINE_MISSING`, nunca lida; gravada com `arcade-assistido-v5` e regravada com `arcade-assistido-v6` depois da entrega da `dirigibilidade`, com `BASELINE_MISSING` até lá ([DM-0001](data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md)) |
+| Situação das marcas de pneu (`if` do bloco das marcas, `src/main.ts:554`) | o `if` de hoje (com `tricks.drifting` e um trecho a cada 5 passos) dá lugar à situação de marca de pneu de REQ-FEAT-0005-11 e -12, lida de `getKartPose`, `getLapState` e `getHandlingTelemetry`, um trecho por quadro com passo novo; nenhum campo publicado a descrevia, e nenhum contrato de outra feature muda ([DES-0005](web/DES-0005-efeitos-presos-ao-kart.md)) |
 | Dado de pista | inalterado (`schemaVersion` 2, `trackVersion` 2); os limites da pista para a visão geral são calculados de `track` e `WIDTH` por função que aceita qualquer lista de pontos, de modo que a `pista-kart-park` os forneça do seu arquivo |
 
 ## Rastros de decisão
@@ -179,5 +186,5 @@ declarar (D-DS-03); a idempotência é a de leituras puras e de contadores de se
 |---|---|
 | [ADR-0001](adr/ADR-0001-material-unico-com-cores-por-vertice-e-malhas-por-grupo.md) | um material opaco com cores por vértice para todas as peças sólidas e as malhas de cada grupo mescladas numa só; decalques em materiais próprios; 27 chamadas de desenho planejadas, 5.128 triângulos, 16 grupos e peças animáveis preservados |
 | [ADR-0002](adr/ADR-0002-camera-como-funcao-pura-do-quadro.md) | a câmera é função pura da fase da volta, da pose do kart e da forma da área de jogo, sem comando, turbo ou tipo de volta; suavização de posição e de campo de visão, termo de velocidade e (rodada 5) efeito de turbo retirados; visão geral com inclinação de 10° ajustada aos limites da pista; descida com retenção de 100 ms e curva monótona; retrato com vertical = max(62°, o que dá 60° na horizontal) |
-| [ADR-0003](adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md) | o código desta feature entrou depois do da `dirigibilidade`; as retiradas da rodada 5 não dependem de ordem; sem chave mestra, porque o F-Spec proíbe configuração e a mudança é só visual |
-| [ADR-0004](adr/ADR-0004-linha-de-base-da-simulacao-como-fixture-versionado.md) | a linha de base anterior à feature é um fixture JSON versionado em `tests/fixtures/`, gravado por `scripts/kart01-baseline.ts` antes de qualquer mudança desta feature e amarrado ao `setupVersion` e à `trackVersion` em vigor |
+| [ADR-0003](adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md) | o código desta feature entrou depois do da `dirigibilidade`; as retiradas da rodada 5 não dependem de ordem; (rodadas 6 e 7) a situação de marca de pneu do F-Spec e a regravação da linha de base com `arcade-assistido-v6` entram depois da entrega do código da `dirigibilidade`; sem chave mestra, porque o F-Spec proíbe configuração e a mudança é só visual |
+| [ADR-0004](adr/ADR-0004-linha-de-base-da-simulacao-como-fixture-versionado.md) | a linha de base anterior à feature é um fixture JSON versionado em `tests/fixtures/`, gravado por `scripts/kart01-baseline.ts` antes de qualquer mudança desta feature e amarrado ao `setupVersion` e à `trackVersion` em vigor; regravado com `arcade-assistido-v6` na rodada que seguir a entrega da `dirigibilidade` |

@@ -4,7 +4,7 @@ title: Integração da cena em src/main.ts — Kart 01 na cena, sombra que acomp
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.3.0
+version: 1.3.2
 sources: [FLOW-0001, FLOW-0002, SCR-0001, FEAT-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0001-17, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-11, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-05, REQ-FEAT-0006-01, NFR-0001, NFR-0002]
 ---
 
@@ -66,7 +66,7 @@ revisão muda só o seguinte, nas linhas da árvore corrente:
 |---|---|
 | `:581-587` (comentário "… and the turbo condition"; chamada de `computeCameraView` com `turboActive: config.drivingAssists && !reducedMotion && tricks.boost > 0`) | a chave `turboActive` sai da chamada, que passa as cinco entradas da linha `:478-487` acima; o comentário deixa de citar o turbo. Nenhum comando do Jogador chega à câmera, e o campo de visão aplicado por `applyCameraView` é sempre o de base da forma (REQ-FEAT-0003-05 a -07, -17; [DES-0003](DES-0003-camera-de-jogo.md), Retirada) |
 | `:150-157` e `:555-556` (jato de escapamento) | retirados por [DES-0005](DES-0005-efeitos-presos-ao-kart.md) |
-| `:553` `const tricks = state.maneuvers` | fica: ainda é lido pela condição de situação das marcas (`:559`) e pelo HUD da manobra (`:616-626`), que não são desta feature; depois desta revisão nenhum objeto da cena desta feature lê `tricks.boost` |
+| `:553` `const tricks = state.maneuvers` (`:548` na árvore corrente) | fica só para o HUD da manobra (`:613-626`), que é da `dirigibilidade`: o bloco das marcas passa a decidir a situação de marca de pneu por `getKartPose`, `getLapState` e `getHandlingTelemetry`, sem `tricks` (REQ-FEAT-0005-11, -12; [DES-0005](DES-0005-efeitos-presos-ao-kart.md), Situação de marca de pneu), e o jato sai; depois desta revisão nenhum objeto da cena desta feature lê `tricks` |
 | `applyCameraView`, `kartRoot`, sombra, giro, `trackBounds` | inalterados |
 
 Orçamento de quadro (FEAT-0004): o kart com o piloto custa 27 chamadas de desenho e 5.128 triângulos

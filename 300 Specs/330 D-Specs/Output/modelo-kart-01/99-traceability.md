@@ -1,8 +1,8 @@
 ---
 stage: dspec
 feature: modelo-kart-01
-generated: 2026-10-30T12:24:13Z
-rows: 218
+generated: 2026-10-30T14:18:51Z
+rows: 224
 ---
 
 # Traceability
@@ -82,6 +82,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | NFR-0006 | DES-0006 | - | `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` |
 | NFR-0006 | DES-0007 | - | `security/DES-0007-privacidade-sem-rede-e-sem-persistencia.md` |
 | NFR-0006 | DM-0001 | - | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` |
+| NFR-0007 | ADR-0003 | - | `adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md` |
 | NFR-0007 | ADR-0004 | - | `adr/ADR-0004-linha-de-base-da-simulacao-como-fixture-versionado.md` |
 | NFR-0007 | DES-0002 | - | `web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md` |
 | NFR-0007 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
@@ -185,9 +186,10 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0004-04 | DES-0006 | - | `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` |
 | REQ-FEAT-0004-05 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0004-05 | DM-0001 | - | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` |
+| REQ-FEAT-0005-01 | ADR-0003 | - | `adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md` |
 | REQ-FEAT-0005-01 | DES-0002 | - | `web/DES-0002-estado-do-kart-para-exibicao-e-giro-das-rodas.md` |
 | REQ-FEAT-0005-01 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
-| REQ-FEAT-0005-04 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-05 | ADR-0003 | - | `adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md` |
 | REQ-FEAT-0005-05 | ADR-0004 | - | `adr/ADR-0004-linha-de-base-da-simulacao-como-fixture-versionado.md` |
 | REQ-FEAT-0005-05 | DES-0006 | - | `web/DES-0006-verificacoes-de-npm-test-e-relatorio-do-modelo.md` |
 | REQ-FEAT-0005-05 | DM-0001 | - | `data/DM-0001-linha-de-base-da-simulacao-e-registro-em-tela.md` |
@@ -199,6 +201,10 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0005-09 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
 | REQ-FEAT-0005-10 | ADR-0003 | - | `adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md` |
 | REQ-FEAT-0005-10 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-11 | ADR-0003 | - | `adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md` |
+| REQ-FEAT-0005-11 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
+| REQ-FEAT-0005-12 | ADR-0003 | - | `adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md` |
+| REQ-FEAT-0005-12 | DES-0005 | - | `web/DES-0005-efeitos-presos-ao-kart.md` |
 | REQ-FEAT-0006-01 | DES-0004 | - | `web/DES-0004-integracao-da-cena-em-main-ts.md` |
 | REQ-FEAT-0006-01 | DES-0007 | - | `security/DES-0007-privacidade-sem-rede-e-sem-persistencia.md` |
 | REQ-FEAT-0006-02 | DES-0001 | - | `web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md` |

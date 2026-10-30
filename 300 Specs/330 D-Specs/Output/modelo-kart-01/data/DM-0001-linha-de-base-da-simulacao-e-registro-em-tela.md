@@ -4,7 +4,7 @@ title: Linha de base da simulação anterior à feature (fixture versionado) e r
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: [API-0002, FLOW-0003, FEAT-0004, FEAT-0005, FEAT-0006, REQ-FEAT-0004-05, REQ-FEAT-0005-05, REQ-FEAT-0006-07, REQ-FEAT-0006-08, NFR-0001, NFR-0006, NFR-0007]
 ---
 
@@ -56,6 +56,12 @@ quando outra feature publica um acerto ou uma pista nova, o seu ciclo regrava o 
 baseline:kart01 -- --force --commit <sha>`) ou aceita `BASELINE_MISSING` até fazê-lo — nunca uma comparação
 contra uma linha de base de outro acerto. Enquanto a `dirigibilidade` estiver em ciclo de acerto, o arquivo só
 é gravado depois do seu código validado ([ADR-0003](../adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md)).
+**Próxima regravação (rodada 6):** o arquivo está gravado com `arcade-assistido-v5` (`recordedOnCommit`
+`b86b200`); a `dirigibilidade` publica `arcade-assistido-v6`, e a rodada de código desta feature que seguir a
+entrega do código dela o regrava com `arcade-assistido-v6`, com a mesma forma (`schemaVersion` 1); até a
+regravação, `SIM_CONTRACT`, `DETERMINISM` e `WHEEL_POSITIONS` reportam `BASELINE_MISSING`
+([ADR-0003](../adr/ADR-0003-ordem-de-entrega-depois-da-dirigibilidade-e-sem-chave.md), decisão 6;
+[ADR-0004](../adr/ADR-0004-linha-de-base-da-simulacao-como-fixture-versionado.md)).
 
 **Retenção e privacidade.** Fica no repositório enquanto a feature existir; contém números da simulação,
 identificadores de acerto e de pista e um sha de commit; nenhum dado pessoal, nome de máquina, de usuário ou

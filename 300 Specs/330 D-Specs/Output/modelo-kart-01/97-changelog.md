@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.4.0
+version: 1.6.0
 sources: []
 ---
 
@@ -322,7 +322,7 @@ novo escrito; nenhuma outra feature precisa mudar.
   recusada em favor da extensão em Z só; dá o mesmo valor (o máximo é o Z), mas é uma regra com dois eixos para
   explicar um, e a extensão em Z é o diâmetro no eixo de rolamento, o "diâmetro externo da roda com o pneu"
   de RULE-0001 na direção em que a roda toca o chão.
-- Admitir 0,25/0,27 ao centímetro em RULE-0001/REQ-FEAT-0001-04 (terceira saída): recusada; seria afrouxar o
+- Admitir 0,25/0,27 ao centímetro em RULE-0001/REQ-FEAT-0001-05, -06 (terceira saída): recusada; seria afrouxar o
   requisito ("o modelo é corrigido, nunca a tolerância", US-0001, caso anormal), e a forma inalterada
   satisfaz 0,26/0,28 com a medida correta.
 - Mudar a geometria da roda (mais segmentos, ou girar a revolução para pôr um vértice em ±Y): recusado; o
@@ -419,3 +419,129 @@ especificação o feedback a outra feature é do validador, conventions §14).
 - Exigir, por ordem de entrega, que o código desta rodada espere o da `dirigibilidade` (como a decisão 1 de
   ADR-0003 fez na primeira rodada): recusado; as mudanças só removem leitores do turbo desta feature e não
   dependem de ordem (ADR-0003, decisão 4).
+
+## 2026-10-30 — rodada 6, Mode C (feedback `reports/feedbacks/dirigibilidade/feedback-20261030-1326.md`, FB-01 e FB-02)
+
+**Origem**: o validador do D-Spec da `dirigibilidade` (`dspec-validation-20261030-1326.md`, ISSUE-12 e ISSUE-13)
+mandou dois itens de escopo a esta feature. O dono do produto decidiu aplicar os dois: o seed (`revision: 3`,
+US-5) mantém as marcas de pneu nas rodas traseiras do Kart 01, e a linha de base é medida de novo com o acerto
+que a `dirigibilidade` publica. Esta decisão reverte o item recusado da rodada 5 ("Mudar a condição de situação
+das marcas de pneu"), que deixava a questão ao dono do produto.
+
+**O que mudou**
+
+- `adr/ADR-0003` (1.2.0): decisão 6 nova — a condição de situação das marcas passa a esta feature e lê só a
+  fase da volta e a telemetria da simulação (`RUNNING`, `state.speed > 6` m/s, `|state.telemetry.sideslip| >
+  0,055` rad: os limiares de `src/main.ts:559` sem o termo `tricks.drifting`); entra, com a regravação da linha
+  de base com `arcade-assistido-v6`, na rodada de código que seguir a entrega do código da `dirigibilidade`; a
+  decisão 4 deixa de atribuir a troca à `dirigibilidade`. Fato medido citado: derrapagem lateral máxima de
+  0,077 rad (cerca de 0,08) na pilotagem normal da pista sintética com `arcade-assistido-v6` (`NORMAL_DRIVING`,
+  `DES-0004` do D-Spec da `dirigibilidade`), acima do limiar: marcas nas curvas fortes. Três alternativas e duas
+  consequências novas; `sources:` com REQ-FEAT-0005-01, -04, -05 e NFR-0007.
+- `web/DES-0005` (1.3.0): seção nova "Condição de situação das marcas (rodada 6)" com os termos, unidades e
+  limiares, quando a troca entra e o que deixa de ler `maneuvers`; inventário, Realiza, Colaboradores,
+  Observabilidade e Feature flag alinhados; a frase "a condição não é desta feature" saiu de todos os pontos.
+- `web/DES-0004` (1.3.1): a linha de `:553` (`const tricks`) diz que, depois da troca, nenhum objeto desta
+  feature lê `tricks`; ele fica só para o HUD da `dirigibilidade`.
+- `adr/ADR-0004` (1.1.0) e `data/DM-0001` (1.3.0): a regravação com `arcade-assistido-v6` — o arquivo atual
+  traz `arcade-assistido-v5` (`recordedOnCommit` `b86b200`), `tests/helpers/kart01Report.ts:340` devolve
+  `BASELINE_MISSING` depois da entrega, e a rodada de código seguinte o regrava com a mesma forma
+  (`schemaVersion` 1), sem afrouxar o leitor.
+- `test-strategy.md` (1.5.0): fixture da linha de base com a regravação; AC-US-0005-01 com a verificação de
+  contrato da condição (três termos, sem `tricks` nem `maneuvers`) e marcas nas curvas fortes no E2E-05;
+  AC-US-0005-04 com a ausência de `.drifting` depois da troca; E2E-05 com curva forte e reta; "Verificações
+  existentes" registra que CHK-TEST-0004-06 (`tests/modelo-kart-01-contract.test.ts:78-80`) é **modificada**,
+  não removida, e entra na tabela de migração da etapa de testes.
+- `98-divergences.md` (1.4.0): duas linhas novas da rodada 6 — REQ-FEAT-0005-01, -04 (a condição de `:559`
+  nunca vale depois da entrega da `dirigibilidade`) e REQ-FEAT-0005-05, REQ-FEAT-0006-07, -08 (linha de base em
+  `arcade-assistido-v5`); a linha de REQ-FEAT-0005-09 e o parágrafo "Satisfeitos hoje" sem a atribuição da troca
+  à `dirigibilidade`.
+- `01-architecture.md` (1.4.0): a decisão da rodada 6 nas decisões de entrega, na estratégia de compatibilidade
+  (linha nova da condição das marcas; linha da linha de base) e nos rastros de ADR-0003 e ADR-0004.
+- Os arquivos editados voltaram a `status: draft`; `00-index.md` e `99-traceability.md` regenerados pelo gate
+  com `--emit`. Nenhum arquivo de `src/`, `tests/` ou `scripts/` foi tocado.
+
+**Itens fechados**: FB-01 (aplicado: condição das marcas sem o termo do drift, ADR-0003 decisão 6, DES-0005,
+test-strategy); FB-02 (aplicado: regravação da linha de base com `arcade-assistido-v6` na rodada que seguir a
+entrega da `dirigibilidade`, ADR-0003 decisão 6, ADR-0004, DM-0001, test-strategy). Divergências registradas:
+as duas linhas novas acima. Feedback: nenhum escrito (numa etapa de especificação o feedback a outra feature é
+do validador, conventions §14).
+
+**Itens recusados, com motivo**
+
+- FB-01, primeira opção ("marcas sem situação até o autor decidir outra") e segunda ("retirada do requisito
+  pelo autor"): não tomadas; o dono do produto manteve o requisito (seed `revision: 3`, US-5) e escolheu a
+  condição sem o termo do drift.
+- Mudar os limiares (6 m/s, 0,055 rad) ou acrescentar outra grandeza (rótulo `handling` da telemetria de
+  dirigibilidade): não feito; acrescentaria situações que o jogo nunca teve (REQ-FEAT-0005-04) e a medida com
+  `arcade-assistido-v6` mostra que os limiares atuais são atingidos nas curvas fortes.
+- Pôr a troca da condição antes da entrega da `dirigibilidade`: recusado; enquanto o drift existir no jogo a
+  situação continua a de antes (REQ-FEAT-0005-04).
+- Mudar o formato `inputRuns` da linha de base ou o leitor para aceitar `arcade-assistido-v5` com o acerto
+  novo: recusado; a regravação usa a mesma forma, e aceitar outro acerto compararia contra uma linha de base
+  que não é a do acerto publicado.
+- Escrever feedback à `dirigibilidade` sobre o seu `01-architecture.md` ("sem drift, o jogo não desenha marcas
+  de pneu") e a sua ADR-0006 (a condição das marcas "sai junto" na retirada final): não escrito aqui; numa
+  etapa de especificação esse feedback é do validador (conventions §14). Com a decisão 6 de ADR-0003, a
+  condição deixa de ler `State.maneuvers` e a retirada final daquela feature não precisa removê-la.
+
+## 2026-10-30 — rodada 7, Mode B (relatório `dspec-validation-20261030-1341.md`, 2 erros, 1 info)
+
+**Origem**: ISSUE-14 e ISSUE-15 (a condição das marcas sem o termo do drift não tinha `REQ-*` que a
+sustentasse e contrariava o requisito 04 de FEAT-0005) e ISSUE-13 (citação de requisito na rodada 4). A fonte
+que faltava agora existe: seed `revision: 4` (`DOMAIN/DEC-09`), requisitos revalidados
+(`req-validation-20261030-1353.md`, AC-US-0005-06 e -07) e F-Spec revalidado
+(`fspec-validation-20261030-1401.md`): FEAT-0005 2.1.0 retira o requisito 04 e acrescenta REQ-FEAT-0005-11 e
+-12 (situação de marca de pneu: quadro com passo novo, `lapPhase` `RUNNING`, `speedMps` > 6 e `sideslipRad` >
+0,055 em `getHandlingTelemetry`; nenhum trecho em qualquer outro quadro); RULE-0003 1.2.0 (tabela "Trecho novo de
+marca de pneu", um trecho por quadro) e FLOW-0001 1.4.0 (passo 9). Os itens de projeto passam a citar esses
+requisitos, sem nenhuma afirmação contra o requisito 04, que saiu.
+
+**O que mudou**
+
+- `web/DES-0005` (1.4.0): `sources:` sem REQ-FEAT-0005-04, com -11 e -12; Realiza pelos requisitos novos;
+  seção "Situação de marca de pneu" com as quatro condições lidas de `getKartPose`, `getLapState` e
+  `getHandlingTelemetry` (limites estritos, `NO_STATE` sem trecho) e a tabela quadro a quadro; a cadência
+  `SKID_STEP_INTERVAL` (um trecho a cada 5 passos, `src/main.ts:147`, `:555`) sai, porque deixaria quadros
+  com a situação válida sem trecho (REQ-FEAT-0005-11); `previousSkids` acompanha a posição traseira de todo
+  quadro com passo novo em `RUNNING`, para que o primeiro quadro da situação já desenhe; os filtros de
+  distância saem; linhas da árvore corrente (o jato em `:149-156` e `:550-551`, o bloco das marcas em
+  `:552-575`, `const tricks` em `:548`); Colaboradores, Estado, Falha, Observabilidade, Determinismo e Feature
+  flag alinhados. Nenhum módulo, função, constante ou chave nova.
+- `adr/ADR-0003` (1.3.0): decisão 6 reescrita — a situação é a do F-Spec, nomeada e não redefinida; entra na
+  próxima rodada de código (a árvore já publica `arcade-assistido-v6`, `src/physics.ts:106`) junto com a
+  regravação da linha de base; alternativas (ler `State` direto em vez de `getHandlingTelemetry`; manter a
+  cadência de 5 passos) e consequência (os 0,077 rad da `dirigibilidade` como contexto, não critério);
+  `sources:` sem REQ-FEAT-0005-04, com -11 e -12.
+- `web/DES-0004` (1.3.2): a linha de `const tricks` diz que o bloco das marcas passa a ler a telemetria e não
+  `tricks`.
+- `test-strategy.md` (1.6.0): linhas novas AC-US-0005-06 e AC-US-0005-07 (contrato sobre o bloco das marcas:
+  quatro condições, `>` estrito, sem `SKID_STEP_INTERVAL`, `tricks`, `maneuvers` nem leitura direta de
+  `State`; integração com os fixtures existentes para `COUNTDOWN`, `PAUSED`, `ENDED` e `NO_STATE`; E2E-05);
+  AC-US-0005-01 e -04 sem a condição da rodada 6; matriz de FEAT-0005 e E2E-05 com a situação; CHK-TEST-0004-06
+  registrada como modificada para AC-US-0005-06 e -07.
+- `98-divergences.md` (1.5.0): a linha "REQ-FEAT-0005-01, -04 (rodada 6)" passa a "REQ-FEAT-0005-11, -12
+  (rodada 7)", com o que eles exigem e o que o `if` de `src/main.ts:554` faz hoje; a linha da linha de base diz
+  que a árvore já publica `arcade-assistido-v6`; o parágrafo "Satisfeitos hoje" perde REQ-FEAT-0005-04.
+- `01-architecture.md` (1.5.0): decisões de entrega, estratégia de compatibilidade e rastro de ADR-0003 com a
+  situação de marca de pneu do F-Spec.
+- `97-changelog.md`: rodada 4, "Itens recusados", `REQ-FEAT-0001-04` trocado por `REQ-FEAT-0001-05, -06`
+  (diâmetros das rodas; o 04 é o entre-eixos) — ISSUE-13.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate com `--emit`. Nenhum arquivo de `src/`, `tests/`
+  ou `scripts/` foi tocado.
+
+**Itens fechados**: ISSUE-13, ISSUE-14, ISSUE-15. A decisão 6.3 (regravação da linha de base), que o relatório
+deixou ficar, não mudou de sentido.
+
+**Itens recusados, com motivo**
+
+- Extrair a decisão da situação para uma função pura importável em Node (por exemplo, em `src/kartPose.ts`),
+  para provar AC-US-0005-06 e -07 com estados construídos: não feito; numa rodada Mode B a superfície fica
+  congelada (conventions §16). Os critérios são alcançados por contrato sobre o bloco, pelas leituras públicas
+  com os fixtures existentes e por E2E-05; proposta para o `SCOPE-BACKLOG.md` do autor, se ele quiser a prova
+  por estado: "função pura da situação de marca de pneu em `src/kartPose.ts` (modelo-kart-01, D-Spec rodada 7)".
+- Aumentar o anel de 320 trechos para compensar a cadência por quadro: não feito; nenhum requisito fixa por
+  quanto tempo uma marca fica no chão, e o anel é o de hoje.
+- Atualizar as linhas da árvore citadas pelas linhas das rodadas 1 e 5 de `98-divergences.md`, `DES-0004` e
+  `ADR-0003` decisão 4 (a árvore moveu cerca de 5 linhas): não feito; não é issue deste relatório, e cada ponto
+  é citado também pelo símbolo.
