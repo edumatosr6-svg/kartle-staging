@@ -49,7 +49,7 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   kart segue até a próxima passagem pela chegada. A volta oficial mantém o OPEN-06 e o INV-1 (depois de
   `ENDED`, nada muda). Pressupostos do condutor, a confirmar pelo dono do produto: o treino só termina por
   pausa ou por "encerrar treino"; a melhor volta válida fica visível; reposicionar segue livre no treino.
-- 2026-10-30 — **Setor não cruzado no resultado do treino (condutor, a confirmar pelo dono do produto):** no
+- 2026-10-30 — **Setor não cruzado no resultado do treino (Eduardo Matos, confirmado em 2026-10-30):** no
   resultado de uma volta de treino, um setor cujo limite o kart não cruzou aparece como **"—"** (sem tempo),
   e o tempo total aparece sempre que a volta terminou na chegada. Numa pista cujo dado não declara setores
   (DOMAIN/DEC-10), o resultado mostra só o tempo total e a validade, sem linha de setores. As suposições do
