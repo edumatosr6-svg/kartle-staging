@@ -4,7 +4,7 @@ title: Aceleração, velocidade estabilizada, grama, parede e HUD
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 2.1.0
+version: 2.2.0
 sources: [US-0004, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07]
 ---
 
@@ -12,8 +12,10 @@ sources: [US-0004, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, A
 
 ## Resumo
 
-O kart acelera com vontade e transmite velocidade e risco (acerto agressivo da revisão 2, `DOMAIN/REF-02`): 0–60 km/h em no máximo 2,5 s com piloto de
-75 kg (`DOMAIN/DEC-05`); velocidade estabilizada em reta de pelo menos 105 km/h (`DOMAIN/DEC-06`); sair para
+O kart acelera com vontade e transmite velocidade e risco, com o acerto Arcade assistido na sua nova versão
+(acerto C, `DOMAIN/DEC-15`): 0–60 km/h em no máximo 2,5 s com piloto de 75 kg (`DOMAIN/DEC-05`, valor do
+acerto agressivo da revisão 2, `DOMAIN/REF-02`, mantido); velocidade estabilizada em reta entre 65 km/h e
+72 km/h, perto de um kart de aluguel de verdade (`DOMAIN/DEC-15`); sair para
 a grama custa pelo menos 30 % da velocidade em 1 s; tocar a parede custa velocidade a cada contato. O HUD
 continua exibindo velocidade em km/h e estado de aderência em texto durante toda a volta.
 
@@ -29,7 +31,8 @@ estado visível, requisitos inalterados (I4).
   acelerador cheio mantido, esterço 0 e piloto de 75 kg, atingir 60 km/h em no máximo 2,5 s de tempo
   simulado (AC-US-0004-01).
 - REQ-FEAT-0004-02: O sistema SHALL, no estado da simulação, em reta no asfalto com acelerador cheio
-  mantido e esterço 0, atingir velocidade estabilizada de pelo menos 105 km/h (AC-US-0004-02).
+  mantido e esterço 0, apresentar velocidade estabilizada entre 65 km/h e 72 km/h, inclusive os dois
+  extremos (AC-US-0004-02).
 - REQ-FEAT-0004-03: O sistema SHALL, no estado da simulação, com o kart entrando na grama à velocidade
   estabilizada do requisito 02, com acelerador cheio e esterço 0 mantidos, apresentar após 1 s de tempo
   simulado na grama velocidade de no máximo 70 % da velocidade de entrada (AC-US-0004-03).
@@ -68,7 +71,7 @@ Passo, telemetria e HUD: [FLOW-0001](../flows/FLOW-0001-passo-de-simulacao-e-hud
 
 | Situação | Comportamento |
 |---|---|
-| Acelerador cheio do repouso, esterço 0, piloto de 75 kg | 60 km/h em ≤ 2,5 s; velocidade estabilizada ≥ 105 km/h |
+| Acelerador cheio do repouso, esterço 0, piloto de 75 kg | 60 km/h em ≤ 2,5 s; velocidade estabilizada entre 65 km/h e 72 km/h, inclusive |
 | Acelerador solto antes de 60 km/h | O ensaio é interrompido, sem exigência de tempo |
 | Entrada na grama à velocidade estabilizada ou a 50 km/h, esterço 0, acelerador cheio | Após 1 s, ≤ 70 % da velocidade de entrada |
 | Grama abaixo de 50 km/h ou com esterço diferente de 0 | A velocidade é reduzida; nenhum percentual fixado (lacuna deliberada de `01-overview.md`) |
@@ -96,8 +99,8 @@ sintética, porque a pista de teste não tem grama nem parede ([RULE-0002](../ru
 
 ## Critérios de aceite
 
-- `ACCELERATION`: `zeroToSixtyKmhMs` ≤ 2 500 com `driverMassKg` 75; `TOP_SPEED`: `topSpeedMps` ≥ 105/3,6
-  (105 km/h) (satisfaz AC-US-0004-01, AC-US-0004-02; cobre os requisitos 01 e 02).
+- `ACCELERATION`: `zeroToSixtyKmhMs` ≤ 2 500 com `driverMassKg` 75; `TOP_SPEED`: 65/3,6 ≤ `topSpeedMps` ≤
+  72/3,6 (65 km/h a 72 km/h, inclusive) (satisfaz AC-US-0004-01, AC-US-0004-02; cobre os requisitos 01 e 02).
 - `GRASS_LOSS` nas duas entradas: `speedAfterOneSMps` ≤ 0,70 × `entrySpeedMps` (satisfaz AC-US-0004-03,
   AC-US-0004-04; cobre os requisitos 03, 04 e 08).
 - `WALL_CONTACT`: depois < antes em 100 % dos pares de `contacts` (satisfaz AC-US-0004-05; cobre os

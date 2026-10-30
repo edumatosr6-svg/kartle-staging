@@ -4,29 +4,30 @@ title: Contrato da saída dos ensaios de dirigibilidade
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.4.0
-sources: [US-0001, US-0002, US-0003, US-0004, US-0005, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0006, NFR-0007, NFR-0009, AC-US-0001-05, AC-US-0001-06, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0003-06, AC-US-0003-07, AC-US-0004-07, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-06]
+version: 4.0.1
+sources: [US-0001, US-0002, US-0003, US-0004, US-0005, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0006, NFR-0007, NFR-0009, AC-US-0001-05, AC-US-0001-06, AC-US-0002-05, AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0003-03, AC-US-0003-07, AC-US-0003-08, AC-US-0003-10, AC-US-0004-02, AC-US-0004-07, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-06]
 ---
 
 # API-0003 — Contrato da saída dos ensaios de dirigibilidade
 
-Contrato do que a saída de `npm test`, de `npm run bench:handling` e do bench de física contém
-para cada ensaio de [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md): os critérios dos requisitos
-nomeiam essa saída como ponto de observação, e este contrato fixa os campos, as unidades e o veredito. A
-forma de serialização (linhas de texto ou JSON) é decisão de projeto; os nomes e as unidades abaixo são
-contrato. Nomes em `camelCase` plano com a unidade SI no sufixo (D-FS-06): velocidades em m/s (`...Mps`),
-tempos em milissegundos (`...Ms`), comprimentos em metros (`...M`), como na telemetria
-([API-0001](API-0001-telemetria-de-dirigibilidade.md)). Os critérios de US-0001, US-0002 e US-0004 nomeiam
-km/h e s como ponto de observação (AC-US-0001-06, AC-US-0002-05, AC-US-0004-07): a saída serializada e
-`docs/physics.md` **apresentam** cada velocidade também convertida em km/h (valor × 3,6) e o tempo de
-0–60 km/h também em s (valor ÷ 1000) ao lado do campo SI; a apresentação não é campo do contrato e não
-altera o nome nem a unidade do campo. Cada linha abaixo diz a unidade do campo.
+Contrato do que a saída de `npm test`, de `npm run bench:handling` e do bench de física contém para cada
+ensaio de [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md): os critérios dos requisitos nomeiam essa
+saída como ponto de observação, e este contrato fixa os campos, as unidades e o veredito. A forma de
+serialização (linhas de texto ou JSON) é decisão de projeto; os nomes e as unidades abaixo são contrato.
+Nomes em `camelCase` plano com a unidade SI no sufixo (D-FS-06): velocidades em m/s (`...Mps`), tempos em
+milissegundos (`...Ms`), comprimentos em metros (`...M`), ângulos em radianos (`...Rad`), como na
+telemetria ([API-0001](API-0001-telemetria-de-dirigibilidade.md)). Os critérios de US-0001, US-0002,
+US-0003 e US-0004 nomeiam km/h, s e graus como ponto de observação (AC-US-0001-06, AC-US-0002-05,
+AC-US-0003-07, AC-US-0004-07): a saída serializada e `docs/physics.md` **apresentam** cada velocidade
+também convertida em km/h (valor × 3,6), o tempo de 0–60 km/h também em s (valor ÷ 1000) e o giro também
+em graus (valor × 180/π) ao lado do campo SI; a apresentação não é campo do contrato e não altera o nome
+nem a unidade do campo. Cada linha abaixo diz a unidade do campo.
 
 ## Operações
 
 | Operação | Propósito | Quem chama |
 |---|---|---|
-| `handlingBenchReport` | Produz um registro por ensaio executado | `npm test`, `npm run bench:handling`, bench de física |
+| `handlingBenchReport` | Produz um registro por ensaio executado e por variante | `npm test`, `npm run bench:handling`, bench de física |
 
 ## Auth
 
@@ -38,15 +39,24 @@ nem dado pessoal (I6).
 
 | Campo | Tipo | Unidade | Obrigatório | Padrão e restrições |
 |---|---|---|---|---|
-| `benchId` | enum (ver glossário) | — | sim | um registro por ensaio e por variante (`inputMode`, `throttleCondition`, lado do esterço) |
-| `benchEnvironment` | enum `TEST_PAD`, `SYNTHETIC_TRACK` | — | sim | ambiente em que o ensaio rodou ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Ambientes); `TEST_PAD` para `STEER_RESPONSE`, `REFERENCE_CORNER`, `UNDERSTEER_ONSET` e `REAR_RECOVERY`; `SYNTHETIC_TRACK` para `TEST_PILOT_LAP`, `GRASS_LOSS` e `WALL_CONTACT`; reportado para os demais (`SEED/RD-06`) |
+| `benchId` | enum (ver glossário) | — | sim | um registro por ensaio e por variante (`inputMode`, lado do esterço, velocidade de partida, sequência) |
+| `benchEnvironment` | enum `TEST_PAD`, `SYNTHETIC_TRACK` | — | sim | ambiente em que o ensaio rodou ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Ambientes); `TEST_PAD` para `STEER_RESPONSE`, `CORNER_RADIUS`, `CORNER_TURN` e `REAR_RECOVERY`; `SYNTHETIC_TRACK` para `TEST_PILOT_LAP`, `NORMAL_DRIVING`, `GRASS_LOSS`, `WALL_CONTACT` e `STEP_COST`; em `DRIFT_INERT`, o da sequência comparada; reportado para os demais (`SEED/RD-06`) |
 | `setupId` | enum `ARCADE_ASSISTIDO`, `REALISTA_ALUGUEL_4T` | — | sim | |
 | `setupVersion` | texto | — | sim | versão corrente do acerto ensaiado |
 | `inputMode` | enum `BINARY`, `PROPORTIONAL` | — | sim | forma do `Input` (NFR-0003) |
 | `verdict` | enum `PASS`, `FAIL` | — | sim | |
-| `failReason` | enum `THRESHOLD_EXCEEDED`, `BASELINE_MISSING`, `OFF_ASPHALT`, `NON_DETERMINISTIC`, `CONTRACT_CHANGED`, `SPEED_NOT_HELD`, `MEASUREMENT_MISSING` | — | só com `FAIL` | ausente com `PASS` |
+| `failReason` | enum `THRESHOLD_EXCEEDED`, `BASELINE_MISSING`, `OFF_ASPHALT`, `NON_DETERMINISTIC`, `CONTRACT_CHANGED`, `SPEED_NOT_HELD`, `MEASUREMENT_MISSING`, `TEST_AREA_EXCEEDED` | — | só com `FAIL` | ausente com `PASS` |
 | `measuredAtUtc` | texto (data e hora UTC) | — | sim | data da execução, para `docs/physics.md` (NFR-0004); nunca entra em nenhuma medição |
-| `baselineAvailable` | booleano | — | sim | `true` quando a linha de base do ensaio está registrada no mesmo ensaio, no mesmo ambiente e na mesma geometria |
+| `baselineAvailable` | booleano | — | sim | `true` quando a linha de base do ensaio está registrada no mesmo ensaio e no mesmo ambiente (e, em `STEP_COST`, na mesma máquina e runtime) |
+
+## Campos comuns aos ensaios na pista de teste aberta (`benchEnvironment` `TEST_PAD`)
+
+| Campo | Tipo | Unidade | Obrigatório | Restrições |
+|---|---|---|---|---|
+| `testAreaRadiusM` | número | m | sim | raio do disco de asfalto declarado pelo ensaio, centrado no ponto de partida; parâmetro de ensaio ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Ambientes) |
+| `offAsphaltStepCount` | inteiro | passos | sim | passos fora da área declarada; 0 para `PASS`; maior que 0 é `FAIL` com `TEST_AREA_EXCEEDED` (US-0002, caso anormal "Kart fora da área do ensaio") |
+| `offAsphaltFirstStep` | inteiro | passos | só com `offAsphaltStepCount` > 0 | primeiro passo fora da área declarada |
+| `offAsphaltFirstXM`, `offAsphaltFirstZM` | número | m | só com `offAsphaltStepCount` > 0 | posição desse passo |
 
 ## Campos medidos por `benchId`
 
@@ -63,40 +73,41 @@ nem dado pessoal (I6).
 | `STEER_RESPONSE` | `settleWindowMs` | inteiro | ms | sim | janela curta e estacionária usada para medir o regime (AC-US-0001-06); parâmetro de ensaio |
 | `STEER_RESPONSE` | `steadyYawRateRadPerS` | número | rad/s | sim | regime medido na janela, em módulo, com a velocidade mantida (AC-US-0001-06) |
 | `STEER_RESPONSE` | `understeerStepCount` | inteiro | passos | sim | passos em `understeer` durante o ensaio; informativo, não altera `verdict` (AC-US-0001-05) |
-| `REFERENCE_CORNER` | `throttleCondition` | enum `THROTTLE_ZERO`, `THROTTLE_FULL` | — | sim | |
-| `REFERENCE_CORNER` | `arcRadiusM` | número | m | sim | 18 (`DOMAIN/REF-03`) |
-| `REFERENCE_CORNER` | `laneWidthM` | número | m | sim | largura da faixa de asfalto do arco ("faixa da largura da pista"); parâmetro de ensaio |
-| `REFERENCE_CORNER` | `maxUndersteerMs` | inteiro | ms | sim | maior duração consecutiva de `understeer` (AC-US-0002-05): com `throttleCondition` `THROTTLE_FULL`, em todos os passos do arco; com `THROTTLE_ZERO`, só nos passos na faixa de asfalto até a primeira saída da faixa, sem os passos depois dela (`DOMAIN/DEC-14` via AC-US-0002-01) |
-| `REFERENCE_CORNER` | `offAsphaltStepCount` | inteiro | passos | sim | 0 para `PASS` com `throttleCondition` `THROTTLE_FULL` (AC-US-0002-02); com `THROTTLE_ZERO`, informativo: não altera `verdict`, porque permanecer na faixa enquanto o kart desacelera não é exigido (`DOMAIN/DEC-13` via AC-US-0002-01), e a primeira saída fecha a janela de medição de `maxUndersteerMs` (`DOMAIN/DEC-14` via AC-US-0002-01) |
-| `REFERENCE_CORNER` | `offAsphaltFirstStep` | inteiro | passos | só com `offAsphaltStepCount` > 0 | passo da saída da faixa, nas duas condições de acelerador (US-0002, caso anormal) |
-| `REFERENCE_CORNER` | `offAsphaltFirstXM`, `offAsphaltFirstZM` | número | m | só com `offAsphaltStepCount` > 0 | posição da saída da faixa |
-| `REFERENCE_CORNER` | `entrySpeedMps` | número | m/s | sim | 13,89 (50 km/h, `DOMAIN/DEC-02`); apresentado também em km/h |
-| `UNDERSTEER_ONSET` | `arcRadiusM`, `laneWidthM` | número | m | sim | como em `REFERENCE_CORNER`; a linha de base só vale com o mesmo `arcRadiusM` |
-| `UNDERSTEER_ONSET` | `v0Mps` | número | m/s | só com `baselineAvailable` | linha de base no mesmo ensaio e arco (AC-US-0002-05); apresentado também em km/h |
-| `UNDERSTEER_ONSET` | `v1Mps` | número | m/s | sim sempre que a varredura chega ao fim natural (saída da faixa com `speedMps` acima de 13,89 m/s depois de pelo menos dois patamares completos acima de 50 km/h); nos desfechos em que a saída reprova (`OFF_ASPHALT`, `MEASUREMENT_MISSING`), só quando algum patamar completo teve `understeer` por mais de 200 ms consecutivos | novo acerto (AC-US-0002-05), a velocidade de início do subesterço do glossário: a menor velocidade mantida de patamar completo em que `understeer` durou mais de 200 ms consecutivos; quando nenhum patamar completo o teve até a saída da faixa acima de 50 km/h, a velocidade mantida do patamar interrompido pela saída — medido só nos passos na faixa, até a saída (`DOMAIN/DEC-14` via AC-US-0002-03) —, inclusive quando esse patamar é o primeiro em que `understeer` passa de 200 ms consecutivos ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço"); no caso de `DOMAIN/DEC-12` (nenhum patamar, completo ou interrompido, com `understeer` por mais de 200 ms consecutivos; `DOMAIN/REF-05` via AC-US-0002-03) a saída serializada apresenta, ao lado do valor, o motivo "sem início de subesterço até a saída da faixa" (apresentação, não campo, como o km/h); V1 ≥ 1,15 × V0 é avaliado com o valor reportado em todos os casos; apresentado também em km/h |
-| `UNDERSTEER_ONSET` | `entrySpeedStepMps` | número | m/s | sim | passo da varredura a partir da velocidade de entrada de 13,89 m/s (50 km/h): diferença de velocidade mantida entre patamares sucessivos, o tamanho do patamar de AC-US-0002-04 (`DOMAIN/REF-04`); parâmetro de ensaio; apresentado também em km/h |
-| `UNDERSTEER_ONSET` | `maxUndersteerMsBySpeed` | lista de pares (`plateauSpeedMps`, `maxUndersteerMs`) | m/s, ms | sim | um par por patamar completo de velocidade mantida acima de 13,89 m/s (50 km/h) medido antes do fim da varredura, em ordem crescente de velocidade: a velocidade mantida do patamar e a maior sequência de `understeer` consecutivo dentro dele, em ms de tempo simulado (AC-US-0002-04); o patamar interrompido pela saída da faixa não entra; lista vazia quando nenhum patamar acima de 50 km/h se completou |
-| `UNDERSTEER_ONSET` | `offAsphaltStepCount` | inteiro | passos | sim | 0 ou 1: a varredura termina no primeiro passo fora da faixa; 1 não reprova por si, o resultado da saída segue [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço" (AC-US-0002-06) |
-| `UNDERSTEER_ONSET` | `offAsphaltFirstStep` | inteiro | passos | só com `offAsphaltStepCount` > 0 | passo da saída da faixa, que encerra a varredura (US-0002, caso anormal) |
-| `UNDERSTEER_ONSET` | `offAsphaltFirstXM`, `offAsphaltFirstZM` | número | m | só com `offAsphaltStepCount` > 0 | posição da saída da faixa |
-| `NORMAL_DRIVING` | `normalDrivingStepCount` | inteiro | passos | sim | passos classificados como condução normal e agregados ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)) |
-| `NORMAL_DRIVING` | `excludedRecoveryStepCount` | inteiro | passos | sim | passos de recuperação (até 400 ms) excluídos do agregado |
+| `CORNER_RADIUS` | `steerInputNorm` | número | normalizado | sim | 1 ou −1: o lado ensaiado (AC-US-0002-07, AC-US-0002-08) |
+| `CORNER_RADIUS` | `entrySpeedMps` | número | m/s | sim | velocidade de partida: 13,89 (50 km/h) ou 19,44 (70 km/h); apresentada também em km/h (AC-US-0002-05) |
+| `CORNER_RADIUS` | `radiusWindowMs` | inteiro | ms | sim | duração da janela de medição do raio, centrada no instante 3 s depois da partida; parâmetro de ensaio (AC-US-0002-05) |
+| `CORNER_RADIUS` | `pathRadiusAt3sM` | número | m | só sem `stoppedAtStep` | raio da trajetória 3 s depois da partida ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Medidas da curva de referência); ≤ 13 para `PASS` (AC-US-0002-07, AC-US-0002-08) |
+| `CORNER_RADIUS` | `speedAt3sMps` | número | m/s | sim | velocidade 3 s depois da partida; 0 quando o kart parou antes; apresentada também em km/h (AC-US-0002-05) |
+| `CORNER_RADIUS` | `handlingAt3s` | enum `grip`, `understeer`, `oversteer`, `sliding` | — | sim | estado de aderência 3 s depois da partida; informativo, não altera `verdict` (AC-US-0002-05) |
+| `CORNER_RADIUS` | `stoppedAtStep` | inteiro | passos | só se a velocidade chegou a 0 antes de 3 s | passo em que a velocidade chegou a 0; com ele, `FAIL` com `MEASUREMENT_MISSING` (US-0002, caso anormal "Velocidade chega a 0 antes de 3 s") |
+| `CORNER_TURN` | `steerInputNorm` | número | normalizado | sim | 1 ou −1: o lado ensaiado (AC-US-0002-09) |
+| `CORNER_TURN` | `entrySpeedMps` | número | m/s | sim | 13,89 (50 km/h); apresentada também em km/h |
+| `CORNER_TURN` | `turnAt2sRad` | número | rad | sim | módulo do giro 2 s depois da partida; com o kart parado antes, o giro atingido até a parada; apresentado também em graus (AC-US-0002-05) |
+| `CORNER_TURN` | `halfTurnReachedMs` | inteiro | ms | só se o giro atingiu π rad em até 2 s | instante, contado da partida, do primeiro passo com giro de pelo menos π rad (180°); ≤ 2 000 para `PASS` (AC-US-0002-05, AC-US-0002-09) |
+| `CORNER_TURN` | `speedAt2sMps` | número | m/s | sim | velocidade 2 s depois da partida; apresentada também em km/h (AC-US-0002-05) |
+| `CORNER_TURN` | `stoppedAtStep` | inteiro | passos | só se a velocidade chegou a 0 antes de 2 s | passo da parada; o giro conta só até ele (US-0002, caso anormal "Velocidade chega a 0 antes de 2 s") |
+| `NORMAL_DRIVING` | `normalDrivingStepCount` | inteiro | passos | sim | passos de condução normal: todos os passos da volta do piloto de teste ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)) |
 | `NORMAL_DRIVING` | `oversteerOrSlidingStepCount` | inteiro | passos | sim | 0 para `PASS` (AC-US-0003-07) |
-| `NORMAL_DRIVING` | `maxSideslipRad` | número | rad | sim | em condução normal; ≤ 0,65 para `PASS` (AC-US-0003-07) |
-| `REAR_RECOVERY` | `arcRadiusM`, `laneWidthM` | número | m | sim | geometria da pista de teste usada; como em `REFERENCE_CORNER` |
-| `REAR_RECOVERY` | `gripReached` | booleano | — | sim | `true` quando `handling` voltou a `grip` dentro do ensaio |
+| `NORMAL_DRIVING` | `maxSideslipRad` | número | rad | sim | derrapagem lateral máxima na volta; ≤ 0,65 para `PASS` (AC-US-0003-07) |
+| `REAR_RECOVERY` | `steerInputNorm` | número | normalizado | sim | 1 ou −1: o lado forçado e depois levado a 0 (AC-US-0003-03) |
+| `REAR_RECOVERY` | `entrySpeedMps` | número | m/s | sim | velocidade de partida, acima de 13,89 (50 km/h); parâmetro de ensaio; apresentada também em km/h |
+| `REAR_RECOVERY` | `rearReleased` | booleano | — | sim | `true` quando `handling` chegou a `oversteer` ou `sliding` sob a condição de forçar (US-0003, caso anormal "Traseira não solta") |
+| `REAR_RECOVERY` | `forcingMs` | inteiro | ms | sim | tempo simulado em que o kart foi forçado: até a traseira soltar ou, sem soltar, até a duração máxima do forçar |
+| `REAR_RECOVERY` | `gripReached` | booleano | — | só com `rearReleased` | `true` quando `handling` voltou a `grip` dentro do ensaio |
 | `REAR_RECOVERY` | `recoveryMs` | inteiro | ms | só com `gripReached` | tempo até o primeiro `grip` (AC-US-0003-07); ≤ 400 para `PASS` |
-| `REAR_RECOVERY` | `maxSideslipRad` | número | rad | sim | na recuperação (AC-US-0003-07) |
-| `REAR_RECOVERY` | `offAsphaltStepCount` | inteiro | passos | sim | passos fora da faixa durante a recuperação; 0 para `PASS` |
-| `REAR_RECOVERY` | `offAsphaltFirstStep` | inteiro | passos | só com `offAsphaltStepCount` > 0 | passo da saída da faixa; como em `REFERENCE_CORNER` |
-| `REAR_RECOVERY` | `offAsphaltFirstXM`, `offAsphaltFirstZM` | número | m | só com `offAsphaltStepCount` > 0 | posição da saída da faixa; como em `REFERENCE_CORNER` |
-| `DRIFT_MANEUVER` | `driftScorePoints` | número | pontos | sim | pontuação da manobra na verificação existente de `requirements/11`; maior que 0 para `PASS` (AC-US-0003-06) |
+| `REAR_RECOVERY` | `maxSideslipRad` | número | rad | só com `rearReleased` | derrapagem lateral máxima na recuperação (AC-US-0003-07); ≤ 0,65 para `PASS` |
+| `DRIFT_INERT` | `comparedStepCount` | inteiro | passos | sim | passos comparados entre a execução com o comando de drift mantido e a sem ele (AC-US-0003-08) |
+| `DRIFT_INERT` | `differingStepCount` | inteiro | passos | sim | passos em que posição, velocidade, rumo, estado de aderência ou derrapagem lateral diferem; 0 para `PASS` (AC-US-0003-07) |
+| `DRIFT_INERT` | `firstDifferingStep` | inteiro | passos | só com `differingStepCount` > 0 | primeiro passo diferente |
+| `SPEED_CAP` | `maxObservedSpeedMps` | número | m/s | sim | maior velocidade observada nos ensaios cobertos ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md)); apresentada também em km/h (AC-US-0003-07) |
+| `SPEED_CAP` | `maxObservedBenchId` | enum `benchId` | — | sim | ensaio em que a maior velocidade foi observada |
+| `SPEED_CAP` | `topSpeedMps` | número | m/s | só com `TOP_SPEED` medido na mesma execução | velocidade estabilizada do mesmo acerto e versão, copiada de `TOP_SPEED`; apresentada também em km/h; `maxObservedSpeedMps` ≤ `topSpeedMps` para `PASS` (AC-US-0003-10) |
 | `ACCELERATION` | `zeroToSixtyKmhMs` | inteiro | ms | sim | tempo simulado de 0 a 60 km/h (16,67 m/s); apresentado também em s (AC-US-0004-07) |
 | `ACCELERATION` | `driverMassKg` | número | kg | sim | 75 |
-| `TOP_SPEED` | `topSpeedMps` | número | m/s | sim | apresentado também em km/h (AC-US-0004-07) |
+| `TOP_SPEED` | `topSpeedMps` | número | m/s | sim | apresentado também em km/h (AC-US-0004-07); entre 65/3,6 e 72/3,6 inclusive para `PASS` (AC-US-0004-02) |
 | `GRASS_LOSS` | `entrySpeedMps` | número | m/s | sim | velocidade estabilizada ou 13,89 (50 km/h); apresentado também em km/h |
 | `GRASS_LOSS` | `speedAfterOneSMps` | número | m/s | sim | apresentado também em km/h (AC-US-0004-07) |
-| `WALL_CONTACT` | `contacts` | lista de pares (`speedBeforeContactMps`, `speedAfterContactMps`) | m/s | sim | um par por contato, apresentado também em km/h (AC-US-0004-07); lista vazia é `FAIL`, porque o ensaio exige ao menos um contato |
+| `WALL_CONTACT` | `contacts` | lista de pares (`speedBeforeContactMps`, `speedAfterContactMps`) | m/s | sim | um par por contato, apresentado também em km/h (AC-US-0004-07); lista vazia é `FAIL` com `MEASUREMENT_MISSING`, porque o ensaio exige ao menos um contato |
 | `DETERMINISM` | `runCount` | inteiro | execuções | sim | pelo menos 2 |
 | `DETERMINISM` | `identical` | booleano | — | sim | `true` para `PASS` (AC-US-0005-01) |
 | `TEST_PILOT_LAP` | `lapTimeMs` | inteiro | ms | sim | tempo total (AC-US-0005-03) |
@@ -120,35 +131,20 @@ produz `PASS` implícito.
 
 | Código | Condição | Efeito |
 |---|---|---|
-| `FAIL` com `BASELINE_MISSING` | linha de base exigida (`UNDERSTEER_ONSET`, `STEP_COST`) ausente em `docs/physics.md`, ou registrada em outro ambiente, outro arco ou outra máquina e runtime | o critério não é julgado; a linha de base precisa ser registrada no mesmo ensaio (US-0002, caso anormal) |
+| `FAIL` com `BASELINE_MISSING` | em `STEP_COST`, linha de base ausente em `docs/physics.md` ou registrada em outra máquina e runtime | o critério não é julgado; a linha de base precisa ser registrada no mesmo ensaio (NFR-0002) |
 | `FAIL` com `SPEED_NOT_HELD` | em `STEER_RESPONSE`, `speedMinMps` ou `speedMaxMps` fora de `targetSpeedMps` ± `speedHoldBandMps` enquanto o esterço está aplicado | o regime não é estacionário; os tempos medidos não valem como veredito (US-0001, caso anormal "Velocidade não mantida") |
-| `FAIL` com `OFF_ASPHALT` | `offAsphaltStepCount` > 0 em `TEST_PILOT_LAP`, em `REAR_RECOVERY` ou em `REFERENCE_CORNER` só com `throttleCondition` `THROTTLE_FULL` (com `THROTTLE_ZERO` a saída da faixa é reportada sem reprovar, `DOMAIN/DEC-13`); em `UNDERSTEER_ONSET`, saída da faixa com `speedMps` abaixo de 13,89 m/s (50 km/h) no passo `offAsphaltFirstStep` | passo e posição reportados; a feature não é entregue com esse resultado (US-0002 e US-0005, casos anormais; AC-US-0002-02, AC-US-0002-06) |
-| `FAIL` com `MEASUREMENT_MISSING` | em `UNDERSTEER_ONSET` com o novo acerto: saída da faixa com `speedMps` acima de 13,89 m/s (50 km/h) no passo `offAsphaltFirstStep` antes do segundo patamar completo acima de 50 km/h (`maxUndersteerMsBySpeed` com menos de 2 pares) | falta de medida, motivo distinto de `OFF_ASPHALT`: o critério da não diminuição entre patamares fica sem dados (AC-US-0002-06); passo e posição da saída reportados. O fim natural da varredura nunca produz este motivo: V1 tem valor nos dois casos de `v1Mps` (`DOMAIN/DEC-12` via AC-US-0002-03) |
+| `FAIL` com `TEST_AREA_EXCEEDED` | em qualquer ensaio em `TEST_PAD`, `offAsphaltStepCount` > 0: o kart saiu da área de asfalto declarada pelo ensaio | a medição é inválida; falha do ambiente de ensaio, não aprovação nem reprovação da dirigibilidade; passo e posição reportados (US-0002, caso anormal "Kart fora da área do ensaio") |
+| `FAIL` com `OFF_ASPHALT` | `offAsphaltStepCount` > 0 em `TEST_PILOT_LAP` | passo e posição reportados; a feature não é entregue com esse resultado (US-0005, caso anormal) |
+| `FAIL` com `MEASUREMENT_MISSING` | em `CORNER_RADIUS`, a velocidade chegou a 0 antes de 3 s (`stoppedAtStep`); em `SPEED_CAP`, `TOP_SPEED` não foi medido na mesma execução; em `WALL_CONTACT`, `contacts` vazio (nenhum contato com velocidade maior que 0) | falta de medida: o critério fica sem o valor que julga; o passo da parada é reportado (US-0002, caso anormal "Velocidade chega a 0 antes de 3 s"); em `WALL_CONTACT`, não há par a julgar (AC-US-0004-05) |
 | `FAIL` com `NON_DETERMINISTIC` | execuções repetidas diferem | defeito de determinismo (NFR-0001), nunca tolerância |
 | `FAIL` com `CONTRACT_CHANGED` | `STEP_CONTRACT` ou `REALISTA_UNCHANGED` detectam mudança | NFR-0006, NFR-0007 |
-| `FAIL` com `THRESHOLD_EXCEEDED` | qualquer limiar de [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md) não atendido, incluindo recuperação acima de 400 ms ou sem `grip` (`gripReached` falso) | nenhum afrouxamento do limiar é admitido |
+| `FAIL` com `THRESHOLD_EXCEEDED` | qualquer limiar de [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md) não atendido, incluindo o giro abaixo de π rad em até 2 s ou até a parada (`CORNER_TURN`), a recuperação acima de 400 ms ou sem `grip` (`gripReached` falso), `differingStepCount` > 0 (`DRIFT_INERT`) e `maxObservedSpeedMps` acima de `topSpeedMps` (`SPEED_CAP`) | nenhum afrouxamento do limiar é admitido |
 
-Em `UNDERSTEER_ONSET`, a saída da faixa acima de 50 km/h depois de pelo menos dois patamares completos acima
-de 50 km/h é o fim natural da varredura e não é erro por si: o registro traz `offAsphaltStepCount` 1, o passo
-e a posição da saída, `v1Mps` — a menor velocidade de patamar completo com `understeer` por mais de 200 ms
-consecutivos ou, sem nenhum patamar completo assim, a velocidade mantida do patamar interrompido pela saída,
-medido só até ela (`DOMAIN/DEC-14`), com o motivo "sem início de subesterço até a saída da faixa"
-apresentado ao lado no caso de `DOMAIN/DEC-12` — e o veredito de V1 ≥ 1,15 × V0 e
-da não diminuição entre patamares: `PASS`, ou `FAIL` com `THRESHOLD_EXCEEDED` quando um dos dois não é
-atendido ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço";
-AC-US-0002-03, AC-US-0002-06; `DOMAIN/DEC-12`).
-
-Em `REFERENCE_CORNER` com `throttleCondition` `THROTTLE_ZERO`, a saída da faixa não é erro: o registro traz
-`offAsphaltStepCount`, `offAsphaltFirstStep` e a posição, e o veredito é só o de `maxUndersteerMs` ≤ 200 ms,
-contado só nos passos na faixa de asfalto até a primeira saída da faixa, sem os passos depois dela —
-escorregar na grama não é sair de frente (`DOMAIN/DEC-13` e `DOMAIN/DEC-14` via AC-US-0002-01; US-0002,
-caso anormal "Kart sai da faixa de asfalto do arco"). Com `THROTTLE_FULL`, a saída é `FAIL` com
-`OFF_ASPHALT` e `maxUndersteerMs` é medido em todos os passos do arco (AC-US-0002-01, AC-US-0002-02).
-
-Em `STEER_RESPONSE`, a saída da faixa da reta da pista de teste não é erro e não tem campo no registro: o
-veredito depende só dos tempos medidos de subida e de queda da taxa de guinada, com a velocidade mantida
-(`SPEED_NOT_HELD` quando ela sai da faixa tolerada), do mesmo modo que um passo em `understeer` nesse
-ensaio não o altera ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Ambientes de ensaio; AC-US-0001-05,
+Em `CORNER_RADIUS` e `CORNER_TURN`, o estado de aderência não é erro nem veredito: `oversteer`, `sliding` ou
+`understeer` em qualquer passo não reprovam, e `handlingAt3s` é informativo (US-0002, casos anormais). Em
+`REAR_RECOVERY`, `rearReleased` falso não é erro: o registro reporta `forcingMs` e o veredito não reprova,
+porque nenhum critério exige que a traseira solte (US-0003, caso anormal "Traseira não solta sob a condição
+de forçar"). Em `STEER_RESPONSE`, um passo em `understeer` não altera o veredito (AC-US-0001-05,
 `DOMAIN/DEC-09`).
 
 ## Idempotência
@@ -163,66 +159,30 @@ Não se aplica.
 
 ## Compatibilidade
 
-Contrato novo, ainda sem registro publicado sob ele. Os ensaios existentes do bench de física mantêm os
-campos que já reportam; os campos deste contrato são acrescentados. Nenhum campo existente do bench de
-física é renomeado, removido ou tem unidade ou significado alterados. Em relação à versão anterior deste
-contrato: `benchEnvironment`, `targetSpeedMps`, `speedHoldMode`, `speedHoldBandMps`, `speedMinMps`,
-`speedMaxMps`, `arcRadiusM`, `laneWidthM`, `offAsphaltFirstStep` e posição em `REFERENCE_CORNER`,
-`normalDrivingStepCount`, `excludedRecoveryStepCount`, `gripReached` e o valor `SPEED_NOT_HELD` de
-`failReason` são aditivos; `throttleInputNorm` mantém nome, unidade e significado (acelerador constante
-mantido) e passa a ser condicional a `speedHoldMode` `THROTTLE_CONSTANT`, porque a revisão 3 do seed deixa
-o acelerador variar por passo para manter a velocidade (`DOMAIN/REF-03`); `recoveryMs` mantém nome e
-unidade e passa a ser condicional a `gripReached`, porque sem `grip` no ensaio o tempo não existe. Cada
-entrada de `docs/physics.md` registra estes campos, com data, para a linha de base e para o novo acerto
-(NFR-0004).
+Versão 4.0.0, pelas revisões 4 e 5 do seed (`DOMAIN/DEC-15`, `DOMAIN/DEC-16`, requisitos 4.3.0). Nenhum
+registro foi publicado fora do repositório sob a forma anterior, e o único leitor deste contrato como
+entrada é a leitura de linha de base de `docs/physics.md`, que passa a servir só a `STEP_COST` e nunca lê
+uma entrada de `benchId` retirado: não há leitura a rejeitar (I3). Um `benchId` ou campo retirado deixa de
+ser emitido em qualquer registro, e o seu substituto, quando existe, está nesta versão.
 
-Na versão 3.1.0 deste contrato, por AC-US-0002-04 e AC-US-0002-06 (`DOMAIN/DEC-11`, `DOMAIN/REF-04`):
-o valor `MEASUREMENT_MISSING` de `failReason` e os campos `offAsphaltStepCount`, `offAsphaltFirstStep`,
-`offAsphaltFirstXM` e `offAsphaltFirstZM` nos registros `UNDERSTEER_ONSET` e `REAR_RECOVERY` são aditivos e
-mantêm o nome, a unidade e o significado que já têm em `REFERENCE_CORNER`. A varredura de
-`UNDERSTEER_ONSET` passa a medir em patamares de velocidade mantida: `entrySpeedStepMps` mantém nome,
-unidade e significado (o passo da varredura a partir da velocidade de entrada), aplicado entre patamares;
-`maxUndersteerMsBySpeed` mantém nome e unidades e cobre os patamares completos acima de 50 km/h (antes, as
-velocidades de entrada acima de V1); no par, o primeiro elemento deixa de ser uma velocidade de entrada e
-passa a se chamar `plateauSpeedMps` (velocidade mantida do patamar), em vez de `entrySpeedMps`, que continua
-a significar velocidade de entrada em `REFERENCE_CORNER` e `GRASS_LOSS`. Nenhum registro foi publicado sob
-a forma anterior; uma entrada de `docs/physics.md` medida por velocidades de entrada não é o mesmo ensaio e
-não serve como linha de base de `UNDERSTEER_ONSET` (`BASELINE_MISSING`, US-0002, caso anormal "Linha de
-base ausente").
+| Mudança | Tratamento |
+|---|---|
+| `benchId` `REFERENCE_CORNER` retirado | Substituído por `CORNER_RADIUS` (acelerador cheio, raio aos 3 s) e `CORNER_TURN` (acelerador 0, giro em até 2 s) |
+| `benchId` `UNDERSTEER_ONSET` retirado | Sem substituto: a varredura de início do subesterço saiu com `DOMAIN/DEC-15`; a curva é julgada por `CORNER_RADIUS` e `CORNER_TURN`. Uma entrada de `docs/physics.md` desse ensaio não é linha de base de nenhum ensaio desta versão |
+| `benchId` `DRIFT_MANEUVER` retirado | Substituído por `DRIFT_INERT` (o comando de drift não muda o estado) |
+| Campo `throttleCondition` e os seus valores `THROTTLE_ZERO`, `THROTTLE_FULL` retirados | A condição de acelerador passa a ser o próprio ensaio: `CORNER_RADIUS` (acelerador cheio) e `CORNER_TURN` (acelerador 0) |
+| Campos `arcRadiusM` e `laneWidthM` retirados (em `REFERENCE_CORNER`, `UNDERSTEER_ONSET` e `REAR_RECOVERY`) | Substituídos por `testAreaRadiusM`: a pista de teste aberta não tem arco nem faixa |
+| Campo `maxUndersteerMs` retirado | Substituído por `pathRadiusAt3sM` (`CORNER_RADIUS`) e `turnAt2sRad` (`CORNER_TURN`): a curva é julgada pelo raio e pelo giro, não pelo rótulo de aderência |
+| Campos `v0Mps`, `v1Mps`, `entrySpeedStepMps` e `maxUndersteerMsBySpeed` (com `plateauSpeedMps`) retirados | Sem substituto, com `UNDERSTEER_ONSET` |
+| Campo `driftScorePoints` retirado | Substituído por `differingStepCount` de `DRIFT_INERT`: não há pontuação de drift |
+| Campo `excludedRecoveryStepCount` retirado de `NORMAL_DRIVING` | Sem substituto: a condução normal é todos os passos da volta do piloto de teste, sem exclusão ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)) |
+| `NORMAL_DRIVING` | Mantém o nome e os campos `normalDrivingStepCount`, `oversteerOrSlidingStepCount` e `maxSideslipRad`, com nome, unidade e significado (passos de condução normal); a população passa a ser a volta do piloto de teste em `SYNTHETIC_TRACK`, como os requisitos redefiniram a condução normal (AC-US-0003-01, AC-US-0003-05) |
+| `REAR_RECOVERY` | Roda na pista de teste aberta; `gripReached` e `maxSideslipRad` mantêm nome, unidade e significado e passam a ser condicionais a `rearReleased`, porque sem a traseira solta não há recuperação; `steerInputNorm`, `entrySpeedMps`, `rearReleased` e `forcingMs` são aditivos |
+| `offAsphaltStepCount`, `offAsphaltFirstStep`, `offAsphaltFirstXM`, `offAsphaltFirstZM` em `TEST_PAD` | Mantêm nome e unidade e o significado "passo fora do asfalto do ambiente", que na pista de teste aberta é a área declarada; acrescentados a todo ensaio em `TEST_PAD` (antes, só no arco) e reportados com `TEST_AREA_EXCEEDED` em vez de `OFF_ASPHALT` |
+| `failReason` | `TEST_AREA_EXCEEDED` é aditivo. `OFF_ASPHALT` mantém o significado e passa a ser emitido só em `TEST_PILOT_LAP`. `MEASUREMENT_MISSING` mantém o significado (falta de medida) e passa a cobrir `CORNER_RADIUS` com parada antes de 3 s, `SPEED_CAP` sem `TOP_SPEED` e `WALL_CONTACT` sem contato (antes, um `FAIL` sem motivo declarado). `BASELINE_MISSING` mantém o significado e passa a ser emitido só em `STEP_COST` |
+| `TOP_SPEED` | `topSpeedMps` mantém nome, unidade e significado; muda só o limiar do veredito (65 km/h a 72 km/h, `DOMAIN/DEC-15`), que não é campo |
+| `CORNER_RADIUS`, `CORNER_TURN`, `DRIFT_INERT`, `SPEED_CAP` e os seus campos | Aditivos |
 
-Na versão 3.2.0 deste contrato: `driftScore` passa a se chamar `driftScorePoints`, com o mesmo tipo, a mesma
-unidade (pontos) e o mesmo significado, para levar a unidade no nome (D-FS-06); o nome `driftScore` deixa de
-ser emitido em qualquer registro, e a substituta é `driftScorePoints`. Nenhum registro foi publicado sob o
-nome anterior e nenhum consumidor lê este contrato como entrada, de modo que não há leitura a rejeitar.
-`v1Mps` mantém nome, unidade e significado e passa a ser condicional a V1 ter sido medida, porque sem patamar
-completo com `understeer` acima de 200 ms consecutivos a velocidade não existe (como `recoveryMs` com
-`gripReached`). `MEASUREMENT_MISSING` mantém o significado (falta de medida) e passa a cobrir também o fim
-natural da varredura sem V1 medida, caso (b) da tabela Erros. Nenhum campo nem valor de enum é acrescentado.
-
-Na versão 3.3.0 deste contrato, por AC-US-0002-01, AC-US-0002-02 e AC-US-0002-03 dos requisitos 3.3.0
-(`DOMAIN/DEC-12`, `DOMAIN/DEC-13`, `DOMAIN/REF-05`): em `REFERENCE_CORNER`, `offAsphaltStepCount` mantém
-nome, unidade e significado e deixa de condicionar o veredito com `throttleCondition` `THROTTLE_ZERO`
-(continua 0 para `PASS` com `THROTTLE_FULL`); `OFF_ASPHALT` mantém o significado e deixa de ser emitido em
-`REFERENCE_CORNER` com `THROTTLE_ZERO`; `maxUndersteerMs` mantém nome, unidade e significado (maior duração
-consecutiva de `understeer` no arco) e, com `THROTTLE_ZERO`, cobre também os passos fora da faixa. Em
-`UNDERSTEER_ONSET`, `v1Mps` mantém nome e unidade, volta a obrigatório no fim natural da varredura e o seu
-significado passa a ser a definição de V1 dos requisitos 3.3.0 sob o mesmo nome — a menor velocidade de
-patamar completo com `understeer` por mais de 200 ms consecutivos ou, sem nenhum patamar assim, a
-velocidade mantida do patamar interrompido pela saída —, em vez da velocidade "medida" da versão 3.2.0;
-`MEASUREMENT_MISSING` mantém o significado (falta de medida) e volta a cobrir só a saída acima de 50 km/h
-antes do segundo patamar completo acima de 50 km/h: o caso (b) da versão 3.2.0 deixa de existir. Nenhum
-registro foi publicado sob a forma anterior e nenhum consumidor lê este contrato como entrada, de modo que
-não há leitura a rejeitar (I3). Nenhum campo nem valor de enum é acrescentado: o motivo "sem início de
-subesterço até a saída da faixa" é apresentação na saída serializada e em `docs/physics.md`, como o km/h,
-não campo do contrato.
-
-Na versão 3.4.0 deste contrato, por AC-US-0002-01, AC-US-0002-03 e AC-US-0002-06 dos requisitos 3.4.0
-(`DOMAIN/DEC-14`): em `REFERENCE_CORNER`, `maxUndersteerMs` mantém nome, unidade e significado (maior
-duração consecutiva de `understeer`) e, com `throttleCondition` `THROTTLE_ZERO`, deixa de cobrir os passos
-fora da faixa — a janela de medição fecha na primeira saída da faixa, e os passos depois dela não entram;
-com `THROTTLE_FULL` nada muda. Em `UNDERSTEER_ONSET`, `v1Mps` mantém nome, unidade, obrigatoriedade e
-valor: o patamar interrompido pela saída, cuja velocidade mantida é V1 quando nenhum patamar completo
-reportou `understeer` por mais de 200 ms consecutivos, é medido só nos passos na faixa, até a saída — onde
-a varredura já terminava na versão 3.3.0. Nenhum registro foi publicado sob a forma anterior e nenhum
-consumidor lê este contrato como entrada, de modo que não há leitura a rejeitar (I3). Nenhum campo nem
-valor de enum é acrescentado.
+O histórico das versões 1.0.0 a 3.4.0 deste contrato, que descrevia os ensaios agora retirados, está em
+[97-changelog.md](../97-changelog.md). Cada entrada de `docs/physics.md` registra os campos desta versão,
+com data, para a linha de base e para o novo acerto (NFR-0004).

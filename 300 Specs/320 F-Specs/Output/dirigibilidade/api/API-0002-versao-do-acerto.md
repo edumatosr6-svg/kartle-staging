@@ -1,14 +1,14 @@
 ---
 id: API-0002
-title: Contrato da versão do acerto no dado publicado, no replay, no resultado e no texto compartilhado
+title: Contrato da versão do acerto no dado publicado, no replay e no resultado
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [US-0005, NFR-0006, NFR-0007, NFR-0009, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06]
+version: 1.2.0
+sources: [US-0005, NFR-0006, NFR-0007, NFR-0009, AC-US-0003-09, AC-US-0003-11, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07]
 ---
 
-# API-0002 — Contrato da versão do acerto no dado publicado, no replay, no resultado e no texto compartilhado
+# API-0002 — Contrato da versão do acerto no dado publicado, no replay e no resultado
 
 Contrato único, para `web-desktop` e `web-mobile`, do que declara a versão de um acerto e de como ela é
 carregada por replays, resultados e texto compartilhado — os contratos publicados que I3 protege. É dado
@@ -49,7 +49,7 @@ A versão anterior do Arcade assistido nunca é editada no lugar: a nova versão
 
 Forma vazia: `setupId` desconhecido retorna `UNKNOWN_SETUP` e nenhum campo.
 
-## Campos acrescentados ao replay, ao resultado da volta e ao texto compartilhado
+## Campos acrescentados ao replay e ao resultado da volta
 
 | Campo | Tipo | Unidade | Obrigatório | Padrão e restrições |
 |---|---|---|---|---|
@@ -59,7 +59,11 @@ Forma vazia: `setupId` desconhecido retorna `UNKNOWN_SETUP` e nenhum campo.
 O replay continua carregando `trackId`, `trackVersion` e a sequência de `Input` por passo, cujo conjunto,
 faixa e significado não mudam (AC-US-0005-06, NFR-0006). O resultado continua chaveado em
 `challengeNumber` com `trackVersion` quando o desafio diário o informa (D-FS-01), sem mudança. O texto
-compartilhado passa a conter a `setupVersion` em texto ao lado do tempo (AC-US-0005-05).
+compartilhado só compara tempos de `comparability` `COMPARABLE` (AC-US-0005-07), como a tela
+(AC-US-0005-05); a `setupVersion` é dado do registro, usado para decidir a comparabilidade, e não é
+exibida na tela nem escrita no texto compartilhado (RNF11: nenhum texto novo de tela). O resultado exibido e o texto
+compartilhado não carregam indicador de carga de drift, de turbo ou de impulso, combo nem pontuação de
+drift (AC-US-0003-09, AC-US-0003-11): a manobra não existe (`DOMAIN/DEC-15`).
 
 ## Resposta de `readReplay`
 
@@ -108,11 +112,12 @@ Não se aplica.
 
 | Mudança | Tratamento |
 |---|---|
-| Campos novos `setupId` e `setupVersion` no replay, no resultado e no texto compartilhado | Aditivos e opcionais na leitura; obrigatórios na gravação nova (I3). Registros anteriores são lidos sem erro em 100 % dos casos, com os padrões acima (NFR-0009, I5) |
+| Campos novos `setupId` e `setupVersion` no replay e no resultado | Aditivos e opcionais na leitura; obrigatórios na gravação nova (I3). Registros anteriores são lidos sem erro em 100 % dos casos, com os padrões acima (NFR-0009, I5) |
 | Nova `setupVersion` do Arcade assistido | Registro novo no dado publicado; a anterior fica como `previousSetupVersion`, legível e intacta (I3) |
 | Formato de replay posterior ao conhecido | `UNSUPPORTED_FORMAT`, intacto e reportado |
-| Campo existente renomeado, removido ou com significado ou unidade alterados | Nenhum nesta feature: `trackId`, `trackVersion`, `challengeNumber`, os tempos e a sequência de `Input` mantêm nome, unidade e significado |
+| Campo existente renomeado, removido ou com significado ou unidade alterados | Nenhum dos campos que este contrato nomeia: `trackId`, `trackVersion`, `challengeNumber`, os tempos e a sequência de `Input` mantêm nome, unidade e significado; o conteúdo de drift e de turbo é tratado na linha abaixo |
 | `STEP`, taxa do solver e campos de `Input` | Inalterados (NFR-0006) |
+| Conteúdo de drift e de turbo no resultado exibido e no texto compartilhado | Retirado, sem substituto: a manobra não existe (`DOMAIN/DEC-15`); remoção de exibição, sem regra nova na renderização (`SEED/RE-01`, `DOMAIN/DEC-16`). Nenhum leitor do jogo lê o texto compartilhado como entrada, de modo que não há leitura a rejeitar; textos compartilhados antes da feature não são alterados. Um replay ou resultado gravado antes da feature continua legível sem erro (I5), e nenhum conteúdo de drift que ele carregue é exibido nem compartilhado |
 
 A verificação do NFR-0009 é a saída de `npm test` lendo um replay e um resultado sem `setupVersion` e um de
 cada com a versão nova ([API-0003](API-0003-saida-dos-ensaios.md), `SETUP_VERSION`).

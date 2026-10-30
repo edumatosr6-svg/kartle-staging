@@ -4,165 +4,134 @@ title: Aderência em curva sem sair de frente
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.4.0
-sources: [US-0002, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06]
+version: 4.0.0
+sources: [US-0002, AC-US-0002-05, AC-US-0002-07, AC-US-0002-08, AC-US-0002-09]
 ---
 
 # FEAT-0002 — Aderência em curva sem sair de frente
 
 ## Resumo
 
-Na curva de referência — ensaio na pista de teste: arco de raio 18 m, faixa de asfalto da largura da pista,
-sem paredes (`DOMAIN/REF-03`) — a 50 km/h com esterço cheio, o kart faz a curva: a telemetria não reporta
-`understeer` por mais de 200 ms consecutivos, com o acelerador solto ou mantido cheio durante toda a curva,
-e, com o acelerador mantido cheio, a trajetória fica dentro da faixa de asfalto do arco; com o acelerador
-solto, esse é o único critério — permanecer na faixa enquanto o kart desacelera não é exigido — e o
-`understeer` conta só nos passos na faixa de asfalto, até a primeira saída da faixa: os passos depois da
-saída não entram na medição, com o limiar de 200 ms inalterado (`DOMAIN/DEC-02`, `DOMAIN/DEC-03`,
-`DOMAIN/DEC-13`, `DOMAIN/DEC-14`). Acima dessa velocidade a frente perde aderência de
-forma progressiva, e a velocidade em que o subesterço começa é pelo menos 15 % maior que a da linha de base
-medida no mesmo ensaio e no mesmo arco: uma varredura em patamares de velocidade mantida no arco, que a
-saída da faixa encerra (`DOMAIN/DEC-11`, `DOMAIN/REF-04`); quando nenhum patamar reporta `understeer` por
-mais de 200 ms consecutivos até a saída da faixa acima de 50 km/h, a velocidade de início do subesterço do
-novo acerto é a velocidade mantida do patamar interrompido pela saída — nunca sair de frente até sair da
-faixa cumpre o critério (`DOMAIN/DEC-12`, `DOMAIN/REF-05`). A pista sintética não tem curva de 18 m (raios
-mínimos 24 m e 25 m, grampo de 4 m): nenhum ensaio desta funcionalidade roda nela.
+Com o acerto Arcade assistido na sua nova versão (acerto C, `DOMAIN/DEC-15`), o kart faz a curva que o
+Jogador pede. A curva é julgada na **pista de teste aberta** — asfalto sem faixa e sem paredes —, com o
+kart partindo em linha reta e o esterço cheio aplicado e mantido desde o passo da partida
+([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Medidas da curva de referência): com acelerador
+cheio, partindo de 50 km/h ou de 70 km/h, o raio da trajetória 3 s depois da partida é de no máximo 13 m —
+a 70 km/h o kart perde velocidade na curva em vez de abrir a trajetória; sem acelerador, partindo de
+50 km/h, o kart gira pelo menos 180° em até 2 s (`DOMAIN/DEC-16`). Cada lado do esterço é ensaiado. O que
+se julga é o raio e o giro, não o rótulo de aderência. Os ensaios do arco de raio 18 m e da varredura de
+início do subesterço saíram com a revisão 4 do seed (`DOMAIN/DEC-15`); a pista sintética não entra em
+nenhum ensaio desta funcionalidade.
 
 ## Canais
 
 `web-desktop` e `web-mobile`: mesmos limites, com esterço cheio. No teclado o esterço cheio é a única
-direção possível; na inclinação, é o ângulo mapeado para esterço 1. Com esterço parcial o kart faz raio
-maior por construção e nenhum limite de subesterço é fixado (lacuna deliberada). Sem sensor ou sem
-permissão: toque, esterço binário, mesmos requisitos (I4). Em nenhum canal o Jogador pilota na pista de
-teste: o ensaio alimenta a simulação com a mesma forma de `Input` que o adaptador do canal produz
-(`SEED/RD-06`).
+direção possível; na inclinação, é o ângulo mapeado para esterço 1 (ou −1). Com esterço parcial o kart
+faz raio maior e gira menos por construção, e nenhum limite de raio nem de giro é fixado (lacuna deliberada
+de `01-overview.md`). Sem sensor ou sem permissão: toque, esterço binário, mesmos requisitos (I4). Em
+nenhum canal o Jogador pilota na pista de teste: o ensaio alimenta a simulação com a mesma forma de
+`Input` que o adaptador do canal produz (`SEED/RD-06`).
 
 ## Requisitos
 
-- REQ-FEAT-0002-01: O sistema SHALL, no estado da simulação, ao percorrer a curva de referência da pista de
-  teste (arco de raio 18 m) com entrada a 50 km/h, esterço cheio mantido e acelerador 0 mantido durante
-  todo o arco, não reportar `understeer` por mais de 200 ms consecutivos de tempo simulado na janela de
-  medição desta condição: só os passos em que o kart está na faixa de asfalto do arco, até a primeira saída
-  da faixa; os passos depois da saída não entram na medição, e o limiar continua 200 ms (AC-US-0002-01;
-  `DOMAIN/DEC-14` via AC-US-0002-01).
-- REQ-FEAT-0002-02: O sistema SHALL, no estado da simulação, ao percorrer a curva de referência da pista de
-  teste com entrada a 50 km/h, esterço cheio mantido e acelerador cheio mantido durante todo o arco, não
-  reportar `understeer` por mais de 200 ms consecutivos de tempo simulado em nenhum trecho do arco
-  (AC-US-0002-01).
-- REQ-FEAT-0002-03: O sistema SHALL, no estado da simulação, ao percorrer a curva de referência da pista de
-  teste com entrada a 50 km/h, esterço cheio mantido e acelerador cheio mantido durante todo o arco, manter
-  o kart dentro da faixa de asfalto do arco (`surface` `ASPHALT`) em todos os passos do arco; a condição de
-  acelerador 0 mantido não é julgada por este requisito, só pelo requisito 01 — permanecer na faixa enquanto
-  o kart desacelera não é exigido (AC-US-0002-02; `DOMAIN/DEC-13` via AC-US-0002-01 e AC-US-0002-02).
-- REQ-FEAT-0002-04: O sistema SHALL, no ensaio `UNDERSTEER_ONSET` na pista de teste, apresentar velocidade
-  de início do subesterço V1 tal que V1 ≥ 1,15 × V0, sendo V0 a velocidade de início do subesterço
-  registrada na linha de base pelo mesmo ensaio, no mesmo arco de raio 18 m, e V1 a do glossário: a menor
-  velocidade medida (patamar completo) em cujo patamar a telemetria reporta `understeer` por mais de 200 ms
-  consecutivos ou, quando a varredura termina pela saída da faixa acima de 50 km/h sem nenhum patamar
-  completo ter reportado `understeer` por mais de 200 ms consecutivos, a velocidade mantida do patamar
-  interrompido pela saída — medido só nos passos na faixa, até a saída (`DOMAIN/DEC-14`) —, inclusive
-  quando esse patamar é o primeiro em que `understeer` passa de 200 ms consecutivos
-  ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço"), com
-  o veredito avaliado com esse valor e `v1Mps` reportado igual a ele: nunca sair de frente até sair da
-  faixa cumpre o requisito (AC-US-0002-03; `DOMAIN/DEC-12`, `DOMAIN/REF-05`, `DOMAIN/DEC-14` via
-  AC-US-0002-03).
-- REQ-FEAT-0002-05: O sistema SHALL, no ensaio `UNDERSTEER_ONSET` com o novo acerto, apresentar em cada
-  patamar completo de velocidade mantida acima de 50 km/h medido antes do fim da varredura uma maior
-  sequência de `understeer` consecutivo dentro do patamar, em ms de tempo simulado, não menor que a do
-  patamar anterior acima de 50 km/h, de velocidade menor, comparando patamar a patamar e nunca um máximo
-  acumulado ao longo da varredura (AC-US-0002-04).
+- REQ-FEAT-0002-11: O sistema SHALL, no estado da simulação, na pista de teste aberta, com o kart partindo
+  em linha reta a 50 km/h e acelerador cheio e esterço cheio (1 ou −1, cada lado) aplicados no passo da
+  partida e mantidos, apresentar raio da trajetória de no máximo 13 m medido 3 s de tempo simulado depois
+  da partida (AC-US-0002-07).
+- REQ-FEAT-0002-12: O sistema SHALL, no estado da simulação, na pista de teste aberta, com o kart partindo
+  em linha reta a 70 km/h e acelerador cheio e esterço cheio (1 ou −1, cada lado) aplicados no passo da
+  partida e mantidos, apresentar raio da trajetória de no máximo 13 m medido 3 s de tempo simulado depois
+  da partida: o kart perde velocidade na curva em vez de abrir a trajetória (AC-US-0002-08).
+- REQ-FEAT-0002-13: O sistema SHALL, no estado da simulação, na pista de teste aberta, com o kart partindo
+  em linha reta a 50 km/h e acelerador 0 e esterço cheio (1 ou −1, cada lado) aplicados no passo da partida
+  e mantidos, levar o giro do kart a pelo menos 180° (π rad) em até 2 s de tempo simulado contados da
+  partida (AC-US-0002-09).
 - REQ-FEAT-0002-06: O sistema SHALL conter, na saída de `npm test` ou de `npm run bench:handling`, para o
-  acerto Arcade assistido, os registros `REFERENCE_CORNER` (um por `throttleCondition`, com
-  `benchEnvironment` `TEST_PAD`, `arcRadiusM`, `laneWidthM` e `maxUndersteerMs`) e `UNDERSTEER_ONSET`
-  (com `arcRadiusM`, `laneWidthM`, `v0Mps` e `v1Mps`, apresentados também em km/h) (AC-US-0002-05).
-- REQ-FEAT-0002-07: O sistema SHALL reportar `FAIL` com `failReason` `BASELINE_MISSING` no ensaio
-  `UNDERSTEER_ONSET` quando a linha de base não está registrada em `docs/physics.md` para o mesmo ensaio,
-  no mesmo ambiente (`TEST_PAD`) e no mesmo `arcRadiusM`, sem julgar o requisito 04 nem extrapolar V0; uma
-  linha de base medida em curva da pista sintética não serve [DOMAIN] (I9; US-0002, caso anormal "Linha
-  de base ausente").
-- REQ-FEAT-0002-08: O sistema SHALL contar os 200 ms dos requisitos 01 e 02 em tempo simulado, sem incluir
-  o tempo em que a simulação esteve suspensa por pausa, perda de foco da aba ou perda do sensor [DOMAIN]
-  (I8; US-0002, caso anormal "Pausa").
-- REQ-FEAT-0002-09: O sistema SHALL, quando o kart sai da faixa de asfalto do arco na curva de referência
-  com `throttleCondition` `THROTTLE_FULL`, em qualquer velocidade, reportar `REFERENCE_CORNER` como `FAIL`
-  com `failReason` `OFF_ASPHALT`, com `offAsphaltFirstStep` e a posição da saída; com `throttleCondition`
-  `THROTTLE_ZERO`, reportar `offAsphaltStepCount`, `offAsphaltFirstStep` e a posição da saída sem reprovar
-  o ensaio por essa saída, com a primeira saída fechando a janela de medição de `maxUndersteerMs`
-  (requisito 01): contado só nos passos na faixa de asfalto até ela, sem os passos depois da saída [DOMAIN]
-  (I9; US-0002, caso anormal "Kart sai da faixa de asfalto do arco"; `DOMAIN/DEC-13` via AC-US-0002-01 e
-  AC-US-0002-02; `DOMAIN/DEC-14` via AC-US-0002-01).
-- REQ-FEAT-0002-10: O sistema SHALL, no ensaio `UNDERSTEER_ONSET` com o novo acerto, encerrar a varredura no
-  primeiro passo em que o kart sai da faixa de asfalto do arco e decidir o resultado dessa saída pela
-  velocidade do kart nesse passo: abaixo de 50 km/h, `FAIL` com `failReason` `OFF_ASPHALT`; acima de
-  50 km/h com pelo menos dois patamares completos acima de 50 km/h medidos antes da saída, fim da varredura
-  sem reprovar o ensaio por essa saída; acima de 50 km/h antes do segundo patamar completo acima de
-  50 km/h, `FAIL` com `failReason` `MEASUREMENT_MISSING` (falta de medida), distinto de `OFF_ASPHALT`;
-  em todos os casos com `offAsphaltFirstStep` e a posição da saída, e com o patamar interrompido pela saída
-  medido só nos passos na faixa, até ela (AC-US-0002-06; `DOMAIN/DEC-14` via AC-US-0002-06; US-0002, caso
-  anormal "Kart sai da faixa de asfalto do arco").
+  acerto Arcade assistido e para cada lado, os registros `CORNER_RADIUS` dos requisitos 11 e 12 (com
+  `entrySpeedMps`, `pathRadiusAt3sM`, `speedAt3sMps`, `handlingAt3s` e `radiusWindowMs`) e `CORNER_TURN`
+  do requisito 13 (com `turnAt2sRad`, `halfTurnReachedMs` e `speedAt2sMps`), com `benchEnvironment`
+  `TEST_PAD`, velocidades apresentadas também em km/h e o giro também em graus (AC-US-0002-05).
+- REQ-FEAT-0002-14: O sistema SHALL julgar os requisitos 11 e 12 só pelo raio da trajetória e o requisito
+  13 só pelo giro, em qualquer estado de aderência: um passo com `understeer`, ou com `oversteer` ou
+  `sliding` sob a condição de forçar, não reprova nenhum dos três, e o estado no instante de medição do
+  raio é reportado em `handlingAt3s` (AC-US-0002-07, AC-US-0002-08 e AC-US-0002-09, casos anormais
+  "Traseira solta durante o ensaio com acelerador cheio" e "`understeer` reportado durante o ensaio").
+- REQ-FEAT-0002-15: O sistema SHALL, quando a velocidade chega a 0 antes de 2 s no ensaio do requisito 13,
+  contar o giro só até o passo da parada e, se até ali o giro não atingiu 180°, reportar `CORNER_TURN` como
+  `FAIL` com `failReason` `THRESHOLD_EXCEEDED`, com `stoppedAtStep` e o giro atingido (AC-US-0002-09, caso
+  anormal "Velocidade chega a 0 antes de 2 s").
+- REQ-FEAT-0002-16: O sistema SHALL, quando a velocidade chega a 0 antes de 3 s nos ensaios dos requisitos
+  11 e 12, reportar `CORNER_RADIUS` como `FAIL` com `failReason` `MEASUREMENT_MISSING` (falta de medida:
+  com o kart parado o raio da trajetória não é definido), com `stoppedAtStep` e sem `pathRadiusAt3sM`
+  (AC-US-0002-07 e AC-US-0002-08, caso anormal "Velocidade chega a 0 antes de 3 s").
+- REQ-FEAT-0002-17: O sistema SHALL, quando o kart sai da área de asfalto declarada pelo ensaio na pista de
+  teste aberta, invalidar a medição e reportar o ensaio como `FAIL` com `failReason` `TEST_AREA_EXCEEDED`,
+  com `offAsphaltFirstStep` e a posição da saída, como falha do ambiente de ensaio e nunca como aprovação
+  [DOMAIN] (I9; US-0002, caso anormal "Kart fora da área do ensaio").
+- REQ-FEAT-0002-08: O sistema SHALL contar os 3 s dos requisitos 11 e 12 e os 2 s do requisito 13 em tempo
+  simulado, sem incluir o tempo em que a simulação esteve suspensa por pausa, perda de foco da aba ou
+  perda do sensor [DOMAIN] (I8; US-0002, caso anormal "Pausa, perda de foco ou perda do sensor durante a
+  curva").
+
+Numeração: os requisitos 01 a 05, 07, 09 e 10 desta funcionalidade, que realizavam os critérios retirados
+do arco de raio 18 m e da varredura de início do subesterço, foram retirados com a revisão 4 do seed
+(`DOMAIN/DEC-15`) e os seus números não são reutilizados; os requisitos 06 e 08 continuam, com o texto dos
+ensaios de raio e giro. A tabela de migração está em `97-changelog.md`.
 
 ## Comportamento
 
 Passo e telemetria: [FLOW-0001](../flows/FLOW-0001-passo-de-simulacao-e-hud.md),
-[API-0001](../api/API-0001-telemetria-de-dirigibilidade.md). Ensaios `REFERENCE_CORNER` e
-`UNDERSTEER_ONSET`, ambiente e geometria: [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md),
+[API-0001](../api/API-0001-telemetria-de-dirigibilidade.md). Ensaios `CORNER_RADIUS` e `CORNER_TURN`,
+ambiente, área declarada e medidas: [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md),
 [FLOW-0002](../flows/FLOW-0002-ensaio-deterministico-e-piloto-de-teste.md),
-[API-0003](../api/API-0003-saida-dos-ensaios.md). Estado de aderência:
+[API-0003](../api/API-0003-saida-dos-ensaios.md). Condição de forçar:
 [RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md).
 
 | Situação | Comportamento |
 |---|---|
-| Curva de referência da pista de teste a 50 km/h, esterço cheio, acelerador cheio mantido (`THROTTLE_FULL`) | `understeer` consecutivo ≤ 200 ms; `surface` `ASPHALT` em todos os passos do arco (requisitos 02 e 03) |
-| Curva de referência da pista de teste a 50 km/h, esterço cheio, acelerador 0 mantido (`THROTTLE_ZERO`) | `understeer` consecutivo ≤ 200 ms é o único critério (requisito 01), contado só nos passos na faixa de asfalto, até a primeira saída da faixa — os passos depois da saída não entram na medição (`DOMAIN/DEC-14`); permanecer na faixa enquanto o kart desacelera não é exigido (`DOMAIN/DEC-13`) |
-| Velocidade de entrada acima de 50 km/h | `understeer` pode exceder 200 ms; a perda é progressiva (requisito 05); a direção comum continua sem exigir drift |
-| Esterço aplicado tarde (kart fora da linha ideal) | Nenhum limite fixado; vale só a entrada de curva do ensaio |
-| Kart sai da faixa de asfalto do arco na curva de referência (`REFERENCE_CORNER`) | Com `THROTTLE_FULL`: `FAIL` com `OFF_ASPHALT` em qualquer velocidade, passo e posição reportados. Com `THROTTLE_ZERO`: passo e posição reportados sem reprovar o ensaio por essa saída, e a primeira saída fecha a janela de medição de `maxUndersteerMs`: contado só nos passos na faixa de asfalto até ela, sem os passos depois da saída — escorregar na grama não é sair de frente (requisito 09; `DOMAIN/DEC-13`, `DOMAIN/DEC-14`). A pista de teste não tem grama nem parede a ensaiar. Na pista sintética, grama e parede seguem [FEAT-0004](FEAT-0004-aceleracao-velocidade-grama-parede-e-hud.md) |
-| Kart sai da faixa de asfalto do arco na varredura de `UNDERSTEER_ONSET` | A saída encerra a varredura (requisito 10, [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço"): abaixo de 50 km/h, `FAIL` com `OFF_ASPHALT`; acima de 50 km/h com pelo menos dois patamares completos acima de 50 km/h medidos antes, fim natural da varredura, sem reprovar pela saída, com `v1Mps` reportado e o requisito 04 avaliado; acima de 50 km/h antes do segundo patamar completo acima de 50 km/h, `FAIL` com `MEASUREMENT_MISSING`; passo e posição reportados em todos os casos; o patamar interrompido pela saída é medido só nos passos na faixa, até ela (`DOMAIN/DEC-14`), não é velocidade medida (não entra em `maxUndersteerMsBySpeed` nem no requisito 05) e entra em V1 como a velocidade do caso de `DOMAIN/DEC-12` (linha seguinte) e, com o mesmo valor, quando é o primeiro patamar em que `understeer` passa de 200 ms consecutivos ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço") |
-| Varredura de `UNDERSTEER_ONSET` em que nenhum patamar, completo ou interrompido — este medido só nos passos na faixa, até a saída (`DOMAIN/DEC-14`) —, reporta `understeer` por mais de 200 ms consecutivos até a saída da faixa acima de 50 km/h (acerto que não sai de frente) | V1 é a velocidade mantida do patamar interrompido pela saída: `v1Mps` reportado igual a ela e o requisito 04 avaliado com esse valor — nunca sair de frente até sair da faixa cumpre V1 ≥ 1,15 × V0 (`DOMAIN/DEC-12`; "nenhum patamar reporta `understeer`" é nenhuma sequência acima de 200 ms, não tolerância zero, `DOMAIN/REF-05`); a saída serializada apresenta, ao lado de `v1Mps`, o motivo "sem início de subesterço até a saída da faixa"; quando a saída da faixa já reprova (abaixo de 50 km/h, ou antes do segundo patamar completo acima de 50 km/h), vale o motivo dessa saída ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), "Fim da varredura de início do subesterço") |
-| Linha de base ausente, ou medida em outro ambiente ou outro arco | `FAIL` com `BASELINE_MISSING`; registrar a linha de base no mesmo ensaio e no mesmo arco antes de julgar |
-| Pausa, perda de foco, perda do sensor | Simulação suspensa; os 200 ms não contam a suspensão |
+| Partida a 50 km/h ou a 70 km/h, acelerador e esterço cheios, cada lado | Raio da trajetória aos 3 s ≤ 13 m (requisitos 11 e 12); o raio é medido na janela `radiusWindowMs` centrada nos 3 s |
+| Partida a 50 km/h, acelerador 0 e esterço cheio, cada lado | Giro ≥ 180° em até 2 s (requisito 13); `halfTurnReachedMs` reporta o instante |
+| Traseira solta durante o ensaio com acelerador cheio | Acima de 50 km/h é a condição de forçar; `oversteer`/`sliding` não reprovam; vale só o raio, e `handlingAt3s` é reportado (requisito 14) |
+| `understeer` reportado durante o ensaio | Não reprova: o raio e o giro julgam, não o rótulo (requisito 14) |
+| Velocidade chega a 0 antes de 2 s (sem acelerador) | O giro conta até a parada; abaixo de 180°, `FAIL` com `THRESHOLD_EXCEEDED`, `stoppedAtStep` e o giro atingido (requisito 15) |
+| Velocidade chega a 0 antes de 3 s (com acelerador cheio) | `FAIL` com `MEASUREMENT_MISSING` e `stoppedAtStep` (requisito 16) |
+| Partida a 70 km/h acima da velocidade estabilizada | A velocidade de partida é imposta pelo ensaio e o kart pode perder velocidade; a regra de que a velocidade nunca passa da estabilizada ([FEAT-0003](FEAT-0003-traseira-viva-e-controlavel.md)) vale só para ensaios que partem de velocidade igual ou menor que ela |
+| Esterço parcial (`web-mobile`) | Raio maior e giro menor por construção; nenhum limite fixado (lacuna deliberada) |
+| Kart fora da área de asfalto declarada | `FAIL` com `TEST_AREA_EXCEEDED`, passo e posição: medição inválida, falha do ambiente (requisito 17) |
+| Grama e parede | Não existem na pista de teste aberta; na pista sintética seguem [FEAT-0004](FEAT-0004-aceleracao-velocidade-grama-parede-e-hud.md), e nenhum critério de raio ou giro é medido lá |
+| Pausa, perda de foco, perda do sensor | Simulação suspensa; os 2 s e os 3 s não contam a suspensão (requisito 08) |
 | Sensor ausente ou permissão negada antes da volta (`web-mobile`) | Toque com estado visível; requisitos inalterados |
 | Rede indisponível | Sem efeito (D-FS-08) |
 
 ## Estado
 
-Não define estados próprios; lê `handling`, `surface` e `simStepCount`
-([API-0001](../api/API-0001-telemetria-de-dirigibilidade.md)).
+Não define estados próprios; lê `speedMps`, `headingRad`, `positionXM`, `positionZM`, `handling`,
+`surface` e `simStepCount` ([API-0001](../api/API-0001-telemetria-de-dirigibilidade.md)). O raio da
+trajetória e o giro são valores medidos pelo ensaio, não estados.
 
 ## Configuração
 
 Nenhuma. Nenhuma configuração existe para forçar um evento, injetar um estado ou habilitar um caminho de
-depuração. A velocidade de entrada do ensaio é estado inicial colocado pelo ensaio; o tamanho do patamar
-(`entrySpeedStepMps`), o raio do arco (`arcRadiusM`, 18 m) e a largura da faixa (`laneWidthM`) são parâmetros
-de ensaio reportados, e a duração de cada patamar e o modo de manter a sua velocidade são parâmetros de
-ensaio registrados em `docs/physics.md` (AC-US-0002-04, NFR-0004); nenhum deles é configuração da feature.
+depuração. A velocidade de partida é estado inicial colocado pelo ensaio; a janela de medição do raio
+(`radiusWindowMs`) e o raio da área declarada (`testAreaRadiusM`) são parâmetros de ensaio reportados e
+registrados em `docs/physics.md` (NFR-0004); nenhum deles é configuração da feature.
 
 ## Critérios de aceite
 
-- Curva de referência da pista de teste a 50 km/h, esterço cheio, acelerador 0 e acelerador cheio:
-  `maxUndersteerMs` ≤ 200 nas duas condições — com `THROTTLE_FULL` contado em todo o arco; com
-  `THROTTLE_ZERO` só nos passos na faixa de asfalto até a primeira saída da faixa —, e `offAsphaltStepCount`
-  0 só com `THROTTLE_FULL` (com `THROTTLE_ZERO` o campo é informativo e não altera o veredito) (satisfaz
-  AC-US-0002-01, AC-US-0002-02; cobre os requisitos 01, 02, 03 e 08).
-- `UNDERSTEER_ONSET` com linha de base no mesmo arco: no fim natural da varredura, `v1Mps` presente — a
-  menor velocidade de patamar completo com `understeer` por mais de 200 ms consecutivos ou, sem nenhum
-  patamar completo assim, a velocidade mantida do patamar interrompido pela saída, medido só até ela — e
-  V1 ≥ 1,15 × V0 avaliado com esse valor; em `maxUndersteerMsBySpeed`, a maior sequência de `understeer`
-  consecutivo de cada patamar completo acima de 50 km/h não é menor que a do patamar anterior (satisfaz
-  AC-US-0002-03, AC-US-0002-04; cobre os requisitos 04 e 05).
-- Sem linha de base no mesmo ensaio e arco: `FAIL` com `BASELINE_MISSING` (satisfaz AC-US-0002-03, caso
-  anormal; cobre o requisito 07).
-- Saída da faixa na curva de referência: com `THROTTLE_FULL`, `FAIL` com `OFF_ASPHALT`, `offAsphaltFirstStep`
-  e posição; com `THROTTLE_ZERO`, `offAsphaltFirstStep` e posição reportados sem `FAIL` por essa saída e
-  `maxUndersteerMs` contado só nos passos na faixa até essa primeira saída, sem os passos depois dela
-  (satisfaz AC-US-0002-01 e AC-US-0002-02, caso anormal; cobre o requisito 09).
-- Saída da faixa na varredura de `UNDERSTEER_ONSET`: abaixo de 50 km/h, `FAIL` com `OFF_ASPHALT`; acima de
-  50 km/h com pelo menos dois pares em `maxUndersteerMsBySpeed`, nenhuma reprovação pela saída; acima de
-  50 km/h com menos de dois pares, `FAIL` com `MEASUREMENT_MISSING`; `offAsphaltFirstStep` e posição nos
-  três casos (satisfaz AC-US-0002-06; cobre o requisito 10).
-- A saída de `npm test` ou de `npm run bench:handling` contém `REFERENCE_CORNER` por condição de acelerador
-  e `UNDERSTEER_ONSET`, com `benchEnvironment` `TEST_PAD`, `arcRadiusM`, `laneWidthM`, `v0Mps` e `v1Mps`
-  (satisfaz AC-US-0002-05; cobre o requisito 06).
+- `CORNER_RADIUS` a 50 km/h, cada lado: `pathRadiusAt3sM` ≤ 13 (satisfaz AC-US-0002-07; cobre os
+  requisitos 11 e 14).
+- `CORNER_RADIUS` a 70 km/h, cada lado: `pathRadiusAt3sM` ≤ 13 (satisfaz AC-US-0002-08; cobre os
+  requisitos 12 e 14).
+- `CORNER_TURN` a 50 km/h, cada lado: `halfTurnReachedMs` ≤ 2 000; parada antes de 2 s com giro abaixo de
+  π rad dá `FAIL` com `THRESHOLD_EXCEEDED` e `stoppedAtStep` (satisfaz AC-US-0002-09; cobre os requisitos
+  13, 14 e 15).
+- Parada antes de 3 s em `CORNER_RADIUS`: `FAIL` com `MEASUREMENT_MISSING` e `stoppedAtStep` (satisfaz
+  AC-US-0002-07 e AC-US-0002-08, caso anormal; cobre o requisito 16).
+- Saída da área declarada: `FAIL` com `TEST_AREA_EXCEEDED`, `offAsphaltFirstStep` e posição (satisfaz
+  AC-US-0002-05, caso anormal "Kart fora da área do ensaio"; cobre o requisito 17).
+- A saída de `npm test` ou de `npm run bench:handling` contém `CORNER_RADIUS` por velocidade de partida e
+  lado e `CORNER_TURN` por lado, com `benchEnvironment` `TEST_PAD` e os campos nomeados no requisito 06,
+  medidos em tempo simulado (satisfaz AC-US-0002-05; cobre os requisitos 06 e 08).
 
 ## Pontos em aberto
 

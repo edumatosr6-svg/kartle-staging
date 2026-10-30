@@ -1,84 +1,80 @@
 ---
 id: RULE-0001
-title: Estado de aderência, condução normal, condição de forçar e recuperação
+title: Estado de aderência, condução normal, condição de forçar, recuperação e ausência de drift
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.0.0
-sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0001-05]
+version: 4.0.0
+sources: [US-0003, AC-US-0003-01, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-08, AC-US-0003-10, AC-US-0001-05]
 ---
 
-# RULE-0001 — Estado de aderência, condução normal, condição de forçar e recuperação
+# RULE-0001 — Estado de aderência, condução normal, condição de forçar, recuperação e ausência de drift
 
 Decide, por passo e no estado da simulação (I2, D-FS-05), em que contexto cada valor do estado de
-aderência pode ocorrer e qual é o teto da derrapagem lateral. Fontes: `SEED/US-3` (via US-0003),
-`DOMAIN/DEC-02` (50 km/h), `DOMAIN/DEC-04` (400 ms) e `DOMAIN/REF-03` (curva de referência na pista de
-teste), citadas nos critérios de US-0003.
+aderência pode ocorrer, qual é o teto da derrapagem lateral e o que o comando de drift faz — nada. Fontes:
+`SEED/US-3` (via US-0003), `SEED/RD-01`, `DOMAIN/DEC-04` (400 ms) e `DOMAIN/DEC-15` (acerto C, fim do
+drift e do turbo), citadas nos critérios de US-0003.
 
-## Classificação do passo
+## Condição de forçar
 
-| `forcing` (condição de forçar) | `driftActive` | Dentro de uma recuperação | Classe do passo | Fonte |
-|---|---|---|---|---|
-| falso | falso | não | Condução normal | AC-US-0003-01 |
-| verdadeiro | falso | — | Forçando | AC-US-0003-02 |
-| qualquer | verdadeiro | — | Drift (regra de `requirements/11`, inalterada) | AC-US-0003-02 |
-| falso | falso | sim | Recuperação | AC-US-0003-02, AC-US-0003-03 |
+`forcing` é verdadeiro num passo se, e somente se, o `Input` desse passo tem acelerador cheio **e**
+esterço cheio (1 ou −1) **e** a velocidade do estado da simulação é maior que 50 km/h (`SEED/US-3`, via
+AC-US-0003-03). Em `web-mobile`, esterço parcial (módulo menor que 1) nunca satisfaz a condição de forçar
+(US-0003, Canais). O comando de drift não entra na condição.
 
-`forcing` é verdadeiro num passo se, e somente se, o `Input` desse passo tem acelerador cheio **e** esterço
-cheio (1 ou −1) **e** a velocidade do estado da simulação é maior que 50 km/h (`DOMAIN/DEC-02`). Em
-`web-mobile`, esterço parcial (módulo menor que 1) nunca satisfaz a condição de forçar (US-0003, Canais).
-`driftActive` é o estado da manobra de drift de `requirements/11`, que esta feature não altera.
+## Contextos de observação
 
-Um passo está **dentro de uma recuperação** se, e somente se: num passo anterior o esterço foi levado de 1
-(ou −1) a 0 com `handling` em `oversteer` ou `sliding` e `forcing` verdadeiro (o passo de soltura); desde
-então `handling` ainda não voltou a `grip`; e o tempo simulado contado do passo de soltura é de no máximo
-400 ms (`DOMAIN/DEC-04`). A recuperação termina no primeiro passo em `grip` (inclusive) ou, sem `grip`,
-no passo em que os 400 ms se esgotam; os passos seguintes sem `grip` são condução normal — e falham
-(US-0003, caso anormal "Recuperação que não volta a `grip` em 400 ms"). A recuperação é classe própria
-porque o segundo critério de `SEED/US-3` admite a traseira solta até 400 ms depois de reduzir o esterço:
-esses passos não são condução normal (US-0003, Fontes).
+| Contexto | Onde | Passos | `handling` permitido | `sideslipRad` permitida | Fonte |
+|---|---|---|---|---|---|
+| Condução normal | Volta do piloto de teste na pista sintética | Todos os passos da volta, sem exceção — inclusive os passos em que o piloto de teste força o kart (acelerador e esterço cheios acima de 50 km/h numa curva) | `grip` ou `understeer` | no máximo 0,65 rad | AC-US-0003-01, AC-US-0003-05; US-0003, caso anormal "Piloto de teste força o kart na volta sintética" |
+| Forçando | Pista de teste aberta (ensaio de recuperação) e qualquer volta do Jogador | Passos com `forcing` verdadeiro antes da soltura do esterço | qualquer um dos quatro | sem teto | US-0003, caso anormal "Condição de forçar mantida sem soltar o esterço" |
+| Recuperação | Pista de teste aberta | Do passo de soltura (abaixo) até o primeiro `grip` | qualquer um dos quatro, voltando a `grip` em no máximo 400 ms | no máximo 0,65 rad em todos os passos | AC-US-0003-03, AC-US-0003-04; `DOMAIN/DEC-04` |
 
-## Tabela de decisão (por passo, no asfalto)
-
-| Classe do passo | `handling` permitido | `sideslipRad` permitida | Fonte |
-|---|---|---|---|
-| Condução normal | `grip` ou `understeer` | no máximo 0,65 rad | AC-US-0003-01, AC-US-0003-05 |
-| Forçando | qualquer um dos quatro | sem teto | AC-US-0003-02; US-0003, caso anormal "Condição de forçar mantida" |
-| Drift | regra de `requirements/11` | regra de `requirements/11` | US-0003, caso anormal "Drift em andamento" |
-| Recuperação | qualquer um dos quatro, voltando a `grip` em no máximo 400 ms | no máximo 0,65 rad em nenhum passo excedido | AC-US-0003-02, AC-US-0003-03, AC-US-0003-04 |
-
-Na curva de referência da pista de teste (arco de raio 18 m, `DOMAIN/REF-03`) com entrada a 50 km/h,
-esterço cheio e acelerador cheio, `handling` é `grip` ou `understeer` em todos os passos do arco por
-exigência de AC-US-0003-01 (realizada pelo requisito 02 de
-[FEAT-0003](../features/FEAT-0003-traseira-viva-e-controlavel.md)), qualquer que seja a classe do passo.
-Esta regra só garante a classe do passo de entrada: nele a velocidade não é maior que 50 km/h e o passo é
-de condução normal; um passo posterior em que o acelerador cheio leve a velocidade acima de 50 km/h é, pela
-definição de `forcing` acima, "Forçando", e a exigência de AC-US-0003-01 vale nele do mesmo modo.
+Fora da volta do piloto de teste e dos ensaios, nenhum critério desta regra é medido sobre a volta do
+Jogador: o Jogador pode forçar o kart, e a traseira pode soltar; o que se exige é que a volta do piloto de
+teste — a régua — nunca solte e que a recuperação no ensaio da pista de teste aberta cumpra os 400 ms.
 
 ## Recuperação da traseira
 
+O **passo de soltura** é o passo em que o esterço é levado de 1 (ou −1) a 0 com `handling` em `oversteer`
+ou `sliding` e `forcing` verdadeiro no passo anterior. A recuperação é formada pelos passos desde o passo
+de soltura até o primeiro passo em `grip` (inclusive).
+
 | Condição de partida | Evento | Exigência | Fonte |
 |---|---|---|---|
-| `handling` em `oversteer` ou `sliding` com `forcing` verdadeiro, no asfalto da pista de teste | esterço levado de 1 (ou −1) a 0 num passo, acelerador mantido cheio | `handling` volta a `grip` em no máximo 400 ms de tempo simulado contados desse passo; `sideslipRad` no máximo 0,65 rad em todos os passos até lá | AC-US-0003-03, AC-US-0003-04; `DOMAIN/DEC-04` |
-| idem | esterço e acelerador levados a 0 no mesmo passo | o tempo até `grip` não é maior que 400 ms | US-0003, caso anormal "Acelerador mantido cheio" |
-| idem | esterço reduzido a valor intermediário (`web-mobile`) | nenhum limite fixado (lacuna deliberada de `01-overview.md`) | US-0003, caso anormal |
-| idem | condição de forçar mantida | a traseira permanece solta; `sideslipRad` pode exceder 0,65 rad; o Jogador segue controlando com o esterço | US-0003, caso anormal |
-| idem | `grip` não alcançado em 400 ms | a recuperação falha; os passos além de 400 ms contam como condução normal com `oversteer`/`sliding`, e falham também; o ensaio reporta o tempo até o primeiro `grip` ([API-0003](../api/API-0003-saida-dos-ensaios.md), `REAR_RECOVERY`) | US-0003, caso anormal "Recuperação que não volta a `grip` em 400 ms" |
+| `handling` em `oversteer` ou `sliding` com `forcing` verdadeiro, no asfalto da pista de teste aberta | esterço levado de 1 (ou −1) a 0 num passo, acelerador mantido cheio | `handling` volta a `grip` em no máximo 400 ms de tempo simulado contados desse passo; `sideslipRad` no máximo 0,65 rad em todos os passos até lá | AC-US-0003-03, AC-US-0003-04; `DOMAIN/DEC-04` |
+| idem | esterço e acelerador levados a 0 no mesmo passo | o tempo até `grip` não é maior que 400 ms | US-0003, caso anormal "Acelerador mantido cheio durante a recuperação" |
+| idem | esterço reduzido a valor intermediário (`web-mobile`) | nenhum limite fixado (lacuna deliberada de `01-overview.md`) | US-0003, caso anormal "Esterço reduzido parcialmente" |
+| idem | condição de forçar mantida | a traseira permanece solta; `sideslipRad` pode exceder 0,65 rad; o Jogador segue controlando com o esterço | US-0003, caso anormal "Condição de forçar mantida sem soltar o esterço" |
+| idem | `grip` não alcançado em 400 ms | a recuperação falha; o ensaio reporta o tempo até o primeiro `grip` ([API-0003](../api/API-0003-saida-dos-ensaios.md), `REAR_RECOVERY`) | US-0003, caso anormal "Recuperação que não volta a `grip` em 400 ms" |
+| `forcing` verdadeiro, `handling` ainda em `grip` ou `understeer` | o forçar chega à duração máxima do ensaio sem a traseira soltar | não há passo de soltura nem recuperação a julgar; o ensaio reporta que a traseira não soltou e por quanto tempo foi forçada; nenhum critério exige que a traseira solte | US-0003, caso anormal "Traseira não solta sob a condição de forçar" |
+
+## Sem drift e sem turbo
+
+| Regra | Efeito | Fonte |
+|---|---|---|
+| O comando de drift (a tecla de drift em `web-desktop`; o controle de drift do adaptador de toque em `web-mobile`) não muda o estado da simulação | A mesma sequência de `Input` por passo, no mesmo estado inicial, com o comando de drift mantido do primeiro ao último passo e sem ele, produz o mesmo estado em todos os passos: posição, velocidade, rumo, estado de aderência e derrapagem lateral. O campo de `Input` que transporta o comando continua com o mesmo nome e a mesma faixa (I8, NFR-0006); a simulação o ignora | AC-US-0003-08; `SEED/RD-01`, `DOMAIN/DEC-15` |
+| Não há carga, mini-turbo, impulso, combo nem pontuação de drift | Nenhum estado da simulação os acumula nem os reporta; a telemetria não tem campo de drift ([API-0001](../api/API-0001-telemetria-de-dirigibilidade.md)) | AC-US-0003-08; `DOMAIN/DEC-15` |
+| A velocidade máxima é a mesma em qualquer situação | Partindo de velocidade igual ou menor que a velocidade estabilizada, a velocidade do kart nunca passa dela — com ou sem o comando de drift, na reta, na curva, na recuperação | AC-US-0003-10 |
+
+A exibição do drift e do turbo (HUD, resultado, texto compartilhado) sai com a manobra; é remoção de
+exibição, sem regra nova na renderização ([SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md),
+[SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md); `SEED/RE-01`, `DOMAIN/DEC-16`).
 
 ## O que esta regra não julga
 
-- O ensaio de resposta do volante (reta da pista de teste, 50 km/h mantidos, esterço cheio) mede só o
-  tempo da taxa de guinada; um passo em `understeer` durante esse ensaio não o falha (AC-US-0001-05,
-  `DOMAIN/DEC-09`). A aderência em curva é julgada só pela curva de referência da pista de teste
-  ([RULE-0002](RULE-0002-ensaios-e-limiares.md)).
-- Fora do asfalto (grama, parede, na pista sintética; fora da faixa, na pista de teste) nenhum critério de
-  aderência é medido; na pista sintética vale a redução de velocidade de
+- O ensaio de resposta do volante (partida em reta na pista de teste aberta, 50 km/h mantidos, esterço
+  cheio) mede só o tempo da taxa de guinada; um passo em `understeer` durante esse ensaio não o falha
+  (AC-US-0001-05, `DOMAIN/DEC-09`). A aderência em curva é julgada só pelos ensaios de raio e giro
+  ([RULE-0002](RULE-0002-ensaios-e-limiares.md)), que não usam o rótulo de aderência no veredito.
+- Fora do asfalto (grama, parede, na pista sintética; fora da área declarada, na pista de teste aberta)
+  nenhum critério de aderência é medido; na pista sintética vale a redução de velocidade de
   [RULE-0002](RULE-0002-ensaios-e-limiares.md).
 
 ## Idempotência e ordem
 
-A classificação e o estado de aderência são funções do estado da simulação e do `Input` do passo, e a
-classe "Recuperação" depende só dos passos anteriores pela ordem de `simStepCount`: reavaliar o mesmo
-passo com o mesmo histórico dá o mesmo resultado, e nenhum passo é reaplicado. A ordem é a de
-`simStepCount` ([API-0001](../api/API-0001-telemetria-de-dirigibilidade.md)); na suspensão por pausa, perda
-de foco ou perda do sensor nenhum passo avança e os 400 ms da recuperação não contam o tempo suspenso.
+A condição de forçar e o estado de aderência são funções do estado da simulação e do `Input` do passo; a
+recuperação depende só dos passos anteriores pela ordem de `simStepCount`: reavaliar o mesmo passo com o
+mesmo histórico dá o mesmo resultado, e nenhum passo é reaplicado. A ordem é a de `simStepCount`
+([API-0001](../api/API-0001-telemetria-de-dirigibilidade.md)); na suspensão por pausa, perda de foco ou
+perda do sensor nenhum passo avança e os 400 ms da recuperação não contam o tempo suspenso.

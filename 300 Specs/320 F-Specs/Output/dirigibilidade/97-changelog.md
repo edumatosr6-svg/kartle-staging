@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.4.0
+version: 4.0.1
 sources: []
 ---
 
@@ -849,3 +849,256 @@ nenhuma.
 - Um campo que diga em que passo a janela de `maxUndersteerMs` fechou: não acrescentado —
   `offAsphaltFirstStep` já o reporta, e seria superfície numa rodada de correção (§16).
 - Os itens recusados das rodadas 1, 5, 6, 7, 8 e 9 continuam recusados pelos mesmos motivos.
+
+## 2026-10-30 — rodada 11, Mode C (requisitos revalidados contra o seed `revision: 5`; requisitos 4.3.0)
+
+**Gatilho**: os requisitos foram revalidados contra a revisão 5 do seed (`req-validation-20261030-1202`,
+SUCCESS, sobre as rodadas 12 a 15 do changelog dos requisitos): acerto C (`DOMAIN/DEC-15`, nomeado
+`arcade-assistido-v6` na decisão), com velocidade estabilizada entre 65 km/h e 72 km/h; a curva julgada
+pelo raio da trajetória na pista de teste aberta — acelerador e esterço cheios de 50 km/h e de 70 km/h,
+raio de no máximo 13 m aos 3 s — e, sem acelerador, pelo giro de pelo menos 180° em até 2 s partindo de
+50 km/h (`DOMAIN/DEC-16`); os ensaios de esterço cheio no arco de raio 18 m e a varredura de início do
+subesterço retirados; o drift e o turbo de `requirements/11` retirados (sem carga, impulso, combo nem
+pontuação; nada deles no HUD, no resultado nem no texto compartilhado, como remoção de exibição permitida
+pela restrição de I2, `SEED/RE-01`); os ensaios de resposta do volante e de recuperação da traseira na pista
+de teste aberta; a condução normal observada em todos os passos da volta do piloto de teste. Critérios
+`AC-*`: 6 + 6 + 7 + 7 + 6 = 32 na base anterior (requisitos 3.4.0) e 6 + 4 + 9 + 7 + 7 = 33 agora. O
+pedido do coordenador foi levar isso às funcionalidades, regras, contrato dos registros de ensaio e telas.
+Fonte única: o conjunto validado de `200 Requirements/230 Output/dirigibilidade/` (histórias, NFRs,
+`01-context.md`, `02-glossary.md`, changelog e relatório de validação); a pasta do seed e o código na raiz
+do repositório não foram lidos (conventions §12). Nenhum `FEEDBACK-<nn>` pendente.
+
+**O que mudou**
+
+- `RULE-0002` (4.0.0): ambiente `TEST_PAD` reescrito como pista de teste aberta (asfalto sem faixa e sem
+  paredes), com a área de asfalto declarada por ensaio (disco centrado na partida, `testAreaRadiusM`) e a
+  saída dela como `TEST_AREA_EXCEEDED`; limiares da revisão 5 (raio ≤ 13 m aos 3 s de 50 km/h e de
+  70 km/h; giro ≥ 180° em até 2 s; 0 passos com `oversteer`/`sliding` na volta do piloto de teste; 0 passos
+  diferentes com e sem o comando de drift; velocidade máxima ≤ estabilizada; estabilizada entre 65 km/h e
+  72 km/h); seção nova "Medidas da curva de referência" (partida, raio aos 3 s na janela `radiusWindowMs`,
+  giro, instante do meio giro); ensaios novos `CORNER_RADIUS`, `CORNER_TURN`, `DRIFT_INERT` e `SPEED_CAP`;
+  `NORMAL_DRIVING` passa a ser a volta do piloto de teste inteira; `REAR_RECOVERY` na pista de teste
+  aberta, cada lado, com `rearReleased` e `forcingMs`; `TOP_SPEED` com a faixa de 65 km/h a 72 km/h; seção
+  nova "Ensaios retirados" (`REFERENCE_CORNER`, `UNDERSTEER_ONSET`, `DRIFT_MANEUVER`); "Linha de base"
+  restrita ao veredito de `STEP_COST`; a seção "Fim da varredura de início do subesterço" saiu com a
+  varredura. `sources:` sem os critérios retirados, com AC-US-0002-07 a 09, AC-US-0003-01, 05, 08 e 10.
+- `API-0003` (4.0.0): campos comuns aos ensaios em `TEST_PAD` (`testAreaRadiusM`, `offAsphaltStepCount`,
+  `offAsphaltFirstStep`, posição); registros novos `CORNER_RADIUS` (`steerInputNorm`, `entrySpeedMps`,
+  `radiusWindowMs`, `pathRadiusAt3sM`, `speedAt3sMps`, `handlingAt3s`, `stoppedAtStep`), `CORNER_TURN`
+  (`steerInputNorm`, `entrySpeedMps`, `turnAt2sRad`, `halfTurnReachedMs`, `speedAt2sMps`,
+  `stoppedAtStep`), `DRIFT_INERT` (`comparedStepCount`, `differingStepCount`, `firstDifferingStep`) e
+  `SPEED_CAP` (`maxObservedSpeedMps`, `maxObservedBenchId`, `topSpeedMps`); `REAR_RECOVERY` com
+  `steerInputNorm`, `entrySpeedMps`, `rearReleased` e `forcingMs`; `failReason` `TEST_AREA_EXCEEDED`;
+  Erros refeitos; Compatibilidade 4.0.0 com cada `benchId`, campo e valor retirado e o seu substituto (ou a
+  falta dele, com o motivo); o histórico das versões 1.0.0 a 3.4.0, que só descrevia o que foi retirado,
+  fica neste changelog. Apresentação do giro também em graus, como o km/h.
+- `API-0001` (2.0.0): `driftActive` retirado, sem substituto (a manobra não existe; o efeito nulo do comando
+  é verificado por `DRIFT_INERT`); `positionXM`, `positionZM` e `headingRad` acrescentados, lidos pelos
+  ensaios para o raio, o giro, a área declarada e a comparação de estados de AC-US-0003-08; `surface` na
+  pista de teste aberta (fora da área declarada); `sources:` sem os critérios retirados.
+- `API-0002` (1.1.0): o texto compartilhado só compara tempos `COMPARABLE` (AC-US-0005-07) e não carrega
+  conteúdo de drift ou turbo (AC-US-0003-11), nem o resultado exibido (AC-US-0003-09); linha nova de
+  Compatibilidade para a retirada desse conteúdo.
+- `FEAT-0001` (3.1.0): o ensaio parte em reta na pista de teste aberta; o requisito 05 diz que a aderência
+  em curva é julgada pelos ensaios de raio e giro de `FEAT-0002`; linha nova de Comportamento para a saída
+  da área declarada.
+- `FEAT-0002` (4.0.0): reescrita sobre os critérios 07, 08, 09 e 05 de US-0002 (ver a tabela de migração).
+- `FEAT-0003` (4.0.0): reescrita sobre os critérios 01, 03, 04, 05, 07, 08, 09, 10 e 11 de US-0003 (ver a
+  tabela de migração); `NFR-0005` nas fontes, pelo requisito 10.
+- `FEAT-0004` (2.2.0): velocidade estabilizada entre 65 km/h e 72 km/h no Resumo, no requisito 02, no
+  Comportamento e nos critérios de aceite.
+- `FEAT-0005` (2.2.0): o requisito 06 fica com a tela (AC-US-0005-05) e o requisito novo 13 com o texto
+  compartilhado (AC-US-0005-07), como os requisitos dividiram o critério; Canais com a volta do piloto de
+  teste servindo também à condução normal.
+- `FEAT-0006` (2.1.0): requisito 01 com a restrição da revisão 5 (regras de pilotagem na simulação; retirar
+  o drift e o turbo da tela é remoção de exibição); requisito 05 com a lista nova de ensaios; requisito 08
+  com os parâmetros de ensaio novos e os limites da revisão 5 ao lado dos da linha de base (NFR-0004).
+- `RULE-0001` (4.0.0, título com "ausência de drift"): condição de forçar citando `SEED/US-3` (não mais
+  `DOMAIN/DEC-02`, substituída); contextos de observação (condução normal = toda a volta do piloto de
+  teste; forçando; recuperação); passo de soltura; caso da traseira que não solta; seção nova "Sem drift e
+  sem turbo" (comando de drift sem efeito, sem carga nem impulso, velocidade máxima única); a classe
+  "Drift" e a regra da curva do arco saíram.
+- `RULE-0003` (1.2.0): a tabela de comparabilidade cita a tela (AC-US-0005-05) e o texto compartilhado
+  (AC-US-0005-07); o replay da versão anterior reproduzido não tem efeito de drift.
+- `FLOW-0001` (1.2.0): passo 4 sem classe de drift; passo 6 sem indicador de drift ou turbo; a linha
+  "Manobra de drift em andamento" passa a "Comando de drift mantido".
+- `FLOW-0002` (4.0.0): passos e alternativas com os ensaios novos, a área declarada, a parada antes de 2 s
+  e de 3 s, a traseira que não solta, `DRIFT_INERT` e `SPEED_CAP`; as linhas do arco e da varredura saíram.
+- `FLOW-0003` (1.1.0): comparação nunca exibida nem compartilhada entre versões diferentes (AC-US-0005-07);
+  comando de drift gravado sem efeito.
+- `SCR-0001` (1.1.0): o HUD não exibe indicador de carga de drift, turbo ou impulso, combo ou pontuação de
+  drift, em nenhum estado (AC-US-0003-09); ação "manter o comando de drift" sem efeito.
+- `SCR-0002` (1.1.0): o resultado e o texto compartilhado sem conteúdo de drift ou turbo (AC-US-0003-09,
+  AC-US-0003-11); o texto compartilhado com a regra de comparação de AC-US-0005-07.
+- `01-overview.md` (4.0.0) e `02-glossary.md` (4.0.0): base nos requisitos 4.3.0 e no seed `revision: 5`;
+  limites em vigor; pista de teste aberta; decisões de forma novas (dois ensaios para a curva de
+  referência; condução normal sem exclusões; `DRIFT_INERT` e `SPEED_CAP`); lacunas deliberadas sem as duas
+  da varredura (sem objeto) e com a traseira que não solta; termos novos "Acerto C", "Pista de teste
+  aberta", "Partida", "Rumo", "Raio da trajetória", "Giro", "Turbo", "Comando de drift"; redefinidos
+  "Curva de referência", "Condução normal", "Condição de forçar", "Drift", "Velocidade estabilizada",
+  "Asfalto", "HUD", "Telemetria", `benchId`, `failReason`, `surface`; retirados "Velocidade de início do
+  subesterço", "Acerto agressivo", `throttleCondition` e `driftActive`.
+- `98-divergences.md`: sem mudança (esta etapa não lê o código para derivar comportamento). `00-index.md` e
+  `99-traceability.md` não foram escritos: o gate os regenera.
+
+**Tabela de migração** (conventions §17). As retiradas abaixo seguem a retirada dos critérios que elas
+realizavam, aprovada pelo dono do produto na revisão 4 do seed e na entrada de 2026-10-29 de `DOMAIN.md`
+(`DOMAIN/DEC-15`, Eduardo Matos) e registrada na tabela de migração da rodada 12 dos requisitos; os
+números não são reutilizados.
+
+| Item | Antes | Agora |
+|---|---|---|
+| REQ-FEAT-0001-01 | reta da pista de teste com faixa | modificado: partida em reta na pista de teste aberta |
+| REQ-FEAT-0001-05 | aderência julgada no arco de 18 m | modificado: julgada pelos ensaios de raio e giro |
+| REQ-FEAT-0002-01, 02, 03 | `understeer` ≤ 200 ms e permanência na faixa no arco de 18 m (AC-US-0002-01, 02) | **retirados** (substituídos pelos requisitos 11 a 13) |
+| REQ-FEAT-0002-04, 05, 07, 10 | V1 ≥ 1,15 × V0, perda progressiva, linha de base e fim da varredura (AC-US-0002-03, 04, 06) | **retirados**, sem substituto |
+| REQ-FEAT-0002-09 | saída da faixa do arco | **retirado** (substituído pelo requisito 17, área declarada) |
+| REQ-FEAT-0002-06 | saída de `REFERENCE_CORNER` e `UNDERSTEER_ONSET` | modificado: saída de `CORNER_RADIUS` e `CORNER_TURN` (AC-US-0002-05) |
+| REQ-FEAT-0002-08 | 200 ms em tempo simulado | modificado: 2 s e 3 s em tempo simulado |
+| REQ-FEAT-0002-11 a 17 | — | **novos**: raio a 50 km/h (AC-US-0002-07) e a 70 km/h (08); giro (09); só raio e giro julgam; parada antes de 2 s; parada antes de 3 s; área declarada |
+| REQ-FEAT-0003-02 | arco de 18 m só em `grip`/`understeer` | **retirado** (a cláusula saiu de AC-US-0003-01) |
+| REQ-FEAT-0003-03 | `oversteer`/`sliding` só sob forçar, drift ou recuperação (AC-US-0003-02) | **retirado** |
+| REQ-FEAT-0003-07 | drift continua pontuando (AC-US-0003-06) | **retirado** (substituído pelo requisito 13) |
+| REQ-FEAT-0003-01, 06 | condução normal por classe de passo, qualquer asfalto | modificados: todos os passos da volta do piloto de teste |
+| REQ-FEAT-0003-04 | recuperação na pista de teste com arco | modificado: pista de teste aberta, cada lado |
+| REQ-FEAT-0003-08 | saída com `NORMAL_DRIVING` agregado e `REAR_RECOVERY` | modificado: `REAR_RECOVERY`, `NORMAL_DRIVING` da volta, `DRIFT_INERT`, `SPEED_CAP` |
+| REQ-FEAT-0003-10 | classe do passo na simulação | modificado: inclui a ausência de efeito do comando de drift e a remoção de exibição |
+| REQ-FEAT-0003-12 | passos além de 400 ms contados em `NORMAL_DRIVING` | modificado: só o `FAIL` de `REAR_RECOVERY` (a condução normal é a volta do piloto de teste) |
+| REQ-FEAT-0003-13 a 17 | — | **novos**: comando de drift sem efeito (AC-US-0003-08); sem indicador na tela (09); sem indicador no texto compartilhado (11); velocidade máxima única (10); traseira que não solta |
+| REQ-FEAT-0004-02 | pelo menos 105 km/h | modificado: entre 65 km/h e 72 km/h |
+| REQ-FEAT-0005-06 | tela e texto compartilhado (AC-US-0005-05) | modificado: só a tela |
+| REQ-FEAT-0005-13 | — | **novo**: texto compartilhado (AC-US-0005-07) |
+| REQ-FEAT-0006-01, 05, 08 | presets e assistências; lista de ensaios antiga; parâmetros do arco | modificados |
+| `benchId` `REFERENCE_CORNER`, `UNDERSTEER_ONSET`, `DRIFT_MANEUVER` | ensaios | **retirados**; substitutos `CORNER_RADIUS` e `CORNER_TURN`, nenhum, `DRIFT_INERT` |
+| Campos `throttleCondition`, `arcRadiusM`, `laneWidthM`, `maxUndersteerMs`, `v0Mps`, `v1Mps`, `entrySpeedStepMps`, `maxUndersteerMsBySpeed`, `driftScorePoints`, `excludedRecoveryStepCount` (API-0003); `driftActive` (API-0001) | campos | **retirados**, com o substituto ou a falta dele em Compatibilidade |
+
+Requisitos funcionais: 62 antes e 64 depois (11 retirados, 13 novos). Critérios `AC-*` realizados: 32
+antes e 33 depois, todos os da base 4.3.0.
+
+**Superfície**: Mode C sobre requisitos revalidados; cada item novo realiza um item da revisão 4 ou 5:
+`CORNER_RADIUS`, `CORNER_TURN`, `pathRadiusAt3sM`, `turnAt2sRad`, `halfTurnReachedMs`, `radiusWindowMs`,
+`stoppedAtStep` e `headingRad` (AC-US-0002-05, 07, 08, 09); `testAreaRadiusM` e `TEST_AREA_EXCEEDED`
+(US-0002, caso anormal "Kart fora da área do ensaio"); `DRIFT_INERT`, `positionXM` e `positionZM`
+(AC-US-0003-08); `SPEED_CAP` (AC-US-0003-10); `rearReleased` e `forcingMs` (US-0003, caso anormal
+"Traseira não solta"); `steerInputNorm` e `entrySpeedMps` em `REAR_RECOVERY` (AC-US-0003-03, os dois
+lados).
+
+**Itens fechados**: o pedido do coordenador desta rodada (levar a revisão 5 às funcionalidades, regras, API
+dos registros de ensaio e telas). Nenhum `ISSUE-<nn>`/`FB-<nn>` pendente: o último relatório
+(`fspec-validation-20261027-1735`) foi SUCCESS. Divergências registradas: nenhuma.
+
+**Leituras registradas** (para o validador e para o autor; nenhuma é limiar novo)
+
+- Área declarada da pista de teste aberta: os requisitos dizem que "o ensaio declara uma área de asfalto
+  que contém a trajetória" (US-0002, caso anormal). O conjunto a fixa como um disco centrado no ponto de
+  partida, de raio `testAreaRadiusM` (parâmetro de ensaio), e aplica a mesma regra à resposta do volante e
+  à recuperação, cujas pré-condições dizem que o kart segue no asfalto da mesma pista. A saída tem motivo
+  próprio, `TEST_AREA_EXCEEDED`, porque os requisitos a tratam como falha do ambiente de ensaio, "não como
+  aprovação", distinta de `OFF_ASPHALT` (o kart do piloto de teste saindo da pista).
+- Raio aos 3 s: a janela `radiusWindowMs` é centrada no instante de 3 s ("numa janela curta em torno dele",
+  glossário dos requisitos).
+- Giro: variação acumulada do rumo, com sinal; o critério usa o módulo. Contrato em rad (D-FS-06),
+  apresentado em graus; 180° = π rad, sem arredondar o valor medido.
+- Traseira que não solta: `REAR_RECOVERY` não reprova (`rearReleased` falso, `forcingMs`), porque os
+  requisitos dizem que nenhum critério de "traseira solta obrigatória" é inventado.
+- `DRIFT_INERT` roda sobre duas sequências — a volta do piloto de teste e a do ensaio de recuperação —,
+  para cobrir "qualquer ambiente" e o caso "comando de drift mantido durante a recuperação ou durante a
+  condição de forçar".
+- `SPEED_CAP` cobre os ensaios que partem de velocidade igual ou menor que `topSpeedMps`; `CORNER_RADIUS` a
+  70 km/h entra só quando 70 km/h não passa dela (US-0002, caso anormal "Partida acima da velocidade
+  estabilizada").
+- A curva de referência ganhou `benchId` novos em vez de reaproveitar `REFERENCE_CORNER` com outro
+  significado (política de contrato estrito, regra 5): o ensaio do arco e o de raio e giro não medem a
+  mesma coisa.
+- `NORMAL_DRIVING` manteve o nome: o conceito (passos de condução normal) é o mesmo e os requisitos o
+  redefiniram; a mudança de população está em Compatibilidade de `API-0003`.
+
+**Itens recusados, com motivo**
+
+- Os valores de parâmetro do acerto C que `DOMAIN/DEC-15` lista: não entram na especificação; são
+  constantes de física e decisão de projeto, registradas em `docs/physics.md` (NFR-0004), como os
+  requisitos recusaram na rodada 12.
+- O identificador `arcade-assistido-v6` como valor de `setupVersion`: não fixado; o critério 04 de US-0005
+  exige só uma versão diferente da anterior, e o valor é decisão de projeto (requisitos, rodadas 11 e 12).
+- Os valores medidos do acerto C (69,3 km/h; 2,21 s; ≈ 11,7 m; 208°; 23,05 s) como limites: são
+  informação do dono do produto; os limites são os critérios.
+- Um campo ou pedido para escolher quais ensaios rodar, que tornaria "rejeitada" a execução de um
+  `benchId` retirado: não acrescentado — seria controle de execução por feature (política de contrato
+  estrito, regra 10); a retirada fica declarada pela ausência de emissão, sem leitor a rejeitar.
+- Uma configuração para religar o drift ou manter o acerto anterior: não acrescentada (`DOMAIN/DEC-10`;
+  regra 10).
+- As leituras e propostas da rodada 10 sobre o terceiro caso de V1 e o alcance de `DOMAIN/DEC-14`, e as
+  duas lacunas deliberadas da varredura (saída exatamente a 50 km/h; fim sem saída da faixa): sem objeto,
+  porque `UNDERSTEER_ONSET` saiu com `DOMAIN/DEC-15`. Proposta ao autor: fechar a entrada correspondente
+  de `SCOPE-BACKLOG.md`, se ele a abriu.
+- Reescrever no lugar as entradas de Compatibilidade 3.1.0 a 3.4.0 de `API-0003`: retiradas do contrato,
+  porque descreviam só campos agora retirados; o histórico fica nas rodadas 6 a 10 deste changelog.
+- Os itens recusados das rodadas 1 e 5 a 9 que não tratavam do arco de 18 m continuam recusados pelos
+  mesmos motivos (parede sem percentual; recuperação com esterço parcial; inversão do esterço; valores
+  anteriores não permanecem como piso).
+
+**Versões**: `RULE-0002`, `API-0003`, `FEAT-0002`, `FEAT-0003`, `RULE-0001`, `FLOW-0002`, `01-overview.md` e
+`02-glossary.md` em 4.0.0; `API-0001` em 2.0.0; `FEAT-0001` em 3.1.0; `FEAT-0004`, `FEAT-0005` em 2.2.0;
+`FEAT-0006` em 2.1.0; `RULE-0003` em 1.2.0; `FLOW-0001` em 1.2.0; `API-0002`, `FLOW-0003`, `SCR-0001`,
+`SCR-0002` em 1.1.0; este changelog em 4.0.0; todos em `status: draft`. Intocado: `98-divergences.md`.
+
+## 2026-10-30 — rodada 12, Mode B (fspec-validation-20261030-1222: 5 erros, 1 aviso; requisitos 4.3.0)
+
+**Gatilho**: o relatório FAIL `fspec-validation-20261030-1222` (`ISSUE-01` a `ISSUE-05`, erros;
+`ISSUE-06`, aviso) sobre a rodada 11.
+
+**O que mudou**
+
+- `ISSUE-01` (erro, F4 — a `setupVersion` em texto na tela de resultado e no texto compartilhado): a
+  exibição saiu de todos os sites. A tela de resultado e o texto compartilhado realizam AC-US-0005-05 e
+  AC-US-0005-07 só por nunca comparar tempos com `comparability` diferente de `COMPARABLE` (nenhuma
+  diferença, melhor tempo ou ordenação entre eles), sem elemento nem texto novo de tela. A `setupVersion`
+  e o `setupId` continuam no dado publicado, no replay e no resultado (AC-US-0005-04, NFR-0009), como dado
+  que decide a comparabilidade. Sites carregados: `SCR-0002` (título, Propósito, Canal, estados Carregando,
+  Vazio, Populado e Erro, parágrafo do texto compartilhado, ação "Compartilhar o resultado"); `API-0002`
+  (título, seção dos campos acrescentados, parágrafo do texto compartilhado, linha de Compatibilidade dos
+  campos novos); `RULE-0003` (linha `SETUP_VERSION_DIFFERS`); `FEAT-0005` (linha "Comparação entre versões
+  diferentes"); `FLOW-0003` (mensagem do diagrama e passo 5); `01-overview.md` (mapa do conjunto).
+  **O que mudou em relação a rodadas validadas e por quê**: `SCR-0002` 1.0.0 e `API-0002` 1.0.0, validados
+  desde a rodada 1, já punham a `setupVersion` em texto ao lado do tempo, na tela e no texto
+  compartilhado, como forma de realizar o antigo AC-US-0005-05. Nenhum critério pede esse rótulo, e
+  `01-context.md` dos requisitos dispensa texto novo de tela (RNF11) e diz que a feature não acrescenta
+  elemento de tela, só retira os do drift e do turbo. O rótulo sai; se o dono do produto o quiser, ele
+  entra pelos requisitos.
+- `ISSUE-02` (erro, F7 — transição para `oversteer`/`sliding` em `FEAT-0003`): a linha da tabela de
+  transições deixa de ter `forcing` como gatilho exclusivo e diz o que `RULE-0001` e os requisitos dizem:
+  nunca na volta do piloto de teste (requisito 01), provocada pela condição de forçar no ensaio de
+  recuperação (requisito 04), sem restrição de contexto nas voltas do Jogador.
+- `ISSUE-03`, `ISSUE-04`, `ISSUE-05` (erros, F1 — `;` em texto de mensagem mermaid): `FLOW-0001`,
+  `FLOW-0002` e `FLOW-0003` separam os itens por vírgula. Mesmo fato em outro site: o rótulo da transição
+  `SUPERSEDED --> SUPERSEDED` do `stateDiagram-v2` de `RULE-0003` também trocou `;` por vírgula. Nenhum
+  bloco mermaid do conjunto tem mais `;` nem `#` em texto.
+- `ISSUE-06` (aviso, F5 — `WALL_CONTACT` sem contato): o `FAIL` com `contacts` vazio passa a declarar
+  `failReason` `MEASUREMENT_MISSING` (falta de medida: não há par a julgar), valor já existente no enum.
+  Sites: `API-0003` (linha `contacts`, linha `MEASUREMENT_MISSING` da tabela Erros, linha `failReason` de
+  Compatibilidade), `FLOW-0002` (linha "Nenhum contato em `WALL_CONTACT`"), `RULE-0002` (veredito de
+  `WALL_CONTACT`) e `02-glossary.md` (`failReason`).
+
+**Versões**: `SCR-0002` e `API-0002` em 1.2.0; `RULE-0003` em 1.3.0; `FEAT-0005` em 2.3.0; `FLOW-0003` em
+1.2.0; `FEAT-0003`, `FLOW-0002`, `API-0003`, `RULE-0002`, `01-overview.md` e `02-glossary.md` em 4.0.1;
+`FLOW-0001` em 1.2.1; este changelog em 4.0.1; todos em `status: draft`. Intocados: `FEAT-0001`,
+`FEAT-0002`, `FEAT-0004`, `FEAT-0006`, `API-0001`, `RULE-0001`, `SCR-0001`, `98-divergences.md`.
+`00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Superfície (conventions §16)**: nenhum requisito, campo, valor de enum, ensaio, tela ou elemento de tela
+acrescentado; um elemento de tela (a `setupVersion` em texto) e uma cláusula do texto compartilhado foram
+retirados, e `WALL_CONTACT` passou a usar um valor de `failReason` que já existia. Requisitos funcionais: 64
+antes e depois. Critérios `AC-*` realizados: 33 antes e depois.
+
+**Tabela de migração** (conventions §17): nenhum requisito, contrato, campo ou ensaio retirado. Modificado:
+a exibição da `setupVersion` na tela de resultado e no texto compartilhado (`SCR-0002`, `API-0002`), que
+saiu, sem substituto, porque nenhum critério a pede; os campos `setupId` e `setupVersion` do replay e do
+resultado ficam.
+
+**Itens fechados**: `ISSUE-01` a `ISSUE-06` de `fspec-validation-20261030-1222`. Divergências registradas:
+nenhuma.
+
+**Itens recusados, com motivo**: nenhum desta rodada. Os itens recusados da rodada 11 continuam recusados
+pelos mesmos motivos. Proposta ao autor, só se ele quiser o rótulo de versão na tela: um critério novo nos
+requisitos, para `SCOPE-BACKLOG.md` (não escrita por esta etapa): "2026-10-30 fspec-loop rodada 12 — exibir
+a versão do acerto ao lado do tempo na tela de resultado e no texto compartilhado?".

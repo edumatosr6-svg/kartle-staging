@@ -4,8 +4,8 @@ title: Jogo justo — determinismo, piloto de teste e versão do acerto
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 2.1.0
-sources: [US-0005, NFR-0001, NFR-0009, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06]
+version: 2.3.0
+sources: [US-0005, NFR-0001, NFR-0009, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07]
 ---
 
 # FEAT-0005 — Jogo justo — determinismo, piloto de teste e versão do acerto
@@ -22,10 +22,12 @@ I3, I5); `STEP`, o solver e `Input` não mudam.
 
 `web-desktop` e `web-mobile`: mesma regra de determinismo e mesma versão declarada; o resultado de uma
 volta é função só da sequência de `Input` por passo, seja de teclado, inclinação ou toque. O piloto de teste
-não tem canal de jogo; a sua volta é o único ensaio desta feature que roda na pista sintética (raios
-mínimos de curva 24 m e 25 m, grampo de 4 m), enquanto os ensaios de [FEAT-0001](FEAT-0001-resposta-do-volante.md)
-a [FEAT-0003](FEAT-0003-traseira-viva-e-controlavel.md) rodam na pista de teste (`SEED/RD-06`,
-`DOMAIN/REF-03`). Sem sensor ou sem permissão: toque com estado visível; a sequência resultante segue a
+não tem canal de jogo; a sua volta é a única que roda na pista sintética (raios mínimos de curva 24 m e
+25 m, grampo de 4 m) e serve também à condução normal de
+[FEAT-0003](FEAT-0003-traseira-viva-e-controlavel.md), enquanto os ensaios de resposta do volante, de curva
+e de recuperação da traseira ([FEAT-0001](FEAT-0001-resposta-do-volante.md) a
+[FEAT-0003](FEAT-0003-traseira-viva-e-controlavel.md)) rodam na pista de teste aberta (`SEED/RD-06`,
+`DOMAIN/REF-03`, `DOMAIN/DEC-15`). Sem sensor ou sem permissão: toque com estado visível; a sequência resultante segue a
 mesma regra (I4).
 
 ## Requisitos
@@ -46,9 +48,13 @@ mesma regra (I4).
   `ARCADE_ASSISTIDO` diferente de `previousSetupVersion`, de modo que dois replays gravados com versões
   diferentes carreguem `setupVersion` diferentes e sejam distinguíveis pela leitura desse campo
   (AC-US-0005-04).
-- REQ-FEAT-0005-06: O sistema SHALL NOT apresentar, na tela nem no texto compartilhado, um tempo, replay ou
-  resultado gravado com outra `setupVersion` como comparável a um tempo da versão corrente: toda comparação
-  exibida ou compartilhada tem `comparability` igual a `COMPARABLE` (AC-US-0005-05).
+- REQ-FEAT-0005-06: O sistema SHALL NOT apresentar na tela, em `web-desktop` nem em `web-mobile`, um tempo,
+  replay ou resultado gravado com outra `setupVersion` como comparável a um tempo da versão corrente: onde
+  a tela compara tempos, toda comparação exibida tem `comparability` igual a `COMPARABLE` (AC-US-0005-05).
+- REQ-FEAT-0005-13: O sistema SHALL NOT apresentar no texto compartilhado do resultado, gerado em
+  `web-desktop` ou em `web-mobile`, um tempo, replay ou resultado gravado com outra `setupVersion` como
+  comparável a um tempo da versão corrente: onde o texto compara tempos, toda comparação compartilhada tem
+  `comparability` igual a `COMPARABLE` (AC-US-0005-07).
 - REQ-FEAT-0005-07: O sistema SHALL mostrar, na saída de `npm test`, o registro `STEP_CONTRACT` com
   `stepUnchanged`, `solverRateUnchanged` e `inputFieldsUnchanged` verdadeiros: `STEP`, a taxa do solver
   (480 Hz) e o conjunto, a faixa e o significado dos campos de `Input` são os mesmos antes e depois da
@@ -88,11 +94,11 @@ Versão, comparabilidade e leitura de registros:
 | Piloto de teste | `lapTimeMs` ≤ 25 000; `offAsphaltStepCount` = 0; senão `FAIL` com o passo e a posição |
 | Replay ou resultado antigo (sem `setupVersion`) | Lido sem erro; versão resolvida para `previousSetupVersion`; `RESOLVED_FROM_ABSENCE` |
 | Replay antigo reproduzido com o acerto corrente | Reproduzido; tempo obtido não comparável; nada apresentado como equivalente |
-| Comparação entre versões diferentes | Nunca exibida nem compartilhada; cada tempo leva a sua `setupVersion` em texto |
+| Comparação entre versões diferentes | Nunca exibida nem compartilhada; a `setupVersion` decide a comparabilidade e não é exibida (nenhum texto novo de tela, RNF11) |
 | Formato de replay desconhecido | `UNSUPPORTED_FORMAT`; intacto e reportado (I4) |
 | Pausa, perda de foco, perda do sensor durante a volta | A sequência de `Input` por passo é a mesma com ou sem suspensão; tempo simulado (I8) |
 | Sensor ausente ou permissão negada antes da volta (`web-mobile`) | Toque com estado visível; regra de determinismo inalterada |
-| Rodada de acerto reprovada pelo dono do produto em staging (`DOMAIN/DEC-10`) | Os requisitos 01 a 12 valem sem mudança para a rodada seguinte; cada nova rodada de presets é nova `setupVersion` (requisito 05, [RULE-0003](../rules/RULE-0003-versao-do-acerto-e-comparabilidade.md)) e passa de novo por todos os ensaios de [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md); a versão reprovada não é editada no lugar (requisito 09) |
+| Rodada de acerto reprovada pelo dono do produto em staging (`DOMAIN/DEC-10`) | Os requisitos 01 a 13 valem sem mudança para a rodada seguinte; cada nova rodada de presets é nova `setupVersion` (requisito 05, [RULE-0003](../rules/RULE-0003-versao-do-acerto-e-comparabilidade.md)) e passa de novo por todos os ensaios de [RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md); a versão reprovada não é editada no lugar (requisito 09) |
 | Rede indisponível | Sem efeito: registros e dado publicado são locais (D-FS-08) |
 
 ## Estado
@@ -123,9 +129,11 @@ de depuração. Nenhum preset experimental extra é exposto no painel do jogo du
   AC-US-0005-02, AC-US-0005-03; cobre os requisitos 03, 04 e 11).
 - `SETUP_VERSION` com `declaredSetupVersion` diferente de `previousSetupVersion`, e dois replays de versões
   diferentes distinguíveis pelo campo (satisfaz AC-US-0005-04; cobre os requisitos 05 e 09).
-- Nenhuma comparação na tela ou no texto compartilhado com `comparability` diferente de `COMPARABLE`; o
-  replay antigo reproduzido não é apresentado como equivalente (satisfaz AC-US-0005-05; cobre os requisitos
-  06 e 10).
+- Nenhuma comparação na tela, nos dois canais, com `comparability` diferente de `COMPARABLE`; o replay
+  antigo reproduzido não é apresentado como equivalente (satisfaz AC-US-0005-05; cobre os requisitos 06 e
+  10).
+- Nenhuma comparação no texto compartilhado, gerado nos dois canais, com `comparability` diferente de
+  `COMPARABLE` (satisfaz AC-US-0005-07; cobre o requisito 13).
 - `STEP_CONTRACT` com os três booleanos verdadeiros (satisfaz AC-US-0005-06; cobre o requisito 07).
 - `oldRecordsReadOkCount` igual a `oldRecordsReadCount` com `RESOLVED_FROM_ABSENCE` (satisfaz o NFR-0009;
   cobre o requisito 08).

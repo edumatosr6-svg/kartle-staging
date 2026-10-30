@@ -4,7 +4,7 @@ title: Requisitos transversais — camada de simulação, contrato de passo, Rea
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 2.0.0
+version: 2.1.0
 sources: [NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008]
 ---
 
@@ -12,8 +12,9 @@ sources: [NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008]
 
 ## Resumo
 
-Reúne o que vale para toda a feature e não pertence a uma história só: toda a mudança fica nos presets e
-nas assistências da camada de simulação (I2); o contrato de passo não muda (I8); o preset Realista e a
+Reúne o que vale para toda a feature e não pertence a uma história só: as regras de pilotagem ficam na
+camada de simulação (I2), e retirar da tela o drift e o turbo é só remoção de exibição (`SEED/RE-01`,
+`DOMAIN/DEC-16`); o contrato de passo não muda (I8); o preset Realista e a
 validação de volta não mudam; o custo por passo não sobe mais de 10 %; teclado e inclinação atendem os
 mesmos critérios; e cada mudança de parâmetro registra parâmetros e resultados em `docs/physics.md` (I9).
 
@@ -25,8 +26,11 @@ objeto do requisito 05.
 ## Requisitos
 
 - REQ-FEAT-0006-01: O sistema SHALL decidir resposta do volante, aderência, recuperação da traseira,
-  aceleração, perda na grama e na parede nos presets e nas assistências da camada de simulação, com 0
-  regras de pilotagem em renderização ou em adaptador de controle (NFR-0005; D-FS-05).
+  aceleração, velocidade máxima, perda na grama e na parede na camada de simulação, com 0 regras de
+  pilotagem em renderização ou em adaptador de controle; a retirada do drift e do turbo tira regras de
+  pilotagem da simulação sem criar nenhuma fora dela, e retirar da tela (HUD, resultado e texto
+  compartilhado) o que os mostrava é só remoção de exibição, sem regra nova na renderização (NFR-0005;
+  D-FS-05).
 - REQ-FEAT-0006-02: O sistema SHALL manter a simulação com 0 importações de camada externa (DOM,
   renderização, áudio, relógio de parede), de modo que todos os ensaios de `RULE-0002` executem sem DOM em
   `npm test` (NFR-0005).
@@ -39,8 +43,8 @@ objeto do requisito 05.
   100 % das medidas, verificado por `REALISTA_UNCHANGED` com `differingMeasureCount` 0 e
   `arcadeAssistActiveCount` 0 (NFR-0007).
 - REQ-FEAT-0006-05: O sistema SHALL aprovar cada ensaio de US-0001 a US-0004 (`STEER_RESPONSE`,
-  `REFERENCE_CORNER`, `UNDERSTEER_ONSET`, `NORMAL_DRIVING`, `REAR_RECOVERY`, `ACCELERATION`, `TOP_SPEED`,
-  `GRASS_LOSS`, `WALL_CONTACT`) com `inputMode` `BINARY` e com `inputMode` `PROPORTIONAL` (esterço 1
+  `CORNER_RADIUS`, `CORNER_TURN`, `NORMAL_DRIVING`, `REAR_RECOVERY`, `DRIFT_INERT`, `SPEED_CAP`,
+  `ACCELERATION`, `TOP_SPEED`, `GRASS_LOSS`, `WALL_CONTACT`) com `inputMode` `BINARY` e com `inputMode` `PROPORTIONAL` (esterço 1
   mantido), sem diferença de limite, na saída de `npm test` (NFR-0003).
 - REQ-FEAT-0006-06: O sistema SHALL manter o tempo médio por passo de `STEP` sobre a volta completa do
   piloto de teste em no máximo 10 % acima da linha de base registrada, na mesma máquina e no mesmo
@@ -53,7 +57,9 @@ objeto do requisito 05.
   campos de `API-0003` de 100 % dos ensaios de `RULE-0002`, com unidade, para a linha de base e para o novo
   acerto, incluindo o ambiente de cada ensaio (`benchEnvironment`) e os parâmetros de ensaio
   (`speedHoldMode`, `throttleInputNorm`, `speedHoldBandMps`, `speedMinMps` e `speedMaxMps` observadas,
-  `settleWindowMs`, `arcRadiusM`, `laneWidthM`, `entrySpeedStepMps`) (NFR-0004).
+  `settleWindowMs`, `radiusWindowMs`, `testAreaRadiusM`, `entrySpeedMps` e a duração máxima do forçar da
+  recuperação), com os limites em vigor na revisão 5 do seed (acerto C, `DOMAIN/DEC-15`; giro de pelo
+  menos 180° em até 2 s, `DOMAIN/DEC-16`) ao lado dos da linha de base (NFR-0004).
 - REQ-FEAT-0006-09: O sistema SHALL reportar `FAIL` com `BASELINE_MISSING` em `STEP_COST` quando a linha de
   base do custo por passo não está registrada para a mesma máquina e runtime, sem comparar com linha de
   base de outra máquina [DOMAIN] (I9; NFR-0002).
@@ -69,6 +75,7 @@ Camadas: [FLOW-0001](../flows/FLOW-0001-passo-de-simulacao-e-hud.md).
 | Situação | Comportamento |
 |---|---|
 | Regra de pilotagem encontrada em renderização ou adaptador | Não atende o requisito 01; a regra pertence à simulação |
+| Indicadores do drift e do turbo retirados do HUD, do resultado e do texto compartilhado | Remoção de exibição permitida; nenhuma regra nova na renderização (requisito 01) |
 | Ensaio que precisa de DOM para rodar | Não atende o requisito 02 |
 | `STEP`, solver ou `Input` alterados | `STEP_CONTRACT` dá `FAIL` com `CONTRACT_CHANGED` |
 | Medida do Realista diferente da linha de base | `REALISTA_UNCHANGED` dá `FAIL` com `CONTRACT_CHANGED` |

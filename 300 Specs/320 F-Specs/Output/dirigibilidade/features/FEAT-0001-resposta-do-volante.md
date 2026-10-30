@@ -4,7 +4,7 @@ title: Resposta imediata do volante
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 3.0.0
+version: 3.1.0
 sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06]
 ---
 
@@ -12,13 +12,14 @@ sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, A
 
 ## Resumo
 
-Com o acerto Arcade assistido na sua nova versão, o kart aponta para a curva quando o Jogador manda: em
-reta da pista de teste, com a velocidade mantida em 50 km/h pelo acelerador, a taxa de guinada atinge 90 %
+Com o acerto Arcade assistido na sua nova versão, o kart aponta para a curva quando o Jogador manda:
+partindo em reta na pista de teste aberta (asfalto sem faixa e sem paredes, `DOMAIN/DEC-15`), com a velocidade mantida em 50 km/h pelo acelerador, a taxa de guinada atinge 90 %
 do regime em no máximo 180 ms depois do esterço cheio e cai a 10 % em no máximo 250 ms depois de soltá-lo
 (`DOMAIN/DEC-01`). O regime é o valor estabilizado com a velocidade mantida, medido numa janela curta e
 estacionária, nunca um valor que deriva com a desaceleração (`DOMAIN/REF-03`). Em `web-mobile`, o esterço
 parcial da inclinação tem os mesmos limites para o regime que lhe corresponde. O ensaio mede só a taxa de
-guinada; `understeer` transitório nesse ensaio é aceitável (`DOMAIN/DEC-09`).
+guinada; `understeer` transitório nesse ensaio é aceitável (`DOMAIN/DEC-09`), e a aderência em curva é
+julgada pelos ensaios de raio e giro de [FEAT-0002](FEAT-0002-aderencia-em-curva.md).
 
 ## Canais
 
@@ -31,8 +32,8 @@ direção que o adaptador do canal produz (`SEED/RD-06`).
 
 ## Requisitos
 
-- REQ-FEAT-0001-01: O sistema SHALL, no estado da simulação, com o kart em reta da pista de teste, no
-  asfalto, em `grip`, a 50 km/h mantidos pelo acelerador, e o esterço levado de 0 a 1, ou de 0 a −1, num
+- REQ-FEAT-0001-01: O sistema SHALL, no estado da simulação, com o kart partindo em reta na pista de teste
+  aberta, no asfalto, em `grip`, a 50 km/h mantidos pelo acelerador, e o esterço levado de 0 a 1, ou de 0 a −1, num
   passo, levar a taxa de guinada a 90 % do seu regime em módulo em no máximo 180 ms de tempo simulado
   contados desse passo; o regime é o valor estabilizado da taxa de guinada com o esterço mantido e a
   velocidade mantida em 50 km/h, medido numa janela curta e estacionária (AC-US-0001-01).
@@ -51,7 +52,7 @@ direção que o adaptador do canal produz (`SEED/RD-06`).
 - REQ-FEAT-0001-05: O sistema SHALL registrar, na saída do ensaio `STEER_RESPONSE`, um veredito que depende
   apenas dos tempos medidos de subida a 90 % e de queda a 10 % do regime; um passo em `understeer` durante
   o ensaio não altera o veredito nem os tempos medidos, e é apenas contado em `understeerStepCount`; a
-  aderência em curva é julgada só pelo ensaio do arco de raio 18 m da pista de teste de
+  aderência em curva é julgada só pelos ensaios de raio da trajetória e de giro da pista de teste aberta de
   [FEAT-0002](FEAT-0002-aderencia-em-curva.md) (AC-US-0001-05).
 - REQ-FEAT-0001-06: O sistema SHALL conter, na saída de `npm test` ou de `npm run bench:handling`, para o
   acerto Arcade assistido, o registro `STEER_RESPONSE` dos requisitos 01 e 02 com `benchEnvironment`
@@ -74,17 +75,18 @@ direção que o adaptador do canal produz (`SEED/RD-06`).
 
 Fluxo do passo e do HUD: [FLOW-0001](../flows/FLOW-0001-passo-de-simulacao-e-hud.md). Ensaio, ambiente e
 saída: [FLOW-0002](../flows/FLOW-0002-ensaio-deterministico-e-piloto-de-teste.md),
-[RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md) (`STEER_RESPONSE`, pista de teste),
+[RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md) (`STEER_RESPONSE`, pista de teste aberta),
 [API-0003](../api/API-0003-saida-dos-ensaios.md). Telemetria lida:
 [API-0001](../api/API-0001-telemetria-de-dirigibilidade.md) (`yawRateRadPerS`, `speedMps`, `handling`).
 
 | Situação | Comportamento |
 |---|---|
-| Esterço cheio em reta da pista de teste, 50 km/h mantidos, para qualquer lado | 90 % do regime em módulo em ≤ 180 ms; ao soltar, 10 % em ≤ 250 ms; regime medido na janela estacionária |
+| Esterço cheio partindo em reta na pista de teste aberta, 50 km/h mantidos, para qualquer lado | 90 % do regime em módulo em ≤ 180 ms; ao soltar, 10 % em ≤ 250 ms; regime medido na janela estacionária |
 | Esterço parcial mantido (`web-mobile`) | Mesmos limites para o regime desse esterço |
-| `understeer` reportado durante o ensaio | Aceitável; não falha o ensaio; a aderência é julgada só na curva de referência ([FEAT-0002](FEAT-0002-aderencia-em-curva.md)) |
+| `understeer` reportado durante o ensaio | Aceitável; não falha o ensaio; a aderência em curva é julgada só pelos ensaios de raio e giro ([FEAT-0002](FEAT-0002-aderencia-em-curva.md)) |
 | Velocidade não mantida durante o ensaio | O regime não é estacionário; `FAIL` com `SPEED_NOT_HELD` e a faixa observada; os tempos não valem como veredito |
 | Esterço fora da faixa | Saturado; limites valem para o valor saturado |
+| Kart fora da área de asfalto declarada pelo ensaio | Medição inválida: `FAIL` com `TEST_AREA_EXCEEDED`, passo e posição, como falha do ambiente de ensaio ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), Ambientes de ensaio) |
 | Esterço invertido antes do regime (1 para −1 num passo) | Nenhum limite fixado (lacuna deliberada de `01-overview.md`); os requisitos 01 e 02 não se aplicam à inversão |
 | Velocidade diferente de 50 km/h ao aplicar o esterço | Nenhum limite fixado; o comportamento em curva é de [FEAT-0002](FEAT-0002-aderencia-em-curva.md) e [FEAT-0003](FEAT-0003-traseira-viva-e-controlavel.md) |
 | Pausa, perda de foco, perda do sensor durante a manobra | Simulação suspensa; o tempo suspenso não conta |
@@ -107,7 +109,7 @@ configuração da feature. Os parâmetros do acerto não são configuração exp
 
 ## Critérios de aceite
 
-- Em reta da pista de teste a 50 km/h mantidos, esterço 0 a 1 e 0 a −1: 90 % do regime em módulo em
+- Partindo em reta na pista de teste aberta a 50 km/h mantidos, esterço 0 a 1 e 0 a −1: 90 % do regime em módulo em
   ≤ 180 ms; esterço mantido e solto: 10 % em ≤ 250 ms; `speedMinMps` e `speedMaxMps` dentro da faixa
   mantida (satisfaz AC-US-0001-01, AC-US-0001-02; cobre os requisitos 01, 02, 07 e 08).
 - Esterço parcial em `web-mobile`: 90 % do regime correspondente em ≤ 180 ms; solto: 10 % em ≤ 250 ms

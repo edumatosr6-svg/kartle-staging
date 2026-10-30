@@ -4,8 +4,8 @@ title: Versão do acerto e comparabilidade
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [US-0005, NFR-0006, NFR-0009, AC-US-0005-01, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06]
+version: 1.3.0
+sources: [US-0005, NFR-0006, NFR-0009, AC-US-0005-01, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07]
 ---
 
 # RULE-0003 — Versão do acerto e comparabilidade
@@ -36,7 +36,7 @@ um tempo da seguinte (`SETUP_VERSION_DIFFERS`).
 stateDiagram-v2
     [*] --> PUBLISHED: declaração no dado publicado
     PUBLISHED --> SUPERSEDED: nova versão declarada
-    SUPERSEDED --> SUPERSEDED: continua legível; nunca editada
+    SUPERSEDED --> SUPERSEDED: continua legível, nunca editada
 ```
 
 | Transição | O que a dispara | Idempotência e contador |
@@ -50,13 +50,14 @@ Não existe transição de volta: uma versão publicada nunca é editada no luga
 
 | `trackId` e `trackVersion` iguais | `setupId` igual | `setupVersion` igual | `comparability` | Efeito | Fonte |
 |---|---|---|---|---|---|
-| sim | sim | sim | `COMPARABLE` | Podem ser comparados (diferença, melhor tempo, ordenação) | AC-US-0005-05 |
-| sim | sim | não | `SETUP_VERSION_DIFFERS` | Nunca comparados; onde exibidos juntos, cada um acompanhado da sua `setupVersion` em texto | AC-US-0005-05 |
-| sim | não | qualquer | `SETUP_DIFFERS` | Nunca comparados | AC-US-0005-05 |
-| não | qualquer | qualquer | `TRACK_DIFFERS` | Nunca comparados (já era regra do dado de pista, I1) | AC-US-0005-05 |
+| sim | sim | sim | `COMPARABLE` | Podem ser comparados (diferença, melhor tempo, ordenação), na tela e no texto compartilhado | AC-US-0005-05, AC-US-0005-07 |
+| sim | sim | não | `SETUP_VERSION_DIFFERS` | Nunca comparados, na tela nem no texto compartilhado: nenhuma diferença, melhor tempo ou ordenação entre os dois; a `setupVersion` não é exibida | AC-US-0005-05, AC-US-0005-07 |
+| sim | não | qualquer | `SETUP_DIFFERS` | Nunca comparados, na tela nem no texto compartilhado | AC-US-0005-05, AC-US-0005-07 |
+| não | qualquer | qualquer | `TRACK_DIFFERS` | Nunca comparados, na tela nem no texto compartilhado (já era regra do dado de pista, I1) | AC-US-0005-05, AC-US-0005-07 |
 
-A comparação é avaliada antes de qualquer exibição ou texto compartilhado; a tela e o texto só recebem o
-resultado ([SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md)).
+A comparação é avaliada antes de qualquer exibição ou texto compartilhado; a tela (AC-US-0005-05) e o texto
+compartilhado (AC-US-0005-07) só recebem o resultado
+([SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md)).
 
 ## Leitura de registros da versão anterior
 
@@ -64,7 +65,7 @@ resultado ([SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md)).
 |---|---|---|
 | Replay ou resultado que declara `setupVersion` | Lido; `setupVersionSource` `DECLARED` | AC-US-0005-04 |
 | Replay ou resultado gravado antes da feature, sem `setupVersion` | Lido sem erro; `setupVersion` resolvida para `previousSetupVersion` do seu `setupId` (ausente: `ARCADE_ASSISTIDO`, o padrão anterior à feature); `setupVersionSource` `RESOLVED_FROM_ABSENCE` | NFR-0009 (I5) |
-| Replay da versão anterior reproduzido com o acerto corrente | Reproduzido passo a passo (o contrato de passo não mudou, NFR-0006); o tempo obtido não é o tempo gravado e nenhum resultado é apresentado como equivalente ao original | US-0005, caso anormal |
+| Replay da versão anterior reproduzido com o acerto corrente | Reproduzido passo a passo (o contrato de passo não mudou, NFR-0006); o tempo obtido não é o tempo gravado e nenhum resultado é apresentado como equivalente ao original, na tela nem no texto compartilhado; um comando de drift gravado não tem efeito ([RULE-0001](RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md), Sem drift e sem turbo) | US-0005, caso anormal "Replay da versão anterior"; US-0003, caso anormal "Replay gravado com drift na versão anterior do acerto" |
 | Replay em formato desconhecido | `UNSUPPORTED_FORMAT`: mantido intacto e reportado, nunca descartado (I4) | NFR-0009 |
 
 ## Determinismo

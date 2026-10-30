@@ -4,8 +4,8 @@ title: Contrato da telemetria de dirigibilidade por passo
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [US-0001, US-0002, US-0003, US-0004, NFR-0005, NFR-0006, AC-US-0001-01, AC-US-0001-02, AC-US-0002-01, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0004-03, AC-US-0004-05, AC-US-0004-06]
+version: 2.0.0
+sources: [US-0001, US-0002, US-0003, US-0004, NFR-0005, NFR-0006, AC-US-0001-01, AC-US-0001-02, AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0003-01, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-08, AC-US-0003-10, AC-US-0004-03, AC-US-0004-05, AC-US-0004-06]
 ---
 
 # API-0001 — Contrato da telemetria de dirigibilidade por passo
@@ -14,7 +14,7 @@ Contrato único entre a simulação e quem a lê: os ensaios (`npm test`, benche
 em `web-desktop` e `web-mobile`. É um contrato em processo, dentro do navegador e nos ensaios: não há
 endpoint de rede, caminho HTTP nem prefixo no MVP (diretrizes do estágio). Nomes em `camelCase` plano com
 a unidade no sufixo (D-FS-06): `Mps` metros por segundo, `Rad` radianos, `RadPerS` radianos por segundo,
-`Count` contagem. Os campos existentes do estado da volta (fase, validade, tempos, setores) são do
+`Count` contagem, `M` metros. Os campos existentes do estado da volta (fase, validade, tempos, setores) são do
 contrato de resultado e estado da volta da feature `race-lap-validation`, nomeado e não redefinido aqui.
 
 ## Operações
@@ -40,14 +40,15 @@ passo em questão.
 | `simStepCount` | inteiro | passos | sim | 0 no estado inicial; incrementa 1 por passo de `STEP`; contador de sequência; não avança na suspensão |
 | `setupId` | enum `ARCADE_ASSISTIDO`, `REALISTA_ALUGUEL_4T` | — | sim | acerto em uso ([RULE-0003](../rules/RULE-0003-versao-do-acerto-e-comparabilidade.md)) |
 | `setupVersion` | texto | — | sim | versão corrente do acerto em uso ([API-0002](API-0002-versao-do-acerto.md)) |
+| `positionXM`, `positionZM` | número | m | sim | posição do centro do kart no plano do ambiente; lida pelos ensaios para o raio da trajetória, a área declarada da pista de teste e a comparação de estados com e sem o comando de drift ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md); AC-US-0002-07, AC-US-0003-08) |
+| `headingRad` | número | rad | sim | rumo do kart (direção para a qual aponta, em torno do eixo vertical), acumulado com sinal a partir do estado inicial, sem voltar a zero a cada volta completa; o giro de um ensaio é a sua variação a partir do passo da partida (AC-US-0002-09, AC-US-0003-08) |
 | `speedMps` | número | m/s | sim | 0 ou maior; a apresentação converte para km/h para o HUD (AC-US-0004-06); os ensaios reportam em m/s, apresentados também em km/h ([API-0003](API-0003-saida-dos-ensaios.md)) |
 | `handling` | enum `grip`, `understeer`, `oversteer`, `sliding` | — | sim | estado de aderência ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)); `grip` no estado inicial |
 | `sideslipRad` | número | rad | sim | derrapagem lateral, em módulo; 0 no estado inicial |
 | `yawRateRadPerS` | número | rad/s | sim | taxa de guinada, com sinal; 0 no estado inicial |
-| `surface` | enum `ASPHALT`, `GRASS` | — | sim | superfície sob o kart neste passo; `GRASS` é "fora do asfalto". Na pista de teste ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), `TEST_PAD`), `ASPHALT` dentro da faixa e `GRASS` fora dela; nenhum critério de grama é medido ali |
+| `surface` | enum `ASPHALT`, `GRASS` | — | sim | superfície sob o kart neste passo; `GRASS` é "fora do asfalto". Na pista de teste aberta ([RULE-0002](../rules/RULE-0002-ensaios-e-limiares.md), `TEST_PAD`), `ASPHALT` dentro da área de asfalto declarada pelo ensaio e `GRASS` fora dela; nenhum critério de grama é medido ali |
 | `wallContact` | booleano | — | sim | `true` só no passo em que o kart entra em contato com a parede (AC-US-0004-05); `false` no estado inicial; sempre `false` na pista de teste, que não tem parede |
-| `forcing` | booleano | — | sim | condição de forçar mantida neste passo ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)); `false` no estado inicial |
-| `driftActive` | booleano | — | sim | manobra de drift de `requirements/11` em andamento; `false` no estado inicial |
+| `forcing` | booleano | — | sim | condição de forçar mantida neste passo ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)); `false` no estado inicial; o comando de drift não a altera |
 
 Todos os campos são obrigatórios e nenhum tem padrão que mude comportamento: a telemetria é leitura do
 estado e acrescentá-la não altera nenhum passo da simulação (I4). Nenhum campo carrega dado pessoal (I6).
@@ -78,6 +79,8 @@ Sem paginação. O HUD lê em todos os quadros renderizados entre o sinal verde 
 
 | Mudança | Tratamento |
 |---|---|
-| Contrato novo de leitura | Nenhum campo, caminho ou parâmetro publicado é renomeado ou removido. O estado da simulação já expõe velocidade, estado de aderência, derrapagem lateral e taxa de guinada ao HUD (glossário dos requisitos, "Telemetria"); este contrato os nomeia com a unidade no sufixo e acrescenta `surface`, `wallContact`, `forcing`, `driftActive`, `setupId` e `setupVersion`, todos aditivos |
+| Contrato novo de leitura (versão 1) | O estado da simulação já expõe velocidade, estado de aderência, derrapagem lateral e taxa de guinada ao HUD (glossário dos requisitos, "Telemetria"); este contrato os nomeia com a unidade no sufixo e acrescenta `surface`, `wallContact`, `forcing`, `setupId` e `setupVersion`, todos aditivos |
+| Versão 2.0.0: campo `driftActive` retirado | Sem substituto: a manobra de drift não existe (`DOMAIN/DEC-15`), e o efeito nulo do comando de drift é verificado por `DRIFT_INERT` ([API-0003](API-0003-saida-dos-ensaios.md)). Deixa de ser exposto; o único leitor além dos ensaios é o HUD, que deixa de exibir o drift ([SCR-0001](../screens/SCR-0001-hud-de-velocidade-e-aderencia.md)), de modo que não há leitura a rejeitar |
+| Versão 2.0.0: campos `positionXM`, `positionZM` e `headingRad` | Aditivos, lidos pelos ensaios; o HUD não os exibe |
 | `STEP`, taxa do solver, campos e faixas de `Input` | Inalterados (NFR-0006): este contrato só lê o estado, não muda `step(state, input, dt)` (I8) |
 | Significado ou unidade de um campo | Nunca muda sob o mesmo nome; uma mudança futura exige nome novo (I3) |

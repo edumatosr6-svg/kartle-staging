@@ -4,8 +4,8 @@ title: Leitura de replay e comparação de tempos entre versões do acerto
 feature: dirigibilidade
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [US-0005, NFR-0006, NFR-0009, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06]
+version: 1.2.0
+sources: [US-0005, NFR-0006, NFR-0009, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07]
 ---
 
 # FLOW-0003 — Leitura de replay e comparação de tempos entre versões do acerto
@@ -31,7 +31,7 @@ sequenceDiagram
     alt COMPARABLE
         A-->>A: exibe ou compartilha a comparacao
     else outra versao, outro acerto ou outra pista
-        A-->>A: nunca compara; exibe cada setupVersion em texto
+        A-->>A: nunca compara, nem na tela nem no texto compartilhado
     end
     opt reproduzir
         A->>S: Input por passo do replay
@@ -46,8 +46,8 @@ sequenceDiagram
 | 1 | Apresentação | Pede a leitura de um replay ou resultado gravado | | NFR-0009 |
 | 2 | Leitor | Lê o registro; com `setupVersion` declarada, `DECLARED`; sem o campo, resolve para `previousSetupVersion` do `setupId` (`ARCADE_ASSISTIDO` quando ausente), `RESOLVED_FROM_ABSENCE` | `replayStatus` `READABLE` | AC-US-0005-04; [RULE-0003](../rules/RULE-0003-versao-do-acerto-e-comparabilidade.md) |
 | 3 | Leitor | Lê `getSetupVersion` no dado publicado ([API-0002](../api/API-0002-versao-do-acerto.md)) | | AC-US-0005-04 |
-| 4 | Apresentação | Antes de exibir ou compartilhar qualquer comparação, chama `compareLapRecords` | `comparability` | AC-US-0005-05 |
-| 5 | Apresentação | `COMPARABLE`: compara; qualquer outro valor: nunca compara e, onde os dois aparecem juntos, cada um leva a sua `setupVersion` em texto ([SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md)) | | AC-US-0005-05 |
+| 4 | Apresentação | Antes de exibir ou compartilhar qualquer comparação, chama `compareLapRecords` | `comparability` | AC-US-0005-05, AC-US-0005-07 |
+| 5 | Apresentação | `COMPARABLE`: compara, na tela ou no texto compartilhado; qualquer outro valor: nunca compara, na tela nem no texto compartilhado, sem exibir a `setupVersion` ([SCR-0002](../screens/SCR-0002-resultado-e-texto-compartilhado.md)) | | AC-US-0005-05, AC-US-0005-07 |
 | 6 | Simulação (opcional) | Reproduz o replay passo a passo com o acerto corrente: o contrato de passo não mudou (AC-US-0005-06); o tempo obtido não é o gravado e não é apresentado como equivalente | | US-0005, caso anormal; NFR-0006 |
 
 ## Alternativas, erros e eventos fora de ordem
@@ -57,7 +57,7 @@ sequenceDiagram
 | Registro corrompido ou ausente | `UNREADABLE`; nenhuma comparação; nada é descartado |
 | Formato de replay desconhecido | `UNSUPPORTED_FORMAT`; mantido intacto e reportado (I4, I5) |
 | Registro sem `trackId` ou `trackVersion` | `INCOMPLETE_RECORD`; nenhuma comparação é exibida |
-| Replay da versão anterior reproduzido com o acerto novo | Reproduzido; tempo obtido diferente do gravado; `SETUP_VERSION_DIFFERS` entre o gravado e o obtido; nenhum resultado apresentado como equivalente |
+| Replay da versão anterior reproduzido com o acerto novo | Reproduzido; tempo obtido diferente do gravado; `SETUP_VERSION_DIFFERS` entre o gravado e o obtido; nenhum resultado apresentado como equivalente, na tela nem no texto compartilhado; um comando de drift gravado no replay não tem efeito ([RULE-0001](../rules/RULE-0001-estado-de-aderencia-e-condicao-de-forcar.md)) |
 | Replay do Realista | `setupId` `REALISTA_ALUGUEL_4T` com `setupVersion` inalterada; comparável com outros do Realista na mesma pista (NFR-0007) |
 | Leitura repetida do mesmo registro | Mesmo resultado; leitura pura |
 | Pausa, perda de foco ou perda do sensor durante a reprodução | A sequência de `Input` por passo é a mesma com ou sem suspensão; o tempo é de tempo simulado (I8) |
