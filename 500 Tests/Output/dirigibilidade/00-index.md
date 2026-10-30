@@ -1,8 +1,8 @@
 ---
 stage: test
 feature: dirigibilidade
-status: draft
-generated: 2026-10-30T16:37:46Z
+status: validated
+generated: 2026-10-30T18:58:52Z
 files: 11
 ---
 
@@ -12,14 +12,14 @@ files: 11
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `97-changelog.md` | - | Changelog do estágio de testes | draft | 2.1.0 |
-| `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | draft | 2.1.0 |
+| `97-changelog.md` | - | Changelog do estágio de testes | validated | 2.1.0 |
+| `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | validated | 2.1.0 |
 | `TEST-0001-resposta-do-volante.md` | TEST-0001 | Resposta do volante na pista de teste aberta a 50 km/h mantidos | validated | 1.1.0 |
 | `TEST-0002-raio-da-trajetoria-e-giro-na-pista-aberta.md` | TEST-0002 | Raio da trajetória aos 3 s e giro de 180° em 2 s na pista de teste aberta | validated | 2.0.0 |
 | `TEST-0003-traseira-viva-e-controlavel.md` | TEST-0003 | Traseira viva e controlável: condução normal, recuperação, drift sem efeito e velocidade máxima | validated | 2.0.0 |
 | `TEST-0005-velocidade-grama-e-parede.md` | TEST-0005 | Aceleração, velocidade estabilizada, grama e parede | validated | 1.1.0 |
 | `TEST-0006-telemetria-de-dirigibilidade.md` | TEST-0006 | Telemetria de dirigibilidade (API-0001 2.0.0) campo a campo e o comando de drift sem efeito | validated | 1.1.0 |
-| `TEST-0007-hud-e-texto-compartilhado.md` | TEST-0007 | HUD, tela de resultado, texto compartilhado e telas fora da volta sem versão do acerto, drift nem turbo | draft | 1.2.0 |
-| `TEST-0008-versao-do-acerto-e-registros.md` | TEST-0008 | Versão do acerto, registros antigos e novos, comparabilidade | draft | 1.2.0 |
+| `TEST-0007-hud-e-texto-compartilhado.md` | TEST-0007 | HUD, tela de resultado, texto compartilhado e telas fora da volta sem versão do acerto, drift nem turbo | validated | 1.2.0 |
+| `TEST-0008-versao-do-acerto-e-registros.md` | TEST-0008 | Versão do acerto, registros antigos e novos, comparabilidade | validated | 1.2.0 |
 | `TEST-0009-piloto-de-teste-e-determinismo.md` | TEST-0009 | Volta do piloto de teste na pista sintética e determinismo dos ensaios | validated | 1.1.0 |
-| `TEST-0010-contratos-transversais.md` | TEST-0010 | Contratos transversais: passo fixo, custo, docs/physics.md, camadas, Realista e validação de volta | draft | 1.2.0 |
+| `TEST-0010-contratos-transversais.md` | TEST-0010 | Contratos transversais: passo fixo, custo, docs/physics.md, camadas, Realista e validação de volta | validated | 1.2.0 |

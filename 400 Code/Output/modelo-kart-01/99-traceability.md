@@ -1,7 +1,7 @@
 ---
 stage: code
 feature: modelo-kart-01
-generated: 2026-10-30T16:51:09Z
+generated: 2026-10-30T18:58:52Z
 rows: 176
 ---
 

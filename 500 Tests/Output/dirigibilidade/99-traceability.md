@@ -1,7 +1,7 @@
 ---
 stage: test
 feature: dirigibilidade
-generated: 2026-10-30T16:37:46Z
+generated: 2026-10-30T18:58:52Z
 rows: 59
 ---
 
