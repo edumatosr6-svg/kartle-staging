@@ -2,7 +2,7 @@
 
 Uso (só leitura; três GET em HTTPS, nenhum outro efeito):
     python -I "600 Deploy/Output/modelo-kart-01/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/
-    python -I "600 Deploy/Output/modelo-kart-01/tools/check_served.py" https://edumatosr6-svg.github.io/kartle/ index-D0RarhFV.js
+    python -I "600 Deploy/Output/modelo-kart-01/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-BwruE9Pq.js
 
 Imprime uma linha por verificação (`ok`/`FAIL`) e um resumo
 `status=... js=index-<hash>.js js_bytes=... css_bytes=... cache_control=... last_modified=... checks=... failed=...`
@@ -10,13 +10,15 @@ Imprime uma linha por verificação (`ok`/`FAIL`) e um resumo
   1. a URL responde 200 em HTTPS (a URL tem de começar por `https://`; `http://` é recusado antes de qualquer pedido);
   2. o `index.html` servido referencia exatamente um `assets/index-<hash>.js` e um `.css` sob a base da URL;
   3. (opcional, segundo argumento) o `<hash>` do JS é o esperado — o impresso no passo *Build* da execução aprovada;
-  4. os elementos `#scene`, `#lap-countdown`, `#lap-result`, `#lap-result-setup`, `#speed`, `#handling`, `#tilt`,
-     `#preset-label` e `#handling-preset` (opção `arcade` selecionada) estão no HTML servido (inalterado por esta feature);
+  4. os elementos `#scene`, `#lap-countdown`, `#lap-result`, `#speed`, `#handling`, `#tilt`, `#preset-label` e
+     `#handling-preset` (opção `arcade` selecionada) estão no HTML servido (`#lap-result-setup` saiu do HTML com a
+     `dirigibilidade`, commit `cfad3dc`, e não é mais conferido);
   5. o JS servido responde 200 e carrega os marcadores do Kart 01 que a minificação preserva (`kart01-decals`,
-     `paraChoqueTraseiro`, `placaTraseira`, `bumperPlate`, `exhaustOutlet`, o `fillText` do número `01`, os três modos
-     de câmera e as constantes `=1.38,`, `=3.05,`, `=62,`), nenhum símbolo do kart provisório (`helmet`, `boxGeo`) e os
-     identificadores das releases anteriores (`arcade-assistido-v5`, `arcade-assistido-v4`, `realista-aluguel-4t-v4`,
-     `Kartle · `);
+     `paraChoqueTraseiro`, `placaTraseira`, `bumperPlate`, o `fillText` do número `01`, os três modos de câmera, a
+     condição das marcas de pneu `speedMps>6&&<x>.sideslipRad>.055` do seed rev 4 e as constantes `=1.38,`, `=3.05,`,
+     `=62,`); nenhum símbolo do kart provisório (`helmet`, `boxGeo`) nem dos efeitos de turbo retirados no seed rev 3/4
+     (`exhaustOutlet`, `escapamentoSaida`, `turboFovDeltaDeg`, `baseVerticalFovDeg`); e os identificadores das releases
+     contidas (`arcade-assistido-v6`, `arcade-assistido-v4`, `realista-aluguel-4t-v4`, `Kartle · `);
   6. o CSS servido responde 200;
   7. tamanho do JS servido e da soma JS + CSS + HTML contra o limite de 3 145 728 bytes (NFR-0002, RNF02).
 Não substitui o `smoke.md`: não executa a página, não mede ritmo nem lê o console. Sai com 0 sem reprovação, 1 com.
@@ -70,7 +72,7 @@ js_name = js_refs[0].split("/")[-1] if js_refs else ""
 if expected_js:
     report("hash do JS é o esperado", js_name == expected_js, f"servido {js_name}, esperado {expected_js}")
 
-for el in ("scene", "lap-countdown", "lap-result", "lap-result-setup", "speed", "handling", "tilt", "preset-label", "handling-preset"):
+for el in ("scene", "lap-countdown", "lap-result", "speed", "handling", "tilt", "preset-label", "handling-preset"):
     report(f"elemento `#{el}` no HTML servido", f'id="{el}"' in html)
 report("opção `arcade` selecionada por padrão", '<option value="arcade" selected>' in html)
 
@@ -88,16 +90,20 @@ def fetch_asset(ref: str):
 js_status, js_headers, js_body = fetch_asset(js_refs[0]) if js_refs else (0, {}, b"")
 js_text = js_body.decode("utf-8", errors="replace")
 report("JS servido responde 200", js_status == 200, str(js_status))
-for marker in ("kart01-decals", "paraChoqueTraseiro", "placaTraseira", "bumperPlate", "exhaustOutlet",
+for marker in ("kart01-decals", "paraChoqueTraseiro", "placaTraseira", "bumperPlate",
                "TRACK_OVERVIEW", "COUNTDOWN_DESCENT", "RACE_CHASE"):
     report(f"marcador `{marker}` no JS servido", marker in js_text)
 report("`fillText` do número `01` no JS servido", bool(re.search(r"fillText\(\s*[`'\"]01[`'\"]", js_text)))
+report("condição das marcas de pneu (> 6 m/s e |deriva| > 0,055 rad) no JS servido",
+       bool(re.search(r"speedMps>6&&[A-Za-z_$][\w$]*\.sideslipRad>\.055", js_text)))
 for const in ("1.38", "3.05", "62"):
     report(f"constante de câmera `={const},` no JS servido", f"={const}," in js_text)
 for ghost in ("helmet", "boxGeo"):
     report(f"símbolo do kart provisório `{ghost}` ausente do JS servido", ghost not in js_text)
-for ident in ("arcade-assistido-v5", "arcade-assistido-v4", "realista-aluguel-4t-v4", "Kartle · "):
-    report(f"release anterior: `{ident}` no JS servido", ident in js_text)
+for gone in ("exhaustOutlet", "escapamentoSaida", "turboFovDeltaDeg", "baseVerticalFovDeg"):
+    report(f"efeito de turbo retirado: `{gone}` ausente do JS servido", gone not in js_text)
+for ident in ("arcade-assistido-v6", "arcade-assistido-v4", "realista-aluguel-4t-v4", "Kartle · "):
+    report(f"release contida: `{ident}` no JS servido", ident in js_text)
 
 css_status, _, css_body = fetch_asset(css_refs[0]) if css_refs else (0, {}, b"")
 report("CSS servido responde 200", css_status == 200, str(css_status))
