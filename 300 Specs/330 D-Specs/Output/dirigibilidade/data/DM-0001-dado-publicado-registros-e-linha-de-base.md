@@ -4,21 +4,21 @@ title: Dado publicado do acerto, registros de volta e replay, saída dos ensaios
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 2.0.0
-sources: [API-0002, API-0003, RULE-0002, RULE-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0002-07, REQ-FEAT-0002-10, REQ-FEAT-0005-05, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0004, NFR-0009]
+version: 3.0.1
+sources: [API-0002, API-0003, RULE-0002, RULE-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0002-06, REQ-FEAT-0005-05, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0004, NFR-0009]
 ---
 
 # DM-0001 — Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base
 
 Não há banco de dados nem armazenamento no navegador nesta feature (`race-lap-validation` proíbe gravação
-local, `tests/race-lap-validation-layering.test.ts:43-49`). Os "esquemas" desta feature são quatro formas de
-dado versionado (I3, I5): o dado publicado com o jogo (literal em código), o registro de volta e o replay
-(dados simples, em memória e em fixtures), a saída dos ensaios (linhas JSON) e a linha de base em
-`docs/physics.md`. Nenhum campo carrega dado pessoal (I6). Unidades no nome de todo campo numérico (D-FS-06).
-A pista de teste não é dado: é um ambiente construído por função
-([DES-0001](../core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md)), sem registro algum.
+local, `tests/race-lap-validation-layering.test.ts`). Os "esquemas" desta feature são quatro formas de dado
+versionado (I3, I5): o dado publicado com o jogo (literal em código), o registro de volta e o replay (dados
+simples, em memória e em fixtures), a saída dos ensaios (linhas JSON) e a linha de base em `docs/physics.md`.
+Nenhum campo carrega dado pessoal (I6). Unidades no nome de todo campo numérico (D-FS-06). A pista de teste
+aberta não é dado: é um ambiente construído por função
+([DES-0001](../core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md)), sem registro algum.
 
-## 1. Dado publicado — `PUBLISHED_SETUPS` (`src/physics.ts:92-100`, existente)
+## 1. Dado publicado — `PUBLISHED_SETUPS` (`src/physics.ts:98-106`)
 
 Um registro por `setupId`, congelado (`Object.freeze`), literal em código.
 
@@ -26,148 +26,139 @@ Um registro por `setupId`, congelado (`Object.freeze`), literal em código.
 |---|---|---|---|---|---|
 | `setupId` | `'ARCADE_ASSISTIDO' \| 'REALISTA_ALUGUEL_4T'` | — | não | — | chave única |
 | `setupVersion` | texto não vazio | — | não | — | única entre todas as versões declaradas; diferente de `previousSetupVersion` |
-| `previousSetupVersion` | texto não vazio | — | sim | ausente | presente só quando houve versão anterior declarada |
-| `config` | `Readonly<KartConfig>` | campos com unidade em [DES-0001](../core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md) | não | — | o preset da versão corrente |
-| `previousConfig` | `Readonly<KartConfig>` | idem | sim | ausente | o preset da versão anterior, intacto; presente se e só se `previousSetupVersion` presente |
+| `previousSetupVersion` | texto não vazio | — | sim | ausente | a versão do acerto anterior à feature (API-0002, RULE-0003); presente só quando houve |
+| `config` | `Readonly<KartConfig>` | campos com unidade em [DES-0001](../core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md) | não | — | o preset da versão corrente |
+| `previousConfig` | `Readonly<KartConfig>` | idem | sim | ausente | o preset da versão anterior à feature, intacto; presente se e só se `previousSetupVersion` presente |
 
-Valores publicados por esta feature:
+Valores publicados **(muda)**:
 
 | `setupId` | `setupVersion` | `previousSetupVersion` | `config` | `previousConfig` |
 |---|---|---|---|---|
-| `ARCADE_ASSISTIDO` | `arcade-assistido-v5` | `arcade-assistido-v4` | `ARCADE_ASSISTIDO_V5` (`src/physics.ts:73-83`, rodada de código 2; ainda não aprovado pelos ensaios) | `ARCADE_KART` (intacto, `src/physics.ts:61-68`) |
-| `REALISTA_ALUGUEL_4T` | `realista-aluguel-4t-v4` | ausente | `RENTAL_KART` (intacto, `src/physics.ts:50-58`) | ausente |
+| `ARCADE_ASSISTIDO` | `arcade-assistido-v6` | `arcade-assistido-v4` | `ARCADE_ASSISTIDO_V6` (acerto C, `DOMAIN/DEC-15`) | `ARCADE_KART` (intacto, `src/physics.ts:67-74`) |
+| `REALISTA_ALUGUEL_4T` | `realista-aluguel-4t-v4` | ausente | `RENTAL_KART` (intacto, `src/physics.ts:55-64`) | ausente |
 
-`arcade-assistido-v4` nomeia o conteúdo que `ARCADE_KART` já tem (o acerto Arcade entregue com
-`PHYSICS_VERSION` `rental-4t-v4`); `realista-aluguel-4t-v4` nomeia o conteúdo inalterado de `RENTAL_KART`,
-que nunca teve versão declarada antes (API-0002: ausência de `previousSetupVersion` é neutra). A versão de
-física `PHYSICS_VERSION` (`src/physics.ts:7`) não muda e não é versão de acerto.
-
-Rodadas do ciclo em staging (RULE-0003 1.1.0, `DOMAIN/DEC-10`): cada rodada de presets que altera um
-parâmetro do Arcade declara nova `setupVersion` (`arcade-assistido-v6`, e assim por diante), com
-`previousSetupVersion` apontando para a rodada anterior, cujo literal passa a `previousConfig`; o
-identificador da rodada reprovada nunca é reutilizado nem editado, e `PUBLISHED_SETUPS` continua com um
-único registro por `setupId` (corrente e anterior), sem registro experimental. O acerto
-`arcade-assistido-v5` de hoje (rodada de código 2, `docs/physics.md:221-237`) ainda não foi aprovado pelos
-ensaios na pista de teste (dois registros reprovam sob o projeto anterior, feedback de 2026-10-22, e são
-julgados de novo sob este) nem pelo dono em staging: os seus valores podem ser alterados pela etapa de
-código **antes** da primeira entrega sob esse identificador, porque a regra de não editar no lugar vale a
-partir da declaração entregue.
+Versões declaradas do Arcade e o seu registro em código: `arcade-assistido-v4` (`ARCADE_KART`, anterior à
+feature, `previousSetupVersion`); `arcade-assistido-v5` (`ARCADE_ASSISTIDO_V5`, publicada na staging e
+substituída: `SUPERSEDED`, legível, nunca editada; não está em `PUBLISHED_SETUPS` porque o dado publicado tem
+um registro por `setupId`, e um registro gravado com ela é lido com `setupVersionSource` `DECLARED` e nunca é
+comparável com a corrente); `arcade-assistido-v6` (`ARCADE_ASSISTIDO_V6`, corrente). Cada rodada seguinte do
+ciclo em staging (`DOMAIN/DEC-10`) que altera um parâmetro declara um literal novo e a `setupVersion`
+seguinte; o identificador de uma rodada substituída nunca é reutilizado nem editado, e o seu literal fica em
+código. `previousSetupVersion` continua a apontar para a versão anterior à feature, porque é o padrão com que
+um registro gravado antes da feature, sem `setupVersion`, é resolvido (API-0002).
 
 Índices e unicidade: `setupId` é a chave do registro; `setupVersion` e `previousSetupVersion` são únicos no
-conjunto de todas as versões declaradas (verificado por `tests/dirigibilidade-setup-version.test.ts`).
+conjunto de todas as versões declaradas, inclusive as substituídas (verificado por
+`tests/dirigibilidade-setup-version.test.ts`).
 
-## 2. Registro de volta — `LapRecord` (`src/setupRecords.ts:17`, existente)
+## 2. Registro de volta — `LapRecord` (`src/setupRecords.ts:17`, inalterado)
 
-O `LapResult` de `race-lap-validation` (`src/lap.ts:48-58`; API-0001 1.1.0 daquela feature, DM-0002) com os
-campos de API-0002 obrigatórios. O `LapResult` carrega `setupId?` e `setupVersion?` copiados do pedido
-`startLap` sem interpretação, ausentes quando o pedido não os traz (FB-01 de `race-lap-validation`, aceito;
-a mudança em `src/lap.ts` é implementada pelo código desta feature,
-[DES-0003](../core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)); só esta feature constrói o
-registro (`buildLapRecord`), preenchendo só o que o resultado não traz
-([ADR-0002](../adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md)).
+O `LapResult` de `race-lap-validation` (API-0001 1.2.0 daquela feature) com os campos de API-0002
+obrigatórios; todo campo de `LapResult` 1.2.0 é carregado como está, inclusive os opcionais de uma volta de
+treino. O `LapResult` carrega `setupId?` e `setupVersion?` copiados do pedido `startLap`, ausentes
+quando o pedido não os traz; só esta feature constrói o registro (`buildLapRecord`), preenchendo só o que o
+resultado não traz ([ADR-0002](../adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md)).
 
 | Campo | Tipo | Unidade | Nulo na leitura | Nulo na gravação | Padrão na leitura |
 |---|---|---|---|---|---|
 | `trackId`, `trackVersion`, `lapKind`, `lapValidity`, `official`, `challengeNumber?`, `invalidReason?`, `lapMs?`, `sectorMs?` | como em `LapResult` | ms nos tempos | como hoje | como hoje | como hoje |
-| `setupId` | enum | — | sim (registro antigo; `LapResult` de volta iniciada sem o campo) | não (no `LapRecord`; opcional no `LapResult`) | `ARCADE_ASSISTIDO` (`resolveSetupRef`); em `buildLapRecord`, o `setup` recebido |
-| `setupVersion` | texto | — | sim (registro antigo; `LapResult` de volta iniciada sem o campo) | não (no `LapRecord`; opcional no `LapResult`) | `previousSetupVersion` do `setupId` resolvido; se o `setupId` não tem versão anterior declarada, a sua `setupVersion` corrente (`resolveSetupRef`); em `buildLapRecord`, o `setup` recebido |
+| `lapSequenceCount?` | inteiro, como em `LapResult` 1.2.0 | voltas | sim (presente em todo resultado `TRAINING`; ausente em `OFFICIAL` e `RECON`) | como em `LapResult` | ausente lê-se como 1 (padrão de `race-lap-validation`) |
+| `lapStartMs?` | inteiro, como em `LapResult` 1.2.0 | ms | sim (idem) | como em `LapResult` | ausente lê-se como 0 (idem) |
+| `trainingLapMs?` | inteiro, como em `LapResult` 1.2.0 | ms | sim (só com `lapKind` `TRAINING`) | como em `LapResult` | ausente |
+| `trainingSectorMs?` | lista de 4 posições, inteiro ou `null`, como em `LapResult` 1.2.0 | ms | sim (só com `lapKind` `TRAINING` numa pista que declara setores) | como em `LapResult` | ausente |
+| `setupId` | enum | — | sim (registro antigo) | não | `ARCADE_ASSISTIDO` (`resolveSetupRef`) |
+| `setupVersion` | texto | — | sim (registro antigo) | não | `previousSetupVersion` do `setupId` resolvido (`arcade-assistido-v4` para o Arcade) |
 
-## 3. Replay — `ReplayRecord` versão 1 (`src/setupRecords.ts:18-21`, existente)
+Os quatro campos de treino são de `race-lap-validation`: esta feature os copia com o resto do resultado
+(`buildLapRecord` só acrescenta os dois campos de acerto) e nenhum deles entra na comparabilidade (RULE-0003),
+no texto compartilhado nem em ensaio algum. Nenhum campo de drift, turbo, carga ou pontuação existe no
+registro (AC-US-0003-09, -11).
+
+## 3. Replay — `ReplayRecord` versão 1 (`src/setupRecords.ts:18-21`, inalterado)
 
 | Campo | Tipo | Unidade | Nulo na leitura | Nulo na gravação | Padrão na leitura |
 |---|---|---|---|---|---|
-| `replayFormatVersion` | inteiro ≥ 1 | — | sim | não (1) | ausente lê-se como 1 (a forma anterior à feature); maior que 1 é `UNSUPPORTED_FORMAT` |
+| `replayFormatVersion` | inteiro ≥ 1 | — | sim | não (1) | ausente lê-se como 1; maior que 1 é `UNSUPPORTED_FORMAT` |
 | `trackId` | texto não vazio | — | não | não | ausente é `UNREADABLE` |
 | `trackVersion` | texto não vazio ou inteiro ≥ 1 | — | não | não | ausente é `UNREADABLE` |
 | `challengeNumber` | inteiro ≥ 1 | — | sim | sim | ausente |
 | `lapKind` | `'OFFICIAL' \| 'RECON' \| 'TRAINING'` | — | sim | não | `TRAINING` |
 | `setupId` | enum | — | sim (registro antigo) | não | `ARCADE_ASSISTIDO` |
 | `setupVersion` | texto | — | sim (registro antigo) | não | como em `LapRecord` |
-| `inputs` | lista de `Input` por passo `RUNNING`, do sinal verde ao fim; no máximo `MAX_REPLAY_INPUT_STEPS` (36 000) elementos | um por passo de `STEP` | não | não | lista vazia, acima do teto ou elemento fora de forma é `UNREADABLE` |
+| `inputs` | lista de `Input` por passo `RUNNING`; no máximo `MAX_REPLAY_INPUT_STEPS` (36 000) | um por passo de `STEP` | não | não | lista vazia, acima do teto ou elemento fora de forma é `UNREADABLE` |
 
-Teto do registro serializado: um texto JSON com mais de `MAX_REPLAY_TEXT_CHARS` (4 194 304) caracteres é
-`UNREADABLE` antes de ser analisado ([DES-0003](../core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)).
+Teto do registro serializado: texto JSON com mais de `MAX_REPLAY_TEXT_CHARS` (4 194 304) caracteres é
+`UNREADABLE` antes de ser analisado. `Input` por passo: `{throttle: 0..1, brake: 0..1, steer: -1..1, drift?:
+boolean}` — o conjunto, a faixa e o significado de `src/physics.ts:9`, inalterados (NFR-0006). Um replay
+gravado com o comando de drift continua legível e reproduzível; o comando não tem efeito na reprodução
+(RULE-0001, RULE-0003). Um replay nunca referencia a pista de teste.
 
-`Input` por passo: `{throttle: 0..1, brake: 0..1, steer: -1..1, drift?: boolean}` — o conjunto, a faixa e o
-significado de `src/physics.ts:8`, inalterados (NFR-0006). Os passos da contagem não são gravados: a
-reprodução aplica `Input` nulo na contagem. Um replay nunca referencia a pista de teste: só `trackId` de
-dado de pista publicado.
+## 4. Saída dos ensaios — registro de API-0003 4.0.1 **(muda)**
 
-## 4. Saída dos ensaios — registro de API-0003
+Uma linha JSON por registro (`JSON.stringify`), um registro por `benchId` e por variante (`inputMode`, lado do
+esterço, velocidade de partida, sequência) e, para `DETERMINISM` e `REALISTA_UNCHANGED`, por
+`benchEnvironment`. Os campos são exatamente os de API-0003 4.0.1, com os tipos e unidades de lá; os campos
+por `benchId` estão na tabela de [DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md). Campos
+comuns a todo registro: `benchId`, `benchEnvironment` (`TEST_PAD` ou `SYNTHETIC_TRACK`), `setupId`,
+`setupVersion`, `inputMode`, `verdict`, `failReason?` (`THRESHOLD_EXCEEDED`, `BASELINE_MISSING`, `OFF_ASPHALT`,
+`NON_DETERMINISTIC`, `CONTRACT_CHANGED`, `SPEED_NOT_HELD`, `MEASUREMENT_MISSING`, `TEST_AREA_EXCEEDED`),
+`measuredAtUtc`, `baselineAvailable`; e, em todo registro com `TEST_PAD`, `testAreaRadiusM`,
+`offAsphaltStepCount` e, com saída, `offAsphaltFirstStep`, `offAsphaltFirstXM`, `offAsphaltFirstZM`. Retirados
+(nunca emitidos): os `benchId` `REFERENCE_CORNER`, `UNDERSTEER_ONSET`, `DRIFT_MANEUVER` e os campos
+`throttleCondition`, `arcRadiusM`, `laneWidthM`, `maxUndersteerMs`, `v0Mps`, `v1Mps`, `entrySpeedStepMps`,
+`maxUndersteerMsBySpeed`, `driftScorePoints`, `excludedRecoveryStepCount` (API-0003 4.0.0, Compatibilidade).
+Os parâmetros de ensaio que API-0003 não lista como campo saem numa linha separada, prefixada por `#` e
+também JSON, e vão para `parameters` da entrada de `docs/physics.md`
+([ADR-0004](../adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md)). Em `npm test` cada registro
+é impresso como diagnóstico do teste.
 
-Uma linha JSON por registro (`JSON.stringify`), um registro por `benchId` e por variante (`inputMode`,
-`throttleCondition`, lado do esterço) e, para `NORMAL_DRIVING`, `DETERMINISM` e `REALISTA_UNCHANGED`, por
-`benchEnvironment`. Os campos são exatamente os de API-0003, com os tipos e unidades de lá: nenhum campo é
-acrescentado ao registro. Campos comuns a todo registro: `benchId`, `benchEnvironment` (`TEST_PAD` ou
-`SYNTHETIC_TRACK`), `setupId`, `setupVersion`, `inputMode`, `verdict`, `failReason?` (`THRESHOLD_EXCEEDED`,
-`BASELINE_MISSING`, `OFF_ASPHALT`, `NON_DETERMINISTIC`, `CONTRACT_CHANGED`, `SPEED_NOT_HELD`,
-`MEASUREMENT_MISSING`), `measuredAtUtc`, `baselineAvailable`. Os campos por `benchId` — incluindo os da
-revisão 3 (`targetSpeedMps`, `speedHoldMode`, `speedHoldBandMps`, `speedMinMps`, `speedMaxMps`,
-`arcRadiusM`, `laneWidthM`, `offAsphaltFirstStep` e posição em `REFERENCE_CORNER`, `normalDrivingStepCount`,
-`excludedRecoveryStepCount`, `gripReached`; `throttleInputNorm` e `recoveryMs` condicionais) e os de
-API-0003 3.1.0 a 3.3.0 (`offAsphaltStepCount`, `offAsphaltFirstStep` e posição em `UNDERSTEER_ONSET` e
-`REAR_RECOVERY`; `maxUndersteerMsBySpeed` em pares `[plateauSpeedMps, maxUndersteerMs]`; `v1Mps` presente em
-todo fim natural da varredura e, nos desfechos reprovados pela saída, só com patamar completo em
-subesterço; `offAsphaltStepCount` de `REFERENCE_CORNER` informativo com `THROTTLE_ZERO`, contando os passos
-fora da faixa na janela inteira; `driftScorePoints` no lugar de `driftScore`) — são os da tabela de
-[DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md). Os parâmetros de ensaio que API-0003 não
-lista como campo (`holdMs`, `cornerWindowMs`, `plateauMs`, `plateauSpeedHoldMode`, `entrySpeedMaxMps`, `forcingSpeedMps`,
-`forcingWindowMs`, `grassEntryIndex`, `grassEntryOffsetM`, `grassEntryAngleRad`, `wallApproachRad`,
-`maxSpeedMps`, `lateralBudgetMps2`, janelas) saem em uma linha de parâmetros separada, prefixada por `#` e
-também JSON, e vão para `docs/physics.md` ([ADR-0004](../adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md)).
-Em `npm test` cada registro é impresso como diagnóstico do teste (`t.diagnostic(JSON.stringify(record))`),
-de modo que a saída de `npm test` o contém.
-
-## 5. Linha de base — bloco em `docs/physics.md`
+## 5. Linha de base — bloco em `docs/physics.md` **(muda)**
 
 Um único bloco cercado ` ```json handling-baseline ` dentro de `docs/physics.md`, ao lado da entrada datada
 em prosa que NFR-0004 exige (os dois registram o mesmo dado; a prosa é para pessoas, o bloco para o ensaio).
 
 | Campo | Tipo | Unidade | Nulo | Restrições |
 |---|---|---|---|---|
-| `entries` | lista de entradas | — | não | pode ser vazia |
+| `entries` | lista de entradas | — | não | pode ser vazia; **uma entrada por (`setupId`, `setupVersion`, `runtimeId`)** — `readBaseline` toma a primeira igual, e duas entradas iguais tornariam a escolha arbitrária |
 | `entries[].setupId` | enum | — | não | |
-| `entries[].setupVersion` | texto | — | não | a versão medida (`arcade-assistido-v4` para a linha de base do Arcade) |
+| `entries[].setupVersion` | texto | — | não | a versão medida |
 | `entries[].measuredAtUtc` | texto ISO 8601 UTC | — | não | data da medição; nunca entra em medição |
-| `entries[].runtimeId` | texto | — | sim | presente só quando a entrada traz `STEP_COST`; forma em [ADR-0003](../adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md), sem nome de máquina nem de usuário |
-| `entries[].parameters` | objeto (`BENCH_PARAMETERS` da execução, mais `runtimeId` quando houver) | unidades no nome de cada campo | sim | os parâmetros de ensaio com que a entrada foi medida (NFR-0004); ausente numa entrada antiga lê-se como "não registrado". A resolução abaixo usa os campos dos próprios registros e, só em `UNDERSTEER_ONSET`, `plateauMs` e `plateauSpeedHoldMode` daqui: entrada sem eles, ou com outros valores, não é o mesmo ensaio |
-| `entries[].records` | lista de registros de API-0003 | — | não | os mesmos campos da seção 4, cada um com `benchEnvironment`, `verdict` e `failReason` como a execução que produziu a entrada os julgou (sem linha de base própria) |
+| `entries[].runtimeId` | texto | — | sim | presente quando a entrada traz `STEP_COST`; forma em [ADR-0003](../adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md), sem nome de máquina nem de usuário |
+| `entries[].parameters` | objeto (`BENCH_PARAMETERS` da execução, mais `runtimeId`) | unidades no nome de cada campo | sim | os parâmetros de ensaio com que a entrada foi medida (NFR-0004) |
+| `entries[].records` | lista de registros de API-0003 | — | não | os mesmos campos da seção 4, cada um com `benchEnvironment`, `verdict` e `failReason` como a execução que produziu a entrada os julgou |
 
-Resolução (RULE-0002, Linha de base): um registro da linha de base só é usado quando tem o mesmo
-`benchId`, o mesmo `benchEnvironment`, o mesmo `inputMode`, a mesma variante e — quando o registro os
-carrega — `arcRadiusM` e `laneWidthM` iguais aos do ensaio corrente (`|Δ| < 1e-9`). A linha de base de
-`UNDERSTEER_ONSET` do Arcade é o `v1Mps` do registro `UNDERSTEER_ONSET` (`TEST_PAD`, arco de 18 m, faixa
-de 11 m, mesmo `entrySpeedStepMps`) da entrada com `setupId` `ARCADE_ASSISTIDO`, `setupVersion` igual a
-`previousSetupVersion` e os mesmos `plateauMs` e `plateauSpeedHoldMode` em `parameters`, desde que o seu
-`v1Mps` seja a velocidade de um patamar completo com `understeer` acima de 200 ms consecutivos — igual a
-`50 / 3.6` (patamar k = 0) ou ao `plateauSpeedMps` de um par de `maxUndersteerMsBySpeed` com
-`maxUndersteerMs > 200` (`|Δ| < 1e-9`) —, qualquer que seja o seu `failReason`
-([ADR-0003](../adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md), decisão 2); um
-registro sem `v1Mps`, ou cujo `v1Mps` veio do patamar interrompido pela saída (fim natural sem subesterço,
-caso que o F-Spec define só para V1), não serve de V0. Hoje (`docs/physics.md`, bloco, entrada
-`arcade-assistido-v4`) o registro traz `v1Mps` `50 / 3.6` com lista vazia e `MEASUREMENT_MISSING`: V0 =
-13,89 m/s. A de
-`TEST_PILOT_LAP` é o `lapTimeMs` do registro `TEST_PILOT_LAP` (`SYNTHETIC_TRACK`) dessa entrada; a de
-`STEP_COST` é o `meanStepCostUs` da entrada com a mesma `setupVersion` anterior e o mesmo `runtimeId` da
-execução; a do Realista é a entrada com `setupId` `REALISTA_ALUGUEL_4T` e `setupVersion`
-`realista-aluguel-4t-v4`, registro a registro por ambiente. Entrada ou registro igual ausente é
-`baselineAvailable` falso e, onde a linha de base é exigida, `FAIL` com `BASELINE_MISSING`; uma entrada
-medida sob a versão 2.0.1 deste projeto (curva localizada na pista sintética, sem `benchEnvironment`) não
-tem registro igual e é, por construção, ignorada — a linha de base nunca é inventada nem extrapolada.
+Resolução (RULE-0002, Linha de base): o veredito só depende de linha de base em `STEP_COST` — o
+`meanStepCostUs` do registro `STEP_COST` (mesmo `inputMode`) da entrada com a `previousSetupVersion` do acerto
+ensaiado e o mesmo `runtimeId` da execução — e na identidade do Realista (`REALISTA_UNCHANGED`, a entrada
+`REALISTA_ALUGUEL_4T`/`realista-aluguel-4t-v4`, registro a registro por ambiente). `baselineLapTimeMs` de
+`TEST_PILOT_LAP` e `baselineAvailable` dos demais registros vêm da entrada da `previousSetupVersion`
+(mesmo `benchId`, `benchEnvironment`, `inputMode` e variante), sem entrar no veredito. Entrada ou registro
+igual ausente é `baselineAvailable` falso e, onde a linha de base decide, `FAIL` com `BASELINE_MISSING`. Uma
+entrada medida com os ensaios de versões anteriores deste projeto não tem registros dos `benchId` novos e não
+serve de linha de base para eles; nunca é convertida nem extrapolada.
+
+Entradas esperadas no bloco depois da entrega: `arcade-assistido-v4` (`--previous`) e
+`realista-aluguel-4t-v4` (`--realista`), medidas de novo com os ensaios desta versão e **substituindo** no
+bloco as entradas de 2026-10-22 com a mesma chave; `arcade-assistido-v6`, acrescentada; `arcade-assistido-v5`,
+mantida como registro da rodada substituída (nenhum ensaio a lê). A prosa datada de 2026-10-22 e de
+2026-10-27 fica, como histórico, e a entrada nova em prosa (`## Dirigibilidade — Arcade assistido v6`) diz a
+data, a `setupVersion`, os parâmetros do acerto e de ensaio e os resultados ao lado da linha de base, com os
+limites da revisão 5 (REQ-FEAT-0006-08).
 
 ## Plano de migração
 
-Não há revisão de esquema de banco. As mudanças são de leitor versionado (D-DS-02):
+Não há revisão de esquema de banco. As mudanças são de leitor versionado e de dado literal (D-DS-02):
 
 | Passo | O que faz | Reversão (downgrade) |
 |---|---|---|
-| M1 | Declara `PUBLISHED_SETUPS` com a versão nova e a anterior (feito pela rodada de código 1) | remover a declaração; `ARCADE_KART` e `RENTAL_KART` continuam intactos, nada a desfazer |
-| M2 | Introduz `LapRecord` e `ReplayRecord` versão 1, com `setupId` e `setupVersion` opcionais na leitura (feito pela rodada de código 1) | remover os leitores; nenhum registro foi persistido por esta feature, nada a reverter |
-| M3 | Acrescenta o bloco `handling-baseline` a `docs/physics.md`, com `benchEnvironment` em cada registro e `parameters` por entrada (feito pela rodada de código 2, `docs/physics.md:265-412`) | apagar o bloco; a prosa permanece |
-| M4 | Acrescenta `setupId?` e `setupVersion?` a `LapRequest`, `LapSession` e `LapResult` em `src/lap.ts`, copiados do pedido (API-0001/API-0002 1.1.0 de `race-lap-validation`); `buildLapRecord` passa a preencher só o que o resultado não traz; os pedidos de volta desta feature informam os dois campos | remover os campos e as cópias; `buildLapRecord` volta a preencher sempre com o `setup` recebido; nenhum registro foi persistido com os campos vindos do resultado, nada a reverter |
+| M1 | Declara `PUBLISHED_SETUPS` com a versão nova e a anterior (rodada de código 1) | remover a declaração; `ARCADE_KART` e `RENTAL_KART` intactos |
+| M2 | Introduz `LapRecord` e `ReplayRecord` versão 1, com `setupId` e `setupVersion` opcionais na leitura (rodada de código 1) | remover os leitores; nada persistido |
+| M3 | Acrescenta o bloco `handling-baseline` a `docs/physics.md` (rodada de código 2) | apagar o bloco; a prosa permanece |
+| M4 | `setupId?`/`setupVersion?` em `src/lap.ts`, copiados do pedido; `buildLapRecord` preenche só o que falta (rodada de código 3) | remover os campos e as cópias; nada persistido |
+| M5 **(novo)** | Acrescenta o literal `ARCADE_ASSISTIDO_V6` e passa `PUBLISHED_SETUPS.ARCADE_ASSISTIDO` a `arcade-assistido-v6` (`previousSetupVersion` e `previousConfig` inalterados) | voltar `PUBLISHED_SETUPS.ARCADE_ASSISTIDO` a `arcade-assistido-v5`/`ARCADE_ASSISTIDO_V5` e remover o literal novo; nenhum registro persistido carrega a versão |
+| M6 **(novo)** | Substitui no bloco as entradas `arcade-assistido-v4` e `realista-aluguel-4t-v4` pela medição com os ensaios desta versão e acrescenta `arcade-assistido-v6`, com a prosa datada | restaurar o bloco anterior pelo controle de versão do repositório; a prosa de 2026-10-22 e de 2026-10-27 nunca é apagada |
 
-Cada passo é executável como um commit e revertível como o seu `git revert`. M3 nasceu já na forma desta
-versão (nenhum bloco existia antes); M4 só acrescenta campos opcionais a tipos internos ao cliente.
+Cada passo é executável como um commit e revertível como o seu `git revert`.
 
 ## Backfill
 
@@ -176,21 +167,18 @@ leitura, a cada leitura, sem ser reescrito (idempotente por construção).
 
 ## Janela de compatibilidade
 
-Código antigo e novo coexistem sem janela: os campos novos são opcionais na leitura e a forma anterior do
-replay (sem `replayFormatVersion` e sem `setupVersion`) é lida sem erro para sempre, com
-`RESOLVED_FROM_ABSENCE`. Um replay de versão de formato maior que 1 é devolvido como `UNSUPPORTED_FORMAT`
-sem ser alterado nem descartado (I4). Como nada é persistido por esta feature, não há dado antigo em
-navegador algum a migrar; a compatibilidade é provada com fixtures (`tests/fixtures/records.ts`). Um
-`LapResult` de volta iniciada sem `setupId`/`setupVersion` (os testes de `race-lap-validation`, registros
-antigos) continua válido e é resolvido na leitura pelos padrões de `resolveSetupRef`, nunca por
-`src/lap.ts`. O bloco de linha de base nasceu já na forma desta versão; a resolução por `benchEnvironment`,
-geometria e método faz um registro medido em outro ambiente ser ignorado em vez de lido errado.
+Código antigo e novo coexistem sem janela de dado: os campos de acerto são opcionais na leitura, a forma
+anterior do replay é lida sem erro para sempre, e um replay de formato maior que 1 é `UNSUPPORTED_FORMAT`
+intacto (I4). Um registro da rodada `arcade-assistido-v5` é lido com a sua versão declarada e é não
+comparável com a corrente. Como nada é persistido, não há dado antigo em navegador algum a migrar; a
+compatibilidade é provada com fixtures (`tests/fixtures/records.ts`). A troca das entradas da linha de base é
+atômica no commit que as mede: nenhum leitor vê um bloco com duas entradas da mesma chave.
 
 ## Retenção e privacidade
 
 | Dado | Onde vive | Por quanto tempo | O que nunca contém |
 |---|---|---|---|
-| `PUBLISHED_SETUPS` | código empacotado | a vida do build | nada além de parâmetros físicos e identificadores de versão |
+| `PUBLISHED_SETUPS` e os literais de versão | código empacotado | a vida do build | nada além de parâmetros físicos e identificadores de versão |
 | `LapRecord`, `ReplayRecord` | memória da página (`main.ts`), fixtures de teste | até recarregar a página | nome, apelido, aparelho, data, relógio, posição geográfica |
 | saída dos ensaios | stdout do desenvolvedor; `docs/physics.md` (prosa e bloco) | o repositório | nome de máquina, usuário, caminho de arquivo |
-| texto compartilhado | passado à Web Share API ou à área de transferência pelo gesto do Jogador | não retido pela aplicação | comparação entre versões; dado pessoal |
+| texto compartilhado | passado à Web Share API ou à área de transferência pelo gesto do Jogador | não retido pela aplicação | versão do acerto; comparação entre versões; conteúdo de drift ou turbo; dado pessoal |

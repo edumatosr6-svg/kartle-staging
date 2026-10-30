@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 3.1.0
+version: 4.0.1
 sources: []
 ---
 
@@ -902,3 +902,200 @@ outro feedback pendente para esta feature.
 - Os itens recusados das rodadas 1, 3, 5, 6, 7 e 8 continuam recusados pelos mesmos motivos, salvo "medir
   `maxUndersteerMs` em todos os passos do arco, dentro e fora da faixa" (rodada 8, decisão 9 de ADR-0004
   4.0.0), substituído por `DOMAIN/DEC-14`.
+
+## 2026-10-30 — rodada 10, Mode C (F-Spec 4.0.1, seed `revision: 5`; feedback cruzado `reports/feedbacks/race-lap-validation/feedback-20261030-1256.md`, FB-01)
+
+**Gatilho**: o F-Spec foi revalidado contra a revisão 5 do seed (`fspec-validation-20261030-1237`, SUCCESS,
+sobre as rodadas 11 e 12 do changelog do F-Spec): acerto C (`DOMAIN/DEC-15`); curva julgada pelo raio da
+trajetória aos 3 s (≤ 13 m de 50 km/h e de 70 km/h, acelerador e esterço cheios) e pelo giro (≥ 180° em até
+2 s sem acelerador de 50 km/h, `DOMAIN/DEC-16`) na pista de teste aberta; arco de 18 m e varredura de início do
+subesterço retirados; recuperação na pista de teste aberta, cada lado; velocidade estabilizada de 65 km/h a
+72 km/h; drift e turbo retirados da simulação e da exibição (HUD, resultado, texto compartilhado); a
+`setupVersion` fica como dado, sem texto novo de tela. O coordenador pediu levar isso aos itens do acerto e das
+assistências, aos registros de API-0003 e à lista de ensaios, ao dado publicado e à linha de base, à
+integração do HUD e do resultado e à estratégia de testes. No meio da rodada chegou o FB-01 de
+`race-lap-validation` (D-Spec daquela feature, `dspec-validation-20261030-1256`): o treino passa a ser uma
+sequência de voltas que só chega a `ENDED` por `endTraining`. Entradas lidas: o F-Spec 4.0.1 inteiro; o código
+na raiz (as-built); `DOMAIN.md` só nas entradas de 2026-10-29 e 2026-10-30 (`DEC-15`, `DEC-16`), para os
+valores do acerto C que o F-Spec deixou ao projeto (conventions §15); dos D-Specs de `modelo-kart-01` e de
+`race-lap-validation`, só os nomes e as decisões que tocam leitores comuns (§12). Os valores medidos citados
+nos itens foram conferidos nesta rodada rodando a biblioteca as-built com o acerto C em memória, num script
+fora do repositório; nenhum arquivo do código foi escrito.
+
+**O que mudou**
+
+- `core/DES-0001` (4.0.0; arquivo renomeado de `…-v5-e-assistencias.md` para `…-v6-e-assistencias.md`, links
+  atualizados): literal novo `ARCADE_ASSISTIDO_V6` = `ARCADE_ASSISTIDO_V5` com `governorSpeed` 19,5,
+  `assistLateralG` 2,4, `maxSteer` 0,5, `friction` 2,1, `frontStiffness` 26; `PUBLISHED_SETUPS` em
+  `arcade-assistido-v6` com `previousSetupVersion` `arcade-assistido-v4`; tabela de alavancas refeita;
+  `testPadArea` no lugar de `testPadLane`/`testPadArc`; o passo sem a manobra de drift e o turbo, trecho a
+  trecho, mantendo a linha 2 como `import` de `./maneuvers` para a linha 3 não se mover; classificador de passo
+  retirado; medidas do acerto C (raio 11,67/11,76 m, giro 208°, 69,3 km/h, 2 208 ms, 23 049 ms; traseira que
+  não solta sob a condição de forçar).
+- `core/DES-0002` (2.0.0): `driftActive` retirado; `positionXM`, `positionZM`, `headingRad` acrescentados.
+- `core/DES-0003` (2.1.0): versões v6/v5/v4 na resolução e na comparabilidade; `replayLap` termina no primeiro
+  resultado (FB-01).
+- `core/DES-0004` (6.0.0): reescrita sobre API-0003 4.0.1 e RULE-0002 4.0.1 — `CORNER_RADIUS`, `CORNER_TURN`,
+  `DRIFT_INERT`, `SPEED_CAP`; `REAR_RECOVERY` aberta, por lado, com `rearReleased`/`forcingMs`;
+  `NORMAL_DRIVING` sobre a volta inteira; `TEST_AREA_EXCEEDED` e os campos da área em todo registro `TEST_PAD`;
+  definições de projeto do raio (pela posição, janela dos passos 349 a 372) e do giro (pelo rumo acumulado);
+  parâmetros de ensaio novos (`testAreaRadiusM` 100, `straightTestAreaRadiusM` 1 500, `radiusWindowMs` 200) e
+  retirados; `TOP_SPEED` de 65 km/h a 72 km/h; `WALL_CONTACT` vazio como `MEASUREMENT_MISSING`;
+  `baselineAvailable` preenchido em todo registro; convenções de ambiente (`SPEED_CAP`, `SETUP_VERSION`,
+  `STEP_CONTRACT` em `SYNTHETIC_TRACK`; `STEP_COST` no ambiente da volta que mede); fim da volta do piloto de
+  teste e de `measureStepCost` no primeiro resultado (FB-01).
+- `web/DES-0005` (2.0.0): retirada, por trecho, de `.style-score`/`#combo`, `#drift-hud`, das mensagens de
+  prêmio, de `chargeTier`, da classe `boosting` e das regras de estilo só deles.
+- `web/DES-0006` (2.0.0): `formatSharedText` sem `· <setupVersion>`; `#lap-result-setup` retirado; o
+  tratamento de cada resultado novo aceita o gatilho de `race-lap-validation` (FB-01).
+- `web/DES-0007` (1.2.0): linhas recitadas na árvore corrente; o comando de drift continua entregue e
+  ignorado; nenhuma linha muda por este item.
+- `security/DES-0008` (1.1.0): texto compartilhado sem `setupVersion`.
+- `data/DM-0001` (3.0.0): valores publicados v6; versões declaradas v4/v5/v6; saída de API-0003 4.0.1; bloco
+  da linha de base com uma entrada por (`setupId`, `setupVersion`, `runtimeId`), entradas esperadas e
+  resolução só para `STEP_COST` e o Realista; passos M5 e M6 com reversão.
+- `adr/ADR-0001` (1.1.0): cada rodada é um literal novo; `previousSetupVersion` continua a versão anterior à
+  feature. `adr/ADR-0002` (2.0.1): o texto compartilhado não carrega os campos de acerto. `adr/ADR-0003`
+  (2.0.0): linha de base só para o custo por passo e o Realista; uma entrada por chave. `adr/ADR-0004` (5.0.0):
+  decisões dos ensaios novos; decisões 8 a 10 da versão anterior retiradas. `adr/ADR-0005` (2.0.0): pista de
+  teste aberta; classificador retirado. `adr/ADR-0006` (1.0.0, **novo**): drift e turbo fora do passo agora,
+  `State.maneuvers` e `src/maneuvers.ts` numa janela de compatibilidade com gatilho de retirada final.
+- `01-architecture.md` (4.0.0), `test-strategy.md` (6.0.0) e `98-divergences.md` (4.0.0) reescritos; seção
+  nova "Efeito sobre outras features" em `01-architecture.md`. `00-index.md` e `99-traceability.md` regenerados
+  pelo gate.
+
+**Superfície (Mode C)**: acrescentados, cada um autorizado por item do F-Spec 4.0.1: `ARCADE_ASSISTIDO_V6` e a
+`setupVersion` `arcade-assistido-v6` (FEAT-0004, FEAT-0005, `DOMAIN/DEC-15`); `testPadArea` (RULE-0002,
+Ambientes); os `benchId` e campos de API-0003 4.0.0; `positionXM`, `positionZM`, `headingRad` (API-0001 2.0.0);
+os parâmetros `testAreaRadiusM`, `straightTestAreaRadiusM`, `radiusWindowMs` (RULE-0002, parâmetros de ensaio);
+`CORNER_ENTRY_SPEEDS_MPS` (valores dos critérios); ADR-0006. Nenhuma tela, elemento ou texto de tela
+acrescentado; três elementos retirados (`.style-score`, `#drift-hud`, `#lap-result-setup`).
+
+**Tabela de migração** (conventions §17). As retiradas seguem a retirada dos critérios que realizavam,
+aprovada pelo dono do produto (`DOMAIN/DEC-15`, revisão 4 do seed; tabelas de migração dos requisitos 4.3.0 e
+do F-Spec, rodada 11).
+
+| Item | Antes | Agora |
+|---|---|---|
+| `benchId` `REFERENCE_CORNER`, `UNDERSTEER_ONSET`, `DRIFT_MANEUVER` | ensaios | **retirados**; substitutos `CORNER_RADIUS` + `CORNER_TURN`, nenhum, `DRIFT_INERT` |
+| `testPadLane`, `testPadArc`, `arcEntry`, `laneEnvironment`, `arcEnvironment` | geradores e estados da faixa e do arco | **retirados**; substituto `testPadArea` |
+| `classifyHandlingSteps`, `StepClass`, `RECOVERY_MAX_STEPS`; `tests/dirigibilidade-classify.test.ts` | classes de passo | **retirados** (REQ-FEAT-0003-03 retirado, -12 modificado) |
+| `driftActive` (telemetria) | campo | **retirado** sem substituto (API-0001 2.0.0) |
+| ramos `drifting`/`boosting` e `advanceManeuvers` no passo; `tests/maneuvers.test.ts:68-80` | manobra de drift | **retirados** (`DOMAIN/DEC-15`); `State.maneuvers` e `src/maneuvers.ts` na janela de ADR-0006 |
+| HUD do drift, mensagens de prêmio, `#lap-result-setup`, `· <setupVersion>` no texto compartilhado | exibição | **retirados** (AC-US-0003-09, -11; SCR-0002 1.2.0) |
+| `BENCH_PARAMETERS` `laneWidthM`, `arcRadiusM`, `cornerWindowMs`, `entrySpeedStepMps`, `plateauMs`, `plateauSpeedHoldMode`, `entrySpeedMaxMps`; `THRESHOLDS` `maxUndersteerMs`, `understeerOnsetRatio`, `105 / 3.6` | parâmetros e limiares | **retirados** |
+| decisões 8, 9 e 10 de ADR-0004; decisões de V0 de ADR-0003 | decisões | **retiradas** (sem objeto) |
+| `NORMAL_DRIVING`, `REAR_RECOVERY`, `TOP_SPEED`, `WALL_CONTACT`, `STEP_COST`, `SETUP_VERSION`, `STEP_CONTRACT` | registros | modificados (população, ambiente, lados, limiar, motivo ou convenção de ambiente) |
+| fim da volta em `TEST_PILOT_LAP`, `measureStepCost` e `replayLap` | fase `ENDED` | primeiro resultado (FB-01 de `race-lap-validation`) |
+| `PUBLISHED_SETUPS.ARCADE_ASSISTIDO` | `arcade-assistido-v5` | `arcade-assistido-v6`; `ARCADE_ASSISTIDO_V5` fica intacto |
+
+8 DES, 1 DM e 5 ADR antes; 8 DES, 1 DM e 6 ADR depois. Requisitos realizados: os 64 `REQ-*` do F-Spec 4.0.1
+(62 antes; 11 retirados e 13 novos); 33 `AC-*` e 9 NFR.
+
+**Itens fechados**: o pedido do coordenador desta rodada; FB-01 de
+`reports/feedbacks/race-lap-validation/feedback-20261030-1256.md`, **aceito**: o fim de uma volta nos ensaios,
+na volta cronometrada, em `replayLap` e nos testes passa a ser o primeiro resultado (`getLapResult` sem
+código), não a fase `ENDED`, o que vale antes e depois da mudança de `race-lap-validation`; o tratamento de cada
+resultado na aplicação aceita o gatilho "cada item novo de `listLapResults`" projetado lá (DES-0003, DES-0004,
+DES-0006, test-strategy, `98-divergences.md`). O FB-01 de `feedback-20261022-1703` já estava aceito desde a
+rodada 8. Nenhum `ISSUE-<nn>` pendente (o último relatório deste estágio, `dspec-validation-20261027-1803`, é
+SUCCESS).
+
+**Itens recusados, com motivo**
+
+- Apagar `src/maneuvers.ts` e `State.maneuvers` nesta entrega: `src/main.ts` deixaria de compilar enquanto as
+  leituras de `modelo-kart-01` existirem e `tests/race-lap-validation-layering.test.ts:9` falharia, contra
+  REQ-FEAT-0006-07; projetado como janela de compatibilidade com gatilho (ADR-0006).
+- Editar as leituras de `state.maneuvers` de `modelo-kart-01` em `src/main.ts` (jato, câmera, marcas) ou criar
+  uma condição nova para as marcas de pneu: escreveria na superfície de outra feature, ou criaria regra nova de
+  renderização (`SEED/RE-01`); recusado (ADR-0006).
+- Retirar o campo `drift` de `Input` ou o botão de drift do toque: o F-Spec mantém o campo e o controle como
+  entrada sem efeito (NFR-0006; RULE-0001).
+- Retirar os textos de instrução do drift fora do HUD (`index.html:19` boas-vindas, `:33` dica da barra, `:34`
+  guia "Como fazer drift"): o F-Spec limita a retirada ao HUD durante a volta, ao resultado e ao texto
+  compartilhado (AC-US-0003-09, -11), e trocá-los seria texto novo (RNF11). Proposta ao autor, abaixo.
+- `previousSetupVersion` apontando para `arcade-assistido-v5` (a leitura de DM-0001 2.0.0): API-0002 e RULE-0003
+  a definem como a versão anterior à feature; recusado (ADR-0001).
+- Variar a velocidade de partida ou a duração do forçar de `REAR_RECOVERY` até a traseira do acerto C soltar:
+  seria escolher o parâmetro de ensaio pelo resultado; o F-Spec decide a traseira que não solta
+  (REQ-FEAT-0003-17).
+- Um registro de API-0003 para a recuperação com acelerador e esterço zerados juntos: o contrato não tem campo
+  que distinga a variante; verificada em `npm test` por `step` (test-strategy).
+- Mudar a volta do piloto de teste para `OFFICIAL` ou `RECON` (uma das saídas que o FB-01 ofereceu): mudaria o
+  tipo de volta que a linha de base mediu e, em `OFFICIAL`, dependeria da leitura completa da pista; o fim no
+  primeiro resultado resolve o mesmo caso sem isso.
+- Recitar os números de v5 do bloco de `docs/physics.md`: sem objeto, porque nenhum ensaio desta versão os lê; a
+  entrada v5 fica como histórico.
+- Os itens recusados das rodadas 1 a 9 que tratavam do arco de 18 m, da varredura e de V0 ficam sem objeto; os
+  demais continuam recusados pelos mesmos motivos.
+
+**Propostas ao autor** (para `SCOPE-BACKLOG.md`, que este estágio não escreve):
+
+- "2026-10-30 dspec-loop rodada 10 — com o acerto C a traseira não solta sob a condição de forçar a 55–69 km/h
+  (o kart desacelera a ~54 km/h em `understeer`): a recuperação de 400 ms fica sem medida no acerto entregue.
+  Aceitar, ou pedir uma alavanca que faça a traseira soltar?"
+- "2026-10-30 dspec-loop rodada 10 — sem o drift o jogo deixa de desenhar marcas de pneu (a única situação era
+  o drift): as marcas devem aparecer em alguma outra situação? (afeta `modelo-kart-01`, FEAT-0005)"
+- "2026-10-30 dspec-loop rodada 10 — os textos de instrução do drift e do turbo nas boas-vindas, na barra e no
+  guia de manobras devem sair?"
+
+**Para a validação encaminhar a outras features** (conventions §14; feedbacks escritos pelo validador): a
+`race-lap-validation` e a `pista-kart-park`, deixar de nomear `src/maneuvers.ts` nos testes de camada (gatilho
+da retirada final, ADR-0006); a `modelo-kart-01`, o efeito sobre as marcas de pneu e a linha de base da
+simulação chaveada em `arcade-assistido-v5`; a `pista-kart-park`, que os testes que leem
+`PUBLISHED_SETUPS.ARCADE_ASSISTIDO` passam a pilotar o acerto C.
+
+**Versões**: `01-architecture.md` 4.0.0; `DES-0001` 4.0.0; `DES-0002` 2.0.0; `DES-0003` 2.1.0; `DES-0004` 6.0.0;
+`DES-0005` 2.0.0; `DES-0006` 2.0.0; `DES-0007` 1.2.0; `DES-0008` 1.1.0; `DM-0001` 3.0.0; `ADR-0001` 1.1.0;
+`ADR-0002` 2.0.1; `ADR-0003` 2.0.0; `ADR-0004` 5.0.0; `ADR-0005` 2.0.0; `ADR-0006` 1.0.0; `test-strategy.md`
+6.0.0; `98-divergences.md` 4.0.0; este changelog 4.0.0; todos em `status: draft`.
+
+## 2026-10-30 — rodada 11, Mode B (`reports/dspec-validation/dspec-validation-20261030-1326.md`: 2 erros, 2 avisos)
+
+**Gatilho**: o relatório FAIL `dspec-validation-20261030-1326` sobre a rodada 10 (`ISSUE-01` e `ISSUE-02`,
+erros; `ISSUE-03` e `ISSUE-04`, avisos; `ISSUE-05` a `ISSUE-08`, informativos; `ISSUE-09` a `ISSUE-13`,
+`scope`, encaminhados pela validação como feedback a outras features).
+
+**O que mudou**
+
+- `ISSUE-01` (erro, D3): `core/DES-0004` (6.0.1) ganha a tabela "Campos obrigatórios quando a execução para
+  na saída da área antes do instante de medida": em `STEER_RESPONSE`, `CORNER_RADIUS`, `CORNER_TURN`,
+  `REAR_RECOVERY`, `ACCELERATION`/`TOP_SPEED` e na sequência de recuperação de `DRIFT_INERT`, cada campo que
+  API-0003 4.0.1 torna obrigatório é medido até o passo da saída, como no caso da parada — `pathRadiusAt3sM`
+  sobre os passos da janela executados (`Number.MAX_VALUE` sem passo ou sem variação de direção),
+  `speedAt3sMps`/`handlingAt3s` e `turnAt2sRad`/`speedAt2sMps` do passo da saída quando ela vem antes do
+  instante, `steadyYawRateRadPerS` sobre os passos executados da fase A, `fallToTenPctMs` com o teto `toMs(72)`
+  quando não alcançado; os valores são informativos, porque `TEST_AREA_EXCEEDED` já decidiu o veredito. Mesmo
+  fato em outro sítio: a linha da saída da área na tabela Comportamento em falha remete à tabela nova. Nenhum
+  campo, valor de enum ou mudança de contrato.
+- `ISSUE-02` (erro, D4): `data/DM-0001` (3.0.1), seção 2, cita API-0001 1.2.0 de `race-lap-validation`, diz que
+  todo campo de `LapResult` 1.2.0 é carregado pelo `LapRecord` e lista `lapSequenceCount`, `lapStartMs`,
+  `trainingLapMs` e `trainingSectorMs` como opcionais de treino, com a nulidade e o padrão de leitura daquele
+  contrato, fora da comparabilidade, do texto compartilhado e dos ensaios. Mesmo fato em outro sítio:
+  `core/DES-0003` (2.1.1), Realiza, cita API-0001 1.2.0 e API-0002 1.2.1 (os campos de acerto vêm da 1.1.0).
+- `ISSUE-03` (aviso, D2): `core/DES-0004`, linha `readBaseline`, cita `scripts/handlingBench.ts:808-821`.
+- `ISSUE-04` (aviso, D2): `core/DES-0001` (4.0.1), "Passo sem drift nem turbo": a tabela de expressões de
+  substituição dá lugar ao contrato por sítio (o que sai, o que fica), com a linha 2 como restrição de contrato
+  e dois invariantes que a etapa de código prova — estado igual bit a bit ao da árvore anterior para todo
+  `Input` sem o comando de drift; estado igual com e sem o comando.
+
+**Superfície (conventions §16)**: nenhum requisito, módulo, campo, valor de enum, parâmetro, tela ou elemento
+acrescentado; a tabela de `ISSUE-01` define valores de campos que API-0003 já tinha, e as quatro linhas de
+`ISSUE-02` descrevem campos que `LapResult` 1.2.0 de `race-lap-validation` já tem.
+
+**Itens fechados**: `ISSUE-01` a `ISSUE-04` de `dspec-validation-20261030-1326`.
+
+**Itens recusados, com motivo**
+
+- `ISSUE-05`, `ISSUE-06`, `ISSUE-08` (info): o relatório pede nada a mudar; não tocados. `ISSUE-08` segue como
+  proposta ao autor (rodada 10).
+- `ISSUE-07` (info, coluna "Item de projeto" na tabela de linhas resolvidas de `98-divergences.md`): opcional e
+  fora das issues que esta rodada de correção recebeu; não acrescentada.
+- `ISSUE-09` a `ISSUE-13` (`scope`): devidas pelas features alvo, por feedback já escrito pela validação; nada a
+  mudar neste conjunto.
+- Mudar a nulidade de campos de API-0003 para o caso da saída da área: o contrato é do F-Spec e o caso se
+  resolve medindo até o passo da saída, sem mudança de contrato.
+
+**Versões**: `DES-0001` 4.0.1; `DES-0003` 2.1.1; `DES-0004` 6.0.1; `DM-0001` 3.0.1; este changelog 4.0.1; todos em
+`status: draft`. Intocados nesta rodada: os demais arquivos. `00-index.md` e `99-traceability.md` regenerados
+pelo gate.

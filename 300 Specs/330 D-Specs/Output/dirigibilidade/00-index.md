@@ -2,8 +2,8 @@
 stage: dspec
 feature: dirigibilidade
 status: validated
-generated: 2026-10-27T18:13:19Z
-files: 18
+generated: 2026-10-30T13:39:12Z
+files: 19
 ---
 
 # Index
@@ -12,21 +12,22 @@ files: 18
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-architecture.md` | - | Arquitetura — dirigibilidade do Arcade assistido | validated | 3.1.0 |
-| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido | validated | 3.1.0 |
-| `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido | validated | 3.1.0 |
-| `adr/ADR-0001-versao-do-acerto-como-registro-novo-no-codigo.md` | ADR-0001 | A nova versão do acerto é um registro novo em código; a anterior fica intacta; sem chave mestra | validated | 1.0.1 |
-| `adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md` | ADR-0002 | Formato do replay versão 1 e registro de volta que envolve o LapResult, sem persistência | validated | 2.0.0 |
-| `adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md` | ADR-0003 | Linha de base legível por máquina dentro de docs/physics.md, resolvida por ensaio, ambiente e geometria; identidade de máquina e runtime sem dado pessoal | validated | 1.4.0 |
-| `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` | ADR-0004 | Ensaios como biblioteca em scripts/ compartilhada por npm test e pelos benches; parâmetros de ensaio fixados; entradas da biblioteca | validated | 4.1.0 |
-| `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` | ADR-0005 | Pista de teste como geradores de Environment em src/physics.ts; velocidade mantida por acelerador regulado; classificador de passo na simulação | validated | 1.3.0 |
-| `core/DES-0001-acerto-arcade-assistido-v5-e-assistencias.md` | DES-0001 | Acerto Arcade assistido v5, assistências, pista de teste e classificação do passo na simulação | validated | 3.4.0 |
-| `core/DES-0002-telemetria-de-dirigibilidade.md` | DES-0002 | Telemetria de dirigibilidade por passo (API-0001) | validated | 1.1.1 |
-| `core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md` | DES-0003 | Versão do acerto, registros de volta e replay e comparabilidade (API-0002) | validated | 2.0.0 |
-| `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` | DES-0004 | Ensaios de dirigibilidade, ambientes, linha de base e saída (API-0003) | validated | 5.1.0 |
-| `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` | DM-0001 | Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base | validated | 2.0.0 |
-| `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` | DES-0008 | Privacidade dos registros, do texto compartilhado e da saída dos ensaios | validated | 1.0.2 |
-| `test-strategy.md` | - | Estratégia de testes — dirigibilidade do Arcade assistido | validated | 5.1.0 |
-| `web/DES-0005-hud-velocidade-e-aderencia.md` | DES-0005 | HUD de velocidade e estado de aderência | validated | 1.0.2 |
-| `web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md` | DES-0006 | Resultado com a versão do acerto, melhor tempo comparável e texto compartilhado | validated | 1.1.0 |
-| `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` | DES-0007 | Integração da aplicação — escolha do acerto publicado e adaptadores de controle | validated | 1.1.0 |
+| `01-architecture.md` | - | Arquitetura — dirigibilidade do Arcade assistido | validated | 4.0.0 |
+| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido | validated | 4.0.1 |
+| `98-divergences.md` | - | Divergências — dirigibilidade do Arcade assistido | validated | 4.0.0 |
+| `adr/ADR-0001-versao-do-acerto-como-registro-novo-no-codigo.md` | ADR-0001 | Cada versão do acerto é um registro novo em código; a anterior à feature e as rodadas substituídas ficam intactas; sem chave mestra | validated | 1.1.0 |
+| `adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md` | ADR-0002 | Formato do replay versão 1 e registro de volta que envolve o LapResult, sem persistência | validated | 2.0.1 |
+| `adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md` | ADR-0003 | Linha de base legível por máquina dentro de docs/physics.md, uma entrada por versão e máquina; decide só o custo por passo e a identidade do Realista | validated | 2.0.0 |
+| `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` | ADR-0004 | Ensaios como biblioteca em scripts/ compartilhada por npm test e pelos benches; parâmetros de ensaio fixados; medidas do raio e do giro; DRIFT_INERT e SPEED_CAP | validated | 5.0.0 |
+| `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` | ADR-0005 | Pista de teste aberta como gerador de Environment em src/physics.ts; velocidade mantida por acelerador regulado; classificador de passo retirado | validated | 2.0.0 |
+| `adr/ADR-0006-retirada-do-drift-e-do-turbo-com-janela-de-compatibilidade.md` | ADR-0006 | Drift e turbo fora do passo agora; State.maneuvers e src/maneuvers.ts numa janela de compatibilidade até os leitores de outras features saírem | validated | 1.0.0 |
+| `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` | DES-0001 | Acerto Arcade assistido v6 (acerto C), assistências, pista de teste aberta e passo sem drift nem turbo | validated | 4.0.1 |
+| `core/DES-0002-telemetria-de-dirigibilidade.md` | DES-0002 | Telemetria de dirigibilidade por passo (API-0001) | validated | 2.0.0 |
+| `core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md` | DES-0003 | Versão do acerto, registros de volta e replay e comparabilidade (API-0002) | validated | 2.1.1 |
+| `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` | DES-0004 | Ensaios de dirigibilidade, pista de teste aberta, linha de base e saída (API-0003) | validated | 6.0.1 |
+| `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` | DM-0001 | Dado publicado do acerto, registros de volta e replay, saída dos ensaios e linha de base | validated | 3.0.1 |
+| `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` | DES-0008 | Privacidade dos registros, do texto compartilhado e da saída dos ensaios | validated | 1.1.0 |
+| `test-strategy.md` | - | Estratégia de testes — dirigibilidade do Arcade assistido | validated | 6.0.0 |
+| `web/DES-0005-hud-velocidade-e-aderencia.md` | DES-0005 | HUD de velocidade e estado de aderência, sem indicador de drift ou turbo | validated | 2.0.0 |
+| `web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md` | DES-0006 | Resultado, melhor tempo só comparável e texto compartilhado, sem a versão do acerto nem o drift | validated | 2.0.0 |
+| `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` | DES-0007 | Integração da aplicação — escolha do acerto publicado e adaptadores de controle | validated | 1.2.0 |

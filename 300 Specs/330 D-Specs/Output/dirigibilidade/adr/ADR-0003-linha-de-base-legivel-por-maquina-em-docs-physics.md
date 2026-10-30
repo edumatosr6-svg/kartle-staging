@@ -1,110 +1,76 @@
 ---
 id: ADR-0003
-title: Linha de base legível por máquina dentro de docs/physics.md, resolvida por ensaio, ambiente e geometria; identidade de máquina e runtime sem dado pessoal
+title: Linha de base legível por máquina dentro de docs/physics.md, uma entrada por versão e máquina; decide só o custo por passo e a identidade do Realista
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.4.0
-sources: [API-0003, RULE-0002, FEAT-0002, FEAT-0006, REQ-FEAT-0002-04, REQ-FEAT-0002-07, REQ-FEAT-0002-10, REQ-FEAT-0006-06, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0002, NFR-0004, NFR-0007]
+version: 2.0.0
+sources: [API-0003, RULE-0002, FEAT-0006, REQ-FEAT-0006-04, REQ-FEAT-0006-06, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0002, NFR-0004, NFR-0007]
 ---
 
-# ADR-0003 — Linha de base legível por máquina dentro de docs/physics.md, resolvida por ensaio, ambiente e geometria; identidade de máquina e runtime sem dado pessoal
+# ADR-0003 — Linha de base legível por máquina dentro de docs/physics.md, uma entrada por versão e máquina; decide só o custo por passo e a identidade do Realista
 
 ## Contexto
 
-`UNDERSTEER_ONSET`, `STEP_COST` e `REALISTA_UNCHANGED` comparam com uma linha de base que o F-Spec manda
-registrar em `docs/physics.md` (NFR-0004), com `FAIL` `BASELINE_MISSING` quando ausente e nunca
-inventada nem extrapolada. A revisão 3 do seed acrescenta que só conta como linha de base a entrada do
-**mesmo ensaio, no mesmo ambiente e na mesma geometria** (`arcRadiusM`): uma linha de base medida em curva
-da pista sintética não serve para o arco da pista de teste (RULE-0002, Linha de base; REQ-FEAT-0002-07).
-`docs/physics.md` era prosa com tabelas (`docs/physics.md:116-178`), sem bloco legível por máquina; a rodada
-de código 2 acrescentou a entrada datada (`docs/physics.md:196-262`) e o bloco `handling-baseline`
-(`docs/physics.md:265-412`) com as entradas `arcade-assistido-v4`, `realista-aluguel-4t-v4` e
-`arcade-assistido-v5`, na forma desta decisão. O custo por passo só é comparável na mesma máquina e runtime
-(NFR-0002), e o repositório não pode carregar nome de máquina nem de usuário (I6). O F-Spec 3.3.0
-(`DOMAIN/DEC-12`) define V1 em dois casos — patamar completo com `understeer` acima de 200 ms consecutivos
-ou, sem nenhum, a velocidade mantida do patamar interrompido pela saída da faixa — e deixa sem decisão o
-recuo de V0 para uma linha de base que não reporta subesterço em patamar algum.
+RULE-0002 4.0.1 restringe a linha de base no veredito a `STEP_COST`: só conta a entrada de `docs/physics.md`
+do mesmo ensaio, no mesmo ambiente e na mesma máquina e runtime; sem ela, `BASELINE_MISSING`; nunca inventada
+nem extrapolada. Os demais ensaios têm limiares absolutos, e a sua linha de base — o mesmo ensaio, no mesmo
+ambiente, com o Arcade anterior — é registrada ao lado do resultado do acerto novo (NFR-0004), sem entrar no
+veredito. NFR-0007 exige que o Realista dê saída idêntica à sua linha de base (`REALISTA_UNCHANGED`). As
+decisões de V0 e da geometria do arco saem com `UNDERSTEER_ONSET` e `REFERENCE_CORNER` (API-0003 4.0.0). O
+bloco `handling-baseline` de `docs/physics.md` (`:282-429`) tem hoje três entradas medidas com os ensaios da
+revisão 3 (`arcade-assistido-v4` e `realista-aluguel-4t-v4` de 2026-10-22; `arcade-assistido-v5` refeita em
+2026-10-27), e `readBaseline` toma a primeira entrada com o `setupId`, a `setupVersion` e o `runtimeId`
+pedidos. O custo por passo só é comparável na mesma máquina e runtime (NFR-0002), e o repositório não pode
+carregar nome de máquina nem de usuário (I6).
 
 ## Decisão
 
-1. `docs/physics.md` passa a conter um bloco cercado ` ```json handling-baseline ` com a forma de
+1. `docs/physics.md` contém um bloco cercado ` ```json handling-baseline ` com a forma de
    [DM-0001](../data/DM-0001-dado-publicado-registros-e-linha-de-base.md), seção 5, ao lado da entrada em
-   prosa datada que NFR-0004 pede. Os ensaios leem o bloco; as pessoas leem a prosa; os dois dizem o mesmo.
-   Cada entrada traz `parameters` (os parâmetros de ensaio da execução) e cada registro traz
+   prosa datada; os ensaios leem o bloco, as pessoas a prosa. Cada entrada traz `parameters` e cada registro
    `benchEnvironment`.
-2. A linha de base do Arcade é a saída do mesmo ensaio executado com `version: 'previous'`
-   (`previousConfig` = `ARCADE_KART`; `npm run bench:handling -- --previous`), **nos mesmos ambientes da
-   versão corrente** (pista de teste em reta e arco de 18 m; pista sintética para volta, grama e parede),
-   registrada com `setupVersion` `arcade-assistido-v4` — reproduzível a qualquer momento, porque a versão
-   anterior permanece em código (ADR-0001). A do Realista é a saída com `RENTAL_KART`
-   (`--realista`), registrada antes de qualquer mudança desta feature nos presets. As execuções que
-   produzem linha de base (`--previous`, `--realista`) não recebem `baseline` nem `realistaBaseline`: uma
-   linha de base nunca é julgada contra outra, e os seus registros saem com `BASELINE_MISSING` onde a
-   linha de base é exigida, salvo quando outro motivo vem antes na ordem do ensaio. O `verdict` e o
-   `failReason` de um registro de linha de base não decidem se ele serve: em `UNDERSTEER_ONSET`, serve de
-   V0 o registro cujo `v1Mps` é a velocidade de um **patamar completo com `understeer` por mais de 200 ms
-   consecutivos** na varredura da linha de base — `|v1Mps − 50 / 3.6| < 1e-9` (patamar k = 0, que não
-   entra na lista) ou um par `[plateauSpeedMps, maxUndersteerMs]` de `maxUndersteerMsBySpeed` com
-   `|plateauSpeedMps − v1Mps| < 1e-9` e `maxUndersteerMs > 200` —, qualquer que seja o motivo com que a
-   execução da linha de base o julgou, porque RULE-0002 aplica o fim da varredura só ao novo acerto e a
-   linha de base só fornece V0 ([DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md),
-   [ADR-0004](ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md), decisões 8 e 10). Um `v1Mps`
-   que veio do patamar interrompido pela saída (fim natural de uma linha de base que nunca saiu de frente)
-   **não** serve de V0: o F-Spec define esse caso para V1 e deixa o recuo de V0 em aberto, e um V0 tirado
-   dali seria estimativa. Medido pela rodada de código 2 (`docs/physics.md:252`; bloco `handling-baseline`,
-   entrada `arcade-assistido-v4`): `ARCADE_KART` reporta 808 ms de `understeer` no patamar de 50 km/h e sai
-   da faixa a 51,7 km/h, antes do segundo patamar completo acima de 50 km/h; o seu registro sai com
-   `MEASUREMENT_MISSING`, lista vazia e `v1Mps` `50 / 3.6`, que é o V0 (patamar k = 0 com subesterço).
-3. A resolução de um registro da linha de base exige igualdade de `benchId`, `benchEnvironment`,
-   `inputMode`, variante e, quando o registro os carrega, `arcRadiusM` e `laneWidthM`
-   (`baselineRecord`, [DES-0004](../core/DES-0004-ensaios-de-dirigibilidade-e-saida.md)); em
-   `UNDERSTEER_ONSET`, também o mesmo `entrySpeedStepMps` e os mesmos `plateauMs` e `plateauSpeedHoldMode`
-   nos `parameters` da entrada, porque uma varredura por velocidades de entrada, ou com outro patamar, não
-   é o mesmo ensaio (API-0003, Compatibilidade). Um registro sem `benchEnvironment` (medido sob a versão
-   anterior deste projeto) nunca é igual e é ignorado.
-4. `runtimeId` = `${process.platform}-${process.arch}-node${process.versions.node}-${os.cpus()[0].model}`,
-   sem `os.hostname()` nem `os.userInfo()`, calculado em `scripts/keyboard-lap.ts` (programa de bench,
-   camada Aplicação) e passado à biblioteca como argumento: `scripts/handlingBench.ts` não importa
-   `node:os`. `STEP_COST` só compara entradas com `runtimeId` igual.
-5. A ausência de bloco, de entrada, de registro igual ou de `runtimeId` igual — e, em `UNDERSTEER_ONSET`,
-   um registro de linha de base sem `v1Mps`, ou cujo `v1Mps` não é a velocidade de um patamar completo com
-   subesterço (decisão 2) — dá `baselineAvailable` falso e `BASELINE_MISSING` onde a linha de base é
-   exigida; nada é estimado. Um V0 nunca é tirado de uma velocidade em que a varredura da linha de base
-   não reportou subesterço.
+2. **Uma entrada por (`setupId`, `setupVersion`, `runtimeId`).** Medir de novo uma versão com os ensaios de uma
+   versão nova deste projeto substitui a sua entrada no bloco; a prosa datada anterior fica como histórico.
+   Nesta entrega: `arcade-assistido-v4` (`npm run bench:handling -- --previous`, `previousConfig` =
+   `ARCADE_KART`) e `realista-aluguel-4t-v4` (`--realista`) medidas de novo e substituídas;
+   `arcade-assistido-v6` acrescentada; `arcade-assistido-v5` mantida como registro da rodada substituída.
+3. A linha de base decide só: `STEP_COST` (o `meanStepCostUs` da entrada da `previousSetupVersion` do acerto
+   ensaiado com o mesmo `runtimeId`) e `REALISTA_UNCHANGED` (registro a registro contra a entrada do Realista,
+   por ambiente). `baselineLapTimeMs` e `baselineAvailable` dos demais registros são informativos.
+4. A resolução de um registro exige igualdade de `benchId`, `benchEnvironment`, `inputMode` e variante
+   (`steerInputNorm`, `entrySpeedMps` quando presentes). Um registro de `benchId` retirado nunca é igual a um
+   desta versão e é ignorado.
+5. `runtimeId` = `${process.platform}-${process.arch}-node${process.versions.node}-${os.cpus()[0].model}`, sem
+   `os.hostname()` nem `os.userInfo()`, calculado em `scripts/keyboard-lap.ts` e passado à biblioteca como
+   argumento: `scripts/handlingBench.ts` não importa `node:os`.
+6. As execuções que produzem linha de base (`--previous`, `--realista`) não recebem `baseline` nem
+   `realistaBaseline`: uma linha de base nunca é julgada contra outra.
 
 ## Alternativas consideradas
 
-- **Arquivo separado `docs/physics-baseline.json`.** O F-Spec nomeia `docs/physics.md`; um segundo arquivo
-  seria "um fato em dois lugares". Recusada.
-- **Linha de base literal dentro dos testes.** Não é "registrada em `docs/physics.md`" e não é datada.
-  Recusada; os testes leem o bloco.
-- **Recalcular V0 em tempo de teste com `ARCADE_KART`.** Possível, mas o F-Spec define V0 como valor
-  registrado e manda falhar sem registro; recalcular esconderia a ausência. Recusada; o bench oferece
-  `--previous` para gerar a entrada, e o teste a lê.
-- **Aceitar a linha de base por `benchId` e `inputMode` apenas** (como o as-built faz em
-  `scripts/handlingBench.ts:275`). Deixaria uma entrada medida na curva da pista sintética valer para o arco
-  da pista de teste, o que RULE-0002 proíbe. Recusada.
-- **Converter a linha de base medida na pista sintética para o arco de 18 m.** É extrapolação; o F-Spec a
-  proíbe. Recusada: a linha de base é medida de novo no arco.
-- **`os.hostname()` como identidade de máquina.** Identificador potencialmente pessoal num repositório
-  público. Recusada.
-- **Aceitar como V0 qualquer `v1Mps` numérico da linha de base** (o as-built, `scripts/handlingBench.ts:311`),
-  inclusive o do patamar interrompido de uma linha de base que nunca saiu de frente. Seria decidir o recuo
-  de V0 que o F-Spec deixou ao autor, e tomar como "velocidade de início do subesterço" uma velocidade em
-  que não houve subesterço. Recusada (decisão 2); com a linha de base medida o caso não ocorre.
+- **Arquivo separado `docs/physics-baseline.json`.** O F-Spec nomeia `docs/physics.md`; seria um fato em dois
+  lugares. Recusada.
+- **Acrescentar a nova medição de `arcade-assistido-v4` ao lado da antiga, com a mais recente vencendo.** Duas
+  entradas da mesma chave deixariam a escolha a uma regra de ordem que nenhum leitor documenta, e
+  `REALISTA_UNCHANGED` compararia contra registros de `benchId` retirados (contando cada um como diferença).
+  Recusada; a prosa datada guarda o histórico.
+- **Manter as entradas de 2026-10-22 e julgar `REALISTA_UNCHANGED` só sobre os `benchId` comuns.** Deixaria
+  sem linha de base os ensaios novos do Realista (`CORNER_RADIUS`, `CORNER_TURN`, `DRIFT_INERT`,
+  `SPEED_CAP`), o que NFR-0007 não admite ("idênticas em 100 % das medidas"). Recusada.
+- **Linha de base literal dentro dos testes; recalcular a linha de base em tempo de teste.** Não é "registrada
+  em `docs/physics.md`" e esconderia a ausência. Recusadas.
+- **`os.hostname()` como identidade de máquina.** Identificador potencialmente pessoal. Recusada.
 
 ## Consequências
 
-- As linhas de base (Arcade anterior na pista de teste e na pista sintética, Realista, custo por passo na
-  máquina de referência) foram produzidas e registradas pela rodada de código 2 antes do retune do acerto;
-  cada rodada seguinte do ciclo em staging acrescenta a entrada do acerto novo, e a entrada
-  `arcade-assistido-v5` é refeita pela rodada de código seguinte, porque o veredito de `UNDERSTEER_ONSET` e
-  os campos de `REFERENCE_CORNER` com acelerador 0 mudam de significado nesta versão do projeto.
-- `docs/physics.md` passa a ser lido por `scripts/handlingBench.ts` com `node:fs`; o caminho é relativo à
-  raiz do repositório e nunca é impresso.
-- Uma mudança futura de `arcRadiusM` ou `laneWidthM` invalida a linha de base do arco por construção e
-  exige nova entrada: é o custo de a linha de base significar sempre a mesma geometria.
+- A etapa de código registra as três entradas novas (v4, Realista, v6) na mesma máquina de referência e
+  atualiza a prosa; o custo por passo da linha de base passa a ser medido com o passo já sem a manobra de
+  drift, o mesmo código que o acerto novo usa, como NFR-0002 pede (mesma máquina e runtime).
+- `docs/physics.md` continua lido por `scripts/handlingBench.ts` com `node:fs`; o caminho é relativo à raiz e
+  nunca é impresso.
+- Uma mudança futura de um parâmetro de ensaio exige nova medição das linhas de base, porque a entrada
+  registra os `parameters` com que foi medida.
 
 ## Estado
 

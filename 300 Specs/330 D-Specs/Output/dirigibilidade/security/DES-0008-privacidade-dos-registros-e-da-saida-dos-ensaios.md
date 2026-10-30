@@ -4,8 +4,8 @@ title: Privacidade dos registros, do texto compartilhado e da saída dos ensaios
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 1.0.2
-sources: [API-0001, API-0002, API-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0006-02, REQ-FEAT-0006-08, NFR-0004, NFR-0009]
+version: 1.1.0
+sources: [API-0001, API-0002, API-0003, FEAT-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0003-15, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-13, REQ-FEAT-0006-02, REQ-FEAT-0006-08, NFR-0004, NFR-0009]
 ---
 
 # DES-0008 — Privacidade dos registros, do texto compartilhado e da saída dos ensaios
@@ -30,7 +30,7 @@ verificação de sessão nem de RBAC porque não há autenticação no produto, 
 
 | Fronteira | O que atravessa | Validação | Onde |
 |---|---|---|---|
-| Web Share / área de transferência | `formatSharedText(record, lang)`: `trackId`, `trackVersion`, tempo, `setupVersion`, estado | só campos de `LapRecord`; nenhum campo de aparelho, idioma de sistema, data ou nome | `src/main.ts` (`#lap-share`) |
+| Web Share / área de transferência | `formatSharedText(record, lang)`: `trackId`, `trackVersion` e o tempo, ou o estado inválido | só campos de `LapRecord`; nem a `setupVersion` (SCR-0002 1.2.0) nem conteúdo de drift ou turbo; nenhum campo de aparelho, idioma de sistema, data ou nome | `src/main.ts` (`#lap-share`) |
 | `readReplay(source)` | objeto ou texto de origem não confiável | tipo, forma, faixa e tamanho: texto com no máximo `MAX_REPLAY_TEXT_CHARS` (4 194 304 caracteres) e `inputs` com no máximo `MAX_REPLAY_INPUT_STEPS` (36 000 passos), verificados antes de ler qualquer elemento, excesso é `UNREADABLE`; `inputs` só com `throttle`, `brake`, `steer` finitos e `drift` booleano; `replayFormatVersion` inteiro; sem `eval`, sem consulta construída por texto | `src/setupRecords.ts` ([DES-0003](../core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)) |
 | `docs/physics.md` → `readBaseline` | JSON do bloco | `JSON.parse` em `try`; só `setupId`, `setupVersion`, `measuredAtUtc`, `runtimeId`, `parameters` e os campos de API-0003 de `records` são lidos; um registro sem `benchEnvironment` igual é ignorado | `scripts/handlingBench.ts` |
 | `src/physics.ts` → `STEP_CONTRACT` | texto do módulo | lido com `node:fs` só para comparar linhas literais; nunca executado nem impresso | `scripts/handlingBench.ts` |
@@ -66,7 +66,7 @@ sem lançar.
 `scripts/handlingBench.ts` não contêm `fetch`, `XMLHttpRequest`, `WebSocket`, `localStorage`,
 `sessionStorage`, `indexedDB`, `navigator.sendBeacon`, `os.hostname`, `os.userInfo`; que
 `scripts/keyboard-lap.ts` e `scripts/physics-bench.ts` não contêm `os.hostname` nem `os.userInfo`; e que o
-texto compartilhado contém exatamente os campos listados.
+texto compartilhado contém exatamente os campos listados (sem `setupVersion`).
 
 ## Determinismo (D-DS-07)
 
