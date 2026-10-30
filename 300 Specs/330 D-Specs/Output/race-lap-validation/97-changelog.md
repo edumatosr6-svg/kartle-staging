@@ -3,7 +3,7 @@ title: Registro de mudanças — validação de volta de corrida
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.2.1
+version: 1.2.2
 sources: []
 ---
 
@@ -484,3 +484,36 @@ em `test-strategy.md`, seção "Requisitos sem critério próprio".
   conjunto muda por eles.
 - Nenhum módulo, campo, contrato, elemento de tela ou componente acrescentado (§16); o passo novo de E2E-02 usa o
   seletor de pistas existente.
+
+## 2026-10-30 — rodada 8, Mode C (feedback `reports/feedbacks/dirigibilidade/feedback-20261030-1326.md`)
+
+**O que mudou**
+
+- FB-01 de `dirigibilidade` (ADR-0006 dessa feature retira `src/maneuvers.ts` numa janela de compatibilidade):
+  aceito. `core/DES-0012` 1.1.0 → 1.1.1: o teste de camada (`tests/lap-layering.test.ts`, na árvore
+  `tests/race-lap-validation-layering.test.ts`) deixa de nomear `src/maneuvers.ts`. O conjunto lido passa a ser a
+  lista fixa `src/physics.ts`, `src/track.ts`, `src/trackData.ts`, `src/lap.ts`, `src/lapTiming.ts`, mais os módulos
+  de `src/` que `src/physics.ts` importa ou reexporta por caminho relativo, extraídos do texto de `src/physics.ts` no
+  momento do teste (hoje `./track`, `./maneuvers` e `./trackGeometry`; depois da retirada final, `./track` e
+  `./trackGeometry`). A cobertura de `maneuvers.ts` continua enquanto a física o importar, e a retirada final não
+  reprova CHK-TEST-0013. As afirmações do teste (importações e símbolos proibidos, rede e armazenamento) não mudam.
+  O Posicionamento de DES-0012 passa a dizer "inalterados por esta feature" e registra que a retirada do módulo é de
+  `dirigibilidade`.
+- Este registro 1.2.1 → 1.2.2. `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Itens fechados**: FB-01 (`dirigibilidade`, feedback de 2026-10-30 13:26).
+
+**Itens recusados ou não tratados, com motivo**
+
+- Condicionar `maneuvers.ts` à existência do arquivo (alternativa oferecida pelo feedback): não adotado. Derivar o
+  conjunto das importações de `src/physics.ts` cobre o mesmo caso e também os módulos que a física passe a importar
+  (`./trackGeometry`, hoje sem verificação), sem escrever no teste um nome de arquivo de outra feature.
+- `test-strategy.md`: não alterado. As linhas de NFR-0004, NFR-0005 e dos requisitos de privacidade citam
+  `lap-layering` pelo nome e não listam os módulos; a lista vive só em DES-0012.
+- `01-architecture.md` (linha da camada Simulação), `adr/ADR-0002` e `core/DES-0005` (reinício de `maneuvers` como
+  no `reset`): não alterados. Descrevem o que esta feature não edita e o comportamento do `reset` existente; a
+  retirada de `State.maneuvers` e de `src/maneuvers.ts` é de `dirigibilidade`, e o seu fim é o da janela de
+  compatibilidade dela, não uma decisão deste conjunto.
+- A linha 3 de `src/physics.ts` (CHK-TEST-0014-05): nada a mudar; o feedback confirma que ela não se move.
+- O teste em `tests/race-lap-validation-layering.test.ts:9` é da etapa de testes; este estágio só muda o projeto.
+- Nenhum módulo, campo, contrato, elemento de tela ou componente acrescentado.

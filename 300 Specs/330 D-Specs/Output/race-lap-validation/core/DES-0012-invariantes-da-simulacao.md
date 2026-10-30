@@ -4,7 +4,7 @@ title: Invariantes da simulação, física congelada e verificação das regras
 feature: race-lap-validation
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [FEAT-0005, FEAT-0009, FEAT-0010, REQ-FEAT-0005-07, REQ-FEAT-0009-02, REQ-FEAT-0009-03, REQ-FEAT-0009-04, REQ-FEAT-0009-10, REQ-FEAT-0009-11, REQ-FEAT-0010-32]
 ---
 
@@ -22,15 +22,18 @@ que fixa o que **não** muda e como se prova.
 ## Posicionamento
 
 Nenhum módulo de produção novo. Camada **Simulação**, onde as invariantes se aplicam; `tests/` é o lugar das
-verificações (papel de árvore, não camada). Arquivos de teste novos em `tests/` e um registro de benchmarks em `docs/`. Módulos de produção **inalterados**: `src/physics.ts` (inclusive `STEP`, `Input`, `step`,
+verificações (papel de árvore, não camada). Arquivos de teste novos em `tests/` e um registro de benchmarks em `docs/`. Módulos de produção **inalterados por esta feature**: `src/physics.ts` (inclusive `STEP`, `Input`, `step`,
 `RENTAL_KART`, `ARCADE_KART`, `KART_PRESETS`, `CIRCUIT`, `TEST_PAD`) e `src/maneuvers.ts`. A linha 3 de
-`src/physics.ts` (`export { nearest, track, WIDTH, LapTracker } from './track'`) permanece como está.
+`src/physics.ts` (`export { nearest, track, WIDTH, LapTracker } from './track'`) permanece como está. A retirada de
+`src/maneuvers.ts` é de `dirigibilidade` (ADR-0006 dessa feature); por isso o teste de camada não nomeia esse arquivo
+e deriva da própria `src/physics.ts` os módulos que ela importa (tabela abaixo), e continua válido antes e depois da
+retirada final.
 
 ## Interface (o que cada verificação afirma)
 
 | Arquivo de teste | Afirma | Regra de REQ-FEAT-0009-10 que cobre |
 |---|---|---|
-| `tests/lap-layering.test.ts` | lê o texto dos módulos `src/physics.ts`, `src/maneuvers.ts`, `src/track.ts`, `src/trackData.ts`, `src/lap.ts`, `src/lapTiming.ts` e afirma: nenhuma importação de `three`, de `./audio` nem de `./main`; ausência dos símbolos `document`, `window`, `Date`, `performance`, `Math.random`, `fetch`, `XMLHttpRequest`, `WebSocket`, `localStorage`, `sessionStorage`, `indexedDB`; que `src/main.ts` e `src/lapMessages.ts` não importam `LapTracker` e não contêm essas chamadas de rede nem os símbolos de armazenamento `localStorage`, `sessionStorage`, `indexedDB` e `document.cookie`: nenhum resultado, lista de resultados ou melhor volta válida tem caminho para o armazenamento do navegador | camada e privacidade |
+| `tests/lap-layering.test.ts` | lê o texto dos módulos da simulação: a lista fixa `src/physics.ts`, `src/track.ts`, `src/trackData.ts`, `src/lap.ts`, `src/lapTiming.ts`, mais cada módulo de `src/` que `src/physics.ts` importa ou reexporta por caminho relativo (`from './<nome>'`), extraído do texto de `src/physics.ts` no momento do teste e sem repetição (hoje `./track`, `./maneuvers` e `./trackGeometry`; depois da retirada final de `dirigibilidade`, `./track` e `./trackGeometry`); nenhum nome de arquivo fora da lista fixa é escrito no teste. Sobre esse conjunto afirma: nenhuma importação de `three`, de `./audio` nem de `./main`; ausência dos símbolos `document`, `window`, `Date`, `performance`, `Math.random`, `fetch`, `XMLHttpRequest`, `WebSocket`, `localStorage`, `sessionStorage`, `indexedDB`; que `src/main.ts` e `src/lapMessages.ts` não importam `LapTracker` e não contêm essas chamadas de rede nem os símbolos de armazenamento `localStorage`, `sessionStorage`, `indexedDB` e `document.cookie`: nenhum resultado, lista de resultados ou melhor volta válida tem caminho para o armazenamento do navegador | camada e privacidade |
 | `tests/lap-frozen.test.ts` | `1 / STEP === 120`; as chaves de `Input` são `throttle`, `brake`, `steer` e `drift?`; os presets mantêm os valores do início desta feature (cópia literal dos campos de `RENTAL_KART` e `ARCADE_KART` registrada no teste) | passo fixo e entradas |
 | `tests/lap-contract.test.ts` | forma e unidades de `getLapState`, `getLapResult` e `readTrackData`; códigos de rejeição por operação; as chaves do resultado são exatamente as de API-0001 (sem dado pessoal) | privacidade do resultado |
 | `tests/lap-timing.test.ts` | DES-0002 | interpolação do cruzamento; soma dos setores |

@@ -2,7 +2,7 @@
 stage: dspec
 feature: race-lap-validation
 status: validated
-generated: 2026-10-30T13:11:43Z
+generated: 2026-10-30T13:39:36Z
 files: 24
 ---
 
@@ -13,7 +13,7 @@ files: 24
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
 | `01-architecture.md` | - | Arquitetura — validação de volta de corrida | validated | 1.2.0 |
-| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida | validated | 1.2.1 |
+| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida | validated | 1.2.2 |
 | `98-divergences.md` | - | Divergências — validação de volta de corrida | validated | 1.2.0 |
 | `adr/ADR-0001-tempo-inteiro-em-ms-e-interpolacao.md` | ADR-0001 | Tempo da volta em aritmética inteira e arredondamento da interpolação | validated | 1.0.0 |
 | `adr/ADR-0002-volta-como-modulo-sobre-step-inalterado.md` | ADR-0002 | A volta é um módulo sobre o passo da física, com comandos fora de Input | validated | 1.0.0 |
@@ -27,7 +27,7 @@ files: 24
 | `core/DES-0004-corte-e-grama.md` | DES-0004 | Corte e grama | validated | 1.1.1 |
 | `core/DES-0005-tipos-de-volta-e-reposicionamento.md` | DES-0005 | Tipos de volta, reposicionamento e resultado oficial | validated | 1.1.1 |
 | `core/DES-0006-leitura-do-dado-de-pista.md` | DES-0006 | Leitura e verificação do dado de pista | validated | 1.1.1 |
-| `core/DES-0012-invariantes-da-simulacao.md` | DES-0012 | Invariantes da simulação, física congelada e verificação das regras | validated | 1.1.0 |
+| `core/DES-0012-invariantes-da-simulacao.md` | DES-0012 | Invariantes da simulação, física congelada e verificação das regras | validated | 1.1.1 |
 | `data/DM-0001-arquivo-de-pista-versao-2.md` | DM-0001 | Arquivo de pista, versão de esquema 2 | validated | 1.0.1 |
 | `data/DM-0002-estado-da-volta-em-memoria.md` | DM-0002 | Estado e resultado da volta em memória | validated | 1.2.0 |
 | `security/DES-0011-privacidade-offline-e-sem-persistencia.md` | DES-0011 | Privacidade, uso offline e ausência de persistência | validated | 1.2.0 |
