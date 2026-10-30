@@ -1,12 +1,13 @@
 // Application layer, pure: lap texts, language resolution and the m:ss.mmm format (DES-0008, RULE-0006).
 // No DOM access, so npm test can import it.
-import type { LapStateView } from './lap';
+import type { LapResult, LapStateView } from './lap';
 
 export type Language = 'pt' | 'en';
 export type MessageKey =
   | 'lapStateValidInProgress' | 'lapStateInvalid'
   | 'reasonMissedMarker' | 'reasonCut' | 'reasonReposition'
   | 'lapUnofficial' | 'countdownGreenSignal' | 'lapResultValid' | 'lapPaused'
+  | 'pauseAction' | 'endTrainingAction' | 'bestValidLap' | 'sectorNoTime'
   | 'loadingTrack' | 'noTrackAvailable' | 'trackDataError' | 'controlFallbackTouch'
   | 'sectorLabel' | 'totalLabel' | 'startTraining' | 'startOfficial' | 'startRecon' | 'resumeLap' | 'newLap';
 
@@ -20,13 +21,17 @@ const MESSAGES: Record<MessageKey, Record<Language, string>> = {
   countdownGreenSignal: { pt: 'VERDE', en: 'GREEN' },
   lapResultValid: { pt: 'válida', en: 'valid' },
   lapPaused: { pt: 'volta pausada', en: 'lap paused' },
+  pauseAction: { pt: 'pausar', en: 'pause' },
+  endTrainingAction: { pt: 'encerrar treino', en: 'end training' },
+  bestValidLap: { pt: 'melhor volta válida', en: 'best valid lap' },
+  sectorNoTime: { pt: '—', en: '—' },
   loadingTrack: { pt: 'carregando a pista', en: 'loading track' },
   noTrackAvailable: { pt: 'nenhuma pista disponível', en: 'no track available' },
   trackDataError: { pt: 'dado da pista indisponível', en: 'track data unavailable' },
   controlFallbackTouch: { pt: 'controle por toque (sensor de inclinação indisponível)', en: 'touch control (tilt sensor unavailable)' },
   sectorLabel: { pt: 'setor', en: 'sector' },
   totalLabel: { pt: 'tempo total', en: 'total time' },
-  startTraining: { pt: 'volta de treino', en: 'training lap' },
+  startTraining: { pt: 'treino', en: 'training' },
   startOfficial: { pt: 'volta oficial', en: 'official lap' },
   startRecon: { pt: 'volta de reconhecimento', en: 'recon lap' },
   resumeLap: { pt: 'continuar', en: 'resume' },
@@ -53,6 +58,11 @@ export function formatLapTime(ms: number): string {
   return `${minutes}:${String(seconds).padStart(2, '0')}.${String(millis).padStart(3, '0')}`;
 }
 
+// A sector without both bounds has no time and is shown as "—" (RULE-0003).
+export function formatSectorTime(ms: number | null, lang: Language): string {
+  return ms === null ? message('sectorNoTime', lang) : formatLapTime(ms);
+}
+
 const REASON_KEY: Record<NonNullable<LapStateView['invalidReason']>, MessageKey> = {
   MISSED_MARKER: 'reasonMissedMarker', CUT: 'reasonCut', REPOSITION: 'reasonReposition',
 };
@@ -67,6 +77,21 @@ export function describeLap(view: LapStateView, lang: Language): LapDescription 
   if (invalid && view.invalidReason) description.reasonText = message(REASON_KEY[view.invalidReason], lang);
   if (view.lapPhase === 'PAUSED') description.pausedText = message('lapPaused', lang);
   if (view.lapPhase === 'COUNTDOWN') description.countdownText = String(Math.ceil(view.countdownRemainingMs / 1000));
+  return description;
+}
+
+export type TrainingResultDescription = { validityText: string; reasonText?: string; totalText: string; sectorTexts?: string[]; unofficialText?: string };
+
+// The result of one training lap (SCR-0001): sector texts only when the result carries trainingSectorMs.
+export function describeTrainingResult(result: LapResult, lang: Language): TrainingResultDescription {
+  const invalid = result.lapValidity === 'INVALID';
+  const description: TrainingResultDescription = {
+    validityText: message(invalid ? 'lapStateInvalid' : 'lapResultValid', lang),
+    totalText: formatLapTime(result.trainingLapMs ?? 0),
+  };
+  if (invalid && result.invalidReason) description.reasonText = message(REASON_KEY[result.invalidReason], lang);
+  if (result.trainingSectorMs) description.sectorTexts = result.trainingSectorMs.map(ms => formatSectorTime(ms, lang));
+  if (!result.official) description.unofficialText = message('lapUnofficial', lang);
   return description;
 }
 

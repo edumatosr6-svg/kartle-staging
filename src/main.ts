@@ -6,9 +6,9 @@ import { RaceAudio } from './audio';
 import { SYNTHETIC_TRACK_FILE } from './track';
 import type { TrackReading } from './trackData';
 import type { TrackGeometry } from './trackGeometry';
-import { getLapResult, getLapState, offeredLapKinds, pauseLap, repositionKart, resumeLap, stepLap, type LapKind, type LapResult, type LapSession } from './lap';
+import { endTraining, getLapResult, getLapState, listLapResults, offeredLapKinds, pauseLap, repositionKart, resumeLap, stepLap, type LapKind, type LapResult, type LapSession, type LapStateView, type PauseCause } from './lap';
 import { advanceClock } from './frameClock';
-import { creditFor, describeLap, formatLapTime, greenSignalVisible, message, optionLabel, resolveLanguage, type Language, type MessageKey } from './lapMessages';
+import { creditFor, describeLap, describeTrainingResult, formatLapTime, greenSignalVisible, message, optionLabel, resolveLanguage, type Language, type MessageKey } from './lapMessages';
 // The published Kart Park file, bundled as text (ADR-0002 of pista-kart-park): no request between the choice and the lap.
 import kartParkV1Text from './tracks/kart-park-v1.json?raw';
 import { getTrainingTrackOptions, initialTrainingSession, OPENING_TRACK_ID, selectTrainingTrack, startTrainingLap, trainingIdleKart, type TrainingSession, type TrainingTrackId, type TrainingTrackSources } from './trainingSession';
@@ -194,7 +194,7 @@ let lang: Language = resolveLanguage(navigator.language);
 const phase = () => lap?.phase;
 const lapActive = () => { const p = phase(); return p === 'COUNTDOWN' || p === 'RUNNING' || p === 'PAUSED'; };
 function notify(text: string, duration = 3500) { $('message').textContent = text; notificationUntil = performance.now() + duration; }
-function emitPause(cause: 'ESC_KEY' | 'FOCUS_LOST' | 'SENSOR_LOST') {
+function emitPause(cause: PauseCause) {
   const r = pauseLap(lap, cause);
   if (!r.ok) return;
   lap = r.lap; keys.clear(); touch.clear(); accumulatorS = 0;
@@ -207,6 +207,15 @@ function emitResume() {
 function emitReposition() {
   const r = repositionKart(lap);
   if (r.ok) lap = r.lap;
+}
+// Ends the training and goes back to the offer, without the result screen; the simulation gives no result to the lap in
+// progress (DES-0007, DES-0009). A rejection (NOT_TRAINING, LAP_ENDED) does nothing.
+function emitEndTraining() {
+  const r = endTraining(lap);
+  if (!r.ok) return;
+  lap = r.lap; accumulatorS = 0; keys.clear(); touch.clear();
+  $('lap-training-result').classList.add('hidden');
+  $('welcome').classList.remove('hidden');
 }
 const OFFER_KEY: Record<LapKind, MessageKey> = { TRAINING: 'startTraining', OFFICIAL: 'startOfficial', RECON: 'startRecon' };
 const selectedOption = (trackId: string) => getTrainingTrackOptions(training).options.find(o => o.trackId === trackId);
@@ -232,7 +241,7 @@ function chooseTrack(trackId: string) {
   else if (reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'UNSUPPORTED_SCHEMA', reading.schemaVersion);
   else if (reading.trackDataStatus === 'INCOMPLETE') console.warn('track-data', 'INCOMPLETE', reading.trackId, reading.trackVersion);
   curbState = initialCurbFeedback();
-  resultLang = undefined; lastPhase = undefined;
+  resultLang = undefined; handledResults = 0; shownTrainingResultKey = '';
   skidMarks.count = 0; skidIndex = 0; previousSkids = [];
   const ready = training.sessionState === 'READY';
   trackGeometry = training.environment?.track;
@@ -314,7 +323,7 @@ function beginLap() {
   lap = r.lap; started = true; accumulatorS = 0; keys.clear(); touch.clear();
   touchFallback = coarsePointer.matches && !tilt;
   skidMarks.count = 0; skidIndex = 0; previousSkids = [];
-  resultLang = undefined; lastPhase = undefined;
+  resultLang = undefined; handledResults = 0; shownTrainingResultKey = '';
   $('welcome').classList.add('hidden');
   $('lap-result').classList.add('hidden');
 }
@@ -351,7 +360,9 @@ $('sound').onclick = async () => {
   } catch { notify('Áudio indisponível neste navegador.'); }
 };
 $('reset').onclick = emitReposition;
-$('pause').onclick = emitResume;
+// Resumes a paused lap; in a training in COUNTDOWN or RUNNING it is the pause button (REQ-FEAT-0010-15).
+$('pause').onclick = () => { if (phase() === 'PAUSED') emitResume(); else emitPause('PAUSE_BUTTON'); };
+$('lap-end-training').onclick = emitEndTraining;
 $('lap-new-lap').onclick = () => { $('lap-result').classList.add('hidden'); $('welcome').classList.remove('hidden'); };
 // Share the last record through the Web Share API, or the clipboard; a failure only notifies and changes no record.
 $('lap-share').onclick = async () => {
@@ -417,12 +428,14 @@ function minimap() {
   ctx.fillStyle = '#def39a'; ctx.beginPath(); ctx.arc(kartState.x * t.scale + t.offsetX, kartState.z * t.scale + t.offsetY, 5, 0, Math.PI * 2); ctx.fill();
 }
 // HUD and result screens: they display what the simulation reports and decide nothing (I2).
-let shownStateText = '', shownSectorsKey = '', resultLang: Language | undefined, lastPhase: LapSession['phase'] | undefined;
+let shownStateText = '', shownSectorsKey = '', resultLang: Language | undefined, shownTrainingResultKey = '';
+// How many items of listLapResults were already handled: each new result is recorded once (DES-0007).
+let handledResults = 0;
 function renderHud() {
   const view = getLapState(lap);
   const countdown = $('lap-countdown'), state = $('lap-state'), paused = $('lap-paused'), sectors = $('lap-sectors');
   if ('code' in view) {
-    for (const el of [countdown, state, paused, sectors]) el.classList.add('hidden');
+    for (const el of [countdown, state, paused, sectors, $('lap-best-valid'), $('lap-training-result')]) el.classList.add('hidden');
     $('timer').textContent = formatLapTime(0);
     return;
   }
@@ -448,6 +461,35 @@ function renderHud() {
   }
   sectors.classList.toggle('hidden', view.completedSectorMs.length === 0);
   $('timer').textContent = formatLapTime(view.elapsedMs);
+  const best = $('lap-best-valid');
+  best.classList.toggle('hidden', view.bestValidLapMs === undefined);
+  if (view.bestValidLapMs !== undefined) best.textContent = `${message('bestValidLap', lang)} ${formatLapTime(view.bestValidLapMs)}`;
+  renderTrainingResult(view);
+}
+// The result of the latest training lap, beside the lap in progress and without stopping the kart, until the next result
+// or the end of the training (ADR-0004, item 5); rebuilt only when that result or the language changes.
+function renderTrainingResult(view: LapStateView) {
+  const panel = $('lap-training-result');
+  const result = getLapResult(lap);
+  if (view.lapKind !== 'TRAINING' || view.lapPhase === 'ENDED' || 'code' in result) { panel.classList.add('hidden'); shownTrainingResultKey = ''; return; }
+  const key = `${lang}:${result.lapSequenceCount}`;
+  if (key !== shownTrainingResultKey) {
+    shownTrainingResultKey = key;
+    const d = describeTrainingResult(result, lang);
+    const chip = (tag: 'p' | 'li', text: string) => { const el = document.createElement(tag); el.className = 'lap-chip'; el.textContent = text; return el; };
+    const items: HTMLElement[] = [
+      chip('p', d.reasonText ? `${d.validityText} · ${d.reasonText}` : d.validityText),
+      chip('p', `${message('totalLabel', lang)} ${d.totalText}${d.unofficialText ? ` · ${d.unofficialText}` : ''}`),
+    ];
+    if (d.sectorTexts) {
+      const list = document.createElement('ul');
+      list.replaceChildren(...d.sectorTexts.map((text, i) => chip('li', `${message('sectorLabel', lang)} ${i + 1} ${text}`)));
+      items.push(list);
+    }
+    panel.dataset.validity = result.lapValidity;
+    panel.replaceChildren(...items);
+  }
+  panel.classList.remove('hidden');
 }
 function renderResult() {
   const result = getLapResult(lap);
@@ -527,11 +569,10 @@ function frame(now: number) {
   const idleKart = trainingIdleKart(training);
   const state = lap?.kart ?? idleKart ?? initialState();
   const running = lap?.phase === 'RUNNING';
-  if (lap?.phase === 'ENDED' && lastPhase !== 'ENDED') {
-    const result = getLapResult(lap);
-    if (!('code' in result)) recordLapResult(result);
-  }
-  lastPhase = lap?.phase;
+  // Every new result is handled once, in order: each training lap closed on the finish line, or the end of an official or
+  // recon lap (DES-0007); a result never changes once produced.
+  const lapResults = listLapResults(lap).lapResults;
+  for (; handledResults < lapResults.length; handledResults++) recordLapResult(lapResults[handledResults]);
   // The displayed kart is the state of the last completed step (API-0001); nothing is interpolated or estimated.
   const pose = getKartPose(lap?.kart ?? idleKart);
   if ('code' in pose) kartRoot.visible = false;
@@ -584,14 +625,20 @@ function frame(now: number) {
     if (cameraView) applyCameraView(camera, cameraView);
   }
   renderHud();
-  if (lap?.phase === 'ENDED') renderResult();
+  // The result screen is only for an official or recon lap; an ended training goes back to the offer (DES-0010).
+  if (lap?.phase === 'ENDED' && lap.lapKind !== 'TRAINING') renderResult();
   renderOffer();
   const active = lapActive();
   ($('driver-mass') as HTMLInputElement).disabled = active;
   ($('handling-preset') as HTMLSelectElement).disabled = active;
   const pauseButton = $('pause');
-  pauseButton.classList.toggle('hidden', lap?.phase !== 'PAUSED');
-  pauseButton.textContent = `▶ ${message('resumeLap', lang)}`;
+  const inTraining = lap?.lapKind === 'TRAINING';
+  const pauseOffered = inTraining && (lap?.phase === 'COUNTDOWN' || lap?.phase === 'RUNNING');
+  pauseButton.classList.toggle('hidden', lap?.phase !== 'PAUSED' && !pauseOffered);
+  pauseButton.textContent = lap?.phase === 'PAUSED' ? `▶ ${message('resumeLap', lang)}` : `❚❚ ${message('pauseAction', lang)}`;
+  const endTrainingButton = $('lap-end-training');
+  endTrainingButton.classList.toggle('hidden', !(inTraining && active));
+  endTrainingButton.textContent = message('endTrainingAction', lang);
   const fallback = $('lap-control-fallback');
   const showFallback = active ? touchFallback : coarsePointer.matches && !tilt;
   fallback.classList.toggle('hidden', !showFallback);

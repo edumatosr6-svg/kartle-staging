@@ -4,8 +4,8 @@ title: Tela de resultado da volta — implementação
 feature: race-lap-validation
 stage: code
 status: validated
-version: 1.0.0
-sources: [FEAT-0002, FEAT-0004, FEAT-0006, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-06, REQ-FEAT-0004-03, REQ-FEAT-0006-07]
+version: 1.1.0
+sources: [FEAT-0002, FEAT-0004, FEAT-0006, FEAT-0010, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-06, REQ-FEAT-0004-03, REQ-FEAT-0006-07, REQ-FEAT-0010-21]
 ---
 
 # DES-0010 — Tela de resultado da volta — implementação
@@ -22,6 +22,7 @@ Painel `#lap-result` em `index.html` (dentro de `.game-shell`, fundo opaco `--la
 | REQ-FEAT-0002-06 | `src/lapMessages.ts` `formatLapTime` usado em todos os tempos do painel |
 | REQ-FEAT-0004-03 | `src/main.ts` `renderResult` (com `INVALID`: título `lapStateInvalid` e motivo; total escondido e lista vazia) |
 | REQ-FEAT-0006-07 | `src/main.ts` `renderResult` (`lapUnofficial` ao lado do tempo total quando `official` é falso) |
+| REQ-FEAT-0010-21 | `src/main.ts` laço de quadros (`renderResult` só com `ENDED` e `lapKind` diferente de `TRAINING`); `src/lap.ts` `stepLap` devolve a mesma sessão depois do encerramento |
 
 ## Estados e ações
 
@@ -29,3 +30,7 @@ Painel `#lap-result` em `index.html` (dentro de `.game-shell`, fundo opaco `--la
 mais `lapUnofficial`. `INVALID`: `lapStateInvalid` com o motivo, sem tempos. O texto segue o idioma corrente e é
 re-renderizado quando o idioma muda. Botão `#lap-new-lap` (`newLap`): esconde o painel e mostra a oferta (`#welcome`).
 Nada é gravado; `best` em `src/main.ts` fica só na memória.
+
+## Rodada 2 (2026-10-30): treino de voltas seguidas (FEAT-0010)
+
+O melhor registro (`recordLapResult`, `renderBest`) é atualizado a cada resultado novo de `listLapResults`, e não só ao chegar a `ENDED`; em volta oficial e de reconhecimento os dois instantes coincidem.

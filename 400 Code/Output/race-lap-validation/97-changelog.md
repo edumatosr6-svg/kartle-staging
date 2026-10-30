@@ -3,7 +3,7 @@ title: Registro de mudanças — validação de volta de corrida (estágio de c�
 feature: race-lap-validation
 stage: code
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: []
 ---
 
@@ -57,3 +57,51 @@ sources: []
 
 **Migração de verificações existentes**: nenhuma verificação foi removida ou alterada; `tests/physics.test.ts` e
 `scripts/keyboard-lap.ts` continuam usando `LapTracker` por `src/physics.ts`.
+
+## 2026-10-30 — rodada 2, Mode B (projeto revalidado: treino de voltas seguidas)
+
+**O que mudou**
+
+- `src/lap.ts`: o treino é uma `LapSession` com `lapSequenceCount`, `lapStartMs` e `results` (no lugar de `result`);
+  `closeTrainingLap` fecha a volta na chegada e abre a seguinte no mesmo inteiro de ms, sem parar; o corte no treino
+  invalida sem encerrar e não muda uma volta já inválida; reposicionar no treino não toca a validade; `pauseLap` com
+  `PAUSE_BUTTON` e `NOT_TRAINING`; novas `endTraining` e `listLapResults`; `getLapResult` lê o último item; `getLapState`
+  com `lapSequenceCount`, `lapStartMs`, `bestValidLapMs` (derivada) e `elapsedMs` desde `lapStartMs`; limite de setor
+  registrado depois de um limite saltado, com `null`; linhas declaradas de uma leitura `INCOMPLETE` com sentido e
+  chegada; `buildResult` com `b0 = lapStartMs`, setores só com os 3 limites e campos de treino.
+- `src/lapMessages.ts`: chaves `pauseAction`, `endTrainingAction`, `bestValidLap`, `sectorNoTime`; `startTraining`
+  "treino"/"training"; `formatSectorTime`, `describeTrainingResult`.
+- `src/main.ts`: `emitEndTraining`; `#pause` como botão de pausa no treino; gancho de resultado por crescimento de
+  `listLapResults` (`handledResults`), que fecha o gatilho pedido pela linha R de `400 Code/Output/dirigibilidade/98-divergences.md`
+  (`recordLapResult` passa a receber cada resultado do treino, com os campos de treino copiados por `buildLapRecord`);
+  `#lap-best-valid` e `#lap-training-result` em `renderHud`; tela de resultado só fora do treino.
+- `index.html`: `#lap-end-training` na barra de ações, `#lap-best-valid` e `#lap-training-result`. `src/style.css`: uma linha
+  nova com o posicionamento dos dois elementos, usando as fichas existentes.
+- Manifesto: registros DES-0001 a DES-0005, DES-0007 a DES-0012 e DM-0002 em 1.1.0 com os `REQ-FEAT-0010-*` do projeto;
+  `98-divergences.md` 1.1.0 com as seis linhas da rodada de 2026-10-30 resolvidas, a linha de 2026-10-22 carregada, as
+  citações de linha atualizadas e as verificações reprovadas pela mudança de projeto; `01-implementation.md` 1.1.0.
+  `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Itens fechados**: as seis linhas `open` da rodada de 2026-10-30 de `300 Specs/330 D-Specs/Output/race-lap-validation/98-divergences.md`.
+
+**Decisões de implementação, onde o projeto deixava detalhe em aberto** (nenhuma muda contrato)
+
+- O rótulo de `#pause` no treino leva o prefixo "❚❚", como o de continuar leva "▶"; o texto é `pauseAction`.
+- `#lap-best-valid` e `#lap-training-result` ficam posicionados no canto direito, abaixo de `.timing` (112 px e 156 px do
+  topo; 84 px e 124 px na largura de até 700 px). O painel do resultado do treino pinta todas as fichas com
+  `--lap-chip-invalid-bg` num resultado `INVALID`, como `#lap-result`.
+- A linha `index.html:34` também traz a dica de teclas de drift de outra feature: o botão novo foi acrescentado logo depois
+  de `#pause`, sem mudar nenhum outro caractere da linha.
+
+**Itens recusados ou não tratados, com motivo**
+
+- As 13 verificações reprovadas (`98-divergences.md`, seção da rodada 2) supõem a volta de treino única que termina em
+  `ENDED`, a vista de estado sem os campos novos ou 20 chaves; pertencem às etapas de testes de `race-lap-validation`,
+  `pista-kart-park` e `dirigibilidade`. Nenhum teste foi editado. Os feedbacks a `pista-kart-park` e a `dirigibilidade`
+  sobre o treino contínuo já foram enviados pelo validador do D-Spec; esta etapa não escreve outro.
+- Linha da rodada de 2026-10-22 (`setupId` e `setupVersion`): carregada como `open`; a etapa devedora é o código de
+  `dirigibilidade`, e a passagem a `resolved` é registrada por ela.
+- Unificar o "Melhor" (`#best`, de `dirigibilidade`) com a melhor volta válida do treino: não feito, como no projeto.
+- Atalho de teclado para pausar ou encerrar o treino e pausa por toque fora do treino: não projetados (ADR-0004).
+- `docs/lap-validation-bench.md`: não refeito; `src/physics.ts` e `src/maneuvers.ts` não foram tocados.
+- Nenhum requisito enfraquecido, removido ou dividido; nenhuma verificação removida ou alterada.

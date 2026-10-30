@@ -3,7 +3,7 @@ title: Registro de implementação — validação de volta de corrida
 feature: race-lap-validation
 stage: code
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: []
 ---
 
@@ -47,3 +47,27 @@ Inalterados, como o projeto exige: `src/physics.ts` (inclusive a linha 3 que ree
 A matriz `99-traceability.md` é gerada pelo gate a partir dos campos `sources` dos registros `core/`, `data/`, `web/`
 e `security/`; cada registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. O índice `00-index.md` também é
 gerado. As divergências herdadas do D-Spec estão em `98-divergences.md`, com o `arquivo:linha` de cada resolução.
+
+## Rodada 2 (2026-10-30): treino de voltas seguidas
+
+Mode B sobre o projeto revalidado (FEAT-0010, ADR-0006; relatórios `dspec-validation-20261030-1308.md` e
+`dspec-validation-20261030-1336.md`). Ordem de construção: simulação (`src/lap.ts`), depois aplicação
+(`src/lapMessages.ts`, `src/main.ts`, `index.html`, `src/style.css`).
+
+| Arquivo | Situação | Camada | Itens de projeto |
+|---|---|---|---|
+| `src/lap.ts` | alterado | simulação | DM-0002, DES-0001, DES-0002, DES-0003, DES-0004, DES-0005, ADR-0006 |
+| `src/lapMessages.ts` | alterado | aplicação | DES-0008 |
+| `src/main.ts` | alterado | aplicação e adaptadores | DES-0007, DES-0008, DES-0009, DES-0010 |
+| `index.html` | alterado | aplicação | DES-0007, DES-0008 |
+| `src/style.css` | alterado | aplicação | DES-0008 |
+
+Inalterados: `src/lapTiming.ts`, `src/trainingSession.ts`, `src/physics.ts` (presets, `Input`, linha 3), `src/maneuvers.ts`,
+`src/setupRecords.ts`, as linhas de drift de `index.html` (dica de teclas, guia de manobras, botão de toque, painel de
+boas-vindas), `tests/`, `scripts/`.
+
+| Passo | Resultado |
+|---|---|
+| `npx tsc --noEmit -p .` | saída 0 |
+| `npx vite build` | saída 0 (só o aviso de tamanho de bloco já existente) |
+| `npx tsx --test tests/*.test.ts` | 393 verificações, 380 aprovadas, 13 reprovadas, todas pela mudança de projeto (lista em `98-divergences.md`) |

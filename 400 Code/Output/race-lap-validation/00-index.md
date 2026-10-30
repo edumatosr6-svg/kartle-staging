@@ -2,7 +2,7 @@
 stage: code
 feature: race-lap-validation
 status: validated
-generated: 2026-10-27T17:41:34Z
+generated: 2026-10-30T15:18:58Z
 files: 17
 ---
 
@@ -12,20 +12,20 @@ files: 17
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-implementation.md` | - | Registro de implementação — validação de volta de corrida | validated | 1.0.0 |
-| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida (estágio de código) | validated | 1.0.0 |
-| `98-divergences.md` | - | Divergências — validação de volta de corrida (estágio de código) | validated | 1.0.0 |
-| `core/DES-0001-ciclo-da-volta-e-comandos.md` | DES-0001 | Ciclo da volta, comandos e consultas — implementação | validated | 1.0.0 |
-| `core/DES-0002-tempo-da-volta-e-interpolacao.md` | DES-0002 | Tempo da volta em passos e interpolação do cruzamento — implementação | validated | 1.0.0 |
-| `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` | DES-0003 | Cruzamentos, marcadores, setores e chegada — implementação | validated | 1.0.0 |
-| `core/DES-0004-corte-e-grama.md` | DES-0004 | Corte e grama — implementação | validated | 1.0.0 |
-| `core/DES-0005-tipos-de-volta-e-reposicionamento.md` | DES-0005 | Tipos de volta, reposicionamento e resultado oficial — implementação | validated | 1.0.0 |
+| `01-implementation.md` | - | Registro de implementação — validação de volta de corrida | draft | 1.1.0 |
+| `97-changelog.md` | - | Registro de mudanças — validação de volta de corrida (estágio de código) | draft | 1.1.0 |
+| `98-divergences.md` | - | Divergências — validação de volta de corrida (estágio de código) | draft | 1.1.0 |
+| `core/DES-0001-ciclo-da-volta-e-comandos.md` | DES-0001 | Ciclo da volta, comandos e consultas — implementação | draft | 1.1.0 |
+| `core/DES-0002-tempo-da-volta-e-interpolacao.md` | DES-0002 | Tempo da volta em passos e interpolação do cruzamento — implementação | draft | 1.1.0 |
+| `core/DES-0003-cruzamentos-marcadores-setores-e-chegada.md` | DES-0003 | Cruzamentos, marcadores, setores e chegada — implementação | draft | 1.1.0 |
+| `core/DES-0004-corte-e-grama.md` | DES-0004 | Corte e grama — implementação | draft | 1.1.0 |
+| `core/DES-0005-tipos-de-volta-e-reposicionamento.md` | DES-0005 | Tipos de volta, reposicionamento e resultado oficial — implementação | draft | 1.1.0 |
 | `core/DES-0006-leitura-do-dado-de-pista.md` | DES-0006 | Leitura e verificação do dado de pista — implementação | validated | 1.0.0 |
-| `core/DES-0012-invariantes-da-simulacao.md` | DES-0012 | Invariantes da simulação, física congelada e verificação das regras — implementação | validated | 1.0.0 |
+| `core/DES-0012-invariantes-da-simulacao.md` | DES-0012 | Invariantes da simulação, física congelada e verificação das regras — implementação | draft | 1.1.0 |
 | `data/DM-0001-arquivo-de-pista-versao-2.md` | DM-0001 | Arquivo de pista, versão de esquema 2 — implementação | validated | 1.0.0 |
-| `data/DM-0002-estado-da-volta-em-memoria.md` | DM-0002 | Estado e resultado da volta em memória — implementação | validated | 1.0.0 |
-| `security/DES-0011-privacidade-offline-e-sem-persistencia.md` | DES-0011 | Privacidade, uso offline e ausência de persistência — implementação | validated | 1.0.0 |
-| `web/DES-0007-integracao-da-aplicacao.md` | DES-0007 | Integração da aplicação, adaptadores de pausa e laço de quadros — implementação | validated | 1.0.0 |
-| `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` | DES-0008 | HUD da volta, mensagens, idioma e legibilidade — implementação | validated | 1.0.0 |
-| `web/DES-0009-inicio-de-volta-e-erros.md` | DES-0009 | Início de volta, oferta de tipo e estados de erro — implementação | validated | 1.0.0 |
-| `web/DES-0010-resultado-da-volta.md` | DES-0010 | Tela de resultado da volta — implementação | validated | 1.0.0 |
+| `data/DM-0002-estado-da-volta-em-memoria.md` | DM-0002 | Estado e resultado da volta em memória — implementação | draft | 1.1.0 |
+| `security/DES-0011-privacidade-offline-e-sem-persistencia.md` | DES-0011 | Privacidade, uso offline e ausência de persistência — implementação | draft | 1.1.0 |
+| `web/DES-0007-integracao-da-aplicacao.md` | DES-0007 | Integração da aplicação, adaptadores de pausa e laço de quadros — implementação | draft | 1.1.0 |
+| `web/DES-0008-hud-da-volta-mensagens-e-idioma.md` | DES-0008 | HUD da volta, mensagens, idioma e legibilidade — implementação | draft | 1.1.0 |
+| `web/DES-0009-inicio-de-volta-e-erros.md` | DES-0009 | Início de volta, oferta de tipo e estados de erro — implementação | draft | 1.1.0 |
+| `web/DES-0010-resultado-da-volta.md` | DES-0010 | Tela de resultado da volta — implementação | draft | 1.1.0 |

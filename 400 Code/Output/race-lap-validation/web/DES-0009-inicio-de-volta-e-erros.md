@@ -4,8 +4,8 @@ title: Início de volta, oferta de tipo e estados de erro — implementação
 feature: race-lap-validation
 stage: code
 status: validated
-version: 1.0.0
-sources: [FEAT-0001, FEAT-0006, FEAT-0008, REQ-FEAT-0001-13, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0008-06]
+version: 1.1.0
+sources: [FEAT-0001, FEAT-0006, FEAT-0008, FEAT-0010, REQ-FEAT-0001-13, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0008-06, REQ-FEAT-0010-18]
 ---
 
 # DES-0009 — Início de volta, oferta de tipo e estados de erro — implementação
@@ -21,6 +21,7 @@ O antigo botão `#start` deu lugar a esses botões.
 | REQ-FEAT-0001-13 | `src/main.ts` bloco de `#lap-control-fallback` no laço de quadros (`coarsePointer.matches && !tilt` na oferta; `touchFallback` durante a volta); `$('tilt').onclick` existente deixa `tilt` desativado sem permissão |
 | REQ-FEAT-0006-09, REQ-FEAT-0008-06 | `src/main.ts` `renderOffer` (exibe exatamente a lista de `offeredLapKinds`, que nunca traz `OFFICIAL` em `INCOMPLETE`) |
 | REQ-FEAT-0006-10 | `src/main.ts` `renderOffer` (botão `startTraining` em `COMPLETE` e `INCOMPLETE`) e `beginLap` (`startLap` com `TRAINING`) |
+| REQ-FEAT-0010-18 | `src/main.ts` `emitEndTraining` (o painel `#welcome` reaparece com a oferta no aceite de `endTraining`, sem a tela de resultado; nova escolha passa por `beginLap` e cria outra sessão) |
 
 ## Estados
 
@@ -31,3 +32,7 @@ tocado. `COMPLETE` e `INCOMPLETE`: `#track-status` = `trackId` e um botão por t
 {lapKind, trackId, trackVersion}, reading, config)` com `trackId` e `trackVersion` copiados de `reading`, limpa
 `accumulatorS`, `keys` e `touch` e esconde o painel; a rejeição (`LAP_ALREADY_ACTIVE` por clique duplicado) é ignorada
 sem mensagem. O painel reaparece pelo botão `newLap` da tela de resultado (DES-0010).
+
+## Rodada 2 (2026-10-30): treino de voltas seguidas (FEAT-0010)
+
+O botão da oferta usa `startTraining` ("treino"). O fim de uma volta do treino não reabre a oferta.

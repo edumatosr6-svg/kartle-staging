@@ -9,7 +9,7 @@ import { COUNTDOWN_MS, COUNTDOWN_STEPS, interpolateMs, isCutExceeded, toMs } fro
 export type LapKind = 'OFFICIAL' | 'RECON' | 'TRAINING';
 export type LapPhase = 'COUNTDOWN' | 'RUNNING' | 'PAUSED' | 'ENDED';
 export type ResumePhase = 'COUNTDOWN' | 'RUNNING';
-export type PauseCause = 'ESC_KEY' | 'FOCUS_LOST' | 'SENSOR_LOST';
+export type PauseCause = 'ESC_KEY' | 'FOCUS_LOST' | 'SENSOR_LOST' | 'PAUSE_BUTTON';
 export type LapValidity = 'VALID' | 'INVALID';
 export type InvalidReason = 'MISSED_MARKER' | 'CUT' | 'REPOSITION';
 export type TrackStatus = 'COMPLETE' | 'INCOMPLETE';
@@ -41,11 +41,16 @@ export type LapSession = {
   invalidReason?: InvalidReason;
   countdownSteps: number;
   stepCount: number;
+  // Position of the lap in progress in the training sequence (1 outside training) and its start, from the green signal.
+  lapSequenceCount: number;
+  lapStartMs: number;
   markersPassedCount: number;
-  sectorBoundsMs: readonly number[];
+  // b1..b3 of the lap in progress; null is a limit left unregistered because a later one was registered first.
+  sectorBoundsMs: readonly (number | null)[];
   offTrackSteps: number;
   kart: State;
-  result?: LapResult;
+  // In closing order: 0 or 1 item for OFFICIAL and RECON, 1 per lap closed on the finish line in training (ADR-0006).
+  results: readonly LapResult[];
 };
 
 export type LapResult = {
@@ -60,6 +65,10 @@ export type LapResult = {
   official: boolean;
   lapMs?: number;
   sectorMs?: number[];
+  lapSequenceCount?: number;
+  lapStartMs?: number;
+  trainingLapMs?: number;
+  trainingSectorMs?: (number | null)[];
 };
 
 export type LapStateView = {
@@ -74,14 +83,18 @@ export type LapStateView = {
   stepCount: number;
   completedSectorMs: number[];
   markersPassedCount: number;
+  lapSequenceCount: number;
+  lapStartMs: number;
+  bestValidLapMs?: number;
   trackId: string;
   trackVersion: TrackVersion;
 };
 
 export type StartLapRejection = 'LAP_ALREADY_ACTIVE' | 'TRACK_DATA_UNREADABLE' | 'TRACK_SCHEMA_UNSUPPORTED' | 'OFFICIAL_NOT_AVAILABLE';
-export type PauseLapRejection = 'NO_ACTIVE_LAP' | 'LAP_ENDED' | 'ALREADY_PAUSED';
+export type PauseLapRejection = 'NO_ACTIVE_LAP' | 'NOT_TRAINING' | 'LAP_ENDED' | 'ALREADY_PAUSED';
 export type ResumeLapRejection = 'NO_ACTIVE_LAP' | 'LAP_ENDED' | 'NOT_PAUSED';
 export type RepositionRejection = 'NO_ACTIVE_LAP' | 'LAP_ENDED' | 'NOT_RUNNING';
+export type EndTrainingRejection = 'NO_ACTIVE_LAP' | 'NOT_TRAINING' | 'LAP_ENDED';
 export type LapCommandResult<R extends string> = { ok: true; lap: LapSession } | { ok: false; code: R };
 
 const reject = <R extends string>(code: R): LapCommandResult<R> => ({ ok: false, code });
@@ -108,8 +121,10 @@ export function startLap(
   if (request.lapKind === 'OFFICIAL' && reading.trackDataStatus === 'INCOMPLETE') return reject('OFFICIAL_NOT_AVAILABLE');
 
   const cut = resolveCutLimits(reading);
-  const lines: LapLines = reading.trackDataStatus === 'COMPLETE'
-    ? { finishLine: reading.finishLine, sectorLimits: reading.sectorLimits, markers: reading.markers, cutDistanceM: cut.distanceM, cutDurationMs: cut.durationMs }
+  // INCOMPLETE: the declared lines when the reading declares direction and finish line, else none (ADR-0004, item 3).
+  const declaresLines = reading.trackDataStatus === 'COMPLETE' || (reading.direction !== undefined && reading.finishLine !== undefined);
+  const lines: LapLines = declaresLines
+    ? { finishLine: reading.finishLine, sectorLimits: reading.sectorLimits ?? [], markers: reading.markers ?? [], cutDistanceM: cut.distanceM, cutDurationMs: cut.durationMs }
     : { sectorLimits: [], markers: [], cutDistanceM: cut.distanceM, cutDurationMs: cut.durationMs };
   const kart = kartAtStart(reading.startPosition);
   const lap: LapSession = {
@@ -128,10 +143,13 @@ export function startLap(
     validity: 'VALID',
     countdownSteps: 0,
     stepCount: 0,
+    lapSequenceCount: 1,
+    lapStartMs: 0,
     markersPassedCount: 0,
     sectorBoundsMs: [],
     offTrackSteps: 0,
     kart,
+    results: [],
   };
   return accept(lap);
 }
@@ -141,8 +159,10 @@ export function kartAtStart(start: StartPosition | undefined): State {
   return start ? { ...initialState(), x: start.xM, z: start.zM, heading: start.headingDeg * Math.PI / 180 } : initialState();
 }
 
+// Rejections in the precedence order of API-0002: the pause button exists only in training, in any phase.
 export function pauseLap(lap: LapSession | undefined, cause: PauseCause): LapCommandResult<PauseLapRejection> {
   if (!lap) return reject('NO_ACTIVE_LAP');
+  if (cause === 'PAUSE_BUTTON' && lap.lapKind !== 'TRAINING') return reject('NOT_TRAINING');
   if (lap.phase === 'ENDED') return reject('LAP_ENDED');
   if (lap.phase === 'PAUSED') return reject('ALREADY_PAUSED');
   return accept({ ...lap, phase: 'PAUSED', resumePhase: lap.phase, pauseCause: cause });
@@ -154,6 +174,15 @@ export function resumeLap(lap: LapSession | undefined): LapCommandResult<ResumeL
   if (lap.phase !== 'PAUSED') return reject('NOT_PAUSED');
   const { resumePhase, pauseCause: _cause, ...rest } = lap;
   return accept({ ...rest, phase: resumePhase ?? 'RUNNING' });
+}
+
+// Ends the training between two steps: the lap in progress gets no result and no lap starts after it (RULE-0005).
+export function endTraining(lap: LapSession | undefined): LapCommandResult<EndTrainingRejection> {
+  if (!lap) return reject('NO_ACTIVE_LAP');
+  if (lap.lapKind !== 'TRAINING') return reject('NOT_TRAINING');
+  if (lap.phase === 'ENDED') return reject('LAP_ENDED');
+  const { resumePhase: _resume, pauseCause: _cause, ...rest } = lap;
+  return accept({ ...rest, phase: 'ENDED' });
 }
 
 export function repositionKart(lap: LapSession | undefined): LapCommandResult<RepositionRejection> {
@@ -197,11 +226,11 @@ export function stepLap(lap: LapSession, input: Input): LapSession {
 
 export function getLapState(lap: LapSession | undefined): LapStateView | { code: 'NO_ACTIVE_LAP' } {
   if (!lap) return { code: 'NO_ACTIVE_LAP' };
-  const ended = lap.phase === 'ENDED' && lap.result;
-  const completedSectorMs = ended && lap.result?.sectorMs
-    ? [...lap.result.sectorMs]
-    : lap.sectorBoundsMs.map((b, i) => b - (i === 0 ? 0 : lap.sectorBoundsMs[i - 1]));
-  const elapsedMs = ended && lap.result?.lapMs !== undefined ? lap.result.lapMs : toMs(lap.stepCount);
+  // Only an official or recon lap ends on its own result; an ended training keeps the time of the lap in progress.
+  const endedOn = lap.phase === 'ENDED' && lap.lapKind !== 'TRAINING' ? lap.results[lap.results.length - 1] : undefined;
+  const completedSectorMs = endedOn?.sectorMs ? [...endedOn.sectorMs] : completedSectors(lap);
+  const elapsedMs = endedOn?.lapMs !== undefined ? endedOn.lapMs : toMs(lap.stepCount) - lap.lapStartMs;
+  const bestValidLapMs = bestValidLap(lap);
   return {
     lapPhase: lap.phase,
     ...(lap.resumePhase !== undefined ? { resumePhase: lap.resumePhase } : {}),
@@ -214,14 +243,43 @@ export function getLapState(lap: LapSession | undefined): LapStateView | { code:
     stepCount: lap.stepCount,
     completedSectorMs,
     markersPassedCount: lap.markersPassedCount,
+    lapSequenceCount: lap.lapSequenceCount,
+    lapStartMs: lap.lapStartMs,
+    ...(bestValidLapMs !== undefined ? { bestValidLapMs } : {}),
     trackId: lap.trackId,
     trackVersion: lap.trackVersion,
   };
 }
 
+// Sector times of the lap in progress, b0 = lapStartMs, up to the first sector without both bounds.
+function completedSectors(lap: LapSession): number[] {
+  const times: number[] = [];
+  let previous = lap.lapStartMs;
+  for (const bound of lap.sectorBoundsMs) {
+    if (bound === null) break;
+    times.push(bound - previous);
+    previous = bound;
+  }
+  return times;
+}
+
+// Derived on every read, never stored (ADR-0006): the smallest trainingLapMs among the VALID results of a training
+// that is not ENDED.
+function bestValidLap(lap: LapSession): number | undefined {
+  if (lap.lapKind !== 'TRAINING' || lap.phase === 'ENDED') return undefined;
+  let best: number | undefined;
+  for (const r of lap.results) {
+    if (r.lapValidity === 'VALID' && r.trainingLapMs !== undefined && (best === undefined || r.trainingLapMs < best)) best = r.trainingLapMs;
+  }
+  return best;
+}
+
 export function getLapResult(lap: LapSession | undefined): LapResult | { code: 'NO_RESULT' } {
-  if (!lap || lap.phase !== 'ENDED' || !lap.result) return { code: 'NO_RESULT' };
-  return lap.result;
+  return lap?.results[lap.results.length - 1] ?? { code: 'NO_RESULT' };
+}
+
+export function listLapResults(lap: LapSession | undefined): { lapResults: LapResult[] } {
+  return { lapResults: lap ? [...lap.results] : [] };
 }
 
 // COMPLETE offers TRAINING plus whatever the daily challenge defines; INCOMPLETE offers TRAINING only.
@@ -244,15 +302,24 @@ function evaluateDisplacement(session: LapSession, from: Point, to: Point, insta
     const c = crossLine(nextMarker, from, to);
     if (c && c.sense === 'FORWARD') s = { ...s, markersPassedCount: s.markersPassedCount + 1 };
   }
-  const nextLimit = s.lines.sectorLimits[s.sectorBoundsMs.length];
-  if (nextLimit) {
-    const c = crossLine(nextLimit, from, to);
-    if (c && c.sense === 'FORWARD') s = { ...s, sectorBoundsMs: [...s.sectorBoundsMs, instantMsAt(c.fraction)] };
+  // Candidates are the limits after the highest registered one; skipped positions stay unregistered (REQ-FEAT-0002-14).
+  for (let j = s.sectorBoundsMs.length; j < s.lines.sectorLimits.length; j++) {
+    const c = crossLine(s.lines.sectorLimits[j], from, to);
+    if (c && c.sense === 'FORWARD') {
+      const skipped = new Array<null>(j - s.sectorBoundsMs.length).fill(null);
+      s = { ...s, sectorBoundsMs: [...s.sectorBoundsMs, ...skipped, instantMsAt(c.fraction)] };
+      break;
+    }
   }
   if (s.lines.finishLine) {
     const c = crossLine(s.lines.finishLine, from, to);
     if (c && c.sense === 'FORWARD') {
-      s = s.markersPassedCount === s.lines.markers.length ? complete(s, instantMsAt(c.fraction)) : invalidate(s, 'MISSED_MARKER');
+      const finishMs = instantMsAt(c.fraction);
+      const allMarkers = s.markersPassedCount === s.lines.markers.length;
+      if (s.lapKind !== 'TRAINING') s = allMarkers ? complete(s, finishMs) : invalidate(s, 'MISSED_MARKER');
+      // A training lap already INVALID keeps its first reason (CUT); otherwise VALID with every marker, else MISSED_MARKER.
+      else if (s.validity === 'INVALID') s = closeTrainingLap(s, finishMs, 'INVALID', s.invalidReason);
+      else s = allMarkers ? closeTrainingLap(s, finishMs, 'VALID') : closeTrainingLap(s, finishMs, 'INVALID', 'MISSED_MARKER');
     }
   }
   return s;
@@ -266,20 +333,39 @@ function evaluateCut(session: LapSession, kart: Point): LapSession {
   }
   const offTrackSteps = session.offTrackSteps + 1;
   if (!isCutExceeded(offTrackSteps, session.lines.cutDurationMs)) return { ...session, offTrackSteps };
-  return invalidate({ ...session, offTrackSteps }, 'CUT');
+  if (session.lapKind !== 'TRAINING') return invalidate({ ...session, offTrackSteps }, 'CUT');
+  // Training: the cut invalidates the lap in progress without ending it; a new cut on an INVALID lap changes nothing else.
+  if (session.validity === 'INVALID') return { ...session, offTrackSteps };
+  return { ...session, offTrackSteps, validity: 'INVALID', invalidReason: 'CUT' };
 }
 
 function complete(session: LapSession, finishMs: number): LapSession {
   const ended: LapSession = { ...session, phase: 'ENDED', validity: 'VALID' };
-  return { ...ended, result: buildResult(ended, finishMs) };
+  return { ...ended, results: [...session.results, buildResult(ended, finishMs)] };
 }
 
 function invalidate(session: LapSession, reason: InvalidReason): LapSession {
   const ended: LapSession = { ...session, phase: 'ENDED', validity: 'INVALID', invalidReason: reason };
-  return { ...ended, result: buildResult(ended) };
+  return { ...ended, results: [...session.results, buildResult(ended)] };
 }
 
-// The single LapResult of a lap (DM-0002): official only with OFFICIAL, VALID and COMPLETE data.
+// Closes the training lap in progress on the finish line and opens the next one at the same integer instant (DES-0003):
+// the phase stays RUNNING, and stepCount, offTrackSteps and the kart are left as they are.
+function closeTrainingLap(session: LapSession, finishMs: number, validity: LapValidity, reason?: InvalidReason): LapSession {
+  const { invalidReason: _reason, ...open } = session;
+  const closing: LapSession = { ...open, validity, ...(validity === 'INVALID' && reason !== undefined ? { invalidReason: reason } : {}) };
+  return {
+    ...open,
+    results: [...session.results, buildResult(closing, finishMs)],
+    lapSequenceCount: session.lapSequenceCount + 1,
+    lapStartMs: finishMs,
+    markersPassedCount: 0,
+    sectorBoundsMs: [],
+    validity: 'VALID',
+  };
+}
+
+// The LapResult of the lap that ends (DM-0002), b0 = lapStartMs: official only with OFFICIAL, VALID and COMPLETE data.
 function buildResult(session: LapSession, finishMs?: number): LapResult {
   const valid = session.validity === 'VALID';
   const result: LapResult = {
@@ -293,10 +379,22 @@ function buildResult(session: LapSession, finishMs?: number): LapResult {
     ...(!valid && session.invalidReason !== undefined ? { invalidReason: session.invalidReason } : {}),
     official: session.lapKind === 'OFFICIAL' && valid && session.trackStatus === 'COMPLETE',
   };
-  if (valid && finishMs !== undefined) {
-    const bounds = [0, ...session.sectorBoundsMs, finishMs];
-    result.lapMs = finishMs;
-    result.sectorMs = bounds.slice(1).map((b, i) => b - bounds[i]);
+  if (finishMs === undefined) return result;
+  const b0 = session.lapStartMs;
+  // Sector i is b(i) - b(i-1) when both bounds are registered, else null; only on a track declaring the 3 limits.
+  const bounds = [b0, ...[0, 1, 2].map(i => session.sectorBoundsMs[i] ?? null), finishMs];
+  const sectorTimes = session.lines.sectorLimits.length === 3
+    ? [1, 2, 3, 4].map(i => { const a = bounds[i - 1], b = bounds[i]; return a === null || b === null ? null : b - a; })
+    : undefined;
+  if (valid) {
+    result.lapMs = finishMs - b0;
+    if (sectorTimes && sectorTimes.every(t => t !== null)) result.sectorMs = sectorTimes as number[];
+  }
+  if (session.lapKind === 'TRAINING') {
+    result.lapSequenceCount = session.lapSequenceCount;
+    result.lapStartMs = b0;
+    result.trainingLapMs = finishMs - b0;
+    if (sectorTimes) result.trainingSectorMs = sectorTimes;
   }
   return result;
 }

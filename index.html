@@ -22,6 +22,8 @@
           <div id="lap-paused" class="lap-chip hidden" role="status"></div>
           <ul id="lap-sectors" class="hidden" aria-label="Setores"></ul>
           <div id="lap-control-fallback" class="lap-chip hidden" role="status"></div>
+          <div id="lap-best-valid" class="lap-chip hidden" role="status"></div>
+          <div id="lap-training-result" class="hidden" role="status" aria-live="polite" data-validity="VALID"></div>
           <div id="lap-result" class="lap-result hidden" role="dialog" aria-labelledby="lap-result-title"><h2 id="lap-result-title" class="lap-chip"></h2><p id="lap-result-total" class="lap-chip"></p><ul id="lap-result-sectors"></ul><button id="lap-share" class="lap-chip"></button><p id="lap-result-credit" class="lap-chip track-credit hidden"></p><button id="lap-new-lap" class="primary"></button></div>
           <div id="message" role="status" aria-live="polite"></div>
           <canvas id="minimap" width="220" height="150" aria-label="Minimapa da pista"></canvas>
@@ -29,7 +31,7 @@
           <div class="speed"><strong id="speed">0</strong><span>KM/H</span></div>
           <div class="touch-controls" aria-label="Controles de toque"><div><button data-control="left" aria-label="Virar à esquerda">←</button><button data-control="right" aria-label="Virar à direita">→</button></div><button data-control="drift" aria-label="Segurar para drift">Drift</button><div><button data-control="brake" aria-label="Frear">Freio</button><button data-control="throttle" aria-label="Acelerar">Acelerar</button></div></div>
         </section>
-        <section class="toolbar"><div><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span><span class="control-hint">Dirigir · Espaço: drift → turbo</span></div><div class="actions"><button id="sound" aria-pressed="false">Som desligado</button><button id="tilt">Ativar inclinação</button><button id="reset">↺ Reposicionar</button><button id="pause" class="hidden">▶ continuar</button></div></section>
+        <section class="toolbar"><div><span class="key">W</span><span class="key">A</span><span class="key">S</span><span class="key">D</span><span class="control-hint">Dirigir · Espaço: drift → turbo</span></div><div class="actions"><button id="sound" aria-pressed="false">Som desligado</button><button id="tilt">Ativar inclinação</button><button id="reset">↺ Reposicionar</button><button id="pause" class="hidden">▶ continuar</button><button id="lap-end-training" class="hidden">encerrar treino</button></div></section>
         <section class="maneuver-guide" aria-label="Como fazer drift"><div><span>01</span><p><strong>Entre na curva</strong>Acelere e segure Espaço + A/D.</p></div><div><span>02</span><p><strong>Segure o drift</strong>Deslize no asfalto para carregar.</p></div><div><span>03</span><p><strong>Solte e dispare</strong>Solte Espaço: turbo e pontos de estilo.</p></div></section>
         <details class="physics-panel">
           <summary>Acerto & telemetria <span>ESCOLHA SEU RITMO</span></summary>

@@ -4,8 +4,8 @@ title: Corte e grama — implementação
 feature: race-lap-validation
 stage: code
 status: validated
-version: 1.0.0
-sources: [FEAT-0005, FEAT-0008, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0008-04]
+version: 1.1.0
+sources: [FEAT-0005, FEAT-0008, FEAT-0010, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-09, REQ-FEAT-0005-10, REQ-FEAT-0005-11, REQ-FEAT-0008-04, REQ-FEAT-0010-07, REQ-FEAT-0010-08, REQ-FEAT-0010-29]
 ---
 
 # DES-0004 — Corte e grama — implementação
@@ -25,9 +25,15 @@ continua. A física da grama é a existente e não foi alterada.
 | REQ-FEAT-0005-07 | `src/physics.ts` inalterado (`CIRCUIT.surfaceAt`, atrito e rolagem da grama) |
 | REQ-FEAT-0005-10 | `src/lap.ts` `stepLap` (nenhum passo em `PAUSED`, logo `offTrackSteps` não avança) |
 | REQ-FEAT-0005-11 | `src/lap.ts` `stepLap` (a sessão `ENDED` por corte ignora a chegada posterior) |
+| REQ-FEAT-0010-07, REQ-FEAT-0010-08 | `src/lap.ts` `evaluateCut`, ramo `TRAINING` (`INVALID` com `CUT` no passo, fase `RUNNING`, nenhum resultado, `kart` intocado) |
+| REQ-FEAT-0010-29 | `src/lap.ts` `evaluateCut` (novo corte numa volta de treino já `INVALID` só avança `offTrackSteps`) |
 
 ## Interface
 
 `edgeDistanceM(point)`, `resolveCutLimits(reading)` exportados; `evaluateCut(session, kartAfterStep)` interna. Aplica-se a
 todos os tipos de volta e a leitura `COMPLETE` ou `INCOMPLETE`. No reposicionamento em reconhecimento ou treino,
 `offTrackSteps` volta a 0 (`repositionKart`).
+
+## Rodada 2 (2026-10-30): treino de voltas seguidas (FEAT-0010)
+
+Fora do treino o corte continua a encerrar a volta (`invalidate`). `offTrackSteps` não recomeça no início de uma volta do treino (`closeTrainingLap` não o toca).
