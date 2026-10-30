@@ -3,7 +3,7 @@ title: Glossário — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.2.0
+version: 1.3.1
 sources: []
 ---
 
@@ -34,7 +34,7 @@ campo são as dos contratos de `api/` e das regras de `rules/`.
 | Medida ao centímetro | Valor medido arredondado ao centímetro e comparado ao valor que os requisitos dão com duas casas decimais em metros |
 | Placa do para-choque | Placa branca do para-choque do Kart 01 que exibe o número 01 |
 | Volante | Aro de direção exibido diante do piloto, que gira com o esterço |
-| Escapamento | Saída de gases do Kart 01, de onde sai a fumaça do escapamento |
+| Escapamento | Saída de gases do Kart 01; dele não sai fumaça nem chama de turbo, que deixaram de existir (US-0005) |
 | Chamada de desenho do kart | Unidade de custo de desenho, contada como o seed contou as 124 do código do Cowork: uma por malha e por material de cada malha do modelo montado, kart com o piloto; a passagem de sombra não entra na contagem |
 | Agrupamento por material | Junção das malhas do modelo que usam o mesmo material, sem mudar a forma, para reduzir as chamadas de desenho; rodas, volante e braços continuam animáveis um a um, e nenhum dos 16 grupos nomeados perde a sua geometria visível |
 | Posição do kart | O ponto que a simulação informa como posição do kart no chão (`xM`, `zM`); referência de "atrás" e "à frente" da câmera |
@@ -48,7 +48,7 @@ campo são as dos contratos de `api/` e das regras de `rules/`.
 | Passo | Um avanço da simulação com o passo fixo `STEP`; contado por `simStepCount` |
 | Tempo simulado | Número de passos vezes `STEP`; nunca o relógio de parede |
 | Suspensão | Pausa, perda de foco da aba ou perda do sensor: a simulação não avança |
-| Em corrida | Do sinal verde até a próxima visão geral da pista. Não termina quando a volta acaba (fim da volta, `lapPhase` `ENDED`), válida ou invalidada, inclusive por reposicionamento, nem quando o painel de resultado aparece: depois do fim da volta, com o painel de resultado exibido, a simulação está parada e o kart congelado, como hoje (invariante INV-1 de `race-lap-validation`), e só a câmera continua na pose de corrida (`RACE_CHASE`) em relação ao kart parado, até a próxima visão geral (`DOMAIN/DEC-06`, na redação corrigida em 2026-10-22, via US-0003). Nenhum requisito de pilotagem depois do fim da volta existe nesta feature |
+| Em corrida | Do sinal verde até a próxima visão geral da pista. Não termina quando uma volta acaba, válida ou invalidada, inclusive por reposicionamento, nem quando o painel de resultado aparece. Na volta oficial, depois do fim da volta (`lapPhase` `ENDED`), com o painel de resultado exibido, a simulação está parada e o kart congelado, como hoje (invariante INV-1 de `race-lap-validation`), e a câmera continua na pose de corrida (`RACE_CHASE`) em relação ao kart parado, até a próxima visão geral (`DOMAIN/DEC-06`, via US-0003). No treino, as voltas são seguidas: no fim de uma volta o kart não congela, continua pilotável, e a câmera continua na pose de corrida em relação a ele (`DOMAIN/DEC-07`, via US-0003). O congelamento e a continuidade das voltas são de `race-lap-validation`; nenhum requisito de pilotagem existe nesta feature |
 | Câmera de corrida | Câmera de jogo da ficha, usada em corrida: 1,38 m acima do chão, 3,05 m atrás do kart, mirando um ponto 3,2 m à frente do kart e 0,30 m acima do chão |
 | Pose de corrida | Posição e ponto de mira da câmera de corrida em relação ao kart exibido |
 | Modo da câmera | (F-Spec) `TRACK_OVERVIEW`, `COUNTDOWN_DESCENT` ou `RACE_CHASE` ([RULE-0002](rules/RULE-0002-camera-de-jogo.md)) |
@@ -58,16 +58,18 @@ campo são as dos contratos de `api/` e das regras de `rules/`.
 | Paisagem | Área de jogo mais larga que alta ou tão larga quanto alta |
 | Retrato | Área de jogo mais alta que larga; em `web-desktop`, uma janela mais alta que larga também é retrato |
 | Corte | Quadro em que a câmera deixa a pose de corrida em relação ao kart exibido, passando a outro ponto de vista |
-| Visão geral da pista | Vista do alto em que a pista inteira aparece no quadro; a vista antes da contagem regressiva, e existe só antes dela: não volta no fim da volta nem com o painel de resultado exibido. Depois de uma volta encerrada, a próxima visão geral é a do primeiro quadro da contagem de uma nova volta, ou a de uma recarga da página sem volta ativa |
+| Visão geral da pista | Vista do alto em que a pista inteira aparece no quadro; a vista antes da contagem regressiva, e existe só antes dela: não volta no fim de uma volta, oficial ou de treino, nem com o painel de resultado exibido. Depois do fim de uma volta, a próxima visão geral é a do primeiro quadro da contagem de uma nova volta, ou a de uma recarga da página sem volta ativa |
 | Descida | (F-Spec) Movimento da câmera, durante a contagem regressiva, da visão geral até a pose de corrida |
 | Contagem regressiva | Contagem exibida antes da largada, de 3000 ms de tempo de simulação, que termina no sinal verde; já existe no jogo (`race-lap-validation`) |
 | Sinal verde | Fim da contagem regressiva e início da corrida |
-| Volta encerrada (fim da volta, `ENDED`) | Volta em `lapPhase` `ENDED`, válida ou invalidada, inclusive por reposicionamento (`race-lap-validation`); a partir do quadro em que a volta termina, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`); já existe no jogo e esta feature não a muda. A câmera continua em `RACE_CHASE`, na pose de corrida em relação ao kart parado |
-| Painel de resultado | Painel que `race-lap-validation` exibe sobre a cena quando a volta termina, com a simulação parada e o kart congelado; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele |
-| Efeito de turbo no campo de visão | Variação do campo de visão vertical aplicada enquanto o turbo está ativo; já existe no jogo e continua, a partir da nova base de campo de visão vertical |
+| Fim da volta | Momento em que uma volta termina, válida ou invalidada, inclusive por reposicionamento; já existe no jogo e esta feature não o muda. Na volta oficial é `lapPhase` `ENDED` (volta encerrada): a partir do quadro em que a volta termina, a simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`). No treino, o kart não congela e as voltas são seguidas. Nos dois casos a câmera continua em `RACE_CHASE`, na pose de corrida em relação ao kart exibido |
+| Volta oficial | Volta que, ao terminar (`ENDED`), válida ou invalidada, para a simulação e congela o kart, como hoje (invariante INV-1 de `race-lap-validation`); a única em que o congelamento vale (`DOMAIN/DEC-07`); `lapKind` `OFFICIAL` em `getLapState` |
+| Treino | Modo de jogo em que as voltas são seguidas (`race-lap-validation` revisão 3, US-10): no fim de uma volta, válida ou invalidada, o kart não congela, continua pilotável, e a câmera continua atrás do piloto (`DOMAIN/DEC-07`); `lapKind` `TRAINING` em `getLapState` |
+| Painel de resultado | Painel que `race-lap-validation` exibe sobre a cena quando a volta oficial termina, com a simulação parada e o kart congelado; já existe no jogo, e esta feature não o muda nem move a câmera por causa dele |
+| Efeito de turbo no campo de visão | Variação do campo de visão vertical que o jogo aplicava enquanto o turbo estava ativo; deixou de existir com a retirada do turbo: a câmera de corrida tem só o campo de visão de base, 62° em paisagem e a regra de retrato (`DOMAIN/DEC-08`; US-0003, critérios 04 a 06). Os campos que o descreviam no contrato da câmera foram retirados ([API-0003](api/API-0003-camera-da-cena-exibida.md), Compatibilidade) |
 | Marcas de pneu | Rastros deixados no chão pelas rodas traseiras |
-| Fumaça do escapamento | Fumaça exibida saindo do escapamento do kart |
-| Indicação de drift | Efeito visual exibido junto às rodas traseiras durante o drift |
+| Fumaça ou chama de turbo | Fumaça ou chama que o jogo exibia saindo do escapamento do kart, ligada ao turbo; deixou de existir com a retirada do turbo (`dirigibilidade` revisão 4; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01, antes da largada nem em corrida (US-0005) |
+| Indicação de drift | Efeito visual que o jogo exibia junto às rodas traseiras durante o drift; deixou de existir com a retirada do drift (`dirigibilidade` revisão 4; `DOMAIN/DEC-07`) e não aparece em nenhum quadro com o Kart 01, antes da largada nem em corrida (US-0005) |
 | `wheelPositions` | Posições das rodas que a simulação informa e usa para marcas de pneu e telemetria; contrato da simulação, citado da seção Restrições do seed (via NFR-0007) |
 | Sombra do kart | Sombra que o kart exibido projeta no chão |
 | Taxa de quadros | Quadros exibidos por segundo (fps), contados a cada segundo |
@@ -82,18 +84,18 @@ campo são as dos contratos de `api/` e das regras de `rules/`.
 
 | Nome | Valores ou sentido | Onde |
 |---|---|---|
-| `simStepCount` | Passos de `STEP` desde o estado inicial da simulação; contador de sequência; mesmo significado que na telemetria de dirigibilidade; não avança enquanto a simulação está parada: pausa, suspensão ou volta encerrada (`ENDED`) | [API-0001](api/API-0001-estado-do-kart-para-exibicao.md), [API-0003](api/API-0003-camera-da-cena-exibida.md) |
+| `simStepCount` | Passos de `STEP` desde o estado inicial da simulação; contador de sequência; mesmo significado que na telemetria de dirigibilidade; não avança enquanto a simulação está parada: suspensão ou volta oficial encerrada (`ENDED`); no treino, continua avançando depois do fim de uma volta | [API-0001](api/API-0001-estado-do-kart-para-exibicao.md), [API-0003](api/API-0003-camera-da-cena-exibida.md) |
 | `xM`, `zM` | Coordenadas da posição do kart no chão, em metros, no referencial da pista | API-0001 |
 | `headingRad`, `steerAngleRad` | Rumo e ângulo de esterço, em radianos, na convenção da simulação | API-0001 |
 | `rollingSpeedMps` | Velocidade de rolamento, em m/s, com sinal | API-0001 |
-| `cameraMode` | `TRACK_OVERVIEW` (visão geral: só sem volta ativa), `COUNTDOWN_DESCENT` (descida), `RACE_CHASE` (câmera de corrida: `RUNNING` e `ENDED`, este com a simulação parada, o kart congelado e o painel de resultado exibido) | API-0003, [RULE-0002](rules/RULE-0002-camera-de-jogo.md) |
+| `cameraMode` | `TRACK_OVERVIEW` (visão geral: só sem volta ativa), `COUNTDOWN_DESCENT` (descida), `RACE_CHASE` (câmera de corrida: `RUNNING`, `ENDED` da volta oficial, com a simulação parada, o kart congelado e o painel de resultado exibido, e o fim de uma volta de treino, com o kart em movimento) | API-0003, [RULE-0002](rules/RULE-0002-camera-de-jogo.md) |
 | `viewShape` | `LANDSCAPE` (paisagem), `PORTRAIT` (retrato) | API-0003, RULE-0002 |
 | `cameraXM`, `cameraZM`, `cameraHeightM` | Posição da câmera: coordenadas no chão e altura acima do chão, em metros | API-0003 |
 | `aimXM`, `aimZM`, `aimHeightM` | Ponto de mira da câmera: coordenadas no chão e altura acima do chão, em metros | API-0003 |
 | `verticalFovDeg`, `horizontalFovDeg` | Campo de visão vertical e horizontal exibidos, em graus | API-0003 |
-| `baseVerticalFovDeg`, `turboFovDeltaDeg` | Campo de visão vertical sem turbo na forma corrente; diferença do efeito de turbo existente para o estado de turbo corrente, em graus | API-0003 |
+| `baseVerticalFovDeg`, `turboFovDeltaDeg` | Retirados de API-0003 na versão 2.0.0, com o efeito de turbo no campo de visão; substituto: `verticalFovDeg`, que em `RACE_CHASE` é sempre o campo de visão de base; os nomes não são reaproveitados | API-0003, Compatibilidade |
 | `viewWidthPx`, `viewHeightPx` | Largura e altura da área de jogo, em pixels | API-0003 |
 | `checkId` | `KART_DIMENSIONS`, `WHEELS_AND_TRACKS`, `PART_GROUPS`, `PART_COLORS`, `DRAW_COST`, `WHEEL_SPIN`, `LAYERING`, `RENDER_NEUTRAL`, `SIM_CONTRACT`, `DETERMINISM`, `WHEEL_POSITIONS`, `TELEMETRY_WHEEL_POSITIONS` | [API-0002](api/API-0002-relatorio-do-modelo-montado.md) |
 | `verdict` | `PASS`, `FAIL` | API-0002 |
 | `checkFailReason` | `OUT_OF_TOLERANCE`, `GROUP_MISSING`, `GROUP_NESTED`, `COLOR_MISMATCH`, `LIMIT_EXCEEDED`, `SHAPE_CHANGED`, `SPIN_MISMATCH`, `FORBIDDEN_IMPORT`, `STATE_DIFFERS`, `CONTRACT_CHANGED`, `NON_DETERMINISTIC`, `BASELINE_MISSING` | API-0002 |
-| `lapPhase`, `resumePhase`, `countdownRemainingMs` | Fase da volta (`COUNTDOWN`, `RUNNING`, `PAUSED`, `ENDED`; `NO_ACTIVE_LAP` sem volta ativa), fase a que a volta em `PAUSED` retorna (`COUNTDOWN` ou `RUNNING`) e tempo de simulação que falta para o sinal verde; do contrato de estado da volta de `race-lap-validation` (`getLapState`), nomeados e não redefinidos | RULE-0002, FEAT-0003, FLOW-0002 |
+| `lapPhase`, `resumePhase`, `countdownRemainingMs`, `lapKind` | Fase da volta (`COUNTDOWN`, `RUNNING`, `PAUSED`, `ENDED`; `NO_ACTIVE_LAP` sem volta ativa), fase a que a volta em `PAUSED` retorna (`COUNTDOWN` ou `RUNNING`), tempo de simulação que falta para o sinal verde e tipo da volta (`lapKind`: `OFFICIAL`, `RECON`, `TRAINING`, os três valores de `getLapState`; `OFFICIAL` é a volta oficial e `TRAINING` o treino desta especificação; `RECON`, a volta de reconhecimento, não é nomeada pelos requisitos desta feature, e o que acontece com o kart no fim dela é de `race-lap-validation`; nenhum dos três valores decide o modo da câmera, que segue a pose do kart que a simulação informa, parado ou em movimento); do contrato de estado da volta de `race-lap-validation` (`getLapState`), nomeados e não redefinidos | RULE-0002, FEAT-0003, FLOW-0002 |

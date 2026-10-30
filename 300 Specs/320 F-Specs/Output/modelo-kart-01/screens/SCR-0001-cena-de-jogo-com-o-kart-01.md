@@ -4,8 +4,8 @@ title: Cena de jogo com o Kart 01 e a câmera
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.2.0
-sources: [US-0001, US-0002, US-0003, US-0004, US-0005, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16, AC-US-0002-01, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0003-01, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-08, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13, AC-US-0004-01, AC-US-0004-02, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03]
+version: 1.3.0
+sources: [US-0001, US-0002, US-0003, US-0004, US-0005, AC-US-0001-14, AC-US-0001-15, AC-US-0001-16, AC-US-0002-01, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0003-01, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-08, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12, AC-US-0003-13, AC-US-0003-14, AC-US-0004-01, AC-US-0004-02, AC-US-0005-01, AC-US-0005-04, AC-US-0005-05]
 ---
 
 # SCR-0001 — Cena de jogo com o Kart 01 e a câmera
@@ -14,8 +14,9 @@ sources: [US-0001, US-0002, US-0003, US-0004, US-0005, AC-US-0001-14, AC-US-0001
 
 A cena 3D da pista, onde o Jogador vê o Kart 01 e a pista pela câmera de jogo: a visão geral antes da
 contagem, a descida durante a contagem e a câmera de corrida do sinal verde até a próxima visão geral —
-inclusive com a volta encerrada, a simulação parada, o kart congelado e o painel de resultado exibido sobre a
-cena —, com o kart animado, a sombra e os efeitos presos a ele. A cena só exibe o estado que a simulação e a volta informam; nada nela é
+inclusive depois do fim da volta oficial, com a simulação parada, o kart congelado e o painel de resultado
+exibido sobre a cena, e depois do fim de uma volta de treino, com o kart em movimento —, com o kart animado,
+a sombra e as marcas de pneu presas a ele, sem indicação de drift nem fumaça ou chama de turbo. A cena só exibe o estado que a simulação e a volta informam; nada nela é
 decidido aqui (I2). As telas e os elementos sobrepostos à cena — início de volta, contagem, cronômetro,
 estado da volta, resultado e HUD — são das features `race-lap-validation` e `dirigibilidade`, nomeados e não
 redefinidos: este arquivo especifica só a cena sob eles. Esta feature não acrescenta texto, controle nem
@@ -31,7 +32,7 @@ Ambos. A leitura usa [API-0001](../api/API-0001-estado-do-kart-para-exibicao.md)
 | Entrada de pilotagem | teclado | inclinação e toque; só toque sem sensor ou sem permissão |
 | Forma da área de jogo | paisagem; retrato só com a janela mais alta que larga | paisagem ou retrato, conforme o Jogador segura o celular |
 | Campo de visão em corrida | 62° na vertical em paisagem; em retrato, horizontal ≥ 60° e vertical ≥ 62° | o mesmo, pela forma |
-| Modelo, animação, sombra, efeitos, pose da câmera | os mesmos | os mesmos |
+| Modelo, animação, sombra, marcas de pneu, ausência de drift e de turbo, pose da câmera | os mesmos | os mesmos |
 | Taxa de quadros exigida | ≥ 60 fps no notebook de referência | ≥ 30 fps no celular intermediário de referência, nas duas orientações |
 | Estado offline | igual (sem rede, tudo funciona) | igual |
 
@@ -48,10 +49,10 @@ sem mudar o modo nem mover a câmera.
 |---|---|---|---|---|
 | Carregando | O dado de pista ainda está sendo lido | `getCameraView` retorna `NO_SCENE`; `getKartPose` retorna `NO_STATE` | Nenhuma cena; a tela de carregamento é de `race-lap-validation`. O modelo não tem carregamento próprio: é montado pelo próprio jogo | US-0001, caso anormal "Recurso do modelo indisponível" |
 | Vazio | Nenhuma pista disponível | `getCameraView` retorna `NO_SCENE` | Nenhuma cena; o texto "nenhuma pista disponível" é de `race-lap-validation` | AC-US-0003-10 |
-| Visão geral | Pista carregada, sem volta ativa (`NO_ACTIVE_LAP`); nunca com a volta encerrada | `getCameraView` (`TRACK_OVERVIEW`); `getKartPose` quando há estado | A pista vista do alto, inteira no quadro; se um kart é exibido, é o Kart 01 com a sua sombra, nunca o kart provisório | AC-US-0003-10, AC-US-0003-13, AC-US-0001-14 |
-| Contagem | `lapPhase` `COUNTDOWN` | `getCameraView` (`COUNTDOWN_DESCENT`); `getKartPose` | A câmera desce da visão geral para trás do piloto; o Kart 01 parado na largada | AC-US-0003-11, AC-US-0001-14 |
-| Em corrida (populado) | `lapPhase` `RUNNING` ou `ENDED`: do quadro do sinal verde até o quadro anterior à próxima visão geral, inclusive com a volta encerrada, válida ou invalidada, inclusive por reposicionamento, e o painel de resultado de `race-lap-validation` sobre a cena | `getCameraView` (`RACE_CHASE`); `getKartPose` em todos os quadros | O Kart 01 na pose da simulação, com rodas esterçando e girando, volante e mãos no aro; câmera a 1,38 m, 3,05 m atrás, mirando 3,2 m à frente a 0,30 m; o campo de visão da forma; sombra junto ao kart; número 01 na placa do para-choque; marcas de pneu, fumaça e indicação de drift presas ao kart. Com a volta encerrada, o Kart 01 exibido congelado no estado que a simulação informa (simulação parada, como hoje: invariante INV-1 de `race-lap-validation`), rodas sem giro e nenhum trecho novo de marca; o painel aparece sobre a cena sem mover a câmera; a câmera fica na pose de corrida em relação ao kart parado; nenhum quadro mostra a visão geral | AC-US-0001-15, AC-US-0001-16, AC-US-0002-01, AC-US-0002-03 a AC-US-0002-06, AC-US-0003-01, AC-US-0003-04 a AC-US-0003-06, AC-US-0003-08, AC-US-0003-12, AC-US-0003-13, AC-US-0005-01 a AC-US-0005-03 |
-| Pausada | `lapPhase` `PAUSED` (pausa, perda de foco, perda do sensor) | `getCameraView`; `getKartPose` (devolve o último passo) | Kart, rodas, volante, câmera e efeitos parados no último estado; na contagem, a descida parada | US-0002, US-0003 e US-0005, casos anormais "Pausa" |
+| Visão geral | Pista carregada, sem volta ativa (`NO_ACTIVE_LAP`); nunca depois do fim de uma volta, oficial ou de treino, até uma nova contagem | `getCameraView` (`TRACK_OVERVIEW`); `getKartPose` quando há estado | A pista vista do alto, inteira no quadro; se um kart é exibido, é o Kart 01 com a sua sombra, nunca o kart provisório, sem indicação de drift nem fumaça ou chama de turbo | AC-US-0003-10, AC-US-0003-13, AC-US-0003-14, AC-US-0001-14, AC-US-0005-04, AC-US-0005-05 |
+| Contagem | `lapPhase` `COUNTDOWN` | `getCameraView` (`COUNTDOWN_DESCENT`); `getKartPose` | A câmera desce da visão geral para trás do piloto; o Kart 01 parado na largada, sem indicação de drift nem fumaça ou chama de turbo | AC-US-0003-11, AC-US-0001-14, AC-US-0005-04, AC-US-0005-05 |
+| Em corrida (populado) | Do quadro do sinal verde até o quadro anterior à próxima visão geral: `lapPhase` `RUNNING`; `ENDED` depois do fim da volta oficial, válida ou invalidada, inclusive por reposicionamento, com o painel de resultado de `race-lap-validation` sobre a cena; e, no treino, depois do fim de uma volta, com as voltas seguidas | `getCameraView` (`RACE_CHASE`); `getKartPose` em todos os quadros | O Kart 01 na pose da simulação, com rodas esterçando e girando, volante e mãos no aro; câmera a 1,38 m, 3,05 m atrás, mirando 3,2 m à frente a 0,30 m; o campo de visão de base da forma, que nenhum comando muda; sombra junto ao kart; número 01 na placa do para-choque; marcas de pneu presas ao kart; nenhuma indicação de drift nem fumaça ou chama de turbo. Depois do fim da volta oficial, o Kart 01 exibido congelado no estado que a simulação informa (simulação parada, como hoje: invariante INV-1 de `race-lap-validation`), rodas sem giro e nenhum trecho novo de marca; o painel aparece sobre a cena sem mover a câmera; a câmera fica na pose de corrida em relação ao kart parado; nenhum quadro mostra a visão geral. Depois do fim de uma volta de treino, nada muda na cena por causa do fim da volta: o kart continua em movimento, com rodas girando e trechos novos de marca, e a câmera na pose de corrida em relação a ele, sem visão geral nem descida | AC-US-0001-15, AC-US-0001-16, AC-US-0002-01, AC-US-0002-03 a AC-US-0002-06, AC-US-0003-01, AC-US-0003-04 a AC-US-0003-06, AC-US-0003-08, AC-US-0003-12, AC-US-0003-13, AC-US-0003-14, AC-US-0005-01, AC-US-0005-04, AC-US-0005-05 |
+| Pausada | `lapPhase` `PAUSED` (pausa, perda de foco, perda do sensor) | `getCameraView`; `getKartPose` (devolve o último passo) | Kart, rodas, volante, câmera e marcas parados no último estado; na contagem, a descida parada | US-0002, US-0003 e US-0005, casos anormais "Pausa" |
 | Erro | Dado de pista ilegível ou de esquema não suportado: nenhuma pista carregada | `getCameraView` retorna `NO_SCENE` | Nenhuma cena; a mensagem de erro é de `race-lap-validation`; nenhum kart provisório é exibido em lugar do Kart 01 | AC-US-0001-14 |
 | Offline | Sem rede | nenhuma chamada de rede | Nenhuma diferença: modelo, câmera e efeitos são locais; nenhum aviso de rede | RNF08, D-FS-08 |
 | Permissão negada | `web-mobile` com sensor ausente ou permissão negada | as mesmas do estado corrente | O controle recai para toque com estado visível (I4), exibido pela tela da corrida; a cena não muda | US-0001 a US-0005, Canais |
@@ -65,10 +66,11 @@ A taxa de quadros exigida no estado Em corrida é a de [FEAT-0004](../features/F
 
 | Ação | Canal | Resultado na cena |
 |---|---|---|
-| Esterçar, acelerar, frear | ambos | O kart, as rodas, o volante e as mãos mostram o estado da simulação no quadro seguinte ([FLOW-0001](../flows/FLOW-0001-quadro-de-exibicao-em-corrida.md)); com a volta encerrada, a simulação está parada e a cena não muda |
-| Iniciar uma volta (tela de `race-lap-validation`) | ambos | Da visão geral, ou da pose de corrida com a volta encerrada, à descida: o primeiro quadro da contagem está na pose da visão geral ([FLOW-0002](../flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md)) |
+| Esterçar, acelerar, frear | ambos | O kart, as rodas, o volante e as mãos mostram o estado da simulação no quadro seguinte ([FLOW-0001](../flows/FLOW-0001-quadro-de-exibicao-em-corrida.md)), também depois do fim de uma volta de treino; depois do fim da volta oficial, a simulação está parada e a cena não muda |
+| Teclas, toques ou inclinações que antes acionavam o drift ou o turbo | ambos | Nada de drift nem de turbo na cena: nenhuma indicação de drift, nenhuma fumaça ou chama de turbo e nenhuma mudança de campo de visão (`DOMAIN/DEC-07`, `DOMAIN/DEC-08`) |
+| Iniciar uma volta (tela de `race-lap-validation`) | ambos | Da visão geral, ou da pose de corrida depois do fim de uma volta, à descida: o primeiro quadro da contagem está na pose da visão geral ([FLOW-0002](../flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md)) |
 | Pausar, perder o foco, perder o sensor | conforme a tela da corrida | Estado Pausada |
-| Reposicionar o kart (tela de `race-lap-validation`) | ambos | Kart, câmera e efeitos na nova posição no quadro seguinte, sem quadro intermediário; também quando o reposicionamento invalida a volta: a simulação para, o kart congela e a câmera continua na pose de corrida em relação ao kart parado |
+| Reposicionar o kart (tela de `race-lap-validation`) | ambos | Kart, câmera e trechos novos de marca na nova posição no quadro seguinte, sem quadro intermediário; quando o reposicionamento invalida a volta oficial, a simulação para, o kart congela e a câmera continua na pose de corrida em relação ao kart parado; quando invalida uma volta de treino, o kart não congela e a câmera segue em relação a ele |
 | Girar o celular ou redimensionar a janela | ambos | Estado Troca de forma |
 
 Não há ação de escolher kart, cor, adesivo ou câmera (I10).
@@ -76,7 +78,8 @@ Não há ação de escolher kart, cor, adesivo ou câmera (I10).
 ## Navegação
 
 Nenhuma navegação própria: a cena vive sob as telas de `race-lap-validation` e muda de modo com a fase da
-volta. Do início de volta para a contagem e da contagem para a corrida; no fim da volta, válida ou
+volta. Do início de volta para a contagem e da contagem para a corrida; no fim da volta oficial, válida ou
 invalidada, a cena continua em corrida sob a tela de resultado, com a simulação parada e o kart congelado, sem
+voltar à visão geral; no fim de uma volta de treino, a cena continua em corrida, com o kart em movimento, sem
 voltar à visão geral; a próxima visão
 geral é a do primeiro quadro da contagem de uma nova volta, ou a de uma recarga da página sem volta ativa.

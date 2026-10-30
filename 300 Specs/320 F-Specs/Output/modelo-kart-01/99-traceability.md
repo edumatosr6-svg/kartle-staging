@@ -1,8 +1,8 @@
 ---
 stage: fspec
 feature: modelo-kart-01
-generated: 2026-10-27T15:31:23Z
-rows: 223
+generated: 2026-10-30T12:04:37Z
+rows: 225
 ---
 
 # Traceability
@@ -105,69 +105,71 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | AC-US-0002-06 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | AC-US-0002-06 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-01 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-01 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-01 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-01 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-01 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-01 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-02 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
 | AC-US-0003-02 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-02 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-02 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-02 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-02 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-03 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
 | AC-US-0003-03 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-03 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-03 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-03 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-03 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-04 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-04 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-04 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-04 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-04 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-04 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-05 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-05 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-05 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-05 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-05 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-05 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-06 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-06 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-06 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-06 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-06 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-06 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-07 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
 | AC-US-0003-07 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-07 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-07 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-07 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-07 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-08 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-08 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-08 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-08 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-08 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
-| AC-US-0003-09 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-09 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
-| AC-US-0003-09 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
-| AC-US-0003-09 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-10 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-10 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-10 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-10 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
 | AC-US-0003-10 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-10 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-11 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-11 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-11 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-11 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
 | AC-US-0003-11 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-11 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-12 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-12 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-12 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-12 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
 | AC-US-0003-12 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-12 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0003-13 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| AC-US-0003-13 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-13 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | AC-US-0003-13 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0003-13 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
 | AC-US-0003-13 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
 | AC-US-0003-13 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
+| AC-US-0003-14 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
+| AC-US-0003-14 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
+| AC-US-0003-14 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
+| AC-US-0003-14 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
+| AC-US-0003-14 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
+| AC-US-0003-14 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0004-01 | FEAT-0004 | REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05 | `features/FEAT-0004-desempenho-do-kart-01.md` |
 | AC-US-0004-01 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0004-01 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
@@ -175,18 +177,18 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | AC-US-0004-02 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0004-02 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | AC-US-0005-01 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
-| AC-US-0005-01 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-01 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | AC-US-0005-01 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | AC-US-0005-01 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | AC-US-0005-01 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
-| AC-US-0005-02 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
-| AC-US-0005-02 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
-| AC-US-0005-02 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
-| AC-US-0005-02 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
-| AC-US-0005-03 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
-| AC-US-0005-03 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
-| AC-US-0005-03 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
-| AC-US-0005-03 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
+| AC-US-0005-04 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-04 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
+| AC-US-0005-04 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
+| AC-US-0005-04 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
+| AC-US-0005-05 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| AC-US-0005-05 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
+| AC-US-0005-05 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
+| AC-US-0005-05 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | NFR-0001 | FEAT-0004 | REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0004-05 | `features/FEAT-0004-desempenho-do-kart-01.md` |
 | NFR-0002 | FEAT-0006 | REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08 | `features/FEAT-0006-requisitos-transversais.md` |
 | NFR-0003 | FEAT-0006 | REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08 | `features/FEAT-0006-requisitos-transversais.md` |
@@ -204,7 +206,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | NFR-0006 | FEAT-0006 | REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08 | `features/FEAT-0006-requisitos-transversais.md` |
 | NFR-0006 | FLOW-0003 | - | `flows/FLOW-0003-verificacao-do-modelo-montado.md` |
 | NFR-0007 | API-0002 | - | `api/API-0002-relatorio-do-modelo-montado.md` |
-| NFR-0007 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| NFR-0007 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | NFR-0007 | FLOW-0003 | - | `flows/FLOW-0003-verificacao-do-modelo-montado.md` |
 | NFR-0007 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | US-0001 | API-0002 | - | `api/API-0002-relatorio-do-modelo-montado.md` |
@@ -223,7 +225,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | US-0002 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | US-0003 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
 | US-0003 | API-0003 | - | `api/API-0003-camera-da-cena-exibida.md` |
-| US-0003 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15 | `features/FEAT-0003-camera-de-jogo.md` |
+| US-0003 | FEAT-0003 | REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-08, REQ-FEAT-0003-09, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0003-16, REQ-FEAT-0003-17 | `features/FEAT-0003-camera-de-jogo.md` |
 | US-0003 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | US-0003 | FLOW-0002 | - | `flows/FLOW-0002-largada-visao-geral-descida-e-pose-de-corrida.md` |
 | US-0003 | RULE-0002 | - | `rules/RULE-0002-camera-de-jogo.md` |
@@ -232,7 +234,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | US-0004 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | US-0004 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |
 | US-0005 | API-0001 | - | `api/API-0001-estado-do-kart-para-exibicao.md` |
-| US-0005 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
+| US-0005 | FEAT-0005 | REQ-FEAT-0005-01, REQ-FEAT-0005-04, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0005-10 | `features/FEAT-0005-efeitos-presos-ao-kart.md` |
 | US-0005 | FLOW-0001 | - | `flows/FLOW-0001-quadro-de-exibicao-em-corrida.md` |
 | US-0005 | RULE-0003 | - | `rules/RULE-0003-posicao-animacao-e-efeitos-do-kart-01.md` |
 | US-0005 | SCR-0001 | - | `screens/SCR-0001-cena-de-jogo-com-o-kart-01.md` |

@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.2.0
+version: 1.3.1
 sources: []
 ---
 
@@ -270,3 +270,126 @@ sources: []
 - Pausa com a volta encerrada (alternativa de `FLOW-0002`): a linha foi mantida com a situação original e
   o tratamento ajustado ao kart parado; se `race-lap-validation` não admite `PAUSED` a partir de `ENDED`,
   a linha é vazia e inofensiva; esta especificação não redefine o estado da volta daquela feature.
+
+## 2026-10-30 — rodada 4, Mode C (requisitos revalidados contra o seed `revision: 3`)
+
+**Origem**: os requisitos de `200 Requirements/230 Output/modelo-kart-01/` foram revalidados contra o seed
+`revision: 3` (relatório `reports/req-validation/req-validation-20261030-0234.md`, SUCCESS; rodadas 5 a 7
+do changelog deles), com `DOMAIN/DEC-07` e `DOMAIN/DEC-08`: no treino as voltas são seguidas, o kart não
+congela ao fim de uma volta e a câmera continua atrás do piloto (o congelamento vale só para a volta
+oficial); o drift e o turbo saíram do jogo, então não há indicação de drift nem fumaça ou chama de turbo, e
+as marcas de pneu continuam; a câmera de corrida tem só o campo de visão de base. Mudanças de critério
+carregadas: AC-US-0003-14 novo; o critério 09 de US-0003 retirado; AC-US-0003-04 a AC-US-0003-06 sem a
+condição "sem turbo ativo", valendo em todos os quadros; AC-US-0003-13 limitado à volta oficial; os
+critérios 02 e 03 de US-0005 retirados; AC-US-0005-04 e AC-US-0005-05 novos; casos anormais novos em
+US-0002 ("Fim da volta oficial", "Fim de uma volta de treino"), em US-0003 ("Fim de uma volta de treino",
+"Comando que antes acionava o turbo") e em US-0005 ("Fim da volta oficial", "Fim de uma volta de treino",
+"Comando que antes acionava o drift ou o turbo"). Nenhum `FEEDBACK-<nn>` ou `ISSUE-<nn>`: a rodada é a
+mudança do upstream.
+
+**O que mudou**
+
+- `FEAT-0003` (1.3.0): resumo, canais, requisitos 01 a 03 e 11 com a janela "em corrida" que inclui o fim
+  da volta oficial (kart parado) e o fim de uma volta de treino (kart em movimento); requisitos 05 a 07 sem
+  "sem turbo ativo", valendo em todos os quadros; requisito 15 sem a parcela de turbo; o requisito 10
+  (efeito de turbo no campo de visão) retirado, marcado no arquivo, sem reaproveitar o número; requisitos
+  novos 16 (câmera no treino, AC-US-0003-14) e 17 (nenhum comando muda o campo de visão; AC-US-0003-04 a
+  AC-US-0003-06 e caso anormal "Comando que antes acionava o turbo"). Comportamento: saíram as linhas do
+  turbo; entraram "Comando que antes acionava o turbo" e "Fim de uma volta de treino"; a linha da volta
+  encerrada virou "Fim da volta oficial". Estado e critérios de aceite atualizados; `sources:` sem o
+  critério 09 e com AC-US-0003-14.
+- `RULE-0002` (1.3.0): o estado de turbo saiu das entradas; o tipo da volta (`lapKind`) é nomeado e
+  declarado fora da decisão do modo; o modo `RACE_CHASE` cobre também o fim de uma volta de treino; a
+  transição "permanece `RACE_CHASE`" foi separada em volta oficial (`simStepCount` parado) e treino
+  (`simStepCount` avançando); a tabela de campo de visão perdeu a coluna e a linha do turbo; pose, forma e
+  demais transições mantidas.
+- `API-0003` (2.0.0, mudança maior): `baseVerticalFovDeg` e `turboFovDeltaDeg` retirados da resposta de
+  `getCameraView`, com o substituto `verticalFovDeg` declarado em Compatibilidade (tabela de retirada);
+  `verticalFovDeg` mantém nome, unidade e significado e passa a ser sempre o de base em `RACE_CHASE`;
+  `cameraMode`, `cameraHeightM` e Idempotência cobrem o fim de uma volta de treino.
+- `FEAT-0005` (2.0.0, mudança maior): os requisitos 02 e 03 (fumaça e indicação de drift nas posições do
+  Kart 01) retirados, marcados no arquivo, sem reaproveitar os números; requisitos novos 09 (nenhuma
+  indicação de drift, AC-US-0005-04) e 10 (nenhuma fumaça ou chama de turbo, AC-US-0005-05); requisitos
+  04, 07 e 08 reduzidos às marcas de pneu, e o 08 cobre também o kart congelado depois do fim da volta
+  oficial; comportamento com "Fim da volta oficial", "Fim de uma volta de treino", "Comando que antes
+  acionava o drift ou o turbo" e "Antes da largada"; critérios de aceite e `sources:` atualizados.
+- `RULE-0003` (1.1.0): a ancoragem cobre só as marcas de pneu; entrou a tabela de decisão "Efeitos
+  retirados" (indicação de drift e fumaça ou chama de turbo nunca exibidas); a tabela do giro das rodas
+  ganhou as linhas do fim da volta oficial e do fim de uma volta de treino; estado e repetição sem fumaça e
+  drift.
+- `FEAT-0002` (1.1.0): duas linhas de comportamento, "Fim da volta oficial" e "Fim de uma volta de
+  treino", dos casos anormais novos de US-0002; nenhum requisito mudou, porque nenhum critério de US-0002
+  mudou.
+- `FLOW-0001` (1.3.0), `FLOW-0002` (1.3.0) e `SCR-0001` (1.3.0): o fim da volta oficial e o fim de uma volta
+  de treino tratados em separado (passo 10 novo em `FLOW-0002`, com ramo `alt` no diagrama); campo de visão
+  só de base; marcas de pneu sem fumaça nem drift; ação "teclas, toques ou inclinações que antes acionavam
+  o drift ou o turbo" em `SCR-0001`; `sources:` sem os critérios retirados e com AC-US-0003-14,
+  AC-US-0005-04 e AC-US-0005-05.
+- `01-overview.md` (1.3.0): decisões `DOMAIN/DEC-07` e `DOMAIN/DEC-08` e seed `revision: 3`; mapa do
+  conjunto; decisão de forma "Modo da câmera derivado do estado da volta" com o treino; a lacuna
+  "Magnitude do efeito de turbo no campo de visão" saiu (o efeito não existe mais); entrou a lacuna
+  "Painel de resultado no fim de uma volta de treino" (recusa registrada no changelog dos requisitos,
+  rodada 5); relação com `dirigibilidade` (revisão 4) e com `race-lap-validation` (treino, revisão 3,
+  US-10).
+- `02-glossary.md` (1.3.0): "Em corrida", "Fim da volta" (no lugar de "Volta encerrada"), "Volta oficial" e
+  "Treino" (novos), "Painel de resultado", "Visão geral da pista", "Efeito de turbo no campo de visão",
+  "Fumaça ou chama de turbo" (no lugar de "Fumaça do escapamento"), "Indicação de drift", "Escapamento",
+  `simStepCount`, `cameraMode`, `lapKind` e a linha dos dois campos retirados de `API-0003`.
+- Os arquivos editados voltaram a `status: draft`; o gate e o validador decidem. `FEAT-0001`, `FEAT-0004`,
+  `FEAT-0006`, `API-0001`, `API-0002`, `FLOW-0003`, `RULE-0001` e `98-divergences.md` sem mudança: nenhum
+  critério que realizam mudou. `00-index.md` e `99-traceability.md` regenerados pelo gate com `--emit`.
+
+**Itens fechados**: nenhum `ISSUE-<nn>`, `FB-<nn>` ou `FEEDBACK-<nn>` (rodada gerada pela mudança do
+upstream). Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Decidir o modo da câmera pelo tipo da volta (`lapKind`): não feito. Os critérios 13 e 14 de US-0003 pedem
+  a mesma pose de corrida nos dois casos, em relação ao kart que a simulação informa; o tipo da volta só
+  muda o estado do kart, e a câmera o segue. Por isso a volta de reconhecimento (`RECON`), que os requisitos
+  desta feature não nomeiam, também não precisa de regra própria: vale a mesma pose em relação ao kart
+  informado.
+- Especificar como `race-lap-validation` encadeia as voltas seguidas do treino (fase entre duas voltas,
+  painel no treino): não feito. É daquela feature (revisão 3, US-10), cujo F-Spec ainda não traz US-0010; os
+  requisitos desta dizem que esta feature só fixa a câmera. A regra da câmera vale qualquer que seja a fase
+  com que aquela feature represente o fim de uma volta de treino, desde que não haja nova contagem.
+  Nenhum feedback enviado: nenhum requisito daquela feature precisa mudar por causa desta.
+- Manter `baseVerticalFovDeg` como sinônimo de `verticalFovDeg`: não feito; sem turbo os dois teriam sempre o
+  mesmo valor, um fato em dois campos. Os dois campos do turbo saem juntos, com o substituto declarado.
+- Divergência para o código que ainda publique os campos retirados ou exiba os efeitos retirados: não
+  registrada; esta etapa não lê a raiz de código para derivar comportamento (conventions §12), e a etapa de
+  código registra em `98-divergences.md`, com `arquivo:linha`, o que o sistema ainda não atende.
+- Requisito de pilotagem no treino ("o kart continua pilotável depois do fim de uma volta"): não criado,
+  pelo mesmo motivo dos requisitos (changelog deles, rodada 5): a continuidade das voltas é de
+  `race-lap-validation`; aqui o fato entra como comportamento e como estado do kart que a câmera segue.
+- Requisito sobre fumaça do escapamento não ligada ao turbo: não criado; os requisitos falam só de fumaça
+  ou chama de turbo (changelog deles, rodada 5).
+
+## 2026-10-30 — rodada 5, Mode B (relatório `fspec-validation-20261030-1157.md`, 1 erro)
+
+**O que mudou**
+
+- ISSUE-01 (F5, `02-glossary.md`, linha `lapPhase`, `resumePhase`, `countdownRemainingMs`, `lapKind`): a
+  linha passa a dar o domínio de `lapKind` exatamente como `getLapState` o nomeia: `OFFICIAL`, `RECON`,
+  `TRAINING`. Diz que `OFFICIAL` é a volta oficial e `TRAINING` o treino desta especificação, que `RECON` não
+  é nomeado pelos requisitos desta feature e que o que acontece com o kart no fim dela é de
+  `race-lap-validation`, e que nenhum dos três valores decide o modo da câmera. As linhas "Volta oficial" e
+  "Treino" nomeiam cada uma o seu valor e não dizem que o enum tem só dois valores; ficaram como estavam.
+  Os demais lugares que citam `lapKind` (`01-overview.md`, `FEAT-0003`, `RULE-0002`) não dão o domínio do
+  enum e não mudaram. Fechada por edição. `02-glossary.md` em 1.3.1.
+- Superfície e §16: nenhum requisito, campo, enum, endpoint ou elemento de tela acrescentado. O domínio
+  completo de um campo que outra feature define está agora escrito como ela o define.
+
+**Itens fechados**: ISSUE-01, por edição. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- Pedido do coordenador desta rodada para dizer de que lado da regra de congelamento fica a volta `RECON`,
+  conferindo US-0008 e US-0010 dos requisitos de `race-lap-validation`: não feito. O relatório não pede
+  isso: o "esperado" da ISSUE-01 é só o domínio completo. Os requisitos desta feature não nomeiam a volta de
+  reconhecimento, e ler os requisitos de outra feature para decidir comportamento passa do limite de
+  entradas desta etapa (conventions §12). Por isso a decisão também não é necessária para a câmera, que
+  segue a pose do kart informada pela simulação em qualquer tipo de volta. Escrever aqui se o kart congela
+  no fim de uma volta `RECON` seria redefinir um invariante de `race-lap-validation` (INV-1) e acrescentar
+  comportamento que nenhum critério pede numa rodada de correção (§16). Se o dono do produto quiser a
+  regra de `RECON` dita nesta feature, ela tem de entrar pelos requisitos dela.

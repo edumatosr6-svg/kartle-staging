@@ -4,7 +4,7 @@ title: Kart reage aos comandos — rodas, volante, braços, posição e rumo
 feature: modelo-kart-01
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0002, AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06]
 ---
 
@@ -75,6 +75,8 @@ do estado: [API-0001](../api/API-0001-estado-do-kart-para-exibicao.md). Verifica
 | Esterço para um lado, maior em módulo | Rodas dianteiras e volante giram para o mesmo lado; o volante gira mais |
 | Pausa, perda de foco ou perda do sensor | A simulação não avança; kart parado na última posição, rumo e esterço; rodas sem giro, porque o tempo simulado entre os quadros é 0 |
 | Reposicionamento do kart | No primeiro quadro depois dele, nova posição e novo rumo; nenhum quadro intermediário |
+| Fim da volta oficial (`lapPhase` `ENDED`) | A simulação para e o kart congela, como hoje (invariante INV-1 de `race-lap-validation`, que esta feature não muda; `DOMAIN/DEC-06`); `simStepCount` não avança; o kart exibido fica na última posição, rumo e esterço informados, e as rodas não giram, porque o tempo simulado entre os quadros é 0 (requisitos 01 a 07 sobre o estado parado que a simulação informa) |
+| Fim de uma volta de treino | As voltas são seguidas e o kart não congela (`DOMAIN/DEC-07`); os requisitos 01 a 07 continuam valendo em todos os quadros, sem interrupção por causa do fim da volta |
 | Derrapagem, travamento ou patinação das rodas | As rodas exibidas giram à taxa de rolamento na velocidade do kart em módulo; não há giro por roda com escorregamento |
 | Marcha à ré, se a simulação informar velocidade de ré | `rollingSpeedMps` negativa: as rodas giram para trás; o nariz continua apontando no rumo |
 | Esterço fora da faixa no `Input` | A simulação o limita à faixa normalizada (I4); o modelo mostra o ângulo de esterço que a simulação informa, nunca o valor bruto do adaptador |
