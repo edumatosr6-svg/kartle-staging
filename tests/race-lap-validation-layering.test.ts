@@ -55,3 +55,11 @@ test('CHK-TEST-0013-04 the application no longer decides lap validity with the r
   assert.ok(/from '\.\/lap'/.test(main), 'NFR-0011: main.ts must read the lap through src/lap.ts');
   assert.ok(!/invalidReason\s*[:=]\s*'(MISSED_MARKER|CUT|REPOSITION)'/.test(main), 'NFR-0011: main.ts must not decide an invalidation reason itself');
 });
+
+test('CHK-TEST-0013-05 nothing the lap or the training produces is written to browser storage or cookies by the feature modules', () => {
+  // NFR-0005 (REQ-FEAT-0009-11, REQ-FEAT-0010-31, REQ-FEAT-0010-32: results and best valid lap live only in memory)
+  for (const file of ['lap.ts', 'lapMessages.ts', 'main.ts']) {
+    const text = code(file);
+    for (const symbol of ['localStorage', 'sessionStorage', 'indexedDB', 'document.cookie']) assert.ok(!uses(text, symbol), `NFR-0005: ${file} must not use ${symbol}`);
+  }
+});

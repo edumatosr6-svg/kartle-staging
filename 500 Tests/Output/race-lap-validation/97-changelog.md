@@ -3,7 +3,7 @@ title: Changelog do estágio de testes
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.3.0
+version: 1.4.0
 ---
 
 # 97 — Changelog
@@ -247,3 +247,145 @@ disfarçado (a constante da outra feature), não uma exigência do critério.
   write fence, conventions §14); registrado em `98-divergences.md` para a próxima rodada do D-Spec.
 - CHK-TEST-0004-13 (`modelo-kart-01`, mesma tabela da divergência de origem): não é desta feature; fica com a etapa de
   testes de `modelo-kart-01`.
+
+## 2026-10-30 — rodada 5, Modo B (mudança de projeto: treino de voltas seguidas, seed rev 3)
+
+### Entrada
+
+- Requisitos validados contra o seed rev 3: US-0010 1.1.2 (27 critérios, `DOMAIN/DEC-12`, `DOMAIN/DEC-13`), US-0007
+  2.1.2 (AC-US-0007-06 mede o tempo desde o início da volta, que no treino é o cruzamento que a iniciou), US-0008 2.3.3
+  (AC-US-0008-04 oferece "o treino"; AC-US-0008-05 em cada volta do treino concluída na chegada).
+- D-Spec 1.2.x: ADR-0006, DES-0001, DES-0003, DES-0004, DES-0008 1.1.0 (24 chaves), DM-0002 1.2.0, API-0001/API-0002
+  1.2.0, `test-strategy.md` 1.2.1 (área `lap-training`; linha NFR-0007 com as 24 chaves; requisitos sem critério próprio
+  REQ-FEAT-0010-28 a -32 e REQ-FEAT-0009-11).
+- `400 Code/Output/race-lap-validation/reports/code-validation/code-validation-20261030-1526.md` (SUCCESS): 13
+  reprovações de teste que supõe o treino de volta única; desta feature, CHK-TEST-0012-01, CHK-TEST-0010-17 e
+  CHK-TEST-0007-10.
+
+### Atrito de verificações (inventário antes da escrita)
+
+140 ids `CHK-TEST-*` em `tests/race-lap-validation-*.test.ts`, os mesmos 140 da rodada 4 (`99-traceability.md` e
+`junit-latest.xml` de 2026-10-27): nenhuma verificação sumiu entre as rodadas.
+
+### O que mudou
+
+- Modificadas (três, as reprovadas pela mudança de projeto):
+  - CHK-TEST-0012-01 (`contract`): `STATE_KEYS` ganha `lapSequenceCount` e `lapStartMs` (obrigatórios em API-0001
+    1.2.0), `STATE_OPTIONAL` ganha `bestValidLapMs`; nova asserção: fora do treino, em `COUNTDOWN`, `RUNNING` e `ENDED`,
+    `lapSequenceCount` 1, `lapStartMs` 0 e `bestValidLapMs` ausente. Continua decidindo AC-US-0009-01.
+  - CHK-TEST-0010-17 (`messages`): 20 → 24 chaves (DES-0008 1.1.0), com `pauseAction`, `endTrainingAction`,
+    `bestValidLap` e `sectorNoTime` nomeadas; tradução real exigida em 22 das 24 (antes 18 de 20; `sectorNoTime` é "—"
+    nos dois idiomas por projeto). Continua decidindo NFR-0007.
+  - CHK-TEST-0007-10 (`kinds`): a volta de treino não termina mais no corte (DES-0004, ADR-0006), então o resultado em
+    dado `INCOMPLETE` vem das voltas concluídas na chegada, como a estratégia manda: cópia sem `markers` e cópia sem
+    `sectorLimits` (as duas declaram chegada e sentido), duas voltas do `autopilot()` em cada, `official` falso em todo
+    resultado e `trackVersion` da leitura. `track-v1.json` não declara chegada e não produz resultado no treino (US-0008,
+    casos anormais). Continua decidindo AC-US-0008-05.
+- Acrescentadas (39):
+  - CHK-TEST-0015-01 a -28 (TEST-0015, novo registro), um por critério novo ou mudado de US-0010 e AC-US-0007-06, mais
+    REQ-FEAT-0010-28 (contramão, -09), -29 (motivo único, -26), -30 (encerrar em pausa e contagem, -17) e -32 (melhor
+    volta não guardada, -27), e o determinismo do treino (NFR-0001, NFR-0009, -28).
+  - CHK-TEST-0012-14 a -17 (`contract`): campos de treino no resultado, precedência `NO_ACTIVE_LAP` → `NOT_TRAINING` →
+    `LAP_ENDED` → `ALREADY_PAUSED` de `endTraining` e `PAUSE_BUTTON`, aceitação de `endTraining` em contagem, corrida e
+    pausa, e `listLapResults` fora do treino.
+  - CHK-TEST-0010-19 a -24 (`messages`): `describeTrainingResult` (total, validade, motivo, "não oficial", "—", sem
+    linha de setores), ausência de contagem e de sinal verde no treino, textos do treino cortado e da volta seguinte,
+    rótulos `pauseAction`, `endTrainingAction` e `bestValidLap`; textos esperados da tabela de DES-0008.
+  - CHK-TEST-0013-05 (`layering`): `src/lap.ts`, `src/lapMessages.ts` e `src/main.ts` sem `localStorage`,
+    `sessionStorage`, `indexedDB` e `document.cookie` (REQ-FEAT-0009-11, -0010-31, -0010-32; CHK-TEST-0013-03 não
+    olhava `document.cookie`).
+- Fixture local de linha de base: `messages` ganha `lapSequenceCount: 1` e `lapStartMs: 0` na `LapStateView` literal
+  (forma de API-0001 1.2.0); nenhuma asserção existente mudou.
+- Registros: TEST-0015 1.0.0 (novo), TEST-0012 1.2.0, TEST-0010 1.1.0, TEST-0007 1.1.0, TEST-0013 1.1.0, TEST-0004
+  1.0.1 (nota de hospedagem), `98-divergences.md` 1.2.0. Helpers e fixtures compartilhados intocados; `withoutSectors()`
+  é local aos arquivos que a usam. Nada em `src/`, `scripts/`, `index.html`. `00-index.md` e `99-traceability.md`
+  reemitidos por `lint_artifacts.py --emit`.
+
+### Medição da simulação (autopilot sobre a pista sintética, treino)
+
+- Três chegadas do `autopilot()`: passos k 3766, 7350, 10953; instantes `interpolateMs` 31 388, 61 251 e 91 277 ms;
+  voltas de 31 388, 29 863 e 30 026 ms, todas `VALID`; velocidade logo depois de cada chegada ≈ 12,2 a 12,5 m/s; fase
+  `RUNNING` o tempo todo.
+- Corte por `DRIVE_OUT` no treino: invalidação no passo 567, fase `RUNNING`, kart a 7,7 m/s no passo seguinte. Kart
+  parado 10,5 m à direita do índice 10: `CUT` 121 passos depois, como o oráculo.
+- Corte semeado, reposicionamento e `autopilot()` até a chegada: resultado `INVALID` `CUT` de 31 790 ms, volta 2 com
+  `lapStartMs` 31 790, `VALID`, 0 marcadores.
+- Salto depois do limite 1 (passo 1089) para 5 segmentos além do limite 2 (índice 120): `INVALID` `MISSED_MARKER`,
+  `trainingSectorMs` `[9068, null, null, 6475]`.
+- `withShortMarker(2)`: `autopilot(-4)` dá `VALID` (30 322 ms); `autopilot(4)` dá `MISSED_MARKER` (desvio de sinal da
+  estratégia, `98-divergences.md`).
+- Sem `sectorLimits`: leitura `INCOMPLETE` com chegada e sentido; volta `VALID` de 31 388 ms com `lapMs` e
+  `trainingLapMs`, sem `sectorMs` nem `trainingSectorMs`.
+
+### Prova de que as verificações novas e modificadas podem falhar
+
+Mutações aplicadas, uma por vez, a uma cópia de `src/` e `tests/` no diretório de rascunho (nunca à árvore); executados
+os arquivos indicados; a árvore real nunca foi alterada.
+
+| Mutação | Mudança na cópia | Verificações que reprovaram |
+|---|---|---|
+| M01 | `closeTrainingLap`: `lapStartMs: finishMs + 1` | CHK-TEST-0015-01, -02, -03, -06, -11, -12, -20 |
+| M02 | chegada do treino encerra como a oficial | CHK-TEST-0007-10, CHK-TEST-0015-01 a -06, -08, -09, -11 a -20, -23, -24, -26, -27 |
+| M03 | corte do treino encerra a volta | CHK-TEST-0015-10, -11, -13, -15, -19, -24, -26 |
+| M04 | melhor volta conta voltas inválidas | CHK-TEST-0015-14, -27 |
+| M05 | melhor volta mantida depois de `ENDED` | CHK-TEST-0015-27 |
+| M06 | volta seguinte herda validade e motivo | CHK-TEST-0015-13 |
+| M07 | `endTraining` conclui a volta em andamento | CHK-TEST-0012-16, CHK-TEST-0015-17, -18 |
+| M08 | `LAP_ENDED` antes de `NOT_TRAINING` no botão de pausa | CHK-TEST-0012-15 |
+| M09 | `trainingSectorMs` sempre presente | CHK-TEST-0012-14, CHK-TEST-0015-25 |
+| M10 | reposicionar revalida a volta cortada | CHK-TEST-0015-11, -13, -19, -24 |
+| M11 | resultado de treino oficial | CHK-TEST-0015-07 |
+| M12 | `sectorNoTime` "-" | CHK-TEST-0010-20, CHK-TEST-0015-23 |
+| M13 | `lapSequenceCount` não avança | CHK-TEST-0015-01, -04, -11, -20 |
+| M14 | `getLapState` sem `lapStartMs` | CHK-TEST-0012-01 |
+| M15 | chegada na contramão fecha volta | CHK-TEST-0015-09 |
+| M16 | `src/main.ts` grava `document.cookie` | CHK-TEST-0013-05 |
+| M17 | kart da volta oficial anda depois de `ENDED` | CHK-TEST-0015-22 |
+| M18 | `elapsedMs` sem descontar `lapStartMs` | CHK-TEST-0015-20 |
+| M19 | resultado em dado `INCOMPLETE` oficial | CHK-TEST-0007-10 |
+| M20 | volta cortada fecha como `MISSED_MARKER` | CHK-TEST-0015-26 |
+| M21 | `endTraining` recusado na contagem | CHK-TEST-0012-16, CHK-TEST-0015-17 |
+| M22 | contagem regressiva depois de cada chegada do treino | CHK-TEST-0015-01, -04, -05, -06, -08, -09, -12, -14, -15, -19, -20 |
+| M23 | setor sem tempo vira 0 | CHK-TEST-0015-23 |
+| M24 | chave `sectorNoTime` removida | CHK-TEST-0010-17, -20 |
+| M25 | `endTrainingAction` sem tradução | CHK-TEST-0010-24 |
+| M26 | volta oficial encerrada segue andando e fechando voltas | CHK-TEST-0015-21, -22 |
+| M27 | resultado do treino depende de um contador fora da sessão | CHK-TEST-0015-11, -12, -28 |
+| M28 | `listLapResults` vazio fora do treino | CHK-TEST-0012-17 |
+| M29 | resultado válido do treino lido "válida em andamento" | CHK-TEST-0010-19, -21 |
+| M30 | linha de setores montada sem `trainingSectorMs` | CHK-TEST-0010-21, CHK-TEST-0015-25 |
+| M31 | sinal verde no início de cada volta do treino | CHK-TEST-0010-22 |
+| M32 | motivo omitido no treino | CHK-TEST-0010-23, CHK-TEST-0015-10 |
+
+Toda verificação acrescentada ou modificada reprovou em ao menos uma mutação. Nenhuma lê o relógio de parede, compara
+ponto flutuante por igualdade (tempos inteiros em ms; `kart` comparado por `deepEqual` só onde o projeto exige estado
+inalterado) nem depende de ordem entre testes: as corridas compartilhadas (três voltas, corte até a chegada, salto) são
+memorizadas e imutáveis.
+
+### Migração de verificações existentes
+
+140 ids antes, 179 depois: 137 carregados sem mudança, 3 modificados (CHK-TEST-0012-01, CHK-TEST-0010-17,
+CHK-TEST-0007-10, tabela acima), 0 fundidos, 0 removidos (retirados: 0), 39 acrescentados.
+
+### Execução
+
+`npx tsx --test` sobre `tests/*.test.ts`: 432 testes, 422 aprovados, 10 reprovados, todos de outras features e listados
+pelo relatório de código como teste que supõe a volta de treino única: `pista-kart-park` CHK-TEST-0005-01, -02, -03,
+-04, -06, -08, -10, CHK-TEST-0007-05, CHK-TEST-0006-03, e `dirigibilidade` CHK-TEST-0008-03. Todas as 179 verificações
+desta feature aprovadas.
+
+### Itens declinados, com o motivo
+
+- Arquivo próprio `tests/race-lap-validation-training.test.ts` para a área `lap-training`: escrito e medido, depois
+  desfeito; o 15.º arquivo reprova CHK-TEST-0010-06 de `dirigibilidade` (contagem exata de 14 suítes), suíte de outra
+  feature fora deste write fence. As 28 verificações ficam num bloco próprio de `race-lap-validation-state.test.ts`;
+  registrado em `98-divergences.md` com quem deve.
+- Corrigir CHK-TEST-0005-*, CHK-TEST-0006-03 e CHK-TEST-0007-05 de `pista-kart-park` e CHK-TEST-0008-03 de
+  `dirigibilidade`: recusado; são suítes de outras features (etapa de testes de cada uma).
+- `autopilot(-4)` da estratégia para AC-US-0010-10: substituído por `autopilot(4)` pela medição;
+  `98-divergences.md`.
+- Novo `withoutSectors()` em `tests/fixtures/trackFiles.ts`: não escrito; o arquivo é compartilhado com outras features
+  e está fora do write fence desta rodada; a cópia é montada no próprio arquivo de teste (regra "fixture usada por um
+  arquivo fica nele").
+- Partes de tela e de aparelho de AC-US-0010-02, -04, -07, -11, -12, -15, -16, -19, -23 a -25 e -27: ficam em E2E-12 e
+  E2E-13 (roteiro registrado), linhas `unverified` em `98-divergences.md`.

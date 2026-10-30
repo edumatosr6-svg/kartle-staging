@@ -4,7 +4,7 @@ title: Camadas, simulação pura e ausência de rede
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [NFR-0001, NFR-0004, NFR-0005, NFR-0011]
 ---
 
@@ -25,5 +25,6 @@ sources: [NFR-0001, NFR-0004, NFR-0005, NFR-0011]
 | CHK-TEST-0013-02 | NFR-0001 | the simulation never touches the DOM, the wall clock or an unseeded random | `Date`, `performance`, `Math.random`, `window`, `document` ou temporizador na simulação |
 | CHK-TEST-0013-03 | NFR-0005 | no module of the feature, the application included, uses the network or browser storage | `fetch`, `XMLHttpRequest`, `WebSocket`, `localStorage`, `sessionStorage`, `indexedDB` ou `sendBeacon` |
 | CHK-TEST-0013-04 | NFR-0011 | the application no longer decides lap validity with the retired gate tracker | `LapTracker` usado em `main.ts` ou motivo decidido fora da simulação |
+| CHK-TEST-0013-05 | NFR-0005 | nothing the lap or the training produces is written to browser storage or cookies by the feature modules | `localStorage`, `sessionStorage`, `indexedDB` ou `document.cookie` em `src/lap.ts`, `src/lapMessages.ts` ou `src/main.ts` (REQ-FEAT-0009-11, REQ-FEAT-0010-31, REQ-FEAT-0010-32; prova: M16) |
 
 A ausência de requisições durante uma volta no navegador real fica em E2E-08.

@@ -2,8 +2,8 @@
 stage: test
 feature: race-lap-validation
 status: validated
-generated: 2026-10-27T21:29:36Z
-files: 16
+generated: 2026-10-30T15:54:29Z
+files: 17
 ---
 
 # Index
@@ -12,19 +12,20 @@ files: 16
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.3.0 |
-| `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | draft | 1.1.0 |
+| `97-changelog.md` | - | Changelog do estágio de testes | draft | 1.4.0 |
+| `98-divergences.md` | - | Registro de divergências e de critérios não verificados em npm test | draft | 1.2.0 |
 | `TEST-0001-tempo-da-volta.md` | TEST-0001 | Tempo da volta em milissegundos inteiros | validated | 1.0.0 |
 | `TEST-0002-cruzamento-de-linhas.md` | TEST-0002 | Cruzamento de linhas, sentido e fração | validated | 1.0.0 |
 | `TEST-0003-relogio-de-quadros.md` | TEST-0003 | Relógio de quadros em passos fixos | validated | 1.0.0 |
-| `TEST-0004-estado-da-volta.md` | TEST-0004 | Máquina de estados da volta: contagem, largada, tempo e pausa | validated | 1.0.0 |
+| `TEST-0004-estado-da-volta.md` | TEST-0004 | Máquina de estados da volta: contagem, largada, tempo e pausa | draft | 1.0.1 |
 | `TEST-0005-validade-da-volta.md` | TEST-0005 | Marcadores, limites de setor, chegada e sentido | validated | 1.0.0 |
 | `TEST-0006-corte-e-grama.md` | TEST-0006 | Corte e grama com oráculo de distância próprio | validated | 1.0.0 |
-| `TEST-0007-tipos-de-volta.md` | TEST-0007 | Tipos de volta, reposicionamento e dado incompleto | validated | 1.0.0 |
+| `TEST-0007-tipos-de-volta.md` | TEST-0007 | Tipos de volta, reposicionamento e dado incompleto | draft | 1.1.0 |
 | `TEST-0008-determinismo.md` | TEST-0008 | Determinismo: mesma sequência, mesmo tempo | validated | 1.0.0 |
-| `TEST-0009-dado-de-pista.md` | TEST-0009 | Leitura e classificação do dado de pista versionado | draft | 1.2.0 |
-| `TEST-0010-mensagens-e-idioma.md` | TEST-0010 | Textos de estado e motivo, idioma e formato de tempo | validated | 1.0.0 |
+| `TEST-0009-dado-de-pista.md` | TEST-0009 | Leitura e classificação do dado de pista versionado | validated | 1.2.0 |
+| `TEST-0010-mensagens-e-idioma.md` | TEST-0010 | Textos de estado e motivo, idioma e formato de tempo | draft | 1.1.0 |
 | `TEST-0011-legibilidade-do-hud.md` | TEST-0011 | Tamanho e contraste das fichas do HUD | validated | 1.0.0 |
-| `TEST-0012-contrato-da-volta.md` | TEST-0012 | Contrato do estado, do resultado e dos comandos | validated | 1.1.0 |
-| `TEST-0013-camadas-e-privacidade.md` | TEST-0013 | Camadas, simulação pura e ausência de rede | validated | 1.0.0 |
+| `TEST-0012-contrato-da-volta.md` | TEST-0012 | Contrato do estado, do resultado e dos comandos | draft | 1.2.0 |
+| `TEST-0013-camadas-e-privacidade.md` | TEST-0013 | Camadas, simulação pura e ausência de rede | draft | 1.1.0 |
 | `TEST-0014-fisica-congelada.md` | TEST-0014 | Passo fixo, Input e presets inalterados | validated | 1.0.0 |
+| `TEST-0015-treino-de-voltas-seguidas.md` | TEST-0015 | Treino de voltas seguidas | draft | 1.0.0 |

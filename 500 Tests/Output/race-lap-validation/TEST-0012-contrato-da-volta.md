@@ -4,8 +4,8 @@ title: Contrato do estado, do resultado e dos comandos
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.1.0
-sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004-03, AC-US-0005-02, AC-US-0008-03, AC-US-0009-01, NFR-0005, NFR-0012]
+version: 1.2.0
+sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004-03, AC-US-0005-02, AC-US-0008-03, AC-US-0009-01, AC-US-0010-15, AC-US-0010-16, AC-US-0010-20, AC-US-0010-27, NFR-0005, NFR-0012]
 ---
 
 # TEST-0012 — Contrato do estado, do resultado e dos comandos
@@ -14,14 +14,14 @@ sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004
 |---|---|
 | Arquivo | `tests/race-lap-validation-contract.test.ts` (estratégia: `lap-contract`) |
 | Nível | contrato de API (API-0001, API-0002, API-0003), em processo |
-| Interface exercitada | `getLapState`, `getLapResult`, `startLap`, `pauseLap`, `resumeLap`, `repositionKart`, `readTrackData` |
-| Fixtures | `syntheticReading()`, `syntheticFile()` com `schemaVersion` alterada, `track-v1.json`, texto ilegível literal; pedido de `startLap` com `setupId` e `setupVersion` (`SETUP_FIELDS`: literal do enum de API-0002 diferente do padrão e um texto de versão que só existe no teste, para distinguir valor copiado de valor padrão ou derivado) |
+| Interface exercitada | `getLapState`, `getLapResult`, `listLapResults`, `startLap`, `pauseLap` (inclusive `PAUSE_BUTTON`), `resumeLap`, `repositionKart`, `endTraining`, `readTrackData` |
+| Fixtures | `syntheticReading()`, `syntheticFile()` com `schemaVersion` alterada, `track-v1.json`, texto ilegível literal; pedido de `startLap` com `setupId` e `setupVersion` (`SETUP_FIELDS`: literal do enum de API-0002 diferente do padrão e um texto de versão que só existe no teste, para distinguir valor copiado de valor padrão ou derivado); treino do `autopilot()` até a primeira chegada; cópia do sintético sem `sectorLimits` |
 
 ## Verificações
 
 | Check | Decide | Teste | O que a faria falhar |
 |---|---|---|---|
-| CHK-TEST-0012-01 | AC-US-0009-01 | getLapState carries exactly the fields of API-0001, with the optional ones only in their phase | campo a mais, a menos ou opcional presente fora da fase |
+| CHK-TEST-0012-01 | AC-US-0009-01 | getLapState carries exactly the fields of API-0001, with the optional ones only in their phase | campo a mais, a menos ou opcional presente fora da fase; `lapSequenceCount` diferente de 1, `lapStartMs` diferente de 0 ou `bestValidLapMs` presente fora do treino (API-0001 1.2.0; prova: M14) |
 | CHK-TEST-0012-02 | NFR-0005 | getLapResult carries exactly the fields of API-0001 and nothing else, so no personal data can travel in it | campo não contratado no resultado |
 | CHK-TEST-0012-03 | AC-US-0002-04 | every time value of the result and of the state is an integer number of milliseconds | tempo fracionário |
 | CHK-TEST-0012-04 | AC-US-0005-02 | without a lap the reads answer NO_ACTIVE_LAP and NO_RESULT with no other field | exceção ou campos vazios em vez do código |
@@ -34,5 +34,9 @@ sources: [AC-US-0002-04, AC-US-0002-11, AC-US-0002-12, AC-US-0003-08, AC-US-0004
 | CHK-TEST-0012-11 | AC-US-0004-03 | an invalid result carries its reason and no time field | tempo em resultado inválido |
 | CHK-TEST-0012-12 | NFR-0005 | setupId and setupVersion are copied verbatim to the result when startLap carries them, with no other field added | campo não copiado, copiado com outro valor (padrão `ARCADE_ASSISTIDO`, versão publicada ou qualquer derivação) ou campo a mais no resultado (API-0001 1.1.0) |
 | CHK-TEST-0012-13 | NFR-0005 | without setupId and setupVersion in startLap the result carries neither field, not defaulted, and the lap is the same | chave `setupId` ou `setupVersion` presente no resultado (com `null`, `undefined` ou padrão) quando o pedido não a trouxe; validade, motivo, tempo ou setores diferentes da volta iniciada com os campos (API-0002 1.1.0) |
+| CHK-TEST-0012-14 | NFR-0005, AC-US-0010-27 | a training result carries the four training fields and an official or recon result none of them | campo de treino ausente, a mais, fora de `TRAINING` ou `trainingSectorMs` numa pista sem setores (API-0001 1.2.0; prova: M09) |
+| CHK-TEST-0012-15 | AC-US-0010-15, AC-US-0010-16 | endTraining and the pause button reject with the codes of API-0002 in its precedence order, leaving the session as it was | `LAP_ENDED` ou `ALREADY_PAUSED` antes de `NOT_TRAINING`, código diferente ou rejeição com efeito (API-0002 1.2.0; prova: M08) |
+| CHK-TEST-0012-16 | AC-US-0010-16, AC-US-0010-15 | endTraining is accepted in countdown, running and paused, and the pause button in countdown and running of a training | `endTraining` recusado numa fase do treino ou que acrescenta resultado (prova: M07, M21) |
+| CHK-TEST-0012-17 | AC-US-0010-20 | listLapResults answers an empty list without a result and, outside training, at most the one result of getLapResult | lista com item sem resultado, ou diferente de `getLapResult` fora do treino (prova: M28) |
 
 Não há endpoint autenticado nem papel além de `player` anônimo (API-0001/0002, I6): não cabem verificações de acesso não autenticado ou de papel recusado.

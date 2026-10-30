@@ -3,7 +3,7 @@ title: Registro de divergências e de critérios não verificados em npm test
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.1.0
+version: 1.2.0
 ---
 
 # 98 — Divergências
@@ -16,6 +16,13 @@ próprio runner) coletou as 138 verificações novas e todas passaram. Não há 
 | Id | Estado | O que a especificação desta feature diz | O que o projeto validado de outra feature manda | Resolução no teste | Quem deve |
 |---|---|---|---|---|---|
 | CHK-TEST-0009-02 (NFR-0012; DES-0006 1.1.0 "Determinismo", `test-strategy.md` 1.1.1 linha NFR-0012) | resolved | o arquivo sintético declara `schemaVersion` **igual a** `TRACK_SCHEMA_VERSION`, maior que a da forma anterior | ADR-0001 de `pista-kart-park` (validado): `TRACK_SCHEMA_VERSION` sobe a 3 e a pista sintética fica em 2 (REQ-FEAT-0002-15); o leitor lê 1, 2 e 3 (`src/trackData.ts:10-11`, `:145`); a igualdade é inalcançável sem reescrever a pista sintética, que é dado daquela feature | a verificação afirma a regra que NFR-0012 exige e que DES-0006 descreve como "maior versão que o leitor conhece": `TRACK_SCHEMA_VERSION` maior que a versão da forma anterior; `SYNTHETIC_TRACK_FILE.schemaVersion` maior que a da forma anterior e não maior que `TRACK_SCHEMA_VERSION`; o sintético lido (`COMPLETE` ou `INCOMPLETE`), nunca `UNSUPPORTED_SCHEMA` nem `UNREADABLE`. Sem literal de versão. Reprova para um sintético em versão igual ou inferior à anterior, ou acima da que o leitor conhece | D-Spec de `race-lap-validation` (DES-0006, estratégia): trocar "igual a `TRACK_SCHEMA_VERSION`" por "na faixa que o leitor aceita" na próxima rodada que toque o conjunto; registrado aqui, não editado por este estágio (conventions §14) |
+
+## Desvios desta etapa em relação à estratégia, rodada 5 (2026-10-30, treino de voltas seguidas)
+
+| Id | Estado | O que a estratégia diz | O que esta etapa fez | Motivo | Quem deve |
+|---|---|---|---|---|---|
+| TEST-0015 (área `lap-training`; `test-strategy.md` 1.2.1, linhas "Integração" e "Critérios de aceite") | open | as verificações do treino de voltas seguidas ficam em `tests/lap-training.test.ts`, isto é, `tests/race-lap-validation-training.test.ts`, uma 15.ª área | as 28 verificações CHK-TEST-0015-01 a -28 ficam num bloco próprio no fim de `tests/race-lap-validation-state.test.ts`, com ids, oráculos e fixtures da estratégia; nenhuma cobertura muda | `tests/dirigibilidade-contract.test.ts` CHK-TEST-0010-06 (NFR-0008 de `dirigibilidade`) afirma `suites.length === 14` para `^race-lap-validation-.*\.test\.ts$`; um 15.º arquivo a reprova, e este estágio não edita a suíte de outra feature (write fence, §14). Medido: com o arquivo próprio a execução trazia CHK-TEST-0010-06 de `dirigibilidade` reprovada; sem ele, não | etapa de testes de `dirigibilidade`: trocar a contagem exata por "ao menos 14" (ou pela lista de arquivos que ela quer preservar); depois disso o bloco volta a `tests/race-lap-validation-training.test.ts` sem mudar id |
+| CHK-TEST-0015-12 (AC-US-0010-10; estratégia, linha AC-US-0010-10) | resolved | `withShortMarker(2)` e `autopilot(-4)` | `autopilot(4)` | medido: na convenção de `tests/helpers/autopilot.ts` o deslocamento positivo é à esquerda e `withShortMarker(2)` cobre de +1 m a −9 m; com `autopilot(-4)` o kart cruza o marcador e a volta de treino termina `VALID` (30 322 ms); com `autopilot(4)` termina `INVALID` `MISSED_MARKER`, o mesmo que CHK-TEST-0005-07/-09/-10 já usam | D-Spec: corrigir o sinal na linha AC-US-0010-10 da estratégia numa próxima rodada |
 
 ## Critérios cuja metade de tela, aparelho ou navegador só é verificável pelo roteiro registrado
 
@@ -53,6 +60,18 @@ navegador nomeado fica **unverified** até o registro humano da execução. Não
 | NFR-0006 | unverified | legível em escala de cinza | CHK-TEST-0010-13, CHK-TEST-0011-03 | E2E-09 | registro humano |
 | NFR-0007 | unverified | pt e en conforme o navegador | CHK-TEST-0010-17 | E2E-07 | registro humano |
 | NFR-0008 | unverified | mesmo tempo ao ms em Chrome, Edge, Firefox e Safari | — (um runtime só; a sequência de entradas está em `tests/helpers/autopilot.ts`, `reference.inputs` de TEST-0008) | E2E-11 nos quatro navegadores | registro humano |
+| AC-US-0010-02 | unverified | tela exibe o tempo total de cada volta de treino, também inválida | CHK-TEST-0015-24, CHK-TEST-0010-19 | painel `#lap-training-result`: E2E-12, E2E-13 | registro humano |
+| AC-US-0010-04 | unverified | nenhuma contagem na tela depois do sinal verde do treino | CHK-TEST-0015-05, CHK-TEST-0010-22 | observação da tela em fins de volta e na retomada: E2E-12 | registro humano |
+| AC-US-0010-07 | unverified | "inválida" e "corte" no primeiro quadro depois do corte | CHK-TEST-0015-10, CHK-TEST-0010-23 | quadro seguinte observado: E2E-12 | registro humano |
+| AC-US-0010-11 | unverified | "válida em andamento" no início da volta seguinte | CHK-TEST-0015-13, CHK-TEST-0010-23 | exibição: E2E-12 | registro humano |
+| AC-US-0010-12 | unverified | melhor volta válida visível do fim da primeira volta válida ao encerramento | CHK-TEST-0015-06, CHK-TEST-0015-27, CHK-TEST-0010-24 | elemento `#lap-best-valid`: E2E-12 | registro humano |
+| AC-US-0010-15 | unverified | botão de pausa em desktop e celular | CHK-TEST-0015-16, CHK-TEST-0012-15, CHK-TEST-0012-16, CHK-TEST-0010-24 | o botão gera `pauseLap('PAUSE_BUTTON')` nos dois canais: E2E-12 | registro humano |
+| AC-US-0010-16 | unverified | "encerrar treino" oferecido em desktop e celular | CHK-TEST-0012-15, CHK-TEST-0012-16, CHK-TEST-0010-24 | ação `#lap-end-training` visível em corrida e em pausa, ausente fora do treino: E2E-12 | registro humano |
+| AC-US-0010-19 | unverified | estado exibido igual antes e depois do reposicionamento | CHK-TEST-0015-19 | exibição: E2E-12 | registro humano |
+| AC-US-0010-23 | unverified | quatro tempos de setor com "—" nos sem tempo | CHK-TEST-0015-23, CHK-TEST-0010-20 | painel: E2E-12 | registro humano |
+| AC-US-0010-24 | unverified | validade com o motivo no resultado de cada volta | CHK-TEST-0015-24, CHK-TEST-0010-19 | painel: E2E-12, E2E-13 | registro humano |
+| AC-US-0010-25 | unverified | tempos identificados como não oficiais | CHK-TEST-0015-07, CHK-TEST-0010-19 | painel: E2E-12 | registro humano |
+| AC-US-0010-27 | unverified | só tempo total e validade numa pista sem setores | CHK-TEST-0015-25, CHK-TEST-0012-14, CHK-TEST-0010-21 | painel sem linha de setores: E2E-13 | registro humano |
 
 Nenhuma linha acima contribui para o veredito deste estágio (conventions §6); cada uma permanece aberta até a execução
 registrada, que é uma decisão humana e não uma verificação pulada.

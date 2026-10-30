@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ARCADE_KART } from '../src/physics';
-import { getLapResult, getLapState, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapSession, type LapStateView } from '../src/lap';
+import { endTraining, getLapResult, getLapState, listLapResults, pauseLap, repositionKart, resumeLap, startLap, stepLap, type LapSession, type LapStateView } from '../src/lap';
 import { readTrackData } from '../src/trackData';
 import { syntheticFile, syntheticReading, trackV1Text } from './fixtures/trackFiles';
 import { autopilot, completeLap, constant, DRIVE_OUT, drive, IDLE, MAX_LAP_STEPS, runCountdown, startSession } from './helpers/autopilot';
@@ -12,8 +12,10 @@ if (reading.trackDataStatus !== 'COMPLETE') throw new Error('fixture: synthetic 
 const request = { lapKind: 'OFFICIAL' as const, trackId: reading.trackId, trackVersion: reading.trackVersion };
 const keys = (o: object) => Object.keys(o).sort();
 
-const STATE_KEYS = ['lapPhase', 'lapKind', 'lapValidity', 'countdownRemainingMs', 'elapsedMs', 'stepCount', 'completedSectorMs', 'markersPassedCount', 'trackId', 'trackVersion'];
-const STATE_OPTIONAL = ['resumePhase', 'pauseCause', 'invalidReason'];
+// API-0001 1.2.0: lapSequenceCount and lapStartMs are mandatory in every view (1 and 0 outside training); bestValidLapMs optional.
+const STATE_KEYS = ['lapPhase', 'lapKind', 'lapValidity', 'countdownRemainingMs', 'elapsedMs', 'stepCount', 'completedSectorMs', 'markersPassedCount', 'lapSequenceCount', 'lapStartMs', 'trackId', 'trackVersion'];
+const STATE_OPTIONAL = ['resumePhase', 'pauseCause', 'invalidReason', 'bestValidLapMs'];
+const TRAINING_RESULT_KEYS = ['lapSequenceCount', 'lapStartMs', 'trainingLapMs', 'trainingSectorMs'];
 const RESULT_KEYS = ['trackId', 'trackVersion', 'lapKind', 'lapValidity', 'official'];
 const RESULT_OPTIONAL = ['challengeNumber', 'invalidReason', 'lapMs', 'sectorMs'];
 // API-0002 1.1.0: a literal of the setupId enum that is not the default (ARCADE_ASSISTIDO) and a version text that exists only in
@@ -21,11 +23,17 @@ const RESULT_OPTIONAL = ['challengeNumber', 'invalidReason', 'lapMs', 'sectorMs'
 const SETUP_FIELDS = { setupId: 'REALISTA_ALUGUEL_4T' as const, setupVersion: 'contract-fixture-7.3.1' };
 
 test('CHK-TEST-0012-01 getLapState carries exactly the fields of API-0001, with the optional ones only in their phase', () => {
-  // AC-US-0009-01
+  // AC-US-0009-01 (API-0001 1.2.0: lapSequenceCount and lapStartMs mandatory, 1 and 0 outside training)
   const started = startSession(reading);
   assert.deepEqual(keys(getLapState(started)), keys(Object.fromEntries(STATE_KEYS.map(k => [k, 0]))), 'AC-US-0009-01: the countdown view must carry exactly the mandatory fields');
   const running = drive(runCountdown(started), autopilot(), 300).lap;
   for (const k of keys(getLapState(running))) assert.ok([...STATE_KEYS, ...STATE_OPTIONAL].includes(k), `AC-US-0009-01: unexpected field ${k} in getLapState`);
+  for (const [phase, lap] of [['COUNTDOWN', started], ['RUNNING', running], ['ENDED', completeLap(reading).lap]] as const) {
+    const v = getLapState(lap) as LapStateView;
+    assert.equal(v.lapSequenceCount, 1, `AC-US-0009-01: outside training lapSequenceCount must be 1 in ${phase}, got ${v.lapSequenceCount}`);
+    assert.equal(v.lapStartMs, 0, `AC-US-0009-01: outside training lapStartMs must be 0 in ${phase}, got ${v.lapStartMs}`);
+    assert.ok(!('bestValidLapMs' in v), `AC-US-0009-01: bestValidLapMs must be absent outside training (${phase})`);
+  }
   const paused = pauseLap(running, 'ESC_KEY');
   assert.ok(paused.ok, 'AC-US-0009-01: pause must be accepted');
   const pv = getLapState(paused.lap) as LapStateView;
@@ -177,4 +185,83 @@ test('CHK-TEST-0012-13 without setupId and setupVersion in startLap the result c
   assert.equal(rb.invalidReason, ra.invalidReason, 'NFR-0005: setupId and setupVersion must not change the reason of the lap (API-0002)');
   assert.equal(rb.lapMs, ra.lapMs, 'NFR-0005: setupId and setupVersion must not change the lap time (API-0002)');
   assert.deepEqual(rb.sectorMs, ra.sectorMs, 'NFR-0005: setupId and setupVersion must not change the sector times (API-0002)');
+});
+
+test('CHK-TEST-0012-14 a training result carries the four training fields and an official or recon result none of them', () => {
+  // NFR-0005, AC-US-0010-27 (API-0001 1.2.0: training fields exactly when lapKind is TRAINING, trainingSectorMs only with declared sectors)
+  const training = drive(runCountdown(startSession(reading, 'TRAINING')), autopilot(), MAX_LAP_STEPS).lap;
+  const lap = listLapResults(training).lapResults[0] as Record<string, unknown> | undefined;
+  assert.ok(lap, 'NFR-0005: the training fixture must close a lap');
+  assert.equal(lap.lapValidity, 'VALID', 'NFR-0005: the training fixture lap must be VALID');
+  assert.deepEqual(keys(lap), keys(Object.fromEntries([...RESULT_KEYS, 'lapMs', 'sectorMs', ...TRAINING_RESULT_KEYS].map(k => [k, 0]))), 'NFR-0005: a valid training result must carry exactly the contract fields plus the four training fields (API-0001)');
+  for (const k of ['lapSequenceCount', 'lapStartMs', 'trainingLapMs']) assert.ok(Number.isInteger(lap[k]), `NFR-0005: ${k} must be an integer, got ${String(lap[k])}`);
+  assert.equal((lap.trainingSectorMs as unknown[]).length, 4, 'NFR-0005: trainingSectorMs must have exactly 4 positions');
+  const noSectorsFile = syntheticFile();
+  delete noSectorsFile.sectorLimits;
+  const plain = listLapResults(drive(runCountdown(startSession(readTrackData(noSectorsFile), 'TRAINING')), autopilot(), MAX_LAP_STEPS).lap).lapResults[0] as Record<string, unknown> | undefined;
+  assert.ok(plain && 'trainingLapMs' in plain, 'AC-US-0010-27: without declared sectors the training result must carry trainingLapMs');
+  assert.ok(!('trainingSectorMs' in plain) && !('sectorMs' in plain), 'AC-US-0010-27: without declared sectors the training result must carry neither trainingSectorMs nor sectorMs');
+  for (const kind of ['OFFICIAL', 'RECON'] as const) {
+    const r = getLapResult(completeLap(reading, kind).lap) as Record<string, unknown>;
+    for (const k of TRAINING_RESULT_KEYS) assert.ok(!(k in r), `NFR-0005: a ${kind} result must not carry ${k} (API-0001)`);
+  }
+});
+
+test('CHK-TEST-0012-15 endTraining and the pause button reject with the codes of API-0002 in its precedence order, leaving the session as it was', () => {
+  // AC-US-0010-15, AC-US-0010-16 (API-0002 1.2.0: NO_ACTIVE_LAP, then NOT_TRAINING, then LAP_ENDED, then ALREADY_PAUSED)
+  assert.deepEqual(endTraining(undefined), { ok: false, code: 'NO_ACTIVE_LAP' }, 'AC-US-0010-16: endTraining without a lap must be NO_ACTIVE_LAP');
+  assert.deepEqual(pauseLap(undefined, 'PAUSE_BUTTON'), { ok: false, code: 'NO_ACTIVE_LAP' }, 'AC-US-0010-15: the pause button without a lap must be NO_ACTIVE_LAP');
+  const officialRunning = drive(runCountdown(startSession(reading)), autopilot(), 200).lap;
+  const officialPaused = pauseLap(officialRunning, 'ESC_KEY');
+  assert.ok(officialPaused.ok, 'AC-US-0010-15: the Esc pause must be accepted in an official lap');
+  const recon = drive(runCountdown(startSession(reading, 'RECON')), autopilot(), 200).lap;
+  const cases: [string, LapSession][] = [
+    ['official countdown', startSession(reading)], ['official running', officialRunning], ['official paused', officialPaused.lap],
+    ['official ended', completeLap(reading).lap], ['recon running', recon], ['recon ended', completeLap(reading, 'RECON').lap],
+  ];
+  for (const [name, lap] of cases) {
+    const snapshot = JSON.stringify(lap);
+    assert.deepEqual(endTraining(lap), { ok: false, code: 'NOT_TRAINING' }, `AC-US-0010-16: endTraining in an ${name} lap must be NOT_TRAINING`);
+    assert.deepEqual(pauseLap(lap, 'PAUSE_BUTTON'), { ok: false, code: 'NOT_TRAINING' }, `AC-US-0010-15: the pause button in an ${name} lap must be NOT_TRAINING`);
+    assert.equal(JSON.stringify(lap), snapshot, `AC-US-0010-16: the rejections must leave the ${name} session as it was`);
+  }
+  const training = drive(runCountdown(startSession(reading, 'TRAINING')), autopilot(), 200).lap;
+  const paused = pauseLap(training, 'PAUSE_BUTTON');
+  assert.ok(paused.ok, 'AC-US-0010-15: the pause button must be accepted in a running training');
+  assert.deepEqual(pauseLap(paused.lap, 'PAUSE_BUTTON'), { ok: false, code: 'ALREADY_PAUSED' }, 'AC-US-0010-15: a second pause of a paused training must be ALREADY_PAUSED');
+  const ended = endTraining(training);
+  assert.ok(ended.ok, 'AC-US-0010-16: endTraining must be accepted in a running training');
+  const endedSnapshot = JSON.stringify(ended.lap);
+  assert.deepEqual(endTraining(ended.lap), { ok: false, code: 'LAP_ENDED' }, 'AC-US-0010-16: endTraining of an ended training must be LAP_ENDED');
+  assert.deepEqual(pauseLap(ended.lap, 'PAUSE_BUTTON'), { ok: false, code: 'LAP_ENDED' }, 'AC-US-0010-15: the pause button in an ended training must be LAP_ENDED');
+  assert.equal(JSON.stringify(ended.lap), endedSnapshot, 'AC-US-0010-16: the rejections must leave the ended training as it was');
+});
+
+test('CHK-TEST-0012-16 endTraining is accepted in countdown, running and paused, and the pause button in countdown and running of a training', () => {
+  // AC-US-0010-16, AC-US-0010-15 (API-0002 1.2.0; REQ-FEAT-0010-30)
+  const countdown = startSession(reading, 'TRAINING');
+  const running = drive(runCountdown(startSession(reading, 'TRAINING')), autopilot(), 200).lap;
+  const pausedCountdown = pauseLap(countdown, 'PAUSE_BUTTON');
+  const pausedRunning = pauseLap(running, 'PAUSE_BUTTON');
+  assert.ok(pausedCountdown.ok && (getLapState(pausedCountdown.lap) as LapStateView).resumePhase === 'COUNTDOWN', 'AC-US-0010-15: the pause button must be accepted during the training countdown');
+  assert.ok(pausedRunning.ok && (getLapState(pausedRunning.lap) as LapStateView).pauseCause === 'PAUSE_BUTTON', 'AC-US-0010-15: the pause button must be accepted in a running training');
+  for (const [name, lap] of [['countdown', countdown], ['running', running], ['paused', pausedRunning.lap]] as const) {
+    const e = endTraining(lap);
+    assert.ok(e.ok, `AC-US-0010-16: endTraining must be accepted in ${name}`);
+    const v = getLapState(e.lap) as LapStateView;
+    assert.equal(v.lapPhase, 'ENDED', `AC-US-0010-16: endTraining in ${name} must end the training`);
+    assert.ok(!('pauseCause' in v) && !('resumePhase' in v), `AC-US-0010-16: an ended training carries no pause fields (${name})`);
+    assert.deepEqual(listLapResults(e.lap).lapResults, listLapResults(lap).lapResults, `AC-US-0010-16: endTraining in ${name} must add no result`);
+  }
+});
+
+test('CHK-TEST-0012-17 listLapResults answers an empty list without a result and, outside training, at most the one result of getLapResult', () => {
+  // AC-US-0010-20 (API-0001 1.2.0, listLapResults)
+  assert.deepEqual(listLapResults(undefined), { lapResults: [] }, 'AC-US-0010-20: without a lap listLapResults must be an empty list');
+  const running = drive(runCountdown(startSession(reading)), autopilot(), 200).lap;
+  assert.deepEqual(listLapResults(running), { lapResults: [] }, 'AC-US-0010-20: a running official lap has no result');
+  const ended = completeLap(reading).lap;
+  const list = listLapResults(ended).lapResults;
+  assert.equal(list.length, 1, 'AC-US-0010-20: an ended official lap has exactly one result');
+  assert.deepEqual(list[0], getLapResult(ended), 'AC-US-0010-20: the listed result must be the one of getLapResult');
 });

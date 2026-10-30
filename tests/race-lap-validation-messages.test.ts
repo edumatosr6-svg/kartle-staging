@@ -1,12 +1,12 @@
 // TEST-0010 — texts, language and the m:ss.mmm format (strategy: lap-messages, unit, DES-0008, RULE-0006).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { LapStateView } from '../src/lap';
-import { describeLap, formatLapTime, greenSignalVisible, message, MESSAGE_KEYS, resolveLanguage } from '../src/lapMessages';
+import type { LapResult, LapStateView } from '../src/lap';
+import { describeLap, describeTrainingResult, formatLapTime, formatSectorTime, greenSignalVisible, message, MESSAGE_KEYS, resolveLanguage, type MessageKey } from '../src/lapMessages';
 
 const base: LapStateView = {
   lapPhase: 'RUNNING', lapKind: 'OFFICIAL', lapValidity: 'VALID', countdownRemainingMs: 0, elapsedMs: 0, stepCount: 0,
-  completedSectorMs: [], markersPassedCount: 0, trackId: 'synthetic', trackVersion: 2,
+  completedSectorMs: [], markersPassedCount: 0, lapSequenceCount: 1, lapStartMs: 0, trackId: 'synthetic', trackVersion: 2,
 };
 const at = (patch: Partial<LapStateView>): LapStateView => ({ ...base, ...patch });
 
@@ -135,15 +135,16 @@ test('CHK-TEST-0010-16 a browser language other than Portuguese or English, or n
   for (const tag of ['fr', 'es-419', 'de', '', undefined, null, 'ptx', 'es-PT']) assert.equal(resolveLanguage(tag), 'en', `AC-US-0009-07: ${JSON.stringify(tag)} must resolve to en`);
 });
 
-test('CHK-TEST-0010-17 all twenty message keys exist with a non-empty text in both languages', () => {
-  // NFR-0007
-  assert.equal(MESSAGE_KEYS.length, 20, 'NFR-0007: there must be exactly 20 message keys');
+test('CHK-TEST-0010-17 all twenty-four message keys exist with a non-empty text in both languages', () => {
+  // NFR-0007 (DES-0008 1.1.0: 24 keys, with pauseAction, endTrainingAction, bestValidLap and sectorNoTime)
+  assert.equal(MESSAGE_KEYS.length, 24, `NFR-0007: there must be exactly 24 message keys, got ${MESSAGE_KEYS.length}`);
+  for (const key of ['pauseAction', 'endTrainingAction', 'bestValidLap', 'sectorNoTime']) assert.ok((MESSAGE_KEYS as string[]).includes(key), `NFR-0007: the key ${key} must exist`);
   for (const key of MESSAGE_KEYS) {
     for (const lang of ['pt', 'en'] as const) assert.ok(message(key, lang).trim().length > 0, `NFR-0007: message ${key} must be non-empty in ${lang}`);
     assert.notEqual(message(key, 'pt'), '', `NFR-0007: ${key} must have a Portuguese text`);
   }
   const differing = MESSAGE_KEYS.filter(k => message(k, 'pt') !== message(k, 'en'));
-  assert.ok(differing.length >= 18, 'NFR-0007: the two languages must be real translations, not copies');
+  assert.ok(differing.length >= 22, `NFR-0007: the two languages must be real translations, not copies (${differing.length} of 24 differ)`);
 });
 
 test('CHK-TEST-0010-18 the paused text is shown only while paused and the state after resume is the state of the pause', () => {
@@ -154,4 +155,79 @@ test('CHK-TEST-0010-18 the paused text is shown only while paused and the state 
   const resumed = describeLap(at({ lapPhase: 'RUNNING' }), 'pt');
   assert.equal(resumed.pausedText, undefined, 'AC-US-0003-09: no paused text after resume');
   assert.equal(resumed.stateText, paused.stateText, 'AC-US-0003-09: the state after resume must equal the state at the pause');
+});
+
+// A training result as API-0001 1.2.0 shapes it; values are spec examples, not computed by the implementation.
+const trainingResult = (patch: Partial<LapResult>): LapResult => ({
+  trackId: 'synthetic', trackVersion: 2, lapKind: 'TRAINING', lapValidity: 'VALID', official: false,
+  lapSequenceCount: 2, lapStartMs: 31388, trainingLapMs: 62345, trainingSectorMs: [9068, 7725, 8139, 37413], ...patch,
+});
+
+test('CHK-TEST-0010-19 a training result reads its total time, "válida" or "inválida" with the reason, and "não oficial", in both languages', () => {
+  // AC-US-0010-02, AC-US-0010-24, AC-US-0010-25
+  const expectations: [Partial<LapResult>, string, string | undefined, string, string | undefined][] = [
+    [{}, 'válida', undefined, 'valid', undefined],
+    [{ lapValidity: 'INVALID', invalidReason: 'CUT' }, 'inválida', 'corte', 'invalid', 'cut'],
+    [{ lapValidity: 'INVALID', invalidReason: 'MISSED_MARKER' }, 'inválida', 'marcador pulado', 'invalid', 'missed marker'],
+  ];
+  for (const [patch, ptValidity, ptReason, enValidity, enReason] of expectations) {
+    const pt = describeTrainingResult(trainingResult(patch), 'pt'), en = describeTrainingResult(trainingResult(patch), 'en');
+    assert.equal(pt.totalText, '1:02.345', `AC-US-0010-02: the total time must read 1:02.345 (${ptValidity}), got ${pt.totalText}`);
+    assert.equal(en.totalText, '1:02.345', 'AC-US-0010-02: the total time must read 1:02.345 in English too');
+    assert.equal(pt.validityText, ptValidity, `AC-US-0010-24: the validity must read "${ptValidity}"`);
+    assert.equal(pt.reasonText, ptReason, `AC-US-0010-24: the reason must read "${ptReason ?? 'none'}"`);
+    assert.equal(en.validityText, enValidity, `AC-US-0010-24: the validity must read "${enValidity}" in English`);
+    assert.equal(en.reasonText, enReason, `AC-US-0010-24: the reason must read "${enReason ?? 'none'}" in English`);
+    assert.equal(pt.unofficialText, 'não oficial', 'AC-US-0010-25: a training result must read "não oficial"');
+    assert.equal(en.unofficialText, 'unofficial', 'AC-US-0010-25: a training result must read "unofficial" in English');
+  }
+});
+
+test('CHK-TEST-0010-20 a sector without time in a training result reads "—" and the others m:ss.mmm', () => {
+  // AC-US-0010-23
+  const d = describeTrainingResult(trainingResult({ lapValidity: 'INVALID', invalidReason: 'MISSED_MARKER', trainingSectorMs: [9068, null, null, 6475] }), 'pt');
+  assert.deepEqual(d.sectorTexts, ['0:09.068', '—', '—', '0:06.475'], `AC-US-0010-23: the sector texts must be 0:09.068, —, —, 0:06.475, got ${JSON.stringify(d.sectorTexts)}`);
+  assert.equal(formatSectorTime(null, 'en'), '—', 'AC-US-0010-23: a sector without time must read "—" in English too');
+  assert.equal(message('sectorNoTime', 'pt'), '—', 'AC-US-0010-23: the key sectorNoTime must be "—"');
+});
+
+test('CHK-TEST-0010-21 a training result without sector times builds no sector line, only the total time and the validity', () => {
+  // AC-US-0010-27
+  const { trainingSectorMs: _none, ...plain } = trainingResult({});
+  const d = describeTrainingResult(plain, 'pt');
+  assert.equal(d.sectorTexts, undefined, 'AC-US-0010-27: no sector texts may be built without trainingSectorMs');
+  assert.equal(d.totalText, '1:02.345', 'AC-US-0010-27: the total time must be shown');
+  assert.equal(d.validityText, 'válida', 'AC-US-0010-27: the validity must be shown');
+});
+
+test('CHK-TEST-0010-22 a training past its first second shows no countdown and no green signal, in any lap and in the pause', () => {
+  // AC-US-0010-04
+  for (const patch of [{ stepCount: 120 }, { stepCount: 3767, lapSequenceCount: 2, lapStartMs: 31388 }, { lapPhase: 'PAUSED' as const, pauseCause: 'PAUSE_BUTTON' as const, resumePhase: 'RUNNING' as const, stepCount: 5000, lapSequenceCount: 2, lapStartMs: 31388 }]) {
+    const v = at({ lapKind: 'TRAINING', ...patch });
+    assert.equal(describeLap(v, 'pt').countdownText, undefined, `AC-US-0010-04: no countdown text at step ${v.stepCount} of lap ${v.lapSequenceCount}`);
+    assert.equal(greenSignalVisible(v), false, `AC-US-0010-04: no green signal at step ${v.stepCount} of lap ${v.lapSequenceCount}`);
+  }
+});
+
+test('CHK-TEST-0010-23 a training lap reads "inválida · corte" once cut and "válida em andamento" when the next lap starts', () => {
+  // AC-US-0010-07, AC-US-0010-11
+  const cut = describeLap(at({ lapKind: 'TRAINING', lapValidity: 'INVALID', invalidReason: 'CUT', stepCount: 700 }), 'pt');
+  assert.equal(cut.stateText, 'inválida', 'AC-US-0010-07: a cut training lap must read "inválida"');
+  assert.equal(cut.reasonText, 'corte', 'AC-US-0010-07: a cut training lap must read the reason "corte"');
+  const next = describeLap(at({ lapKind: 'TRAINING', stepCount: 3800, lapSequenceCount: 2, lapStartMs: 31790 }), 'pt');
+  assert.equal(next.stateText, 'válida em andamento', 'AC-US-0010-11: the next training lap must read "válida em andamento"');
+  assert.equal(next.reasonText, undefined, 'AC-US-0010-11: the next training lap must show no reason');
+});
+
+test('CHK-TEST-0010-24 the training labels read "pausar", "encerrar treino" and "melhor volta válida", and their English texts', () => {
+  // AC-US-0010-12, AC-US-0010-15, AC-US-0010-16
+  const labels: [MessageKey, string, string, string][] = [
+    ['pauseAction', 'pausar', 'pause', 'AC-US-0010-15'],
+    ['endTrainingAction', 'encerrar treino', 'end training', 'AC-US-0010-16'],
+    ['bestValidLap', 'melhor volta válida', 'best valid lap', 'AC-US-0010-12'],
+  ];
+  for (const [key, pt, en, ac] of labels) {
+    assert.equal(message(key, 'pt'), pt, `${ac}: ${key} must read "${pt}"`);
+    assert.equal(message(key, 'en'), en, `${ac}: ${key} must read "${en}" in English`);
+  }
 });

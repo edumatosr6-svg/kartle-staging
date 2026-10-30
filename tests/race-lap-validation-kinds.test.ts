@@ -2,12 +2,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ARCADE_KART } from '../src/physics';
-import { getLapResult, getLapState, offeredLapKinds, repositionKart, startLap, stepLap, type LapResult, type LapSession, type LapStateView } from '../src/lap';
+import { getLapResult, getLapState, listLapResults, offeredLapKinds, repositionKart, startLap, stepLap, type LapResult, type LapSession, type LapStateView } from '../src/lap';
 import { toMs } from '../src/lapTiming';
 import { describeLap } from '../src/lapMessages';
 import { readTrackData } from '../src/trackData';
-import { syntheticReading, trackV1Text, withoutMarkers } from './fixtures/trackFiles';
-import { autopilot, completeLap, constant, DRIVE_OUT, drive, runCountdown, startSession } from './helpers/autopilot';
+import { syntheticFile, syntheticReading, trackV1Text, withoutMarkers } from './fixtures/trackFiles';
+import { autopilot, completeLap, constant, DRIVE_OUT, drive, MAX_LAP_STEPS, runCountdown, startSession } from './helpers/autopilot';
 
 const reading = syntheticReading();
 if (reading.trackDataStatus !== 'COMPLETE') throw new Error('fixture: synthetic reading must be COMPLETE');
@@ -130,13 +130,22 @@ test('CHK-TEST-0007-09 incomplete track data offers a training lap that can be d
 });
 
 test('CHK-TEST-0007-10 on incomplete track data every result is identified as not official', () => {
-  // AC-US-0008-05
-  const incomplete = readTrackData(trackV1Text());
-  const { lap } = drive(runCountdown(startSession(incomplete, 'TRAINING')), constant(DRIVE_OUT), 3000);
-  const r = result(lap);
-  assert.equal(r.invalidReason, 'CUT', 'AC-US-0008-05: the fixture must produce a result (a cut)');
-  assert.equal(r.official, false, 'AC-US-0008-05: a result on INCOMPLETE data must not be official');
-  assert.equal(r.trackVersion, 1, 'AC-US-0008-05: the result must name the version it was driven on');
+  // AC-US-0008-05 (ADR-0006: a training lap ends only at the finish; the INCOMPLETE readings declare finish and sense)
+  const noSectors = syntheticFile();
+  delete noSectors.sectorLimits;
+  for (const [name, file] of [['without markers', withoutMarkers()], ['without sectors', noSectors]] as const) {
+    const incomplete = readTrackData(file);
+    assert.equal(incomplete.trackDataStatus, 'INCOMPLETE', `AC-US-0008-05: the fixture ${name} must be INCOMPLETE`);
+    let lap = runCountdown(startSession(incomplete, 'TRAINING'));
+    const controller = autopilot();
+    for (let i = 0; i < 2 * MAX_LAP_STEPS && listLapResults(lap).lapResults.length < 2; i++) lap = stepLap(lap, controller(lap));
+    const results = listLapResults(lap).lapResults;
+    assert.ok(results.length >= 2, `AC-US-0008-05: the training ${name} must close at least two laps at the finish, got ${results.length}`);
+    for (const r of results) {
+      assert.equal(r.official, false, `AC-US-0008-05: lap ${r.lapSequenceCount} on INCOMPLETE data (${name}) must not be official`);
+      assert.equal(r.trackVersion, (incomplete as { trackVersion: unknown }).trackVersion, `AC-US-0008-05: the result must name the version it was driven on (${name})`);
+    }
+  }
 });
 
 test('CHK-TEST-0007-11 a second repositioning in an official lap is rejected with LAP_ENDED and the reason stays REPOSITION', () => {

@@ -4,7 +4,7 @@ title: Máquina de estados da volta: contagem, largada, tempo e pausa
 feature: race-lap-validation
 stage: test
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [AC-US-0001-01, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0002-02, AC-US-0002-03, AC-US-0002-05, AC-US-0002-09, AC-US-0002-11, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0009-01, NFR-0002]
 ---
 
@@ -12,7 +12,7 @@ sources: [AC-US-0001-01, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001
 
 | | |
 |---|---|
-| Arquivo | `tests/race-lap-validation-state.test.ts` (estratégia: `lap-state`) |
+| Arquivo | `tests/race-lap-validation-state.test.ts` (estratégia: `lap-state`); o mesmo arquivo hospeda, num bloco próprio no fim, as verificações de TEST-0015 (`98-divergences.md`) |
 | Nível | integração: `src/lap.ts` sobre `step` real e a pista sintética (`CIRCUIT`) |
 | Interface exercitada | `startLap`, `stepLap`, `pauseLap`, `resumeLap`, `getLapState`, `getLapResult`; `describeLap` para o texto de estado |
 | Fixtures | `syntheticReading()`; `autopilot`, `seedLap`, `kartAt`, `runCountdown`, `drive` de `tests/helpers/autopilot.ts`; deslocamentos semeados de `tests/helpers/seeded.ts` |
