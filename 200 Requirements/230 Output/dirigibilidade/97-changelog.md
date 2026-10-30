@@ -3,7 +3,7 @@ title: Changelog — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.4.0
+version: 4.3.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -708,3 +708,292 @@ interrompido pela saída).
 - Os itens recusados das rodadas 1, 3, 5, 6, 7, 8 e 9 continuam recusados pelos mesmos motivos, e as
   propostas de `SCOPE-BACKLOG.md` das rodadas 6, 7, 8 e 9 seguem valendo, exceto a da rodada 9 sobre os
   passos depois da saída da faixa com acelerador 0, respondida por `DOMAIN/DEC-14`.
+
+## 2026-10-29 — rodada 12, Mode A (seed `revision: 4`, acerto C, sem drift e sem turbo)
+
+**Gatilho**: o seed passou a `revision: 4` (`date: 2026-10-29`, autor `eduardo.matos`) com a entrada de
+2026-10-29 de `DOMAIN.md`, "Acerto C e fim do drift e do turbo" (`DOMAIN/DEC-15`): testando a staging, o dono
+do produto disse que "o kart simplesmente não vira" e escolheu o acerto C entre duas prévias; a velocidade
+estabilizada passa a ficar entre 65 km/h e 72 km/h; a curva passa a ser julgada pelo raio da trajetória na
+pista de teste aberta, no lugar dos ensaios de esterço cheio no arco de raio 18 m; o drift e o turbo de
+`requirements/11` saem do jogo. Os pontos abertos 01, 04, 05 e 07 permanecem com os valores em vigor.
+
+**O que mudou**
+
+- `01-context.md` (4.0.0): seed `revision: 4`; parágrafo novo "O acerto C"; "Onde cada ensaio roda"
+  reescrito (reta da pista de teste para a resposta do volante; pista de teste aberta para o raio e a
+  recuperação; pista sintética para a volta do piloto de teste, que serve ao tempo de volta e à condução
+  normal); rótulo novo `DOMAIN/DEC-15`; `SEED/RD-01` com o texto da revisão 4; `DOMAIN/REF-02`,
+  `DOMAIN/REF-03` e `DOMAIN/DEC-09` redigidos com a parte que continua em vigor; parágrafo novo "Decisões
+  substituídas e não aplicadas", que lista os rótulos que saem do conjunto sem os reutilizar
+  (`DOMAIN/DEC-02`, `DEC-03`, `DEC-06`, `DEC-11`, `DEC-12`, `DEC-13`, `DEC-14`, `DOMAIN/REF-04`,
+  `REF-05`); tabela de decisões aplicadas refeita; famílias de NFR (acessibilidade e RNF01/02/05 citam a
+  retirada do drift e do turbo) e fora do escopo com o texto da revisão 4. Registro de que a lista "Riscos e
+  incógnitas" do seed ainda cita os valores antigos dos pontos 02, 03 e 06, e de que o corpo do seed e
+  `DOMAIN/DEC-15` prevalecem.
+- `02-glossary.md` (4.0.0): termos novos "Acerto C", "Pista de teste aberta", "Raio da trajetória", "Turbo"
+  e "Comando de drift"; redefinidos "Pista de teste", "Pista sintética", "Velocidade mantida" (sem a
+  varredura), "Curva de referência" (ensaio de raio na pista de teste aberta), "Condição de forçar" (sem o
+  drift), "Condução normal" (todos os passos da volta do piloto de teste na pista sintética, `SEED/US-3`),
+  "Drift" (retirado), "Direção comum", "Velocidade estabilizada" (é a velocidade máxima) e "Asfalto";
+  retirados "Velocidade de início do subesterço" e "Acerto agressivo", que só os critérios retirados usavam.
+- US-0001 (3.1.0): pré-condição no acerto C; o critério 05 diz que a aderência em curva é julgada pelos
+  ensaios de raio de US-0002, não mais pelo arco de 18 m (`DOMAIN/DEC-09` com `DOMAIN/DEC-15`); limites de
+  180 ms e 250 ms inalterados.
+- US-0002 (4.0.0): história reescrita sobre os três critérios de raio do seed — critérios novos 07 (50 km/h,
+  acelerador cheio, raio de no máximo 13 m 3 s depois da partida), 08 (70 km/h, mesmo limite) e 09 (50 km/h,
+  acelerador 0, raio de no máximo 3 m), cada um nos dois lados do esterço; critério 05 (saída do ensaio)
+  reescrito; casos anormais refeitos (parada antes de 3 s, traseira solta com acelerador cheio, `understeer`
+  durante o ensaio, partida acima da velocidade estabilizada, esterço parcial, área do ensaio).
+- US-0003 (4.0.0): critérios 01 e 05 observados em todos os passos da volta do piloto de teste na pista
+  sintética, como o primeiro critério do seed passou a dizer; critério 03 na pista de teste aberta, com o
+  forçar até a traseira soltar e os dois lados do esterço; critério 07 (saída do ensaio) reescrito;
+  critérios novos 08 (o comando de drift mantido não muda o estado da simulação), 09 (nenhum indicador de
+  carga, turbo, impulso, combo ou pontuação de drift na tela nem no texto compartilhado) e 10 (a velocidade
+  nunca passa da estabilizada); casos anormais novos "Traseira não solta sob a condição de forçar",
+  "Piloto de teste força o kart na volta sintética", "Comando de drift mantido durante a recuperação" e
+  "Replay gravado com drift na versão anterior"; o caso "Drift em andamento" saiu.
+- US-0004 (3.0.0): critério 02 passa a "entre 65 km/h e 72 km/h, inclusive" (`DOMAIN/DEC-15`); critério 04
+  (grama a 50 km/h) passa a citar só `SEED/US-4`, porque `DOMAIN/DEC-02` foi substituído; caso anormal
+  "Grama a velocidade abaixo de 50 km/h" redigido de novo, sem mudar o que exige.
+- US-0005 (3.1.0): pré-condição no acerto C; seção Canais diz que a volta do piloto de teste serve também à
+  condução normal de US-0003; `DOMAIN/DEC-10` e `DOMAIN/DEC-15` nas fontes. Critérios inalterados.
+- NFR-0004 (4.0.0): a lista de ensaios registrados em `docs/physics.md` troca a curva do arco de 18 m (raio
+  do arco, largura da faixa, V0, V1) pelo raio na pista de teste aberta com a janela de medição, e acrescenta
+  a volta do piloto de teste com estados de aderência e derrapagem, a comparação com e sem o comando de drift
+  e a maior velocidade observada; os limites registrados são os da revisão 4.
+- NFR-0005 (1.1.0): diz que a retirada do drift e do turbo tira regras de pilotagem da simulação e não cria
+  nenhuma fora dela, e que retirar da tela os indicadores de drift não é regra de pilotagem; `SEED/RD-01`
+  nas fontes.
+- NFR-0001, NFR-0002, NFR-0003, NFR-0006, NFR-0007, NFR-0008, NFR-0009 e `98-divergences.md`: sem mudança;
+  carregados na versão em que estavam. `00-index.md` e `99-traceability.md` não foram escritos: o gate os
+  regenera.
+
+**Tabela de migração** (conventions §17). Retiradas aprovadas pelo dono do produto na revisão 4 do seed e na
+entrada de 2026-10-29 de `DOMAIN.md` (`DOMAIN/DEC-15`, Eduardo Matos), que substituem os ensaios do arco de
+18 m e retiram o drift; os números não são reutilizados.
+
+| Item | Antes | Agora |
+|---|---|---|
+| AC-US-0001-05 | aderência em curva julgada só no arco de 18 m de US-0002 | modificado: julgada só pelos ensaios de raio de US-0002 |
+| AC-US-0002-01 | sem `understeer` acima de 200 ms no arco de 18 m, acelerador 0 e cheio | **retirado** (substituído pelos critérios 07 a 09) |
+| AC-US-0002-02 | permanência na faixa do arco de 18 m com acelerador cheio | **retirado** (substituído pelo critério 07) |
+| AC-US-0002-03 | V1 ≥ 1,15 × V0 na varredura de início do subesterço | **retirado**, sem substituto: a varredura saiu com `DOMAIN/DEC-15` |
+| AC-US-0002-04 | perda da frente progressiva entre patamares | **retirado**, sem substituto (idem) |
+| AC-US-0002-05 | saída do ensaio do arco | modificado: saída dos ensaios de raio |
+| AC-US-0002-06 | fim da varredura pela saída da faixa | **retirado**, sem substituto (idem) |
+| AC-US-0002-07, 08, 09 | — | **novos**: raio de no máximo 13 m (50 km/h e 70 km/h, acelerador cheio) e de no máximo 3 m (50 km/h, acelerador 0), 3 s depois da partida |
+| AC-US-0003-01 | sem `oversteer`/`sliding` em condução normal em qualquer asfalto, com a cláusula do arco de 18 m | modificado: em todos os passos da volta do piloto de teste na pista sintética |
+| AC-US-0003-02 | `oversteer`/`sliding` só sob forçar, drift ou recuperação, em qualquer asfalto | **retirado**: o seed passou a observar a condução normal na volta do piloto de teste (critérios 01 e 05), e o drift deixou de existir |
+| AC-US-0003-03 | recuperação a `grip` em 400 ms, na pista de teste | modificado: na pista de teste aberta, forçar até a traseira soltar, os dois lados |
+| AC-US-0003-04 | derrapagem de no máximo 0,65 rad na recuperação | inalterado |
+| AC-US-0003-05 | derrapagem de no máximo 0,65 rad em condução normal em qualquer asfalto | modificado: em todos os passos da volta do piloto de teste |
+| AC-US-0003-06 | o drift continua possível e pontuando | **retirado** (o oposto passou a valer: critérios 08 e 09) |
+| AC-US-0003-07 | saída do ensaio | modificado: inclui a volta do piloto de teste, o comando de drift e a maior velocidade |
+| AC-US-0003-08, 09, 10 | — | **novos**: comando de drift sem efeito; nenhum indicador de drift ou turbo na tela; velocidade nunca acima da estabilizada |
+| AC-US-0004-02 | pelo menos 105 km/h | modificado: entre 65 km/h e 72 km/h |
+| AC-US-0004-04 | grama a 50 km/h, com fonte `DOMAIN/DEC-02` | modificado: só a fonte (`SEED/US-4`) |
+
+Contagem: cinco histórias e nove NFRs antes e depois; critérios 6 + 6 + 7 + 7 + 6 antes e 6 + 4 + 8 + 7 + 6
+depois (sete retirados, seis novos).
+
+**Superfície**: Mode A sobre um seed movido; os itens novos (critérios 07 a 09 de US-0002, 08 a 10 de
+US-0003 e os cinco termos novos do glossário) realizam itens da revisão 4 (`SEED/US-2`, `SEED/US-3`,
+`SEED/RD-01`, `DOMAIN/DEC-15`).
+
+**Itens fechados**: nenhum `ISSUE-<nn>`/`FB-<nn>` pendente (o último relatório,
+`req-validation-20261027-1705.md`, era SUCCESS). Os seus dois `info` ficam sem objeto: ISSUE-01 (as duas
+leituras de `DOMAIN/DEC-12` no antigo critério 03 de US-0002) porque o critério foi retirado; ISSUE-02 (a
+cláusula do arco de 18 m no critério 01 de US-0003) porque a cláusula saiu. Divergências registradas:
+nenhuma.
+
+**Leituras registradas**
+
+- Critério 09 de US-0002 (sem acelerador, raio de no máximo 3 m): o seed não diz quando o raio é medido.
+  O conjunto mede 3 s depois da partida, como nos dois critérios anteriores do mesmo ensaio ("nas mesmas
+  condições", "o raio também fica"), e, se a velocidade chegar a 0 antes de 3 s, o critério reprova por falta
+  de medida. **Pede confirmação do dono do produto** antes de a etapa de F-Spec usar o critério. Proposta
+  ao autor para `DOMAIN.md` ou `SCOPE-BACKLOG.md`: "2026-10-29 req-loop rodada 12 — no ensaio sem
+  acelerador partindo de 50 km/h com esterço cheio, o raio de no máximo 3 m é medido 3 s depois da partida,
+  ou é o raio final antes de o kart parar? E se o kart parar antes de 3 s, aprova ou reprova?"
+- Restrição `SEED/RE-01` ("mudanças ficam nos presets e nas assistências de `src/physics.ts`") e o
+  critério 09 de US-0003 (nenhum indicador de drift na tela): o conjunto lê a restrição como regra sobre
+  onde as regras de pilotagem moram (NFR-0005), de modo que retirar da tela os indicadores do drift não a
+  fere. **Pede confirmação do dono do produto**, porque a leitura literal ("as mudanças ficam em
+  `src/physics.ts`") não deixaria tocar a tela. Proposta ao autor para `SCOPE-BACKLOG.md`: "2026-10-29
+  req-loop rodada 12 — a retirada do drift e do turbo pode tocar HUD, tela de resultado e texto compartilhado
+  fora de `src/physics.ts`?"
+- "Sem rodar" na recuperação continua lido como derrapagem lateral de no máximo 0,65 rad (critério 04), o
+  teto que o seed dá para a traseira viva, como desde a rodada 1.
+- "Condução normal (pista sintética, piloto de teste)" é lida como todos os passos da volta do piloto de
+  teste, inclusive os passos em que ele acelera e esterça cheio acima de 50 km/h.
+- "Esterço cheio" nos ensaios de raio vale nos dois lados (1 ou −1), como o glossário define esterço cheio
+  desde a rodada 1.
+
+**Itens recusados, com motivo**
+
+- Os valores de parâmetro do acerto C que `DOMAIN/DEC-15` lista (`governorSpeed`, `assistLateralG`,
+  `maxSteer`, `friction`, `frontStiffness`): não entram em critério nem em glossário. São constantes de
+  física e escolha de desenho (política de critérios estritos, regra 8; `domain-directives.md`, "Seed
+  authoring": afinação pertence ao desenho e ao bench); o registro deles em `docs/physics.md` é exigido por
+  NFR-0004.
+- O identificador `arcade-assistido-v6`: citado em `01-context.md` e no glossário como o nome que a decisão
+  dá ao acerto C, sem virar critério; o critério 04 de US-0005 exige uma versão de acerto diferente da
+  anterior, e o valor do identificador é desenho, como a rodada 11 já registrou.
+- Os valores medidos do acerto C (69,3 km/h; 2,21 s; ≈ 11,7 m; 23,05 s): informação do dono do produto, não
+  limites; os limites são os do seed e de `DOMAIN.md`.
+- Texto antigo da lista "Riscos e incógnitas" do seed (pontos 02, 03 e 06 com os valores anteriores): esta
+  etapa não escreve o seed. Proposta ao autor: atualizar essas três linhas para "substituído por `DOMAIN.md`,
+  2026-10-29".
+- As duas entradas de 2026-10-27 de `SCOPE-BACKLOG.md` (V0 quando a linha de base nunca sai de frente;
+  veredito para a saída exatamente a 50 km/h e para a varredura sem saída) e a proposta da rodada 11 sobre
+  V1 abaixo de 1,15 × V0 ficam sem objeto: a varredura do arco de 18 m saiu com `DOMAIN/DEC-15`. Proposta ao
+  autor: fechá-las.
+- A proposta da rodada 6 sobre o ambiente dos ensaios de US-4 (0–60 km/h, velocidade estabilizada, grama,
+  parede) segue sem decisão; o conjunto não fixa ambiente para eles.
+- Os itens recusados das rodadas 1, 3, 5, 6, 7, 8, 9 e 11 que não tratavam do arco de 18 m continuam
+  recusados pelos mesmos motivos (parede sem percentual; recuperação com esterço parcial; janela de
+  estabilização; inversão do esterço; valores anteriores não permanecem como piso).
+
+## 2026-10-30 — rodada 13, Mode A (seed `revision: 5`, giro sem acelerador e alcance da restrição de I2)
+
+**Gatilho**: o seed passou a `revision: 5` com a entrada de 2026-10-30 de `DOMAIN.md`, "Curva sem acelerador e
+onde a retirada do drift acontece" (rótulo novo `DOMAIN/DEC-16`). Ela responde às duas leituras que a rodada
+12 pediu ao dono do produto:
+
+1. Critério 09 de US-0002 (sem acelerador, partindo de 50 km/h com esterço cheio): **respondida**. O raio de
+   no máximo 3 m aos 3 s sai — o acerto C já está a 4 km/h aos 3 s, e um raio medido ali não mede nada — e o
+   critério passa a ser o giro de pelo menos 180° em até 2 s (medido no acerto C: 208°). A leitura da rodada
+   12 ("3 s depois da partida; parada antes reprova por falta de medida") deixa de valer.
+2. Restrição `SEED/RE-01` e critério 09 de US-0003: **respondida**. A restrição passa a dizer que as regras
+   de pilotagem ficam na simulação (`src/physics.ts` e `src/maneuvers.ts`) e que retirar o drift e o turbo
+   da tela (HUD, resultado e texto compartilhado) é só remoção de exibição, permitida. A leitura da rodada 12
+   (a restrição trata de onde moram as regras de pilotagem) passa a ser o texto do seed.
+
+**O que mudou**
+
+- US-0002 (4.1.0): critério 09 reescrito — giro de pelo menos 180° em até 2 s, cada lado; critério 05 (saída
+  do ensaio) passa a reportar, para o critério 09, o giro aos 2 s, o instante em que atingiu 180° e a
+  velocidade aos 2 s; caso anormal novo "Velocidade chega a 0 antes de 2 s" (o giro conta até a parada; abaixo
+  de 180°, reprova) e o de "antes de 3 s" restrito aos critérios 07 e 08; Canais, área do ensaio, pausa,
+  Fontes e Pontos em aberto com o giro; `DOMAIN/DEC-16` nas fontes.
+- US-0003 (4.1.0): o critério 09 cita `SEED/RE-01` e `DOMAIN/DEC-16` (a remoção da exibição é permitida pela
+  restrição); o que ele exige não muda.
+- `02-glossary.md` (4.1.0): termo novo "Giro" (variação acumulada do rumo do kart, em graus, a partir da
+  partida); "Curva de referência" com as duas medidas (raio aos 3 s com acelerador cheio; giro em até 2 s sem
+  acelerador).
+- `01-context.md` (4.1.0): seed `revision: 5`; parágrafo novo "Revisão 5 do seed"; `SEED/RE-01` com o texto da
+  revisão 5; rótulo e linha de aplicação de `DOMAIN/DEC-16`; restrição citada com o texto novo; o giro de 208°
+  entre os valores medidos informativos.
+- NFR-0004 (4.1.0): a lista de ensaios registra o raio nas duas condições com acelerador cheio e o giro em até
+  2 s sem acelerador.
+- NFR-0005 (1.2.0): requisito com o texto novo da restrição (regras de pilotagem em `src/physics.ts` e
+  `src/maneuvers.ts`; retirar o drift e o turbo da tela é remoção de exibição permitida); `DOMAIN/DEC-16` nas
+  fontes.
+- US-0001, US-0004, US-0005, os outros sete NFRs e `98-divergences.md`: sem mudança nesta rodada.
+  `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Tabela de migração** (conventions §17): nenhum item retirado nesta rodada.
+
+| Item | Antes (rodada 12) | Agora |
+|---|---|---|
+| AC-US-0002-09 | raio de no máximo 3 m 3 s depois da partida, sem acelerador | modificado (mesmo item do seed, terceiro critério de US-2): giro de pelo menos 180° em até 2 s |
+| AC-US-0002-05 | saída com raio aos 3 s nas três condições | modificado: raio aos 3 s nos critérios 07 e 08; giro aos 2 s no critério 09 |
+| AC-US-0003-09 | sem indicador de drift ou turbo na tela | só as fontes (`SEED/RE-01`, `DOMAIN/DEC-16`) |
+
+Contagem: critérios 6 + 4 + 8 + 7 + 6, como na rodada 12. O critério 09 de US-0002 ficou com o seu número,
+porque realiza o mesmo critério do seed com a medida que a revisão 5 fixou, como o critério 02 de US-0004
+na rodada 12.
+
+**Superfície**: Mode A sobre um seed movido; o único item novo (o termo "Giro") realiza `SEED/US-2` e
+`DOMAIN/DEC-16`.
+
+**Itens fechados**: as duas leituras da rodada 12 que pediam o dono do produto, ambas respondidas pela
+revisão 5 (acima). Nenhum `ISSUE-<nn>`/`FB-<nn>` pendente; o conjunto da rodada 12 não chegou ao validador.
+Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**
+
+- As propostas da rodada 12 para `SCOPE-BACKLOG.md` sobre as duas leituras ficam sem objeto: a revisão 5 as
+  respondeu.
+- Os demais itens recusados da rodada 12 seguem recusados pelos mesmos motivos (valores de parâmetro do
+  acerto C; identificador `arcade-assistido-v6` como critério; valores medidos como limites), e as propostas
+  ao autor seguem valendo: atualizar as linhas dos pontos 02, 03 e 06 da lista "Riscos e incógnitas" do seed,
+  que continuam com os valores antigos na revisão 5, e fechar as duas entradas de 2026-10-27 de
+  `SCOPE-BACKLOG.md`, sem objeto desde a revisão 4.
+
+## 2026-10-30 — rodada 14, Mode B (relatório `req-validation-20261030-0241.md`, 3 erros e 2 infos)
+
+**O que mudou**
+
+- `ISSUE-01` (error, R3, AC-US-0003-09): o critério foi dividido pelo ponto de observação. O critério 09
+  ficou com a tela (HUD durante a volta e tela de resultado); o texto compartilhado do resultado passou ao
+  critério novo AC-US-0003-11. Sites carregados: Canais e Pré-condições de US-0003 ("critério 11, no texto
+  compartilhado"; "critérios 08 a 11"), a linha de `DOMAIN/DEC-16` na tabela de decisões aplicadas de
+  `01-context.md` e NFR-0005 ("critérios 09 e 11 de US-0003"). Fechada por edição.
+- `ISSUE-02` (error, R4, cláusula do texto compartilhado): o critério 11 proíbe a mesma lista que o critério
+  09 — indicador de carga de drift, de turbo ou de impulso, combo e pontuação de drift —, como pedem
+  `SEED/US-3` e `SEED/RE-01` da revisão 5. Fechada por edição.
+- `ISSUE-03` (error, R4, NFR-0004, "Como é observado"): o método passa a citar os limites em vigor na revisão
+  5 do seed (acerto C, `DOMAIN/DEC-15`, e giro de pelo menos 180° em até 2 s sem acelerador,
+  `DOMAIN/DEC-16`), coerentes com a coluna do limite; o raio de 3 m não aparece mais. Fechada por edição.
+- `ISSUE-04` (info, R3, US-0002, caso anormal "`understeer` reportado durante o ensaio"): o caso diz que os
+  critérios 07 e 08 julgam o raio, o critério 09 julga o giro, e nenhum dos três é reprovado por um passo
+  com `understeer`. Fechada por edição.
+- `ISSUE-05` (info, R4, US-0001 e glossário): a faixa da largura da pista na reta do ensaio de resposta do
+  volante saiu, porque nem o seed nem `DOMAIN/REF-03` a dão. Conforme a orientação do coordenador da rodada
+  (o ensaio de resposta do volante roda na pista de teste aberta, como os de US-2; o bench do acerto C mediu
+  a resposta do volante nesse ambiente), o ensaio roda na pista de teste aberta, com partida em reta e
+  velocidade mantida em 50 km/h; como a pista aberta não tem faixa, o caso "kart sai da faixa" deixa de
+  existir. Sites carregados: Canais, Pré-condições e critério 01 de US-0001; "Pista de teste" e "Regime da
+  taxa de guinada" de `02-glossary.md`; parágrafo "Onde cada ensaio roda" e a linha `DOMAIN/REF-03`,
+  `SEED/RD-06` da tabela de decisões aplicadas de `01-context.md`. Os rótulos `DOMAIN/REF-03` e
+  `DOMAIN/DEC-01` da chave citam `DOMAIN.md` ("em reta") e ficaram como estão. Fechada por edição.
+
+**Versões**: US-0001 3.2.0; US-0002 4.1.1; US-0003 4.2.0; NFR-0004 4.2.0; NFR-0005 1.3.0; `01-context.md` e
+`02-glossary.md` 4.2.0; este changelog 4.2.0; todos `status: draft` até o validador. US-0004, US-0005, os
+outros sete NFRs e `98-divergences.md` não foram tocados. `00-index.md` e `99-traceability.md` regenerados
+pelo gate.
+
+**Tabela de migração** (conventions §17): nenhum item retirado. AC-US-0003-09 modificado (só a tela);
+AC-US-0003-11 novo, vindo da divisão do critério 09 (a cláusula do texto compartilhado, com a lista
+completa). Critérios: 6 + 4 + 8 + 7 + 6 antes e 6 + 4 + 9 + 7 + 6 depois.
+
+**Superfície (conventions §16)**: o critério 11 não acrescenta requisito; é a cláusula do texto
+compartilhado que o critério 09 já carregava, separada por pedido de `ISSUE-01` e completada com a lista que
+`SEED/US-3` e `SEED/RE-01` já exigem (`ISSUE-02`). Nenhuma história, campo, tela ou limiar novo. A mudança de
+ambiente de `ISSUE-05` retira a faixa, que não vinha do seed, e não acrescenta nada.
+
+**Itens fechados**: `ISSUE-01`, `ISSUE-02`, `ISSUE-03`, `ISSUE-04`, `ISSUE-05`. Divergências registradas:
+nenhuma.
+
+**Itens recusados, com motivo**: nenhum desta rodada. Os itens recusados e as propostas ao autor das rodadas
+12 e 13 seguem valendo pelos mesmos motivos.
+
+## 2026-10-30 — rodada 15, Mode B (relatório `req-validation-20261030-1159.md`, 1 erro)
+
+**O que mudou**
+
+- `ISSUE-01` (error, R3, AC-US-0005-05): o critério foi dividido pelo ponto de observação, como o critério
+  09 de US-0003 na rodada 14. O critério 05 ficou com a tela (onde a tela compara tempos, só compara tempos de
+  versão igual); o texto compartilhado do resultado passou ao critério novo AC-US-0005-07, com a mesma
+  exigência. Sites que citam o critério 05 carregados: caso anormal "Replay da versão anterior reproduzido
+  com o novo acerto" ("critérios 05 e 07"), caso anormal "Rodada de acerto reprovada pelo dono do produto em
+  staging" ("critérios 01 a 07") e a coluna "Como é observado" de NFR-0009 ("critérios 04, 05 e 07 de
+  US-0005"). Fechada por edição.
+
+**Versões**: US-0005 3.2.0; NFR-0009 1.0.1; este changelog 4.3.0; os três `status: draft` até o validador.
+Nenhum outro arquivo foi tocado. `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Tabela de migração** (conventions §17): nenhum item retirado. AC-US-0005-05 modificado (só a tela);
+AC-US-0005-07 novo, vindo da divisão do critério 05 (a cláusula do texto compartilhado). Critérios: 6 + 4 +
+9 + 7 + 6 antes e 6 + 4 + 9 + 7 + 7 depois.
+
+**Superfície (conventions §16)**: o critério 07 não acrescenta requisito; é a cláusula do texto
+compartilhado que o critério 05 já carregava, separada por pedido de `ISSUE-01`. Nenhuma história, campo,
+tela ou limiar novo.
+
+**Itens fechados**: `ISSUE-01`. Divergências registradas: nenhuma.
+
+**Itens recusados, com motivo**: nenhum desta rodada. Os itens recusados e as propostas ao autor das rodadas
+12 a 14 seguem valendo pelos mesmos motivos.

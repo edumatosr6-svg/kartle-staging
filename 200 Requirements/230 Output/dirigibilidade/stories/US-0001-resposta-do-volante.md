@@ -4,8 +4,8 @@ title: Resposta imediata do volante
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.0.0
-sources: [SEED/US-1, SEED/RD-05, SEED/RD-06, SEED/NF-03, SEED/IM-I9, DOMAIN/REF-01, DOMAIN/REF-02, DOMAIN/REF-03, DOMAIN/DEC-01, DOMAIN/DEC-09]
+version: 3.2.0
+sources: [SEED/US-1, SEED/RD-05, SEED/RD-06, SEED/NF-03, SEED/IM-I9, DOMAIN/REF-01, DOMAIN/REF-02, DOMAIN/REF-03, DOMAIN/DEC-01, DOMAIN/DEC-09, DOMAIN/DEC-15]
 ---
 
 # US-0001 — Resposta imediata do volante
@@ -17,8 +17,8 @@ Como Jogador, quero que o kart responda ao volante de imediato, para apontar par
 ## Canais
 
 - `web-desktop` e `web-mobile`: mesmos limites de resposta (180 ms para subir a 90 % do regime; 250 ms
-  para cair a 10 %), medidos no estado da simulação a partir do `Input` recebido, no ensaio em reta da
-  pista de teste com a velocidade mantida em 50 km/h. Nenhuma diferença de limite entre os canais.
+  para cair a 10 %), medidos no estado da simulação a partir do `Input` recebido, no ensaio em reta na
+  pista de teste aberta com a velocidade mantida em 50 km/h. Nenhuma diferença de limite entre os canais.
 - `web-desktop`: o esterço é binário (0, 1 ou −1); os critérios 01 e 02 descrevem exatamente a entrada
   de direção que o teclado produz.
 - `web-mobile`: o esterço é proporcional; os critérios 01 e 02 valem para a inclinação mantida no ângulo
@@ -31,15 +31,16 @@ Como Jogador, quero que o kart responda ao volante de imediato, para apontar par
 
 ## Pré-condições
 
-- Acerto Arcade assistido selecionado, na sua nova versão (acerto agressivo, `DOMAIN/REF-02`).
-- Ambiente de ensaio: reta da pista de teste (faixa de asfalto da largura da pista, sem paredes), fora da
-  pista sintética (`SEED/RD-06`, `DOMAIN/REF-03`).
+- Acerto Arcade assistido selecionado, na sua nova versão (acerto C, `DOMAIN/DEC-15`).
+- Ambiente de ensaio: pista de teste aberta — asfalto sem faixa e sem paredes —, fora da pista sintética;
+  o kart parte em reta e, com o esterço aplicado, segue a curva que a resposta produz sem sair do asfalto
+  (`SEED/RD-06`, `DOMAIN/REF-03`).
 - O kart está em reta, no asfalto, a 50 km/h, com esterço 0 e estado de aderência `grip`, e a velocidade é
   mantida em 50 km/h pelo acelerador durante todo o ensaio (`DOMAIN/REF-03`).
 
 ## Critérios de aceite
 
-- AC-US-0001-01: No estado da simulação, com o kart em reta da pista de teste a 50 km/h mantidos pelo
+- AC-US-0001-01: No estado da simulação, com o kart em reta na pista de teste aberta a 50 km/h mantidos pelo
   acelerador e esterço levado de 0 a 1, ou de 0 a −1 (curva para o outro lado), num passo, a taxa de
   guinada atinge 90 % do seu regime em módulo em no máximo 180 ms de tempo simulado contados desse passo;
   o regime é o valor estabilizado da taxa de guinada com o esterço mantido e a velocidade mantida em
@@ -59,8 +60,8 @@ Como Jogador, quero que o kart responda ao volante de imediato, para apontar par
 - AC-US-0001-05: Nos ensaios dos critérios 01 a 04, o veredito registrado na saída do ensaio depende
   apenas do tempo medido da taxa de guinada (subida a 90 % e queda a 10 % do regime): um passo em que a
   telemetria reporta `understeer` durante o ensaio não falha o ensaio nem altera o tempo medido. A
-  aderência em curva não é julgada neste ensaio, e sim só pelo ensaio de 50 km/h no arco de raio 18 m da
-  pista de teste de US-0002 (`DOMAIN/DEC-09`).
+  aderência em curva não é julgada neste ensaio, e sim só pelos ensaios de raio da trajetória na pista de
+  teste aberta de US-0002 (`DOMAIN/DEC-09`, `DOMAIN/DEC-15`).
 - AC-US-0001-06: A saída de `npm test` ou de `npm run bench:handling` contém, para o acerto Arcade
   assistido, o ensaio dos critérios 01 e 02 com o tempo medido em ms até 90 % e até 10 % do regime, o
   regime em rad/s, a velocidade mínima e máxima em km/h observadas durante o ensaio (prova de que a
@@ -96,13 +97,16 @@ Como Jogador, quero que o kart responda ao volante de imediato, para apontar par
 - `SEED/RD-05`, `DOMAIN/REF-01` — direção direta e rápida como sensação alvo.
 - `SEED/RD-06`, `DOMAIN/REF-03` — o ensaio roda em ambiente de ensaio próprio (pista de teste), com a
   velocidade mantida pelo acelerador e regime estacionário; não na pista sintética.
-- `DOMAIN/REF-02` — acerto agressivo da revisão 2: o dono do produto relatou que o kart "não vira".
+- `DOMAIN/REF-02` — acerto agressivo da revisão 2: origem dos valores 180 ms e 250 ms, que continuam em
+  vigor.
+- `DOMAIN/DEC-15` — acerto C (2026-10-29): mantém o ponto aberto 01; a aderência em curva passa a ser
+  julgada pelo raio na pista de teste aberta (US-0002), não mais no arco de 18 m.
 - `SEED/NF-03` — teclado e inclinação atendem ambos.
 - `SEED/IM-I9` — ensaio determinístico.
 - `DOMAIN/DEC-01` — 180 ms e 250 ms (em vigor; substituem 250 ms e 300 ms).
 - `DOMAIN/DEC-09` — o ensaio de resposta do volante mede só a guinada; `understeer` transitório nesse
-  ensaio é aceitável; a aderência em curva é julgada só pelo ensaio de US-0002.
+  ensaio é aceitável; a aderência em curva é julgada só pelos ensaios de US-0002.
 
 ## Pontos em aberto
 
-Nenhum — `DOMAIN/DEC-01` fecha o ponto aberto 01 do seed.
+Nenhum — `DOMAIN/DEC-01` fecha o ponto aberto 01 do seed, mantido por `DOMAIN/DEC-15`.

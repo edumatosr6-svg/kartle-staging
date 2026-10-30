@@ -1,8 +1,8 @@
 ---
 stage: req
 feature: dirigibilidade
-generated: 2026-10-27T17:13:48Z
-rows: 78
+generated: 2026-10-30T12:03:51Z
+rows: 77
 ---
 
 # Traceability
@@ -14,83 +14,82 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | Upstream | This stage | Verifiable by | File |
 |---|---|---|---|
 | DOMAIN/DEC-01 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| DOMAIN/DEC-02 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/DEC-02 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
-| DOMAIN/DEC-02 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
-| DOMAIN/DEC-03 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/DEC-04 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| DOMAIN/DEC-04 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | DOMAIN/DEC-05 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
-| DOMAIN/DEC-06 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
-| DOMAIN/DEC-07 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| DOMAIN/DEC-07 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | DOMAIN/DEC-09 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| DOMAIN/DEC-11 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/DEC-12 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/DEC-13 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/DEC-14 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-09 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-10 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| DOMAIN/DEC-15 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
+| DOMAIN/DEC-15 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
+| DOMAIN/DEC-15 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-15 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| DOMAIN/DEC-15 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
+| DOMAIN/DEC-15 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| DOMAIN/DEC-16 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
+| DOMAIN/DEC-16 | NFR-0005 | - | `nfr/NFR-0005-mudanca-na-camada-de-simulacao.md` |
+| DOMAIN/DEC-16 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/DEC-16 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | DOMAIN/REF-01 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| DOMAIN/REF-01 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/REF-01 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| DOMAIN/REF-01 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/REF-01 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | DOMAIN/REF-01 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
 | DOMAIN/REF-02 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
 | DOMAIN/REF-02 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| DOMAIN/REF-02 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/REF-02 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | DOMAIN/REF-02 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
-| DOMAIN/REF-02 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| DOMAIN/REF-02 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | DOMAIN/REF-03 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
 | DOMAIN/REF-03 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| DOMAIN/REF-03 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/REF-03 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
-| DOMAIN/REF-03 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
-| DOMAIN/REF-04 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| DOMAIN/REF-05 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
+| DOMAIN/REF-03 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/IM-I2 | NFR-0003 | - | `nfr/NFR-0003-paridade-teclado-e-inclinacao.md` |
 | SEED/IM-I2 | NFR-0005 | - | `nfr/NFR-0005-mudanca-na-camada-de-simulacao.md` |
 | SEED/IM-I3I5 | NFR-0009 | - | `nfr/NFR-0009-acerto-versionado.md` |
-| SEED/IM-I3I5 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/IM-I3I5 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/IM-I8 | NFR-0001 | - | `nfr/NFR-0001-determinismo-preservado.md` |
 | SEED/IM-I8 | NFR-0006 | - | `nfr/NFR-0006-contrato-de-passo-preservado.md` |
-| SEED/IM-I8 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/IM-I8 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/IM-I9 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
 | SEED/IM-I9 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| SEED/IM-I9 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| SEED/IM-I9 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| SEED/IM-I9 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| SEED/IM-I9 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | SEED/IM-I9 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
-| SEED/IM-I9 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/IM-I9 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/NF-01 | NFR-0001 | - | `nfr/NFR-0001-determinismo-preservado.md` |
-| SEED/NF-01 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/NF-01 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/NF-02 | NFR-0002 | - | `nfr/NFR-0002-custo-por-passo.md` |
 | SEED/NF-03 | NFR-0003 | - | `nfr/NFR-0003-paridade-teclado-e-inclinacao.md` |
 | SEED/NF-03 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| SEED/NF-03 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| SEED/NF-03 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| SEED/NF-03 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| SEED/NF-03 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | SEED/NF-03 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
 | SEED/NF-04 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
-| SEED/RD-01 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| SEED/RD-01 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| SEED/RD-01 | NFR-0005 | - | `nfr/NFR-0005-mudanca-na-camada-de-simulacao.md` |
+| SEED/RD-01 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| SEED/RD-01 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | SEED/RD-02 | NFR-0007 | - | `nfr/NFR-0007-preset-realista-inalterado.md` |
 | SEED/RD-03 | NFR-0006 | - | `nfr/NFR-0006-contrato-de-passo-preservado.md` |
-| SEED/RD-03 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/RD-03 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/RD-04 | NFR-0009 | - | `nfr/NFR-0009-acerto-versionado.md` |
-| SEED/RD-04 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/RD-04 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/RD-05 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| SEED/RD-05 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| SEED/RD-05 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| SEED/RD-05 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| SEED/RD-05 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | SEED/RD-05 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
 | SEED/RD-06 | NFR-0004 | - | `nfr/NFR-0004-documentacao-dos-ensaios.md` |
 | SEED/RD-06 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| SEED/RD-06 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| SEED/RD-06 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
-| SEED/RD-06 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/RD-06 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| SEED/RD-06 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| SEED/RD-06 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 | SEED/RE-01 | NFR-0005 | - | `nfr/NFR-0005-mudanca-na-camada-de-simulacao.md` |
+| SEED/RE-01 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | SEED/RE-02 | NFR-0006 | - | `nfr/NFR-0006-contrato-de-passo-preservado.md` |
 | SEED/RE-03 | NFR-0007 | - | `nfr/NFR-0007-preset-realista-inalterado.md` |
 | SEED/RE-04 | NFR-0008 | - | `nfr/NFR-0008-validacao-de-volta-inalterada.md` |
 | SEED/US-1 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06 | `stories/US-0001-resposta-do-volante.md` |
-| SEED/US-2 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06 | `stories/US-0002-aderencia-em-curva.md` |
-| SEED/US-3 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
+| SEED/US-2 | US-0002 | AC-US-0002-07, AC-US-0002-08, AC-US-0002-09, AC-US-0002-05 | `stories/US-0002-aderencia-em-curva.md` |
+| SEED/US-3 | US-0003 | AC-US-0003-01, AC-US-0003-05, AC-US-0003-03, AC-US-0003-04, AC-US-0003-08, AC-US-0003-09, AC-US-0003-11, AC-US-0003-10, AC-US-0003-07 | `stories/US-0003-traseira-viva-e-controlavel.md` |
 | SEED/US-4 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06, AC-US-0004-07 | `stories/US-0004-sensacao-de-velocidade-e-risco.md` |
-| SEED/US-5 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
+| SEED/US-5 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-07, AC-US-0005-06 | `stories/US-0005-jogo-continua-justo.md` |
 
 ## Items with no upstream source
 

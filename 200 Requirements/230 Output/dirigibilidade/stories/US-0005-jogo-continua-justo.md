@@ -4,8 +4,8 @@ title: Jogo continua justo com o novo acerto
 feature: dirigibilidade
 stage: req
 status: validated
-version: 3.0.0
-sources: [SEED/US-5, SEED/RD-03, SEED/RD-04, SEED/RD-06, SEED/NF-01, SEED/IM-I3I5, SEED/IM-I8, SEED/IM-I9, DOMAIN/REF-02, DOMAIN/REF-03, DOMAIN/DEC-07]
+version: 3.2.0
+sources: [SEED/US-5, SEED/RD-03, SEED/RD-04, SEED/RD-06, SEED/NF-01, SEED/IM-I3I5, SEED/IM-I8, SEED/IM-I9, DOMAIN/REF-02, DOMAIN/REF-03, DOMAIN/DEC-07, DOMAIN/DEC-10, DOMAIN/DEC-15]
 ---
 
 # US-0005 — Jogo continua justo com o novo acerto
@@ -21,16 +21,15 @@ que o de qualquer outro jogador com as mesmas entradas.
   resultado de uma volta é função só da sequência de `Input` por passo, seja ela produzida por teclado,
   inclinação ou toque. Nenhuma diferença entre os canais.
 - Piloto de teste (`npm run bench:handling`): sem canal de jogo; é a régua dos critérios 02 e 03. A
-  volta do piloto de teste é o único ensaio desta feature que roda na pista sintética (raios mínimos de
-  curva 24 m e 25 m, grampo de 4 m); os ensaios de US-0001 a US-0003 rodam na pista de teste
-  (`SEED/RD-06`, `DOMAIN/REF-03`).
+  volta do piloto de teste é a única que roda na pista sintética (raios mínimos de curva 24 m e 25 m,
+  grampo de 4 m), e a mesma volta serve à condução normal de US-0003; os ensaios de resposta do volante,
+  de raio em curva e de recuperação da traseira rodam na pista de teste (`SEED/RD-06`, `DOMAIN/REF-03`).
 - `web-mobile` com sensor ausente ou permissão negada: controle por toque com estado visível (I4); a
   sequência de `Input` resultante segue a mesma regra de determinismo.
 
 ## Pré-condições
 
-- Acerto Arcade assistido na sua nova versão (acerto agressivo, `DOMAIN/REF-02`), declarada no dado
-  publicado.
+- Acerto Arcade assistido na sua nova versão (acerto C, `DOMAIN/DEC-15`), declarada no dado publicado.
 - Uma sequência de `Input` por passo registrada (replay) para a pista sintética.
 
 ## Critérios de aceite
@@ -46,16 +45,20 @@ que o de qualquer outro jogador com as mesmas entradas.
 - AC-US-0005-04: O dado publicado (`trackVersion` ou versão própria de acerto) declara uma versão de
   acerto diferente da anterior à feature; dois replays gravados com versões diferentes carregam versões
   diferentes e são distinguíveis pela leitura desse campo (`SEED/IM-I3I5`, I3).
-- AC-US-0005-05: Nenhum tempo, replay ou resultado gravado com a versão de acerto anterior é apresentado
-  na tela ou no texto compartilhado como comparável a um tempo da nova versão: onde o jogo compara tempos,
-  só compara tempos de versão igual (`SEED/US-5`, terceiro critério).
+- AC-US-0005-05: Na tela, em `web-desktop` e em `web-mobile`, nenhum tempo, replay ou resultado gravado
+  com a versão de acerto anterior é apresentado como comparável a um tempo da nova versão: onde a tela
+  compara tempos, só compara tempos de versão igual (`SEED/US-5`, terceiro critério).
+- AC-US-0005-07: No texto compartilhado do resultado, gerado em `web-desktop` ou em `web-mobile`, nenhum
+  tempo, replay ou resultado gravado com a versão de acerto anterior é apresentado como comparável a um
+  tempo da nova versão: onde o texto compara tempos, só compara tempos de versão igual (`SEED/US-5`,
+  terceiro critério).
 - AC-US-0005-06: A saída de `npm test` mostra que o passo `STEP`, a taxa do solver (480 Hz) e o conjunto
   de campos e faixas de `Input` são os mesmos antes e depois da feature (`SEED/RD-03`, `SEED/IM-I8`).
 
 ## Casos anormais
 
 - **Replay da versão anterior reproduzido com o novo acerto**: o tempo obtido não é o tempo gravado; o
-  replay não é comparável (critério 05) e nenhum resultado é apresentado como equivalente ao original.
+  replay não é comparável (critérios 05 e 07) e nenhum resultado é apresentado como equivalente ao original.
 - **Piloto de teste sai do asfalto com o novo acerto**: critério 02 falha; o bench reporta o passo e a
   posição da saída; a feature não é entregue com esse resultado.
 - **Tempo do piloto de teste acima de 25 s**: critério 03 falha; o bench reporta o tempo; nenhum
@@ -66,7 +69,7 @@ que o de qualquer outro jogador com as mesmas entradas.
   com ou sem suspensão; o tempo é de tempo simulado (I8).
 - **Sensor ausente ou permissão negada antes da volta (`web-mobile`)**: controle por toque com estado
   visível (I4); regra de determinismo inalterada.
-- **Rodada de acerto reprovada pelo dono do produto em staging** (`DOMAIN/DEC-10`): os critérios 01 a 06
+- **Rodada de acerto reprovada pelo dono do produto em staging** (`DOMAIN/DEC-10`): os critérios 01 a 07
   continuam valendo sem mudança para a rodada seguinte; cada nova rodada de presets é nova versão de
   acerto (critério 04) e passa de novo por este conjunto de ensaios.
 
@@ -78,11 +81,14 @@ que o de qualquer outro jogador com as mesmas entradas.
 - `SEED/RD-06`, `DOMAIN/REF-03` — só o ensaio de volta do piloto de teste usa a pista sintética.
 - `SEED/NF-01` — determinismo (RNF07).
 - `SEED/IM-I9` — ensaio determinístico.
-- `DOMAIN/REF-02` — acerto agressivo da revisão 2.
-- `DOMAIN/DEC-07` — 25 s, sem sair do asfalto (em vigor; substitui 27 s).
+- `DOMAIN/REF-02` — acerto agressivo da revisão 2: origem do valor 25 s, que continua em vigor.
+- `DOMAIN/DEC-07` — 25 s, sem sair do asfalto (em vigor; substitui 27 s; mantido por `DOMAIN/DEC-15`). O
+  tempo 23,05 s que a decisão registra para o acerto C é medida informativa, não limite.
+- `DOMAIN/DEC-10` — cada rodada de presets em staging é nova versão de acerto.
+- `DOMAIN/DEC-15` — o acerto C é a nova versão do Arcade assistido que esta feature declara.
 
 ## Pontos em aberto
 
-Nenhum — `DOMAIN/DEC-07` fecha o ponto aberto 07 do seed. O ponto aberto 08 (rodada de teste do dono do
-produto, ciclo em staging) é critério final humano registrado em `01-context.md` e não bloqueia esta etapa
-(`DOMAIN/DEC-08`, `DOMAIN/DEC-10`).
+Nenhum — `DOMAIN/DEC-07` fecha o ponto aberto 07 do seed, mantido por `DOMAIN/DEC-15`. O ponto aberto 08
+(rodada de teste do dono do produto, ciclo em staging) é critério final humano registrado em
+`01-context.md` e não bloqueia esta etapa (`DOMAIN/DEC-08`, `DOMAIN/DEC-10`).
