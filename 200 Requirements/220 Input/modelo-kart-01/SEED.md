@@ -1,7 +1,7 @@
 ---
 name: modelo-kart-01
 description: Troca o kart provisório da cena pelo modelo Kart 01 (low-poly, escala real, peças nomeadas, piloto) e a câmera de perseguição alta pela câmera de jogo da ficha, atrás e perto do piloto. Ler antes de qualquer mudança no modelo do kart, no piloto, na câmera de corrida ou nos efeitos presos ao kart.
-revision: 2
+revision: 3
 date: 2026-10-29
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
@@ -53,7 +53,6 @@ modelo, e a ficha é a referência para conferir o resultado.
   - Em corrida, a câmera fica 1,38 m acima do chão e 3,05 m atrás do kart, mirando um ponto 3,2 m à
     frente e 0,30 m acima do chão, com campo de visão vertical de 62°.
   - A câmera acompanha o rumo do kart sem cortes. Uma curva de 90° a 50 km/h não faz o kart sair do quadro.
-  - O efeito de campo de visão que já existe para o turbo continua funcionando a partir dessa base.
 - **US-4** Como Jogador, quero que o kart novo não deixe o jogo mais lento.
   - Com o Kart 01 em cena, a taxa de quadros continua dentro de RNF03: 60 fps em notebook e 30 fps em
     celular intermediário.
