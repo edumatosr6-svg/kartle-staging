@@ -3,8 +3,8 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores
 feature: race-lap-validation
 stage: deploy
-status: draft
-version: 1.1.1
+status: validated
+version: 1.2.0
 sources: [DES-0011, NFR-0004, NFR-0005]
 ---
 
@@ -16,8 +16,8 @@ A página não lê variável de ambiente, chave, credencial nem arquivo de confi
 
 | Evidência | Resultado |
 |---|---|
-| `import.meta.env` ou `process.env` em `src/` e `index.html` | 0 ocorrências |
-| `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `localStorage`, `sessionStorage`, `indexedDB` nos módulos da feature e em `src/main.ts` | 0 ocorrências, garantido por `CHK-TEST-0013-03` (NFR-0004, NFR-0005) |
+| `import.meta.env` ou `process.env` em `src/` e `index.html` | 0 ocorrências (reconferido em `6b314b2`, o commit publicado em staging nesta rodada, com `git grep`) |
+| `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `localStorage`, `sessionStorage`, `indexedDB` nos módulos da feature e em `src/main.ts` | 0 ocorrências em `6b314b2`, garantido por `CHK-TEST-0013-03` (NFR-0004, NFR-0005); a sessão de treino de voltas seguidas (ADR-0006) também vive só em memória (`REL-0002`) |
 | Projeto validado | DES-0011: "a feature não lê variável de ambiente, chave nem credencial" |
 | Diretivas do estágio | "Configuração e secrets: none in the MVP client" |
 
@@ -40,6 +40,8 @@ nenhuma credencial é criada, guardada ou copiada (I6, D-DP-05). Os remotos loca
 públicos (Pages a US$ 0, RNF12); um remoto é um endereço, não um segredo. A versão do Node vem de `.nvmrc` (`24`) na raiz do
 repositório, lida por `node-version-file`; o build medido usou Node v24.20.0. Domínio próprio: fora desta release; a URL
 é a do `github.io`.
+
+As ferramentas do registro (`tools/measure_dist.py`, chamada pelo workflow; `tools/check_served.py`, chamada por quem valida) não leem variável nem credencial: a segunda faz três GET públicos em HTTPS e recusa `http://`.
 
 Nada desta tabela é lido pela página publicada: o bundle difere entre staging e produção apenas na base dos caminhos
 (`/kartle-staging/` contra `/kartle/`), que o workflow deriva do nome do repositório.

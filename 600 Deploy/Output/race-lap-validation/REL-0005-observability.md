@@ -3,9 +3,9 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: race-lap-validation
 stage: deploy
-status: draft
-version: 1.1.4
-sources: [DES-0009, DES-0011, NFR-0003, NFR-0004, NFR-0005, CHK-TEST-0013-03]
+status: validated
+version: 1.2.0
+sources: [DES-0008, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, NFR-0005, CHK-TEST-0013-03]
 ---
 
 # REL-0005 — Observabilidade
@@ -14,7 +14,8 @@ sources: [DES-0009, DES-0011, NFR-0003, NFR-0004, NFR-0005, CHK-TEST-0013-03]
 
 **Nada que saia do navegador.** A feature não envia telemetria, não chama rede e não grava no navegador (DES-0011;
 `CHK-TEST-0013-03`; NFR-0004, NFR-0005). O que existe de observável no cliente é a própria tela — `#track-status`,
-`#lap-state`, `#lap-result` — e o console do navegador, onde um erro de módulo apareceria. Quando algo for registrado
+`#lap-state`, `#lap-result` e, no treino de voltas seguidas, `#lap-training-result`, `#lap-best-valid`, `#pause` e
+`#lap-end-training` — e o console do navegador, onde um erro de módulo apareceria. Quando algo for registrado
 (pós-MVP), só identificadores: `trackId`, `trackVersion`, `schemaVersion`, identificadores de verificação; nunca dado de
 jogador (I6, DES-0011 *Comportamento em falha*).
 
@@ -23,19 +24,19 @@ jogador (I6, DES-0011 *Comportamento em falha*).
 | Requisito | Métrica | Onde se obtém | Limiar que indica falha |
 |---|---|---|---|
 | RNF01 carregamento | tempo da navegação até o kart responder a uma entrada, cache vazio, 4G | medida manual (`smoke.md` D2/M2); futuramente o relatório de performance do navegador | 10 s ou mais |
-| RNF02 tamanho | bytes transferidos na primeira visita; bytes de `dist/` no build | `measure_dist.py` no build (hoje 593 256 bytes); painel de rede no smoke | 3 145 728 bytes ou mais |
+| RNF02 tamanho | bytes transferidos na primeira visita; bytes de `dist/` no build | `measure_dist.py` no build (artefato servido em staging nesta rodada: 711 477 bytes); painel de rede no smoke | 3 145 728 bytes ou mais |
 | NFR-0003 / RNF03 quadros | fps médio e mínimo numa volta completa | `docs/lap-validation-device-log.md` (E2E-10) | abaixo de 60 em notebook ou de 30 em celular |
 | NFR-0004 sem servidor | requisições de rede entre o início da contagem e o resultado | painel de rede no smoke (E2E-08) | 1 ou mais |
 | RNF06 HTTPS | certificado válido; 0 recursos em HTTP | navegador (cadeado) e painel de rede | qualquer recurso inseguro ou aviso de certificado |
 | Disponibilidade da página | código de resposta do `index.html` e dos *assets* em `https://edumatosr6-svg.github.io/kartle/` | **verificação manual em HTTPS** (`runbook.md`, *Verify* 1 e 7), por decisão do dono do produto de 2026-10-21 (`DOMAIN.md`, *Monitoramento*): o GitHub Pages **não fornece registros de acesso nem monitor de disponibilidade** e nenhum monitor externo entra nesta release (RNF12) | qualquer resposta diferente de 200 sobre `index.html` ou sobre um *asset* em vigor |
-| Integridade do deploy | o `index.html` servido aponta para o `/kartle/assets/index-<hash>.js` do build aprovado | comparação do HTML servido com o `<hash>` impresso no passo *Build* da execução aprovada (`runbook.md` passo 10) | hash divergente |
+| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado e o JS servido carrega os elementos e as 24 mensagens desta release | `tools/check_served.py <URL> index-<hash>.js` (só leitura; `runbook.md` passos 7 e 10): em staging, 2026-10-30, `checks=53 failed=0` com `index-BwruE9Pq.js` | hash divergente ou qualquer `FAIL` |
 | RNF02 no pipeline | bytes de `dist/` a cada execução | passo *Measure dist* do workflow (`measure_dist.py`, saída 1 acima do limite — a execução falha antes de publicar) | 3 145 728 bytes ou mais |
 
 ## O registro de implantações — o histórico do Actions
 
 O **histórico de execuções do workflow `pages`** (`https://github.com/edumatosr6-svg/kartle/actions`; para staging,
 `https://github.com/edumatosr6-svg/kartle-staging/actions`) é o registro de deploy desta release:
-cada execução guarda o commit, o resultado de `npm test` (170 aprovados), o log do build com os nomes dos *assets*, a
+cada execução guarda o commit, o resultado de `npm test` (443 aprovados em `6b314b2`), o log do build com os nomes dos *assets*, a
 medida de RNF02, e — no trabalho `deploy` — **quem aprovou e quando** (revisor obrigatório, D-DP-06) e a URL publicada.
 Settings → Pages mostra a implantação em vigor. Retenção: 90 dias por padrão; a execução verde anterior é o alvo do
 caminho B de reversão enquanto estiver retida (`runbook.md`). Nenhum dado de jogador entra nesse registro: ele só
@@ -51,8 +52,15 @@ contém o que o repositório e o workflow produzem (I6).
 | `kartle-staging` | 39629837192 | `c1e488b` | concluído | falhado, zero passos; **reexecutada após a correção: concluído** | primeira execução verde; `https://edumatosr6-svg.github.io/kartle-staging/` responde 200 em HTTPS |
 | `kartle-staging` | 39631099098 | `2bee672` (push só de registro, ramo `staging`, 16:02:11Z; **tentativa 2** por *Re-run all jobs* na republicação após o ensaio de R1/R2) | concluído | concluído | 200 em 16:31:13Z com o mesmo `index-Cqfgl3da.js` (a árvore de `2bee672` é a de `c41c6c3`); prova de que R1/R2 são reversíveis (`runbook.md`) |
 
-Os pushes só de registro que se seguiram (`2bee672`) criaram execuções mais novas nos dois repositórios, não copiadas
-aqui: **a execução em vigor é lida na aba Actions** de cada repositório, e é a que o relatório de validação cita.
+**Entradas desta rodada** (2026-10-30, seed rev 3; números do condutor do loop, confirmados pelo validador na aba Actions):
+
+| Repositório | Execução | Commit | `build` | `deploy` | Leitura |
+|---|---|---|---|---|---|
+| `kartle-staging` | 41076989728 | `652bbaa` | concluído | concluído | a execução verde anterior: primeira release desta feature (treino de uma volta); **alvo do caminho B** em staging (`runbook.md`, R1) |
+| `kartle-staging` | 41101055606 | `6b314b2` | concluído | concluído | a execução em vigor: serve `index-BwruE9Pq.js` (`Last-Modified` 2026-10-30 17:48:06 GMT); `check_served.py` 53/53 |
+
+As execuções entre as de 2026-10-21 e estas (releases `dirigibilidade`, `modelo-kart-01`, `pista-kart-park`) estão nos
+registros daquelas features. As execuções seguintes, não copiadas aqui: **a execução em vigor é lida na aba Actions** de cada repositório, e é a que o relatório de validação cita.
 
 ## Qual alerta soaria
 
@@ -71,8 +79,11 @@ dado pessoal (RNF10, I6).
 
 | Modo de falha | Sintoma observável | Diagnóstico |
 |---|---|---|
-| arquivo de pista empacotado lido como `INCOMPLETE`, `UNREADABLE` ou `UNSUPPORTED_SCHEMA` | `#track-status` mostra o texto de erro em vez de `synthetic`, ou `#lap-offer` fica sem o botão "volta de treino" (a oferta oficial não existe nesta release em nenhum caso, DES-0009) | defeito de build ou de dado (`FAIL CODE`); `CHK-TEST-0009-*` deveria ter falhado em `npm test` |
+| arquivo de pista empacotado lido como `INCOMPLETE`, `UNREADABLE` ou `UNSUPPORTED_SCHEMA` | `#track-status` mostra o texto de erro em vez da pista aberta (`kart-park` ou `synthetic`), ou `#lap-offer` fica sem o botão "treino" (a oferta oficial não existe nesta release em nenhum caso, DES-0009) | defeito de build ou de dado (`FAIL CODE`); `CHK-TEST-0009-*` deveria ter falhado em `npm test` |
 | *assets* em 404 em `https://edumatosr6-svg.github.io/kartle/` | console com erro de módulo; tela em branco | bundle construído sem `--base=/kartle/` ou janela de cache de 10 min após uma implantação (`REL-0003`, riscos) — empacotamento (`FAIL` deste estágio) |
 | trabalho `deploy` **falhado com zero passos executados** (o `build` concluiu; nenhum passo do `deploy` aparece no log) | na execução do Actions, `deploy` em vermelho sem nenhum passo listado; nenhuma URL publicada; o site não muda | o ambiente `github-pages` recusou o ramo na preparação do trabalho: *Deployment branches and tags* do ambiente restrito ao ramo padrão (o GitHub cria o ambiente assim ao ativar o Pages: `custom_branch_policies: true, protected_branches: false`). **Observado em 2026-10-21** em `kartle-staging`, execuções 39627817908 e 39629837192 (ramo `staging`). Remédio: Settings → Environments → `github-pages` → *Deployment branches and tags* = **No restriction** (ou acrescentar o ramo que implanta) e *Re-run all jobs* — a reexecução de 39629837192 publicou. Classificação: configuração do repositório (`FAIL` deste estágio), nunca defeito da aplicação. Em produção, onde a restrição a `master` é desejada, o mesmo sintoma num push de `master` indicaria a política alterada por engano. **Reaparece depois de uma despublicação**: reativar o Pages (`POST /pages`) recria o ambiente com a política padrão — observado no ensaio de R1/R2 de 2026-10-21; em staging a liberação tem de ser refeita antes do *Re-run all jobs* |
+| painel do treino não aparece numa chegada, o kart para na chegada ou a contagem volta numa volta seguinte (ADR-0006) | `#lap-training-result` oculto depois de cruzar a chegada; `#lap-countdown` visível depois do primeiro VERDE; `#speed` cai a 0 sem frenagem | defeito de aplicação (`src/lap.ts`, `src/main.ts`; `FAIL CODE`); TEST-0015 deveria ter falhado em `npm test` |
+| "encerrar treino" ausente durante o treino, ou presente fora dele | `#lap-end-training` com `hidden` em corrida ou em pausa, ou visível na oferta | defeito de aplicação (AC-US-0010-16; `FAIL CODE`); `check_served.py` só prova o botão no HTML, não a visibilidade |
+| melhor volta válida errada ou herdada de outro treino | `#lap-best-valid` com um tempo de volta inválida, ou visível antes da primeira volta válida de um treino novo | defeito de aplicação (AC-US-0010-12, -13; `FAIL CODE`) |
 | cronômetro parado com a volta em `RUNNING` | `#lap-state` sem avanço de tempo por quadro | defeito de aplicação (`src/frameClock.ts`, DES-0007) |
 | pausa não acontece ao perder o foco ou o sensor | E2E-04 / E2E-05 falham | defeito de aplicação (ADR-0005) |

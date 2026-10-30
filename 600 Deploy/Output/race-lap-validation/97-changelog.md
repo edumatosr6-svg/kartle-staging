@@ -2,8 +2,8 @@
 title: Registro de mudanças — validação de volta de corrida (estágio de deploy)
 feature: race-lap-validation
 stage: deploy
-status: draft
-version: 1.1.6
+status: validated
+version: 1.2.0
 sources: []
 ---
 
@@ -524,3 +524,62 @@ política do ambiente, execução 2 do log) e `f16d65a` (ensaio de reversão R4,
 
 - Nenhum comando `git`, `npm`, `gh` ou chamada a host remoto executado por esta rodada; nenhum valor de segredo
   escrito; `docs/lap-validation-device-log.md`, `DOMAIN.md` e `SCOPE-BACKLOG.md` não editados (§14).
+
+## 2026-10-30 — rodada 10, Modo B (registro atualizado para o build validado do seed rev 3; staging 41101055606)
+
+Atualização do registro da primeira release para o build que staging serve agora. A superfície nova (linhas de fumaça
+D15, D16, M13, M14; o roteiro da execução 3; a seção de produção; DIV-DP-15; `tools/check_served.py`) é a que o
+**seed rev 3** autoriza (treino de voltas seguidas, ADR-0006; E2E-12/E2E-13 da estratégia de testes) e o fato novo de
+`master` conter a Kart Park — não é um alargamento de um fix round (§16).
+
+**Fatos de entrada** (condutor do loop e leitura desta rodada): código validado `code-validation-20261030-1526.md`
+(`0c83ed9`); testes validados `test-validation-20261030-1559.md` (179/179 desta feature, `8811414`); staging serve
+`6b314b2` pela execução 41101055606 (success), `index-BwruE9Pq.js`; a execução verde anterior de staging é 41076989728
+(`652bbaa`). Lidos nesta rodada sem efeito: GET público de `https://edumatosr6-svg.github.io/kartle-staging/` e dos seus
+dois *assets* (200, `Last-Modified` 2026-10-30 17:48:06 GMT, `max-age=600`), medidos com `measure_dist.py` numa pasta
+de rascunho (711 477 bytes, 188 898 gzip); `check_served.py` 53/53; `git log`/`git diff --stat`/`git grep` só leitura
+(contenção: `8811414..6b314b2` não toca os módulos nem os testes desta feature; nenhuma variável de ambiente nem
+armazenamento em `6b314b2`; `05c3570` ancestral de `6ea3862`).
+
+**O que mudou**
+
+- `01-release.md` (1.2.0): seed rev 3 e o que o jogador vê de novo; proveniência com o veredito de testes e o de código
+  de 2026-10-30, os commits da feature e o commit construído `6b314b2` com a contenção demonstrada; execução de staging
+  41101055606 e o artefato servido medido e conferido; alvo B em staging (41076989728, `652bbaa`); produção (nada
+  promovido) e a seção *A produção e a Kart Park* com as três opções; precondições humanas restantes em ordem. A
+  narrativa das execuções de 2026-10-21 sai do documento e fica nas rodadas 6 a 9 deste registro e em `REL-0005`.
+- `smoke.md` (1.2.0): build desta rodada (Kart Park aberta, oferta "treino"); D3 com 711 KB; D4/M4 com a pista aberta e
+  "treino"; D6/M6 com o painel lateral sem parar o kart; D7 com o botão de pausa; D8 com a inválida que segue até a
+  chegada e o "—"; D9/M9 com o armazenamento vazio (E2E-08); D10/M10 com as mensagens novas; D12/M11 com treino de duas
+  voltas; D14/M12 com o crédito OSM agora exigido; **D15, D16, M13, M14** (E2E-12); conferência `check_served.py`;
+  E2E-13 nos limites, como não executável pela tela. 30 linhas (16 desktop, 14 celular).
+- `runbook.md` (1.2.0): nomes (`<sha>` = `6b314b2`, `<hash>` `BwruE9Pq`, execuções de staging em vigor e anterior);
+  caminhos A (produção), B (staging, 41076989728) e C (`git revert 8811414 0c83ed9`); precondições reescritas (staging
+  publicado e conferido; execução 3; escolha da opção de produção); passos 3, 5, 6, 7 e 10 com os valores desta rodada;
+  seção **Produção — as opções enquanto a decisão Esri não existe**; *Verify* com `check_served.py` e o treino; gatilhos
+  do treino; seção **Linhas humanas — o roteiro da execução 3 (H1–H6)**, com H4 e H6 para E2E-12 e o registro de E2E-13;
+  R1 com o caminho B de staging.
+- `REL-0001` (1.2.0): reconferência em `6b314b2` (0 variáveis de ambiente, 0 armazenamento) e as duas ferramentas sem
+  credencial. `REL-0002` (1.1.0): sessão de treino em memória, sem revisão nova; esquema 3 atribuído a `pista-kart-park`.
+  `REL-0003` (1.2.0): ordem de operações com o estado de 2026-10-30 e o passo da escolha de produção; pipeline com 443
+  testes e 711 477 bytes; riscos do treino. `REL-0004` (1.1.0): botões por toque e a execução 3 (H5, H6). `REL-0005`
+  (1.2.0): elementos observáveis do treino, integridade por `check_served.py`, entradas 41076989728 e 41101055606, três
+  modos de falha do treino.
+- `98-divergences.md` (1.2.0): DIV-DP-05 (crédito OSM agora exigido, cumprido por `pista-kart-park`), DIV-DP-06 (39
+  `unverified`, E2E-12/E2E-13), DIV-DP-07 (tamanho novo), **DIV-DP-15** nova (`open`: produção bloqueada pela Kart Park).
+- `tools/check_served.py` (novo, molde de `modelo-kart-01`): 53 verificações só de leitura sobre a página servida — HTML,
+  painel, botões, as 24 mensagens pt/en, os códigos do treino, tamanhos.
+
+**Itens fechados**: nenhum item de relatório (o relatório mais novo, `deploy-validation-20261021-1643.md`, tinha só
+ISSUE-03 aberto, ambiental; ISSUE-18 e ISSUE-19 fecharam na rodada 9).
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **ISSUE-03** (linhas humanas; DIV-DP-06, DIV-DP-07): a execução 3 pelo roteiro H1–H6, agora sobre `6b314b2`.
+- Item 4 das pendências de `docs/lap-validation-device-log.md` (reduzir a D2): devido ao condutor do loop (§14).
+- **DIV-DP-15**: a escolha do dono do produto entre as três opções de produção.
+
+**Itens recusados**: nenhum.
+
+- Nenhum comando contra produção, nenhum `git` de escrita, `npm` ou `gh`; nenhum valor de segredo escrito;
+  `docs/lap-validation-device-log.md`, `DOMAIN.md`, `SCOPE-BACKLOG.md` e os registros das outras features não editados.

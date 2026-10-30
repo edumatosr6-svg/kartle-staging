@@ -2,75 +2,84 @@
 title: Release — validação de volta de corrida
 feature: race-lap-validation
 stage: deploy
-status: draft
-version: 1.1.6
-sources: [DM-0001, DM-0002, DES-0007, DES-0009, DES-0011, NFR-0003, NFR-0004, NFR-0006, NFR-0007, NFR-0012]
+status: validated
+version: 1.2.0
+sources: [DM-0001, DM-0002, DES-0001, DES-0007, DES-0008, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, NFR-0006, NFR-0007, NFR-0012]
 ---
 
 # 01 — Release
 
-Candidato a release da feature `race-lap-validation`: contagem regressiva, cronometragem por passo fixo, validação da
-volta (marcadores, sentido, corte, reposicionamento), tipos de volta e HUD, sobre o arquivo de pista versão 2. O que se
-entrega é um **artefato estático** (`dist/`, HTML + JS + CSS) servido pelo **GitHub Pages** com HTTPS (decisão D23 de
-2026-10-21); não há servidor, banco, serviço nem aplicativo nativo nesta release. Nesta release a página oferece
-**apenas a volta de treino**: a oferta de volta oficial (e de reconhecimento) depende do desafio diário, outra feature
-(DES-0009; `offeredLapKinds(reading, [])` em `src/main.ts`), e o resultado da volta traz o sufixo "não oficial".
+Candidato a release da feature `race-lap-validation` no **seed rev 3** (2026-10-29; digest `beee272fdb3b`): à contagem
+regressiva, à cronometragem por passo fixo, à validação da volta (marcadores, sentido, corte, reposicionamento), aos tipos
+de volta e ao HUD da primeira release soma-se o **treino como sequência de voltas numa sessão** (ADR-0006): o resultado de
+cada volta aparece no painel lateral `#lap-training-result` **sem parar o kart**, uma volta inválida é marcada no quadro
+seguinte e o treino segue até a chegada, "melhor volta válida" fica visível a partir da primeira volta válida, "—" ocupa o
+setor não cruzado, o treino termina pelo botão "encerrar treino" (em corrida ou em pausa) e o botão "pausar" pausa nos dois
+canais. A **volta oficial e a de reconhecimento ficam inalteradas** (INV-1 de DM-0002; confirmado pelo relatório de código) e continuam
+**não ofertadas** nesta release: a oferta depende do desafio diário, outra feature (DES-0009; `offeredLapKinds(reading, [])`
+em `src/main.ts`). O que se entrega é o mesmo tipo de artefato da primeira release: um **artefato estático** (`dist/`, HTML
++ JS + CSS) servido pelo **GitHub Pages** com HTTPS (D23); não há servidor, banco, serviço, armazenamento no navegador nem
+aplicativo nativo.
 
 ## O que é entregue
 
 | Item | Conteúdo | Fonte |
 |---|---|---|
-| Canais | `web-desktop` e `web-mobile` — a mesma página, com teclado no computador e inclinação ou toque no celular | diretivas do estágio; `REL-0004` |
-| Arquivos de origem | `src/track.ts`, `src/trackData.ts`, `src/lapTiming.ts`, `src/lap.ts`, `src/frameClock.ts`, `src/lapMessages.ts`, `src/main.ts`, `index.html`, `src/style.css`, `docs/lap-validation-bench.md` | `400 Code/Output/race-lap-validation/01-implementation.md` |
-| Inalterados nesta feature | `src/physics.ts`, `src/maneuvers.ts`, `src/audio.ts`, `scripts/`, `package.json`, `tsconfig.json`; dependências: nenhuma acrescentada | idem |
-| Formato publicado que muda | arquivo de pista `schemaVersion` 2 (`trackId` `synthetic`, `trackVersion` 2), empacotado no bundle; leitor da versão 1 incluído | DM-0001, `REL-0002` |
-| Formato persistido que muda | nenhum: a feature não grava nada no navegador | DES-0011, DM-0002 |
-| Feature flag | **nenhuma**, por decisão do projeto validado: "nenhum requisito pede chave; a aposentadoria da validação preliminar acontece na mesma mudança que introduz a nova, de modo que não há duas validações ativas. A reversão é a do repositório" (DES-0007, seção *Feature flag*; o mesmo em DES-0011). A reversão desta release é, portanto, a republicação do artefato anterior (`runbook.md`) | DES-0007, DES-0011 |
+| Canais | `web-desktop` e `web-mobile` — a mesma página, teclado no computador, inclinação ou toque no celular; o botão "pausar" e o botão "encerrar treino" nos dois | diretivas do estágio; `REL-0004` |
+| Arquivos de origem desta rodada | alterados: `src/lap.ts` (sessão de treino: `lapSequenceCount`, `lapStartMs`, `trainingLapMs`, `bestValidLapMs`, `endTraining`, pausa `PAUSE_BUTTON`), `src/lapMessages.ts` (24 chaves pt/en; quatro novas: `pauseAction`, `endTrainingAction`, `bestValidLap`, `sectorNoTime`), `src/main.ts` (painel lateral, melhor volta, botões), `index.html` (`#lap-best-valid`, `#lap-training-result`, `#lap-end-training`), `src/style.css`; inalterados: `src/lapTiming.ts`, `src/frameClock.ts`, `src/trackData.ts`, `src/track.ts`, `src/physics.ts`; dependências: nenhuma acrescentada | `400 Code/Output/race-lap-validation/01-implementation.md`; `code-validation-20261030-1526.md` |
+| Formato publicado que muda | nenhum nesta rodada: o arquivo de pista segue o esquema 3 da release `pista-kart-park`, com o leitor das versões 1 e 2 mantido (`REL-0002`) | DM-0001 |
+| Formato persistido que muda | nenhum: a sessão de treino vive em memória e é descartada ao recarregar (DM-0002; E2E-08: 0 entradas no armazenamento do site) | DM-0002, DES-0011 |
+| Feature flag | **nenhuma**, por decisão do projeto validado (DES-0007, DES-0011; ADR-0006 não acrescenta chave); a reversão é a republicação do artefato anterior (`runbook.md`) | DES-0007 |
 | Variáveis de ambiente | nenhuma lida pelo cliente | `REL-0001` |
+| O que o jogador vê de novo | "treino" na oferta; uma só contagem 3, 2, 1, VERDE por treino; a cada chegada o painel lateral com tempo total, quatro setores (ou "—"), validade com o motivo e "não oficial", sem cobrir o estado da volta; o kart segue, o cronômetro recomeça, nenhuma contagem nova; "melhor volta válida"; "inválida · corte" no quadro seguinte ao corte e a volta segue até a chegada; "❚❚ pausar" / "▶ continuar"; "encerrar treino" visível durante o treino em corrida e em pausa, ausente fora dele | DES-0001, DES-0008, DES-0010; `smoke.md` |
 
 ## Proveniência — o commit que a release nomeia
 
-A política do estágio exige que o artefato que chega a staging seja construído, pelo pipeline, **a partir do commit que
-os testes verificaram**.
-
-| Fato | Estado em 2026-10-21 |
+| Fato | Estado em 2026-10-30 |
 |---|---|
-| Veredito de testes | `SUCCESS` — `500 Tests/Output/race-lap-validation/reports/test-validation/test-validation-20261021-1411.md` (170 casos, 170 aprovados, execução de 2026-10-21 14:10Z posterior à última edição de `src/` e `tests/`) |
-| Commit verificado | **`c41c6c3ddf8ada690a2f2b1581ee87700c837268`** (curto `c41c6c3`), ramo `master`, mensagem "Kartle: pipeline de desenvolvimento e validação de volta (race-lap-validation)", feito pelo dono do produto em 2026-10-21 com a árvore que o veredito acima verificou. Reexecutados nesse commit pelo condutor do loop: `npm ci` saída 0, `npm test` 170 aprovados / 0 reprovados / 0 pulados, `npm run build` saída 0 (`dist/` com 593 256 bytes, tabela abaixo). O relatório de validação de deploy registra o resultado |
-| Commits que o `master` enviado contém | do mais antigo ao mais novo: `c41c6c3` (árvore verificada: `npm ci`, 170 testes, build), `c1f7f28` (preparação da release: `.github/workflows/pages.yml`, `.nvmrc`, `docs/lap-validation-device-log.md`, este registro), `162b1b3` (decisões D23, D-DP-04 e monitoramento em `DOMAIN.md`), `c1e488b` (registro de release da rodada 5, só `600 Deploy/Output/`), `2bee672` (staging publicado, política do ambiente e execução 2 do log de aparelho) e `f16d65a` (ensaio de reversão R4, decisões em `DOMAIN.md`, seed e requisitos de `dirigibilidade`). Os cinco commits posteriores a `c41c6c3` são **só de registro**: **não alteram** `src/`, `tests/`, `index.html`, `package.json` nem `package-lock.json` — a árvore que o workflow constrói é a verificada em `c41c6c3`, e o veredito de testes continua a valer. A ponta de `master` enviada ao `kartle-staging` é `2bee672` (commit da execução 39631099098); localmente a ponta é `f16d65a`, e cada push posterior de registro cria uma execução nova cujo número se lê na aba Actions |
-| Tag de release | não existe; a release é identificada pelo hash acima e pela execução do workflow que o publicar |
-| Remoto GitHub | **existe** (2026-10-21, dono do produto `edumatosr6-svg`): repositório de produção `https://github.com/edumatosr6-svg/kartle` (público), remoto local `origin`; `master` enviado. Settings → Pages → *Source* = **GitHub Actions** (`build_type: workflow`); Settings → Environments → `github-pages` com **Required reviewers = `edumatosr6-svg`** e *Deployment branches and tags* na restrição padrão (só `master`). As execuções do workflow `pages` constroem e **param em `deploy` à espera da aprovação**: nada foi promovido (linha *Evidência do pipeline*; DIV-DP-10 `resolved`) |
-| Sistema de CI | **GitHub Actions**: `.github/workflows/pages.yml` na raiz do repositório (ativo em `push` para `master` e `staging` e por `workflow_dispatch`); etapas em `REL-0003` |
-| Staging | o site Pages de um **segundo repositório**, `https://github.com/edumatosr6-svg/kartle-staging` (público), remoto local `staging`, ramo `staging` (enviado com `git push staging master:staging`), *Source* = GitHub Actions, **sem revisor**, ambiente `github-pages` com *Deployment branches and tags* = **No restriction** (necessário para o ramo `staging` implantar — `REL-0003`; DIV-DP-13); site `https://edumatosr6-svg.github.io/kartle-staging/` (`REL-0003`; DIV-DP-11 `resolved`). **Instalado e observado** em 2026-10-21 (linha abaixo) e **confirmado pelo validador** (`deploy-validation-20261021-1602.md`: 200 em HTTPS, *assets* servidos idênticos byte a byte ao build local da árvore de `c41c6c3`). **R1/R2 ensaiados** sobre este site em 2026-10-21 (linha abaixo). De `smoke.md`, D1, D3, D4 e D14 passaram em staging (execução 2 do log); as linhas de ritmo e as linhas M esperam o testador humano |
-| **Evidência do pipeline** (execuções do workflow `pages`, 2026-10-21) | **Produção** (`kartle`): execução **39627810079**, commit `162b1b3` — trabalho `build` concluído com sucesso, trabalho `deploy` em *Waiting* à espera do revisor obrigatório (por desenho; **não aprovado**) — a execução de produção **mais antiga ainda à espera**; execução **39629830827**, commit `c1e488b` — **cancelada** pelo grupo de concorrência `pages` quando um push posterior a substituiu (API: `completed cancelled`, 16:02:10Z). Os pushes só de registro (`2bee672`) criaram execuções mais novas nos dois repositórios; **os números em vigor são lidos na aba Actions**, não copiados deste registro. **Staging** (`kartle-staging`): execução **39627817908**, commit `162b1b3` — `build` concluído, `deploy` **falhado com zero passos executados**; execução **39629837192**, commit `c1e488b` — a mesma falha. Causa: o ambiente `github-pages`, criado automaticamente ao ativar o Pages, restringe as implantações ao ramo padrão (`custom_branch_policies: true, protected_branches: false`), e uma implantação a partir do ramo `staging` é recusada na preparação do trabalho. Correção aplicada pelo condutor do loop pela API do GitHub (`PUT repos/edumatosr6-svg/kartle-staging/environments/github-pages` com `deployment_branch_policy: null` — qualquer ramo); **reexecução de 39629837192**: `build` concluído, `deploy` concluído; `https://edumatosr6-svg.github.io/kartle-staging/` responde **HTTP 200 em HTTPS** com certificado válido (verificado por `curl`). **Ensaio de reversão em staging** (*Ensaio de reversão R4*, `docs/lap-validation-device-log.md`): R1 `DELETE /repos/edumatosr6-svg/kartle-staging/pages` às 16:23:52Z → 404 do GitHub no navegador em ≈ 1 min, `curl` ainda com 200 em cache por mais de 6 min (`max-age=600`); R2 `POST /pages` (`build_type: workflow`) + política do ambiente liberada de novo (a reativação recria o ambiente restrito ao ramo padrão) + *Re-run all jobs* → execução **39631099098** verde → 200 às 16:31:13Z com o mesmo `index-Cqfgl3da.js`; ciclo ≈ 7,5 min. A execução **39631099098** é a do push só de registro de **`2bee672`** ao ramo `staging` (criada 16:02:11Z), na sua **tentativa 2** (*Re-run all jobs* dessa execução, não de 39629837192); como `2bee672` não toca a árvore verificada, o *asset* servido é byte a byte o do build de `c41c6c3` (confirmado pelo validador, sha256 idêntico). Conclusão: **existe artefato construído pelo pipeline para a ponta enviada de `master` nos dois repositórios** (`c1e488b` e `2bee672`, mesma árvore de `c41c6c3`); o de produção espera aprovação, o de staging está publicado e a sua reversão foi demonstrada |
-| Produção | o site Pages deste repositório, `https://edumatosr6-svg.github.io/kartle/`, com o ambiente `github-pages` protegido por **revisor obrigatório** (`edumatosr6-svg`): o clique de aprovação é a promoção (D-DP-06). Custo: US$ 0 em repositório público (RNF12). Domínio próprio: fora desta release |
+| Veredito de testes | `SUCCESS` — `500 Tests/Output/race-lap-validation/reports/test-validation/test-validation-20261030-1559.md` (rodada 5, seed rev 3): **179** verificações desta feature coletadas e aprovadas (140 antes, 39 acrescentadas, 0 removidas); execução fresca de 2026-10-30T15:53:21Z; 72 de 111 critérios verificados por `npm test` e **39** com a metade de tela, aparelho ou navegador pendente (27 das rodadas anteriores + 12 de US-0010, todos ligados a E2E-12/E2E-13). Na suíte inteira daquela execução, 10 reprovações eram de outras features (`pista-kart-park`, `dirigibilidade`), corrigidas pelos commits que elas fizeram depois |
+| Validação de código | `SUCCESS` — `400 Code/Output/race-lap-validation/reports/code-validation/code-validation-20261030-1526.md` (4 `warning` e 1 `info` herdados; volta oficial e de reconhecimento inalteradas) |
+| Commits da feature | `0c83ed9` (código validado) e `8811414` (testes revalidados, 179 checks); `git diff --stat 0c83ed9 8811414 -- src index.html` vazio: o veredito de testes verificou a árvore de código validada |
+| **Commit construído e publicado em staging** | **`6b314b2193c25cd6384a3f64cffdc369637b3753`** (curto `6b314b2`, `master`, 2026-10-30T14:43:19−03:00, "modelo-kart-01: testes migrados para o seed rev 4 … — 443/443"). Entre `8811414` e `6b314b2` entraram `f6e2d16`, `c387839` (`dirigibilidade` rodada 6), `aeaf504`, `6b314b2` (`modelo-kart-01` rodada 3) e `1254443` (`pista-kart-park`, testes): tocam `index.html`, `src/main.ts`, `src/style.css`, `src/gameCamera.ts` e `src/kart01Model.ts`, **nenhum módulo desta feature** (`src/lap.ts`, `src/lapMessages.ts`, `src/lapTiming.ts`, `src/frameClock.ts`, `src/trackData.ts`) e nenhum `tests/race-lap-validation-*`. As 179 verificações desta feature correm no `npm test` do workflow sobre `6b314b2` (443 aprovados na mensagem do commit; a execução só publica com `npm test` verde), e a página servida carrega os elementos e as 24 mensagens desta rodada (`tools/check_served.py`, 53/53, abaixo) |
+| Staging — execução | `edumatosr6-svg/kartle-staging`, workflow `pages`, execução **41101055606**, commit `6b314b2`, **success** (dado do condutor do loop; confirmado pelo validador na aba Actions) |
+| Staging — o que é servido | `https://edumatosr6-svg.github.io/kartle-staging/` lido em 2026-10-30 por GET público (sem token): HTTP 200, `Last-Modified: Fri, 30 Oct 2026 17:48:06 GMT`, `Cache-Control: max-age=600`; `index.html` referencia `assets/index-BwruE9Pq.js` e `assets/index-oR7KyBh_.css`; `python -I "600 Deploy/Output/race-lap-validation/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-BwruE9Pq.js` → `checks=53 failed=0`. O manifesto de código de `modelo-kart-01` (rodada 3) nomeia o mesmo `index-BwruE9Pq.js` com 694 094 bytes no build local: o `<hash>` local e o de staging coincidem |
+| Alvo de reversão em staging (caminho B) | execução **41076989728**, commit **`652bbaa`** (2026-10-30T12:02:08−03:00) — a última execução verde anterior à desta rodada; contém a primeira release desta feature (treino de uma volta, seed rev 2) e não contém `0c83ed9` |
+| Produção | `https://edumatosr6-svg.github.io/kartle/` (`edumatosr6-svg/kartle`, ambiente `github-pages` com **revisor obrigatório** `edumatosr6-svg`; o clique é a promoção, D-DP-06). **Nada foi promovido**: na última observação registrada (registro de `pista-kart-park`, 2026-10-27) a URL respondia 404, e a referência local `origin/master` é `05c3570` (a leitura em vigor é a da aba Actions e de Settings → Pages, feita pelo validador ou pelo dono do produto; este estágio não toca produção). A promoção da primeira release continua à espera da **execução 3** do log de aparelho, e agora também da questão Esri (abaixo) |
+| Tag de release | não existe; a release é identificada pelo hash acima e pela execução do workflow que a publicar |
+| Sistema de CI | **GitHub Actions**, `.github/workflows/pages.yml` (inalterado desde `c1f7f28`): `npm ci` → `npm test` → `npm run build -- --base=/<repo>/` → `measure_dist.py` → `upload-pages-artifact` → `deploy-pages`; etapas em `REL-0003` |
+
+### A produção e a Kart Park — `master` não é promovível hoje
+
+Todo commit de `master` a partir de `ba221ad` contém a pista **Kart Park** (`pista-kart-park`), cuja promoção a produção está
+**bloqueada pela decisão Esri** (licença do dado derivado do Esri World Imagery; `DOMAIN.md` de `pista-kart-park`, 2026-10-22;
+ADR-0005 daquela feature). Esta rodada (`0c83ed9`) vem depois de `ba221ad` e reescreve `src/lap.ts` e `src/lapMessages.ts`
+sobre as mudanças da Kart Park (`git log 6ea3862..0c83ed9 -- src/lap.ts src/lapMessages.ts`: `ba221ad`, `0c83ed9`). Logo
+**promover esta release é promover a Kart Park**. As opções, todas do dono do produto (D-DP-06), estão em `runbook.md`,
+*Produção — as opções enquanto a decisão Esri não existe*:
+
+1. **esperar a decisão Esri** e promover tudo junto (as quatro features) numa entrega que a cumpra;
+2. **publicar `6ea3862` em produção antes** (a opção 2 do runbook de `pista-kart-park`): leva a **primeira** release desta
+   feature (seed rev 2, treino de uma volta), não esta rodada; o treino contínuo fica em staging até a opção 1;
+3. **portar o treino contínuo para um ramo sem a Kart Park** (a partir de `6ea3862`): não é uma promoção deste build — é
+   trabalho novo de código, testes e deploy (os dois módulos divergem por causa da Kart Park), com o seu próprio veredito.
 
 ### Precondições humanas que restam, em ordem
 
-1. **Registrar a execução humana do roteiro de aparelho** em `docs/lap-validation-device-log.md` (E2E-01 a E2E-11 de
-   `300 Specs/330 D-Specs/Output/race-lap-validation/test-strategy.md`), sobre a URL de staging. O log tem a
-   **execução 1** (condutor do loop, desktop, build local do commit `c41c6c3`, parcial: estado e texto de D4, D5, D7,
-   D8, D9, D10, D11; página em segundo plano, ritmo inválido) e a **execução 2** (staging, operador de sessão: D1, D3,
-   D4, D14 passam; D2 não medido; D5–D13 não executados). **Três tentativas automatizadas de medir ritmo** (painel
-   embutido, Chrome do dono do produto em primeiro plano, janela da extensão) **não produziram medida**: o Chrome
-   limita o `requestAnimationFrame` a 1–2 quadros/s sob automação, com os temporizadores normais; o dono do produto
-   **relata** o jogo fluido na sua própria aba — relato, não medida. Ficam para execução humana, com o contador de fps
-   do navegador, no notebook e no celular de referência nomeados: D2, D5 (duração), D6, D12, D13 e as linhas M; 27
-   critérios do veredito de testes têm a metade de tela, sensor, taxa de quadros ou navegador `unverified` até esse
-   registro; `smoke.md` reutiliza os mesmos roteiros (DIV-DP-06). A pendência 4 do log ("URL publicada com HTTPS: D1,
-   D2, D3") está reduzida a D2.
+1. **Validação de staging pelo validador** sobre a execução 41101055606 (`reports/deploy-validation/`): `<hash>` servido
+   `BwruE9Pq`, `check_served.py` 53/53, e o ensaio de reversão pelo caminho B em staging (reexecutar 41076989728 e voltar),
+   se o validador o exigir para esta rodada.
+2. **Execução 3 do log de aparelho** (`docs/lap-validation-device-log.md`), humana, sobre a URL de staging, no notebook e no
+   celular de referência nomeados — o roteiro de `runbook.md`, *Linhas humanas — o roteiro da execução 3* (H1–H6), agora com
+   **E2E-12** (voltas seguidas, inválida segue, pausa pelo botão, encerrar treino) e o registro de **E2E-13**. Os 39
+   critérios `unverified` do veredito de testes dependem desse registro (DIV-DP-06).
+3. **A escolha do dono do produto entre as opções de produção** acima, registrada em `DOMAIN.md`; e, na opção 1, a decisão
+   Esri.
+4. Só então a pergunta de promoção (`runbook.md`, passo 9).
 
-Cumpridas: o commit da árvore verificada (acima); **a primeira execução do pipeline observada** nos dois repositórios
-(linha *Evidência do pipeline*: `build` verde em todas as execuções; produção em *Waiting* sem aprovação; staging
-publicado e a responder 200 em HTTPS depois de corrigida a política de ramos do ambiente); **o ensaio de R1/R2 em
-staging** (2026-10-21, linha *Evidência do pipeline*: despublicar → 404; republicar → execução 39631099098 (`2bee672`,
-tentativa 2) verde com o mesmo `<hash>`; ciclo ≈ 7,5 min); a versão do Node fixada —
-`.nvmrc` com `24` na raiz do repositório, lida pelo workflow (`node-version-file`), build medido abaixo com Node
-v24.20.0 e npm 11.19.0; os dois repositórios no
-GitHub com *Source* = GitHub Actions e a proteção do ambiente `github-pages` em produção (DIV-DP-10, DIV-DP-11); a
-**ratificação de D-DP-04** (`DOMAIN.md`, 2026-10-21: "esta release, pista sintética, 0 dados OSM, não exibe crédito";
-DIV-DP-05); e a **decisão de monitoramento** — vigilância manual conforme o runbook, nenhum monitor externo nesta
-release (RNF12; `DOMAIN.md`, 2026-10-21; DIV-DP-08).
+Cumpridas: o veredito de testes e o de código `SUCCESS` no seed rev 3; o commit construído em staging nomeado e a
+contenção da árvore verificada demonstrada; o artefato servido conferido (53/53) e medido (abaixo); o alvo de reversão em
+staging nomeado (41076989728); o Node fixado (`.nvmrc` = `24`); os dois repositórios e a política de ramos de staging
+(desde 2026-10-21); a decisão de monitoramento (vigilância manual), mantida.
 
 ## Reprodução do build
 
@@ -78,47 +87,47 @@ O workflow executa estes passos a cada push; à mão, da raiz do repositório, c
 
 | Passo | Comando | Resultado esperado |
 |---|---|---|
-| 1 | `npm ci` | saída 0; `package-lock.json` inalterado; `node_modules/` recriado |
-| 2 | `npm test` | saída 0; 170 testes aprovados, 0 reprovados, 0 pulados (138 da feature + 32 pré-existentes) |
-| 3 | `npm run build` (no workflow: `npm run build -- --base=/kartle/` em produção e `--base=/kartle-staging/` em staging — o nome vem de `github.event.repository.name`, porque o Pages de projeto serve em `/<nome do repositório>/`) | saída 0 (`tsc --noEmit` e depois `vite build`); `dist/index.html`, `dist/assets/index-<hash>.js`, `dist/assets/index-<hash>.css` |
-| 4 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | tabela de tamanhos; `within_limit=True`; saída 0 |
-| 5 | `npm run preview` | `http://127.0.0.1:4173` serve o bundle; `#track-status` mostra `synthetic` e `#lap-offer` tem exatamente um botão, "volta de treino" (DES-0009) |
+| 1 | `npm ci` | saída 0; `package-lock.json` inalterado |
+| 2 | `npm test` | saída 0; 443 aprovados, 0 reprovados, 0 pulados em `6b314b2` (179 `CHK-TEST-*` desta feature) |
+| 3 | `npm run build` (no workflow: `-- --base=/kartle/` ou `/kartle-staging/`, pelo nome do repositório) | saída 0 (`tsc --noEmit` e `vite build`); `dist/index.html`, `dist/assets/index-<hash>.js`, `dist/assets/index-<hash>.css` |
+| 4 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | tabela de tamanhos; `within_limit=True`; saída 0 (é a ferramenta que o workflow chama) |
+| 5 | `python -I "600 Deploy/Output/race-lap-validation/tools/check_served.py" <URL> index-<hash>.js` | `checks=53 failed=0` sobre a URL publicada (só leitura; três GET em HTTPS) |
+| 6 | `npm run preview` | `http://127.0.0.1:4173` serve o bundle; a página abre com a oferta "treino"; ao iniciá-lo, uma contagem e, a cada chegada, o painel `#lap-training-result` |
 
-### Medida real do artefato (build local de 2026-10-21, árvore do commit `c41c6c3`, base `/`)
+### Medida real do artefato servido em staging (execução 41101055606, commit `6b314b2`, base `/kartle-staging/`)
 
 | Arquivo | bytes | gzip bytes |
 |---|---:|---:|
-| `assets/index-Cqfgl3da.js` | 574 785 | 146 813 |
-| `assets/index-dgojskay.css` | 11 407 | 3 244 |
-| `index.html` | 7 064 | 2 846 |
-| **total** | **593 256** | **152 903** |
+| `assets/index-BwruE9Pq.js` | 694 094 | 183 262 |
+| `assets/index-oR7KyBh_.css` | 10 800 | 3 040 |
+| `index.html` | 6 583 | 2 596 |
+| **total** | **711 477** | **188 898** |
 
-- Limite de RNF02 (download inicial abaixo de 3 MB = 3 145 728 bytes): **593 256 bytes brutos (18,9 % do limite)**;
-  152 903 bytes comprimidos com gzip, se o CDN comprimir.
-- Limite de RNF02 para a pista (abaixo de 200 KB): o arquivo de pista não é um download separado — está empacotado
-  como literais no JS (`SYNTHETIC_TRACK_FILE`); a medida separada só se aplica quando a pista for servida por CDN
-  (pós-MVP).
-- O Vite avisa que o chunk principal passa de 500 kB minificado (Three.js); é um aviso de ferramenta, não uma violação
-  de limiar deste projeto.
-- Os nomes dos *assets* carregam hash de conteúdo: o `index.html` publicado é o que aponta para a versão em vigor
-  (`REL-0003`, regra de cache).
-- O build do workflow usa `--base=/kartle/` (produção) ou `/kartle-staging/` (staging): o `index.html` publicado
-  referencia `/kartle/assets/...` ou `/kartle-staging/assets/...`; o tamanho total difere do local em poucos bytes (o
-  nome do repositório nos caminhos) e a medida que vale é a impressa no passo *Measure dist* da execução.
+- Medido com `measure_dist.py` sobre os três arquivos baixados de staging para uma pasta de rascunho (fora do repositório).
+  Limite de RNF02 (download inicial abaixo de 3 145 728 bytes): **711 477 bytes brutos (22,6 %)**; 188 898 com gzip (6,0 %).
+- Contra a primeira release (593 256 bytes, `c41c6c3`): +118 221 bytes, quase todo das três features que vieram depois
+  (Kart Park como literal no JS, Kart 01, acertos); a parte desta rodada é o painel, os botões e quatro mensagens.
+- O build do workflow usa `--base=/kartle/` em produção: o `index.html` difere em poucos bytes; a medida que vale é a
+  impressa no passo *Measure dist* da execução.
+- O Vite avisa que o chunk principal passa de 500 kB minificado (Three.js); aviso de ferramenta, não violação de limiar.
 
 ## O que o pipeline faz (`.github/workflows/pages.yml`)
 
-Em ordem, cada passo com saída observável na execução do Actions: checkout do commit → Node da `.nvmrc` com cache do
-npm → `npm ci` → `npm test` (170 aprovados) → `npm run build -- --base=/kartle/` (ou `/kartle-staging/`) →
-`measure_dist.py dist` (saída 0) → `configure-pages` → `upload-pages-artifact` de `dist/` → trabalho `deploy` no
-ambiente `github-pages` (`deploy-pages`). Em produção (`edumatosr6-svg/kartle`) o trabalho `deploy` **espera a
-aprovação do revisor obrigatório** `edumatosr6-svg` (D-DP-06); em staging (`edumatosr6-svg/kartle-staging`) publica de
-imediato — desde que o ambiente `github-pages` desse repositório admita o ramo `staging` (política de ramos sem
-restrição; sem isso o `deploy` falha com zero passos, como nas execuções 39627817908 e 39629837192). Permissões mínimas (`contents: read`, `pages: write`, `id-token: write`); nenhum segredo (I6). As execuções
-ficam em `https://github.com/edumatosr6-svg/kartle/actions` e `https://github.com/edumatosr6-svg/kartle-staging/actions`.
-Um ponto não automatizável permanece: o `href="/"` da marca no `index.html` aponta para `https://edumatosr6-svg.github.io/`
-e não para `/kartle/` — item do estágio de código, registrado em `98-divergences.md` (DIV-DP-12), não editado aqui.
+Inalterado. Checkout do commit → Node da `.nvmrc` → `npm ci` → `npm test` → `npm run build -- --base=/<repo>/` →
+`measure_dist.py dist` (saída 0) → `configure-pages` → `upload-pages-artifact` → trabalho `deploy` no ambiente
+`github-pages`. Em produção o `deploy` **espera o revisor obrigatório** (D-DP-06); em staging publica de imediato, desde
+que a política de ramos do ambiente admita `staging` (liberada em 2026-10-21; volta a ser restrita a cada despublicação —
+`REL-0003`). Permissões mínimas, nenhum segredo (I6). `tools/check_served.py` é executado por quem valida e pelo runbook,
+não pelo workflow.
 
-## Limitações conhecidas — divergências aceitas nesta release
+## Limitações conhecidas — divergências aceitas e herdadas
 
-- **Duas divergências aceitas** pelo dono do produto em 2026-10-21 (`DOMAIN.md`): o `href="/"` da marca sai de `/kartle/` no GitHub Pages (DIV-DP-12, ISSUE-15) e a página faz uma requisição a `fonts.googleapis.com` no carregamento — não durante a volta (DIV-DP-14, ISSUE-17); ambas `waived` em `98-divergences.md`, com a correção (href relativo; fontes embutidas no build) como itens de `200 Requirements/220 Input/race-lap-validation/SCOPE-BACKLOG.md` para a próxima release.
+- As duas divergências aceitas pelo dono do produto em 2026-10-21 continuam (`98-divergences.md`): o `href="/"` da marca
+  sai de `/kartle/` no GitHub Pages (DIV-DP-12) e a página faz uma requisição a `fonts.googleapis.com` no carregamento, não
+  durante a volta (DIV-DP-14); as correções seguem em `200 Requirements/220 Input/race-lap-validation/SCOPE-BACKLOG.md`.
+- **E2E-13** (painel sem linha de setores numa pista sem setores) não é executável pela página servida: nenhuma pista do
+  catálogo publicado é `INCOMPLETE` e a página não abre pista de fixture (a mesma razão de E2E-06 desde a primeira
+  release). Fica decidido por `npm test` (CHK-TEST-0015-25, CHK-TEST-0012-14, CHK-TEST-0010-21) e registrado como "não
+  executável pela tela" na execução 3 (DIV-DP-06).
+- O bundle contém a Kart Park, dado derivado de OpenStreetMap: o crédito OSM/ODbL **passa a ser exigido** e é verificado
+  pela release `pista-kart-park` (DIV-DP-05); a produção está bloqueada pela decisão Esri (DIV-DP-15).

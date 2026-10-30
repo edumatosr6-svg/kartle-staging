@@ -2,9 +2,9 @@
 title: Runbook — promover, verificar e reverter a release de validação de volta
 feature: race-lap-validation
 stage: deploy
-status: draft
-version: 1.1.5
-sources: [DM-0001, DES-0009, DES-0011, NFR-0003, NFR-0004, TEST-0009]
+status: validated
+version: 1.2.0
+sources: [DM-0001, DM-0002, DES-0001, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, TEST-0009, TEST-0015]
 ---
 
 # Runbook
@@ -17,165 +17,146 @@ provedor é o **GitHub Pages** (D23): o pipeline é `.github/workflows/pages.yml
 | Nome | Valor (não é segredo) |
 |---|---|
 | dono do produto | conta GitHub `edumatosr6-svg` (revisor obrigatório do ambiente `github-pages` de produção) |
-| repositório de **produção** | `edumatosr6-svg/kartle` — `https://github.com/edumatosr6-svg/kartle` (público), remoto local `origin`, ramo `master`, site `https://edumatosr6-svg.github.io/kartle/`; execuções em `https://github.com/edumatosr6-svg/kartle/actions` |
-| repositório de **staging** | `edumatosr6-svg/kartle-staging` — `https://github.com/edumatosr6-svg/kartle-staging` (público), remoto local `staging`, ramo `staging`, site `https://edumatosr6-svg.github.io/kartle-staging/`; execuções em `https://github.com/edumatosr6-svg/kartle-staging/actions` |
-| `<sha>` | o hash do commit da árvore verificada: `c41c6c3ddf8ada690a2f2b1581ee87700c837268`. Os commits de `master` depois dele, do mais antigo ao mais novo: `c1f7f28`, `162b1b3`, `c1e488b`, `2bee672` (ponta enviada ao `kartle-staging`; commit da execução 39631099098) e `f16d65a` (ponta local); todos **só de registro** — acrescentam o workflow, `.nvmrc`, o log de aparelho, este registro, `DOMAIN.md` e a seed de `dirigibilidade` — e a árvore de `src/`, `tests/`, `index.html` e do lockfile é a de `<sha>` (lista completa em `01-release.md`, *Proveniência*) |
-| `<hash>` | o hash de conteúdo no nome do *asset* (`assets/index-<hash>.js`), impresso no passo *Build* da execução que se publica; no build local, `Cqfgl3da` |
-| "execução verde" | uma execução do workflow `pages` com os dois trabalhos (`build`, `deploy`) concluídos com sucesso |
+| repositório de **produção** | `edumatosr6-svg/kartle` — remoto local `origin`, ramo `master`, site `https://edumatosr6-svg.github.io/kartle/`; execuções em `https://github.com/edumatosr6-svg/kartle/actions` |
+| repositório de **staging** | `edumatosr6-svg/kartle-staging` — remoto local `staging`, ramo `staging`, site `https://edumatosr6-svg.github.io/kartle-staging/`; execuções em `https://github.com/edumatosr6-svg/kartle-staging/actions` |
+| `<sha>` | o commit construído e publicado em staging nesta rodada: `6b314b2193c25cd6384a3f64cffdc369637b3753` (`6b314b2`). Contém `0c83ed9` (código desta rodada validado) e `8811414` (testes revalidados, 179 checks), com a mesma árvore de `src/lap.ts`, `src/lapMessages.ts`, `src/lapTiming.ts`, `src/frameClock.ts`, `src/trackData.ts` e `tests/race-lap-validation-*` (`01-release.md`, *Proveniência*) |
+| `<hash>` | o hash de conteúdo do JS (`assets/index-<hash>.js`), impresso no passo *Build* da execução; em staging, execução 41101055606: `BwruE9Pq` |
+| execução de staging em vigor | **41101055606** (`6b314b2`, success) |
+| execução de staging anterior | **41076989728** (`652bbaa`, success) — alvo do caminho B em staging; serve a primeira release desta feature (treino de uma volta) |
+| "execução verde" | uma execução do workflow `pages` com `build` e `deploy` concluídos com sucesso |
 
-Os números e resultados das **primeiras** execuções do Actions (2026-10-21) constam das precondições abaixo como
-evidência de que o pipeline construiu o artefato; os das execuções seguintes são lidos por quem executa na aba Actions
-do repositório em causa e registados no log de aparelho e no relatório de validação. Cada push posterior (inclusive um
-push só de registro, como `2bee672`) cria uma execução nova nos dois repositórios e, pelo grupo de concorrência `pages`,
-**cancela** a execução de produção que ainda esperava atrás da mais antiga — por isso **as execuções em vigor são sempre
-as que a aba Actions mostra**, nunca as copiadas deste registro.
+Os números das execuções desta rodada vêm do condutor do loop e são confirmados pelo validador na aba Actions; cada push
+posterior cria uma execução nova e, pelo grupo de concorrência `pages`, cancela a de produção que ainda esperava —
+**as execuções em vigor são sempre as que a aba Actions mostra**.
 
-Artefato: `dist/` (HTML, JS e CSS estáticos), construído **pelo workflow** a partir de `<sha>`. Não há banco,
-migração de dado nem aplicativo nativo. Nesta release a página oferece só a **volta de treino** (DES-0009).
+Artefato: `dist/` (HTML, JS e CSS estáticos), construído **pelo workflow** a partir de `<sha>`. Não há banco, migração
+de dado nem aplicativo nativo. A página oferece só o **treino** (DES-0009), agora como sequência de voltas (ADR-0006).
 
-**Alvo de reversão.** Esta é a **primeira release**: produção nunca serviu um `dist/`. Há três caminhos de reversão,
-e cada passo de *Roll back* nomeia qual aplica:
+**Alvo de reversão.** Cada passo de *Roll back* nomeia o caminho:
 
 | Caminho | Quando se aplica | O que R1 faz |
 |---|---|---|
-| **A — despublicar** | primeira release (esta): nenhuma execução verde anterior | Settings → Pages → menu "…" ao lado da URL do site → **Unpublish site**; o site volta a **não publicado** (a URL responde 404 do GitHub) |
-| **B — reexecutar a última execução verde anterior** | releases seguintes: existe uma execução verde do commit anterior | Actions → workflow `pages` → execução verde do commit anterior → **Re-run all jobs**; o workflow reconstrói esse commit (`npm ci` do lockfile, `npm test`, build) e pede a aprovação do revisor; aprovar |
-| **C — reverter e reconstruir** (DM-0001, *Plano de migração*) | quando B não existe ou a execução anterior já não pode ser reexecutada (retenção do Actions, 90 dias) e há commit anterior à feature | `git revert <sha> && git push origin master`; a execução nova roda `npm test` e o build na árvore revertida e pede aprovação; aprovar |
-
-Nesta release só o caminho A existe; B passa a existir na release seguinte, quando a execução verde desta for "a
-anterior".
+| **A — despublicar** | nenhuma execução verde anterior no repositório: **produção hoje** (nunca serviu um `dist/`) | Settings → Pages → menu "…" → **Unpublish site**; a URL responde 404 do GitHub |
+| **B — reexecutar a última execução verde anterior** | existe execução verde do commit anterior: **staging hoje** (41076989728, `652bbaa`) | Actions → workflow `pages` → a execução anterior → **Re-run all jobs**; o workflow reconstrói esse commit do lockfile; em produção, aprovar |
+| **C — reverter e reconstruir** (DM-0001) | B não existe ou a execução já não é reexecutável (retenção de 90 dias) | `git revert` dos commits da rodada (`0c83ed9`, `8811414`) e push; a execução nova roda `npm test` e o build na árvore revertida |
 
 ## Preconditions
 
-- [x] **Commit verificado existe**: `c41c6c3ddf8ada690a2f2b1581ee87700c837268` (`master`), a árvore que o veredito de
-      testes verificou; `npm ci` (saída 0), `npm test` (170 aprovados) e `npm run build` (saída 0) reexecutados nesse
-      commit (relatório de validação de deploy mais novo). Quem executa confere: `git log --oneline -8` na máquina
-      mostra, do mais novo ao mais antigo, o último commit de `master` (hoje `f16d65a`) e, entre os anteriores,
-      `2bee672`, `c1e488b`, `162b1b3`, `c1f7f28` e `c41c6c3`; `git diff --stat c41c6c3 -- src tests index.html
-      package.json package-lock.json` não imprime nada (nenhum commit posterior toca a árvore verificada) e `git status`
-      não acusa modificação nesses arquivos.
-- [x] Veredito de testes `SUCCESS`: `500 Tests/Output/race-lap-validation/reports/test-validation/test-validation-20261021-1411.md`
-      (ou o relatório mais novo que cite o hash acima).
-- [ ] Validação de staging `SUCCESS`: relatório em `600 Deploy/Output/race-lap-validation/reports/deploy-validation/`
-      — **aguarda a próxima execução do validador**. O mais novo, `deploy-validation-20261021-1602.md`, é `FAIL`:
-      confirmou a execução verde em `kartle-staging`, a URL de staging e os *assets* idênticos ao build local, e deixou
-      abertos o ensaio de R1/R2 (feito depois dele — precondição abaixo) e as linhas humanas do `smoke.md` (ISSUE-03).
-- [x] Histórico de migração: **não se aplica** — não há banco; a única revisão é o arquivo de pista `schemaVersion` 2,
-      empacotado no bundle (`REL-0002`).
-- [x] Feature flag: **não há** (DES-0007; `01-release.md`); a feature fica ativa ao servir o `index.html` novo.
-- [x] **Repositório de produção `edumatosr6-svg/kartle` criado no GitHub** (público), remoto `origin`, `master` enviado
-      (2026-10-21, dono do produto); Settings → Pages → *Build and deployment* → *Source* = **GitHub Actions**
-      (`build_type: workflow`); Settings → Environments → `github-pages` → **Required reviewers** = `edumatosr6-svg`
-      (DIV-DP-10 `resolved`). Nesse ambiente, *Deployment branches and tags* fica na restrição que o GitHub cria por
-      padrão — **só o ramo padrão (`master`) pode implantar** — e assim se mantém: é a segunda tranca da produção,
-      ao lado do revisor. Nenhuma credencial é configurada: o Pages usa o token OIDC da execução (D-DP-05).
-- [x] **Repositório de staging `edumatosr6-svg/kartle-staging` criado** (público), Settings → Pages → *Source* =
-      **GitHub Actions**, **sem** revisor no ambiente; remoto local `staging` apontando para ele; `master` enviado como
-      ramo `staging` (2026-10-21) (DIV-DP-11 `resolved`). **E** Settings → Environments → `github-pages` →
-      *Deployment branches and tags* = **No restriction** (ou acrescentar o ramo `staging`): o ambiente `github-pages`
-      que o GitHub cria ao ativar o Pages vem restrito ao ramo padrão, e sem este passo o trabalho `deploy` de um push
-      em `staging` **falha com zero passos executados** (observado nas execuções 39627817908 e 39629837192 de
-      2026-10-21; `REL-0005`, modos de falha). Resultado observável: um push em `staging` produz um trabalho `deploy`
-      que executa os seus passos e publica. Feito em 2026-10-21 (DIV-DP-13 `resolved`). **Atenção após uma
-      despublicação**: republicar o site (`POST /repos/edumatosr6-svg/kartle-staging/pages`, o equivalente a reativar o
-      Pages em Settings → Pages) **recria o ambiente `github-pages` com a política padrão** (só o ramo padrão) — a
-      liberação tem de ser **refeita** antes do *Re-run all jobs*, senão o `deploy` volta a falhar com zero passos
-      (observado no ensaio de R1/R2 de 2026-10-21, abaixo).
-- [x] **Primeira execução verde do workflow `pages` observada** nos dois repositórios (2026-10-21): em `kartle-staging`,
-      execução **39629837192** (commit `c1e488b`), reexecutada após o passo anterior — `build` concluído e `deploy`
-      concluído; `https://edumatosr6-svg.github.io/kartle-staging/` responde **200 em HTTPS** com certificado válido;
-      depois do ensaio de reversão, a execução **39631099098** (commit **`2bee672`**, push só de registro ao ramo
-      `staging`, criada 16:02:11Z; **tentativa 2** dessa execução por *Re-run all jobs* na republicação — não uma
-      reexecução de 39629837192) ficou verde com o mesmo `<hash>` `Cqfgl3da`, porque `2bee672` não toca a árvore
-      verificada. Em `kartle`, execução **39627810079** (commit `162b1b3`): `build` concluído e `deploy`
-      em *Waiting* à espera do revisor (**não aprovado**; não aprovar antes do passo 9) — é a execução de produção **mais
-      antiga ainda à espera**; a execução **39629830827** (commit `c1e488b`) foi **cancelada** pelo grupo de concorrência
-      `pages` quando um push posterior a substituiu (lido pela API em 2026-10-21 16:02Z). Os pushes só de registro
-      (`2bee672`) criaram execuções mais novas nos dois repositórios: **os números em vigor são lidos na aba Actions**.
-      Nada foi promovido.
-- [x] **Reversão ensaiada em staging** (R1/R2 sobre `kartle-staging`, 2026-10-21, registrada como *Ensaio de reversão
-      R4* em `docs/lap-validation-device-log.md`): R1 despublicar às 16:23:52Z → 404 do GitHub no navegador em ≈ 1 min,
-      enquanto `curl` continuou a receber 200 em cache por mais de 6 min (`max-age=600`); R2 republicar (`POST /pages`,
-      política do ambiente liberada de novo, *Re-run all jobs* → execução 39631099098, commit `2bee672`, tentativa 2,
-      verde) → 200 às 16:31:13Z com o mesmo `assets/index-Cqfgl3da.js`. Ciclo completo ≈ 7,5 min, dominado pelo cache. Este era o ensaio exigido antes
-      da pergunta de promoção (passo 9).
-- [ ] `docs/lap-validation-device-log.md` com os roteiros E2E-01 a E2E-11 registrados **em staging, nos aparelhos
-      nomeados** (27 critérios `unverified` no veredito de testes dependem dele). O log existe com a execução 1 (local,
-      desktop, parcial, ritmo inválido) e a execução 2 (staging, operador de sessão: D1, D3, D4, D14 passam; D2 não
-      medido); três tentativas automatizadas de medir ritmo falharam porque o Chrome limita o `requestAnimationFrame` a
-      1–2 quadros/s sob automação (os temporizadores correm normais) — o dono do produto **relata** o jogo fluido na sua
-      própria aba, o que é relato, não medida (DIV-DP-06). A precondição só se cumpre com a execução humana de D2, D5
-      (duração), D6, D12, D13 e das linhas M nos aparelhos nomeados.
-- [x] D14/M12 decidíveis nesta release: `dist/` sem dado OSM (0 ocorrências de "OpenStreetMap"/"ODbL", pista
-      sintética), logo nenhum crédito é exigido (`smoke.md`). **D-DP-04 ratificado** pelo dono do produto em 2026-10-21
-      (`DOMAIN.md`): o crédito e o aviso ODbL só são exigidos quando uma pista derivada de OSM for publicada
-      (`98-divergences.md`, DIV-DP-05 `resolved`).
-- [x] Monitoramento decidido: **vigilância manual conforme este runbook**, nenhum monitor externo nesta release (RNF12;
-      `DOMAIN.md`, 2026-10-21; DIV-DP-08 `waived`). A verificação HTTPS manual é *Verify* 1 e 7.
-- [x] Node na versão fixada: `.nvmrc` = `24` na raiz (o workflow lê `node-version-file`); medido no build: v24.20.0.
+- [x] **Commit construído nomeado e contenção demonstrada**: `<sha>` = `6b314b2`; `git log --oneline -12` mostra, do mais
+      novo ao mais antigo, `6b314b2`, `1254443`, `aeaf504`, `c387839`, `f6e2d16`, `8811414`, …, `0c83ed9`; e
+      `git diff --stat 8811414 6b314b2 -- src/lap.ts src/lapMessages.ts src/lapTiming.ts src/frameClock.ts src/trackData.ts tests/race-lap-validation-*`
+      não imprime nada (os commits posteriores, de outras features, não tocam os módulos nem os testes desta).
+- [x] Veredito de testes `SUCCESS`, seed rev 3: `500 Tests/Output/race-lap-validation/reports/test-validation/test-validation-20261030-1559.md`
+      (179 de 179 nesta feature); validação de código `SUCCESS`: `400 Code/Output/race-lap-validation/reports/code-validation/code-validation-20261030-1526.md`.
+- [x] **Staging publicado com `<sha>`**: execução 41101055606 success; a URL serve `assets/index-BwruE9Pq.js`
+      (`Last-Modified` 2026-10-30 17:48:06 GMT); `tools/check_served.py` → `checks=53 failed=0` (`01-release.md`).
+- [ ] Validação de staging `SUCCESS` desta rodada em `600 Deploy/Output/race-lap-validation/reports/deploy-validation/`
+      — aguarda o validador. O mais novo, `deploy-validation-20261021-1643.md` (primeira release), é `FAIL` só pelas linhas
+      humanas (ISSUE-03).
+- [x] Histórico de migração: **não se aplica** — não há banco; a sessão de treino vive em memória (`REL-0002`).
+- [x] Feature flag: **não há** (DES-0007; ADR-0006 não acrescenta); a mudança fica ativa ao servir o `index.html` novo.
+- [x] Repositórios e ambientes (desde 2026-10-21): produção com *Source* = GitHub Actions, revisor obrigatório
+      `edumatosr6-svg` e política de ramos restrita a `master` (segunda tranca); staging com *Source* = GitHub Actions, sem
+      revisor, política de ramos **No restriction** — que **volta a ser restrita depois de cada despublicação** e tem de ser
+      liberada de novo antes de um *Re-run all jobs* (ensaiado em 2026-10-21; `REL-0003`, `REL-0005`).
+- [x] Reversão ensaiada em staging pelo caminho A (2026-10-21, *Ensaio de reversão R4* do log) e o procedimento do caminho
+      B ensaiado no mesmo site (registro de `pista-kart-park`, 2026-10-27). O alvo B desta rodada é 41076989728.
+- [ ] **Execução 3** do log de aparelho (`docs/lap-validation-device-log.md`): as linhas H1–H6 abaixo, sobre a URL de staging,
+      nos aparelhos nomeados (39 critérios `unverified` no veredito de testes dependem dela; DIV-DP-06, DIV-DP-07).
+- [ ] **Escolha do dono do produto entre as opções de produção** (seção *Produção*, abaixo), registrada em `DOMAIN.md`:
+      `master` contém a Kart Park, bloqueada pela decisão Esri (DIV-DP-15).
+- [x] Crédito OSM/ODbL: exigido a partir da Kart Park e verificado pela release `pista-kart-park`; aqui D14/M12.
+- [x] Monitoramento: vigilância manual conforme este runbook, nenhum monitor externo (`DOMAIN.md`, 2026-10-21; DIV-DP-08).
+- [x] Node na versão fixada: `.nvmrc` = `24`.
 
 ## Promote
 
 | # | Passo | Esperado | Leva | Desfaz-se por |
 |---|---|---|---|---|
-| 1 | conferir os commits: `git log --oneline -8` mostra o último commit de `master` (hoje `f16d65a`) e, entre os anteriores, `2bee672`, `c1e488b`, `162b1b3`, `c1f7f28` e `c41c6c3` (= `<sha>`, a árvore de `src/`, `tests/`, `index.html` e do lockfile); `git diff --stat c41c6c3 -- src tests index.html package.json package-lock.json` sem saída; `git status` limpo nos arquivos da release | `c41c6c3` presente no histórico; nenhum commit posterior toca a árvore verificada; nenhuma modificação local | 1 min | nada a desfazer: leitura local, sem efeito externo |
-| 2 | `npm ci` | saída 0; `package-lock.json` inalterado | 1 a 2 min | nada a desfazer externo: só recria `node_modules/` local (apagável) |
-| 3 | `npm test` | saída 0; `170 passed, 0 failed, 0 skipped` | 1 min | nada a desfazer: executa testes, sem efeito externo |
-| 4 | `npm run build` | saída 0; `dist/index.html`, `dist/assets/index-<hash>.js`, `dist/assets/index-<hash>.css`; anotar o `<hash>` do JS (hoje `Cqfgl3da`) — é a conferência local; o artefato publicado é o do workflow | 1 min | nada a desfazer externo: apagar `dist/` local, se se quiser |
-| 5 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True`, saída 0; total da ordem de 593 256 bytes (RNF02) | 10 s | nada a desfazer: leitura, sem efeito externo |
-| 6 | registrar o alvo de reversão: em `https://github.com/edumatosr6-svg/kartle/actions` → workflow `pages`, anotar a **última execução verde** (número da execução e commit) — é o alvo do caminho B. **Nesta primeira release** não existe nenhuma: registrar "primeira release: sem execução anterior; reversão pelo caminho A (Unpublish site)" em `docs/lap-validation-device-log.md` | release seguinte: número e commit da execução verde anterior anotados e a execução ainda reexecutável. **Esta release**: Settings → Pages mostra o site como não publicado e a nota registrada | 2 min | nada a desfazer: anotação |
-| 7 | publicar em **staging**: `git push staging master:staging` (envia a ponta de `master` ao ramo `staging` de `edumatosr6-svg/kartle-staging`; **feito em 2026-10-21** pelo dono do produto) e acompanhar em `https://github.com/edumatosr6-svg/kartle-staging/actions` a execução `pages` desse commit. **Estado em 2026-10-21**: execução 39629837192 (`c1e488b`) verde após a reexecução; a URL responde 200 em HTTPS; R1/R2 ensaiados sobre este site (execução 39631099098, commit `2bee672`, tentativa 2, verde na republicação, mesmo `<hash>`); as execuções seguintes (pushes de registro) são lidas na aba Actions. Se o `deploy` falhar **sem executar nenhum passo**, a causa é a política de ramos do ambiente (precondição do repositório de staging; `REL-0005`) — corrigir e *Re-run all jobs* | execução verde (`build`: `npm ci`, `npm test` 170 aprovados, build, `Measure dist` com `within_limit=True`; `deploy`: concluído, URL `https://edumatosr6-svg.github.io/kartle-staging/`); a URL responde 200 em HTTPS e o `index.html` servido referencia `/kartle-staging/assets/index-<hash>.js` com o `<hash>` impresso no passo *Build* dessa execução | 3 a 5 min (execução) + até 10 min de propagação do cache do Pages | R1 e R2 sobre `edumatosr6-svg/kartle-staging` (caminho A: Unpublish site do repositório de staging; B/C nas releases seguintes) |
-| 8 | executar `smoke.md` em staging (`https://edumatosr6-svg.github.io/kartle-staging/`), canais `web-desktop` e `web-mobile`, e registrar em `docs/lap-validation-device-log.md` | todas as linhas dentro do limiar; D4/M4 com um só botão, "volta de treino"; D14/M12 com 0 ocorrências de OSM/ODbL em `dist/` e nenhuma alegação de atribuição OSM na página | 60 a 90 min | nada a desfazer: observação; o registro no log fica como histórico |
-| 9 | **pergunta ao dono do produto**: promover o commit `<sha>` a produção? (D-DP-06) | resposta explícita registrada; "não" encerra aqui sem efeito | até 1 dia útil de espera; sem resposta até lá, vale "não" | nada a desfazer: "não" ou silêncio encerram sem efeito externo |
-| 10 | publicar em **produção**: `git push origin master` (**o push de 2026-10-21 já foi feito**: a execução `pages` 39627810079 (`162b1b3`) correu `build` com sucesso e **está parada em `deploy` à espera de revisão** em `https://github.com/edumatosr6-svg/kartle/actions` — a mais antiga ainda à espera; a 39629830827 (`c1e488b`) foi **cancelada** pelo grupo de concorrência `pages` quando um push posterior entrou, e os pushes de registro seguintes criaram execuções novas, cujos números se leem na aba Actions; aprovar a execução **mais recente** cujo `build` esteja verde); só depois do "sim" do passo 9, o dono do produto (`edumatosr6-svg`) abre a execução → **Review deployments** → marca `github-pages` → **Approve and deploy** | `build` verde com `npm test` 170 aprovados e `Measure dist` `within_limit=True`; após a aprovação, `deploy` verde com a URL `https://edumatosr6-svg.github.io/kartle/`; a URL serve o `index.html` que referencia `/kartle/assets/index-<hash>.js` com o `<hash>` do passo *Build* dessa execução | 3 a 5 min de execução + o tempo até o clique de aprovação | R1 (caminho A nesta release; B nas seguintes); antes do clique, **Reject** na revisão deixa tudo como está (nada publicado) |
-| 11 | propagação do cache: o GitHub Pages **não oferece purga**; serve tudo com `Cache-Control: max-age=600`. Esperar até 10 min e buscar em janela anônima (no ensaio de staging, a borda continuou a servir a resposta antiga por mais de 6 min mesmo a pedidos com `Cache-Control: no-cache`) | uma busca nova devolve o `index.html` com o JS da execução aprovada; `/kartle/assets/index-<hash>.js` e `.css` respondem 200 | até 10 min | R2 |
+| 1 | conferir os commits (precondição 1) | `<sha>` e `0c83ed9`/`8811414` no histórico; o `git diff --stat` dos módulos e testes desta feature sem saída; `git status` limpo nos arquivos da release | 1 min | nada a desfazer: leitura local |
+| 2 | `npm ci` | saída 0; `package-lock.json` inalterado | 1 a 2 min | nada externo: só recria `node_modules/` |
+| 3 | `npm test` | saída 0; 443 aprovados em `6b314b2`, 179 deles `CHK-TEST-*` desta feature | 1 a 2 min | nada a desfazer |
+| 4 | `npm run build` | saída 0; `dist/` com um JS e um CSS; anotar o `<hash>` local (esperado `BwruE9Pq`, o mesmo de staging) | 1 min | apagar `dist/` local, se se quiser |
+| 5 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True`; total da ordem de 711 KB (RNF02) | 10 s | nada a desfazer |
+| 6 | registrar o alvo de reversão em `docs/lap-validation-device-log.md`: **staging** → 41076989728 (`652bbaa`), caminho B; **produção** → a última execução verde em `https://github.com/edumatosr6-svg/kartle/actions`, ou "nenhuma; caminho A (Unpublish site)" | nota registrada; a execução anterior ainda reexecutável | 2 min | nada a desfazer: anotação |
+| 7 | publicar em **staging**: `git push staging master:staging` e acompanhar a execução em `kartle-staging/actions`. **Feito**: execução 41101055606 (`6b314b2`) success. Se o `deploy` falhar sem executar passos, liberar a política de ramos do ambiente e *Re-run all jobs* | execução verde; a URL serve `index-<hash>.js` com o `<hash>` do passo *Build*; `python -I "600 Deploy/Output/race-lap-validation/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-<hash>.js` → `checks=53 failed=0` | 3 a 5 min + até 10 min de cache | R1 caminho B em staging (41076989728) |
+| 8 | executar `smoke.md` e as linhas humanas H1–H6 em staging; registrar como **execução 3** | todas as linhas dentro do limiar | 90 a 120 min | nada a desfazer: observação |
+| 9 | **pergunta ao dono do produto**: promover? — só depois de 8 **e** da escolha da seção *Produção* (D-DP-06) | resposta explícita registrada; "não" encerra sem efeito | até 1 dia útil; silêncio vale "não" | nada a desfazer |
+| 10 | publicar em **produção** pelo caminho escolhido na seção *Produção*: o push correspondente a `origin` (nunca `--force`); a execução constrói e **para em `deploy`**; o dono do produto abre a execução → **Review deployments** → `github-pages` → **Approve and deploy** — só para a execução do commit escolhido | `build` verde (`npm test`, `Measure dist` `within_limit=True`); depois da aprovação, `deploy` verde; `check_served.py https://edumatosr6-svg.github.io/kartle/ index-<hash>.js` com 0 reprovações | 3 a 5 min + o tempo até o clique | antes do clique, **Reject** (nada publicado); depois, R1 |
+| 11 | propagação do cache: o Pages não tem purga (`max-age=600`); esperar até 10 min e buscar em janela anônima | a busca nova devolve o `index.html` da execução aprovada; JS e CSS respondem 200 | até 10 min | R2 |
+
+## Produção — as opções enquanto a decisão Esri não existe
+
+Todo commit de `master` a partir de `ba221ad` contém a Kart Park, cuja promoção espera a decisão Esri do dono do produto
+(`runbook.md` de `pista-kart-park`, *Promoção bloqueada*; ADR-0005 daquela feature). Esta rodada (`0c83ed9`) está depois
+dela e foi escrita sobre ela: **não existe build do treino contínuo sem a Kart Park**. As opções, nenhuma tomada por um
+loop; a escolha vai para `DOMAIN.md` e para o relatório de validação:
+
+| Opção | O que se faz | O que leva a produção | O que custa | O que exige |
+|---|---|---|---|---|
+| **1 — esperar a decisão Esri** | nenhum push de `master` a `origin` até a decisão; depois, a entrega que a cumprir (crédito Esri, registro `PRODUCTION`, nova rodada deste estágio) leva as quatro features | esta rodada inteira, com `dirigibilidade`, `modelo-kart-01` e a Kart Park | produção continua sem página até lá | a decisão Esri; a execução 3 desta release e as linhas humanas das outras |
+| **2 — publicar `6ea3862` antes** | `git push origin 6ea3862:master` (avanço rápido a partir de `origin/master`, **sem** `--force`; conferir antes que `origin/master` é ancestral de `6ea3862`) e aprovar só a execução desse commit (opção 2 do runbook de `pista-kart-park`) | a **primeira** release desta feature (seed rev 2: treino de **uma** volta, resultado na tela de resultado), `dirigibilidade` e `modelo-kart-01` até `6ea3862`; **não** esta rodada | o treino contínuo fica só em staging até a opção 1; a verificação humana da primeira release tem de ser feita sobre esse bundle (reexecutar a execução verde de `6ea3862` em staging, ou aceitar a execução 3 sobre `6b314b2` como evidência, decisão do dono do produto); nenhuma execução posterior de `master` pode ser aprovada em produção | nenhuma decisão Esri |
+| **3 — portar o treino contínuo para um ramo sem a Kart Park** | ramo a partir de `6ea3862` com ADR-0006 reimplementado sobre o `src/lap.ts` anterior à Kart Park | esta funcionalidade, sem a Kart Park | **não é promoção deste build**: código, testes e deploy novos, com veredito próprio (os dois módulos divergem); dois ramos a manter até a decisão | a decisão de abrir esse trabalho no pipeline |
+
+Nenhuma opção toca staging. A opção 2 e a 3 não adiantam a decisão Esri.
 
 ## Verify
 
 | # | Verificação (`smoke.md`, *Verificação em produção*) | Esperado |
 |---|---|---|
-| 1 | D1 / M1 HTTPS em `https://edumatosr6-svg.github.io/kartle/` — **verificação manual**, a única vigilância de disponibilidade desta release (decisão de 2026-10-21, `DOMAIN.md`; `REL-0005`) | cadeado válido; 0 recursos inseguros; `index.html` e *assets* com 200; inclinação ativa no celular (RNF06) |
-| 2 | D2 / M2 carregamento em 4G, cache vazio | kart responde em menos de 10 s (RNF01) |
-| 3 | D3 / M3 bytes transferidos na primeira visita | abaixo de 3 145 728 bytes (RNF02); esperado da ordem de 153 KB comprimidos |
-| 4 | D4 / M4 pista | `#track-status` mostra `synthetic`; `#lap-offer` com exatamente um botão, "volta de treino", e nenhuma opção oficial (NFR-0012; DES-0009) |
-| 5 | D5 e D6 / M5 e M6 volta de treino inteira | contagem em texto com 48 px e 4,5:1; resultado `m:ss.mmm` com sufixo "não oficial" e 4 setores cuja soma é o total (NFR-0006) |
-| 6 | D14 / M12 crédito OSM e ODbL | passa: `dist/` com 0 ocorrências de dado ou texto OSM/ODbL e a página sem alegação de atribuição OSM (nenhum dado OSM publicado → nenhum crédito exigido) |
-| 7 | repetir 1 a 4 depois de 24 h (vigilância manual; nenhum monitor externo) | mesmos resultados; a execução aprovada continua a última em `https://github.com/edumatosr6-svg/kartle/actions` e Settings → Pages mostra o site ativo com essa implantação (`REL-0005`) |
+| 1 | D1 / M1 HTTPS na URL de produção — verificação manual, a única vigilância de disponibilidade (`REL-0005`) | cadeado válido; 0 recursos inseguros; `index.html` e *assets* com 200; inclinação ativa no celular |
+| 2 | `check_served.py https://edumatosr6-svg.github.io/kartle/ index-<hash>.js` (na opção 2, o `<hash>` da execução de `6ea3862` e a ferramenta da release daquele commit) | 0 reprovações |
+| 3 | D2 / M2 carregamento em 4G, cache vazio | menos de 10 s (RNF01) |
+| 4 | D3 / M3 bytes transferidos | abaixo de 3 145 728 bytes (RNF02) |
+| 5 | D4 / M4 oferta | exatamente um botão, "treino"; nenhuma opção oficial (NFR-0012; DES-0009) |
+| 6 | D5, D6, D15, D16 / M5, M6, M13, M14 treino de voltas seguidas | uma contagem; painel a cada chegada sem parar o kart; melhor volta válida; "encerrar treino" em corrida e em pausa |
+| 7 | D14 / M12 crédito OSM e ODbL (quando a entrega contiver a Kart Park) | crédito e aviso visíveis no seletor e no resultado |
+| 8 | repetir 1 a 5 depois de 24 h | mesmos resultados; a execução aprovada continua a última na aba Actions |
 
 **Gatilhos de reversão (D-DP-03):** carregamento de 10 s ou mais em 4G; transferência de 3 145 728 bytes ou mais;
-`#track-status` sem `synthetic` ou `#lap-offer` sem o botão "volta de treino"; erro no console ao carregar (inclusive 404
-de um *asset* em `/kartle/assets/`); resultado da volta não exibido ao cruzar a chegada; qualquer recurso servido sem
-HTTPS; fps abaixo de 60 no notebook ou de 30 no celular de referência (NFR-0003).
+`#lap-offer` sem o botão "treino"; erro no console ao carregar (inclusive 404 de um *asset*); painel do treino não exibido
+numa chegada; o kart parado ou uma contagem nova numa chegada do treino; "encerrar treino" ausente durante o treino;
+qualquer recurso sem HTTPS; fps abaixo de 60 no notebook ou de 30 no celular de referência (NFR-0003).
+
+## Linhas humanas — o roteiro da execução 3 (H1–H6)
+
+As linhas que só a tela, o sensor, o aparelho ou o relógio de parede decidem: as que a primeira release deixou abertas
+(ISSUE-03 de `deploy-validation-20261021-1643.md`) e as de **E2E-12/E2E-13** desta rodada (12 critérios de US-0010
+`unverified`). Executadas sobre a URL de **staging**, no notebook e no celular de referência nomeados, com a página em
+primeiro plano, e registradas como **execução 3** em `docs/lap-validation-device-log.md` (aparelho, navegador, versão,
+medida, data). Nenhuma pode ser feita por um loop nem sob automação do navegador (o ritmo sob automação é inválido:
+`requestAnimationFrame` a 1–2 quadros/s, três tentativas de 2026-10-21).
+
+| # | Linha | O que se faz | O que se registra | Critério | Roteiro / smoke |
+|---|---|---|---|---|---|
+| H1 | carregamento e ritmo no notebook | cache vazio e rede limitada a 4G: cronometrar até o kart responder; escolher "treino" e cronometrar a contagem; um treino de duas voltas com o contador de fps (F12 → Rendering → Frame Rendering Stats) | tempo de carga; duração da contagem; fps médio e mínimo, inclusive nas chegadas | RNF01 < 10 s; contagem de 3 s; RNF03 60 fps | E2E-01, E2E-10 / D2, D5, D12 |
+| H2 | volta, pausa, motivos, rede, idioma e cor no notebook | D6, D7 (Esc, troca de aba, botão), D8 (pulo, corte, reposicionamento), D9 (offline e armazenamento), D10 (pt, en, fr), D11 (escala de cinza) | resultado de cada linha | NFR-0002, NFR-0004, NFR-0006, NFR-0007; REQ-FEAT-0009-11 | E2E-02, -03, -04, -07, -08, -09 / D6–D11 |
+| H3 | determinismo em 4 navegadores | `reference.inputs` de TEST-0008 em Chrome, Edge, Firefox e Safari | total e 4 setores por navegador | NFR-0008: 0 ms de diferença | E2E-11 / D13 |
+| H4 | **treino de voltas seguidas no notebook** | um treino de quatro voltas (duas válidas, uma com corte, uma válida) sem tocar em nada além da pilotagem; reposicionar uma vez; pausar pelo botão e continuar; conferir "encerrar treino" em corrida e em pausa e acioná-lo em pausa; novo treino; recarregar no meio de um treino. **E2E-13**: registrar "não executável pela tela — nenhuma pista sem setores no catálogo; decidido por CHK-TEST-0015-25, CHK-TEST-0012-14, CHK-TEST-0010-21" | por chegada: painel ao lado, total, setores ou "—", validade e motivo, "não oficial", kart andando, sem contagem; a melhor volta válida a cada chegada; o estado antes e depois do reposicionamento; o valor do cronômetro na pausa e na retomada; o que aparece ao encerrar, no novo treino e na reabertura | AC-US-0010-02, -04, -07, -11, -12, -15, -16, -19, -23, -24, -25 (tela); -27 por `npm test` | E2E-12, E2E-13 / D15, D16 |
+| H5 | celular — as linhas M | M1–M12 no celular de referência nomeado (4G real, inclinação, sensor coberto e negado, troca de aplicativo, modo avião, idioma, 16 px, fps) | resultado e medida de cada linha | RNF01, RNF06, NFR-0002, NFR-0003 (30 fps), NFR-0004, NFR-0006, NFR-0007; I4 | E2E-01, -02, -04, -05, -07, -08, -09, -10 / M1–M12 |
+| H6 | **treino de voltas seguidas no celular** | H4 por inclinação ou toque, em paisagem e em retrato; "❚❚ pausar" e "encerrar treino" por toque | o mesmo de H4; os dois botões alcançáveis e legíveis sem cobrir a pista; o painel legível na tela pequena | AC-US-0010-15, -16 nos dois canais; os mesmos de H4 | E2E-12 / M13, M14 |
+
+Resultado esperado: 6 linhas `PASS` (H4 com a nota de E2E-13); a precondição *Execução 3* fecha e os 39 critérios
+`unverified` ficam verificados na metade humana. Uma linha reprovada é `FAIL CODE` (defeito de aplicação), nunca de
+empacotamento: o bundle é o que passou em `npm test` e em `check_served.py`.
 
 ## Roll back
 
 | # | Passo (desfaz o passo de *Promote* indicado) | Esperado | Leva |
 |---|---|---|---|
-| R1 | desfaz 10, pelo caminho que o passo 6 registrou. **Caminho A — esta release**: em `https://github.com/edumatosr6-svg/kartle` → Settings → Pages → menu "…" ao lado de "Your site is live at …" → **Unpublish site** → confirmar; alvo: *site não publicado*. **Caminho B** (release seguinte): Actions → workflow `pages` → a execução verde anotada no passo 6 → **Re-run all jobs** → quando `deploy` pedir revisão, **Approve and deploy**; alvo: o `dist/` do commit anterior, reconstruído do lockfile. **Caminho C** (sem execução anterior reexecutável e com commit anterior à feature; DM-0001): dono do produto faz `git revert <sha>` (sem `--no-commit`), `npm test` local, `git push origin master`, e aprova o `deploy` da execução nova | **A**: `https://edumatosr6-svg.github.io/kartle/` responde 404 do GitHub em até 10 min (nenhum *asset* desta release servido); Settings → Pages sem site publicado. **B**: a URL serve o `index.html` que referencia `/kartle/assets/index-<hash-anterior>.js`. **C**: a execução nova tem `npm test` verde na árvore revertida e a URL serve o `index.html` reconstruído | A: 1 min de ação + até 10 min de cache — **ensaiado em staging** (2026-10-21): 404 no navegador em ≈ 1 min, mas um cliente com a resposta em cache de borda continuou a receber 200 por mais de 6 min; a despublicação **não é imediata para todos os clientes**. B: 3 a 5 min de execução + aprovação + até 10 min de cache; C: 10 min (revert, testes, push) + 3 a 5 min de execução + aprovação + até 10 min de cache |
-| R2 | propagação do cache (desfaz 11): sem purga no Pages; esperar até 10 min (`max-age=600`) e buscar em janela anônima. **Para voltar a publicar depois do caminho A** (ensaiado em staging): reativar o Pages (Settings → Pages → *Source* = GitHub Actions; pela API, `POST /pages` com `build_type: workflow`), **conferir a política de ramos do ambiente `github-pages`** — a reativação recria o ambiente com a política padrão (só o ramo padrão): em produção é a desejada; em staging tem de ser liberada **de novo** — e *Re-run all jobs* da execução verde | **A**: busca nova devolve 404 e não mais o `index.html` desta release; na republicação, 200 com o mesmo `<hash>` (em staging: execução 39631099098, 200 às 16:31:13Z com `index-Cqfgl3da.js`; ciclo despublicar → republicar ≈ 7,5 min). **B/C**: busca nova devolve o `index.html` restaurado e os seus *assets* respondem 200 | até 10 min (republicação pelo caminho A: ≈ 7,5 min no ensaio) |
-| R3 | executar *Verify* 1, 2 e 4 na versão restaurada (**B/C**); no caminho **A**, confirmar que a URL de produção responde 404 nos 4 navegadores de referência | **B/C**: HTTPS válido; carregamento abaixo de 10 s; a tela anterior funciona. **A**: nenhuma página servida | 10 min |
-| R4 | registrar a reversão: hash revertido, alvo restaurado (A: "não publicado"; B/C: hash restaurado e número da execução), gatilho observado, horário | linha no `docs/lap-validation-device-log.md` e relatório em `reports/deploy-validation/` | 5 min |
-| R5 | se a causa for da aplicação (fps, cronômetro, pausa, leitura da pista), abrir `FAIL CODE` para o estágio de código; se for do empacotamento (base `/kartle/`, cache, HTTPS, Pages), `FAIL` deste estágio | relatório com a classificação | 15 min para escrever e arquivar o relatório, no mesmo dia da reversão |
+| R1 | desfaz 10 (ou 7, em staging), pelo caminho do passo 6. **Produção, hoje — caminho A**: Settings → Pages → "…" → **Unpublish site** → confirmar. **Staging — caminho B**: `kartle-staging/actions` → execução **41076989728** (`652bbaa`) → **Re-run all jobs** (sem revisor; se o site tiver sido despublicado antes, reativar o Pages e liberar a política de ramos primeiro). **Caminho C**: `git revert 8811414 0c83ed9` (sem `--no-commit`), `npm test`, push ao remoto em causa; em produção, aprovar o `deploy` | **A**: a URL responde 404 em até 10 min. **B**: a URL serve o `index.html` da execução reexecutada (o `<hash>` de `652bbaa`); o treino volta a terminar na primeira chegada (seed rev 2); `check_served.py` desta rodada reprova nos elementos do treino contínuo. **C**: `npm test` verde na árvore revertida e a URL serve o `index.html` reconstruído | A: 1 min + até 10 min de cache (ensaiado: 404 no navegador em ≈ 1 min; cache de borda com 200 por mais de 6 min). B: 3 a 5 min de execução + até 10 min de cache (procedimento ensaiado em 2026-10-27: ≈ 4 min). C: 10 min + execução + aprovação + cache |
+| R2 | propagação do cache (desfaz 11): sem purga; esperar até 10 min e buscar em janela anônima. Para voltar a publicar depois do caminho A: reativar o Pages (*Source* = GitHub Actions), conferir a política de ramos do ambiente (em staging, liberar de novo) e *Re-run all jobs* da execução verde | busca nova devolve o 404 (A) ou o `index.html` restaurado (B/C) e os seus *assets* com 200 | até 10 min (republicação pelo caminho A: ≈ 7,5 min no ensaio) |
+| R3 | executar *Verify* 1, 3 e 5 na versão restaurada (B/C); no caminho A, confirmar o 404 nos 4 navegadores | B/C: HTTPS válido, carga abaixo de 10 s, a tela anterior funciona; A: nenhuma página | 10 min |
+| R4 | registrar a reversão: hash revertido, alvo restaurado e número da execução, gatilho, horário | linha em `docs/lap-validation-device-log.md` e relatório em `reports/deploy-validation/` | 5 min |
+| R5 | causa da aplicação (painel, kart parado na chegada, contagem nova, cronômetro, pausa, fps) → `FAIL CODE` para o estágio de código; causa de empacotamento (base, cache, HTTPS, Pages, política de ramos) → `FAIL` deste estágio | relatório com a classificação | 15 min, no mesmo dia |
 
-Staging reverte-se do mesmo modo (R1 e R2 sobre `edumatosr6-svg/kartle-staging`, pelo mesmo caminho; lá o `deploy`
-não pede aprovação) e nunca é precondição para reverter produção. O ensaio de R1/R2 em staging — exigido antes da
-pergunta de promoção — **foi feito em 2026-10-21** (*Ensaio de reversão R4* em `docs/lap-validation-device-log.md`):
-R1 às 16:23:52Z (`DELETE /repos/edumatosr6-svg/kartle-staging/pages`, o equivalente a *Unpublish site*) → 404 do GitHub
-no navegador em ≈ 1 min, `curl` ainda com 200 em cache por mais de 6 min; R2 → `POST /pages` (`build_type: workflow`),
-política do ambiente liberada de novo (a reativação recria o ambiente restrito ao ramo padrão), *Re-run all jobs* →
-execução **39631099098** (commit `2bee672`, tentativa 2) verde → 200 às 16:31:13Z com o mesmo `index-Cqfgl3da.js`.
-Ciclo ≈ 7,5 min. Duas lições
-entraram em R1/R2 e nas precondições: a despublicação não é imediata para todo cliente (cache de borda), e a
-republicação exige refazer a liberação da política em staging.
+Staging reverte-se pelos mesmos passos (lá o `deploy` não pede aprovação) e nunca é precondição para reverter produção.
 
-Dados: nada a desfazer. A feature não grava no navegador e não há servidor (DES-0011, `REL-0002`); um jogador com a
-página nova em cache continua jogando-a por até 10 min; depois disso busca o `index.html` restaurado (ou o 404 do
-caminho A). O Pages serve só a implantação corrente: os *assets* desta release deixam de responder quando outra
-implantação a substitui, por isso a janela de coexistência é a do `max-age=600` (`REL-0003`).
+Dados: nada a desfazer. A sessão de treino vive em memória e é descartada ao recarregar (DM-0002); nada é gravado no
+navegador nem enviado a servidor (DES-0011). Um jogador com a página nova em cache continua a jogá-la por até 10 min.
 
-**Point of no return:** não existe nesta release. Na primeira release a reversão é despublicar (caminho A), sempre
-possível; a partir da release seguinte, a execução verde anterior é reexecutável enquanto o Actions a retiver (90 dias
-por padrão) e, passado isso, o caminho C reconstrói de um commit — o repositório é o artefato de reversão. O único ato
-que tornaria a reversão impossível seria **apagar o histórico do repositório** (`push --force` sobre `master`), que
-nenhum passo deste runbook faz. Quando existirem pistas publicadas para dias futuros (pós-MVP), a publicação de uma
-`trackVersion` passará a ser o ponto sem retorno (I3: nunca editada no lugar), e este runbook terá de nomeá-lo.
+**Point of no return:** não existe nesta release. Em produção a reversão é despublicar (A) enquanto nada tiver sido
+promovido, e depois reexecutar a execução verde anterior (B) enquanto o Actions a retiver (90 dias), ou reconstruir de um
+commit (C) — o repositório é o artefato de reversão. O único ato que tornaria a reversão impossível seria apagar o
+histórico (`push --force` sobre `master`), que nenhum passo deste runbook faz. Quando houver pistas publicadas para dias
+futuros (pós-MVP), a publicação de uma `trackVersion` passa a ser o ponto sem retorno (I3), e este runbook terá de nomeá-lo.
