@@ -4,8 +4,8 @@ title: Configuração de ambiente — nomes e significados, nunca valores
 feature: dirigibilidade
 stage: deploy
 status: validated
-version: 1.0.0
-sources: [DES-0008, NFR-0005, TEST-0010]
+version: 2.0.0
+sources: [DES-0001, DES-0008, DES-0009, ADR-0006, NFR-0005, TEST-0010]
 ---
 
 # REL-0001 — Configuração de ambiente
@@ -13,7 +13,7 @@ sources: [DES-0008, NFR-0005, TEST-0010]
 ## O cliente continua sem ler configuração
 
 A página não lê variável de ambiente, chave, credencial nem arquivo de configuração em tempo de execução nem de build;
-esta feature não muda isso:
+esta feature não muda isso, nem no seed rev 6 (acerto `arcade-assistido-v6`, drift e turbo retirados — commit `6b314b2`):
 
 | Evidência | Resultado |
 |---|---|
@@ -43,8 +43,11 @@ públicos (RNF12). A versão do Node vem de `.nvmrc` (`24`), lida por `node-vers
 
 ## O que a feature publica como "configuração" — dado, não variável
 
-O acerto passa a ser **dado publicado** dentro do bundle (DM-0001, seção 1): `PUBLISHED_SETUPS` em `src/physics.ts`, com
-`setupId`, `setupVersion`, `previousSetupVersion` e os parâmetros do `KartConfig`. Não é configuração de ambiente: é o
+O acerto é **dado publicado** dentro do bundle (DM-0001, seção 1): `PUBLISHED_SETUPS` em `src/physics.ts`, com
+`setupId`, `setupVersion` (`arcade-assistido-v6`), `previousSetupVersion` (`arcade-assistido-v4`) e os parâmetros do
+`KartConfig` (`ARCADE_ASSISTIDO_V6`). Não é configuração de ambiente: é o
 mesmo valor em dev, staging e produção, versionado em código (ADR-0001), sem chave que o troque por ambiente e sem
-chave para a versão anterior (DES-0007, *Feature flag*). A linha de base dos ensaios vive em `docs/physics.md` (bloco
+chave para a versão anterior (DES-0007, *Feature flag*). A retirada do drift e do turbo também não é configuração: não há
+chave que os religue (ADR-0006, DES-0009); o campo `drift` de `Input` continua no contrato de passo (I8) e é ignorado pela
+simulação. A linha de base dos ensaios vive em `docs/physics.md` (bloco
 `handling-baseline`) e é lida só pelos benches e por `npm test`, nunca pela página.

@@ -2,7 +2,7 @@
 stage: deploy
 feature: dirigibilidade
 status: validated
-generated: 2026-10-27T19:26:40Z
+generated: 2026-10-30T18:23:19Z
 files: 10
 ---
 
@@ -12,13 +12,13 @@ files: 10
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-release.md` | - | Release — dirigibilidade do Arcade assistido (acerto arcade-assistido-v5) | validated | 1.0.0 |
-| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido (estágio de deploy) | validated | 1.0.0 |
-| `98-divergences.md` | - | Registro de divergências e lacunas devidas ao humano (estágio de deploy) | validated | 1.0.0 |
-| `REL-0001-config.md` | REL-0001 | Configuração de ambiente — nomes e significados, nunca valores | validated | 1.0.0 |
-| `REL-0002-migration.md` | REL-0002 | Migração — acerto versionado no bundle, replay versão 1, dado persistido intocado | validated | 1.0.0 |
-| `REL-0003-rollout.md` | REL-0003 | Rollout — ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages | validated | 1.0.0 |
-| `REL-0004-mobile.md` | REL-0004 | Canal web-mobile — a mesma página, sem loja, sem assinatura, sem versão mínima instalada | validated | 1.0.0 |
-| `REL-0005-observability.md` | REL-0005 | Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta | validated | 1.0.0 |
-| `runbook.md` | - | Runbook — promover, verificar e reverter a release de dirigibilidade (arcade-assistido-v5) | validated | 1.0.0 |
-| `smoke.md` | - | Verificações de fumaça — por canal, cada uma observando um limiar | validated | 1.0.0 |
+| `01-release.md` | - | Release — dirigibilidade do Arcade assistido (acerto arcade-assistido-v6, sem drift nem turbo) | validated | 2.0.0 |
+| `97-changelog.md` | - | Registro de mudanças — dirigibilidade do Arcade assistido (estágio de deploy) | validated | 2.0.0 |
+| `98-divergences.md` | - | Registro de divergências e lacunas devidas ao humano (estágio de deploy) | validated | 2.0.0 |
+| `REL-0001-config.md` | REL-0001 | Configuração de ambiente — nomes e significados, nunca valores | validated | 2.0.0 |
+| `REL-0002-migration.md` | REL-0002 | Migração — acerto v6 versionado no bundle, drift fora do passo, replay versão 1, dado persistido intocado | validated | 2.0.0 |
+| `REL-0003-rollout.md` | REL-0003 | Rollout — ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages | validated | 2.0.0 |
+| `REL-0004-mobile.md` | REL-0004 | Canal web-mobile — a mesma página, sem loja, sem assinatura, sem versão mínima instalada | validated | 2.0.0 |
+| `REL-0005-observability.md` | REL-0005 | Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta | validated | 2.0.0 |
+| `runbook.md` | - | Runbook — promover, verificar e reverter a release de dirigibilidade (arcade-assistido-v6, sem drift nem turbo) | validated | 2.0.0 |
+| `smoke.md` | - | Verificações de fumaça — por canal, cada uma observando um limiar | validated | 2.0.0 |
