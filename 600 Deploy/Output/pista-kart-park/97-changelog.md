@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
-status: validated
-version: 1.0.0
+status: draft
+version: 1.1.0
 sources: []
 ---
 
@@ -102,3 +102,75 @@ releases sobre este bundle com "Pista sintética", ou medi-las isoladas reexecut
 decisão Esri em `DOMAIN.md`); DIV-DP-15 (dono do produto: opção 1 ou 2 para `dirigibilidade` e o Kart 01).
 
 **Itens recusados**: nenhum.
+
+## 2026-10-30 — rodada 2, Modo B (registro atualizado ao build de `6b314b2` servido em staging)
+
+**Entradas lidas** (§12): `reports/deploy-validation/deploy-validation-20261028-0008.md` (`SUCCESS`, ISSUE-01..05);
+`500 Tests/Output/pista-kart-park/reports/test-validation/test-validation-20261030-1714.md` (`SUCCESS`, 102/102, rodada 3);
+`300 Specs/330 D-Specs/Output/pista-kart-park/` ADR-0007, DES-0007 (linhas de `#lap-training-result-credit`), `test-strategy.md`
+(AC-US-0003-06, -11, AC-US-0006-04..06, E2E-*) e `97-changelog.md` (rodada de 2026-10-30); `200 Requirements/220 Input/pista-kart-park/DOMAIN.md`
+(o ponto Esri de 2026-10-22, sem decisão). Leituras de verificação, só leitura: `git log`/`git diff --stat`/`git rev-parse`/`git ls-files --eol`/`git
+merge-base --is-ancestor`/`git show` de blobs de pista; `gh run list`/`gh run view` (e o log reduzido por `grep` a contagens, nomes
+de *assets* e a linha de *Measure dist*) das execuções 41101055606 e 41076989728 em `kartle-staging` e da lista de `kartle`; GET da
+URL de staging (as duas ferramentas) e da de produção (404); o artefato servido baixado para o diretório temporário da sessão,
+fora da árvore, para `check_bundle.py`; `index.html`, `src/main.ts` (`renderCredit`, `renderTrainingResult`, `renderResult`,
+`vibrate`), `src/lapMessages.ts` (`describeTrainingResult`, `OSM_CREDIT`), `tests/pista-kart-park-screens.test.ts:47-56`, `.gitattributes`.
+
+**Mudanças**
+- `01-release.md` 1.1.0: `<sha>` = `6b314b2193c25cd6384a3f64cffdc369637b3753` (servido pela execução 41101055606, verde, 443/443,
+  `index-BwruE9Pq.js`, 711 477 bytes); o veredito desta feature vive em `1254443` e `6b314b2` difere dele só em testes e registros
+  de `modelo-kart-01`; o que o mesmo build traz de outras features (treino contínuo, acerto v6 sem drift, marcas de pneu); a regra
+  byte-exata (`.gitattributes` `-text`, resumo = bytes do blob, `git ls-files --eol`); a regra de invalidação do `<sha>`
+  reescrita; medidas do artefato servido; alvo de reversão 41076989728 (`652bbaa`); a lacuna de ADR-0007 (DIV-DP-16).
+- `runbook.md` 1.1.0: `<sha>`, `<hash>` `BwruE9Pq`, `<sha-anterior>` 41076989728 / `index-dD_vz2Ev.js`; a conferência byte-exata como
+  nome, precondição e *Promote* 1 (com o que fazer se `attr/` ou `i/`≠`w/` divergirem); precondições novas (regra byte-exata,
+  DIV-DP-16); *Promote* 3/6/7 com 443, 88 e 79 e o estado de 2026-10-30; caminho C em C1 (voltar ao build anterior: os 7 commits de
+  `652bbaa..6b314b2` que tocam a árvore) e C2 (retirar a Kart Park: a cadeia com `5ed7a5b`, conflitos esperados); H2, H3, H5, H7 e
+  H8 reescritas para o treino de voltas seguidas (painel do resultado de cada volta com o crédito, "encerrar treino", 60 fps num
+  treino de duas voltas); gatilhos e *Verify* com o crédito no painel; R1/R2 para o alvo novo; *Promoção bloqueada* (b) opção 2
+  corrigida (ver DIV-DP-15).
+- `smoke.md` 1.1.0: preparação com `BwruE9Pq` e 79 verificações (4 de ADR-0007 reprovadas em `6b314b2`); D5, D7, D9, D10, D13,
+  D14, D15, D17, D18 e M10 no treino contínuo — o resultado de cada volta no painel `#lap-training-result` com o crédito como
+  último item (ADR-0007), a volta inválida que marca e segue, "encerrar treino"; D17 com a conferência byte-exata, o resumo do
+  literal igual ao do registro (`04ce5e51…`), os textos do crédito e `arcade-assistido-v6`. 30 linhas, as mesmas numerações.
+- `tools/check_served.py` (74 → 79) e `tools/check_bundle.py` (83 → 88): `#lap-result-setup` sai (retirado por `dirigibilidade`),
+  entram `#lap-training-result`, `#lap-best-valid`, `#lap-end-training` e as 4 linhas de ADR-0007 (`#lap-training-result-credit`
+  dentro de `#lap-training-result` no HTML; nomeado no JS; nenhum `lap-result-credit` no HTML nem no JS); `arcade-assistido-v5` →
+  `arcade-assistido-v6`. Executadas: `check_served … index-BwruE9Pq.js` `checks=79 failed=4`; `check_bundle` sobre o artefato
+  servido e o registro de `6b314b2` `checks=88 failed=4` (1 `warn`) — as reprovações são as 4 de ADR-0007 em cada uma.
+- `REL-0001` 1.1.0 (linha do `.gitattributes`; referência de `OSM_CREDIT`), `REL-0002` 1.1.0 (origem no blob, acerto v6 como de
+  `dirigibilidade`, treino contínuo, alvo 41076989728, janela de cache), `REL-0003` 1.1.0 (o ocorrido em staging de `d9139a2` a
+  `6b314b2`; etapa 0 byte-exata; 443/79; riscos da regra byte-exata e de ADR-0007), `REL-0004` 1.1.0 (crédito no painel, linhas de
+  `src/main.ts` de `6b314b2`, tamanhos), `REL-0005` 1.1.0 (tabela de execuções de 2026-10-30 por leitura do Actions; crédito no
+  painel; modo de falha byte-exato).
+- `98-divergences.md` 1.1.0: DIV-DP-02, -03, -04 `resolved` com a rodada 2 anotada; DIV-DP-11 anotada; DIV-DP-12, -15 atualizadas;
+  **DIV-DP-16 nova** (`open`, `FAIL CODE` esperado).
+
+**Itens fechados**: ISSUE-02 (`<sha>`; a regra byte-exata e a conferência `git ls-files --eol` no *Promote*; a regra de
+invalidação; o caminho C com `5ed7a5b`; `REL-0003` ordem 2 com o ocorrido; DIV-DP-02 anotada com a prova byte a byte) — o
+`<sha>` passa a `6b314b2` em vez de `5ed7a5b` porque staging serve hoje `6b314b2`; ISSUE-03 (DIV-DP-03 `resolved` como o
+relatório pediu; a precondição de ensaio mantida `[x]` com o alvo novo).
+
+**Itens que ficam abertos, com o que os fecha**: ISSUE-01 / DIV-DP-01, DIV-DP-07 (dono do produto: `docs/kart-park-device-log.md`
+com H1–H8, sobre um build que feche DIV-DP-16); ISSUE-04 / DIV-DP-14, DIV-DP-15 (dono do produto: decisão Esri e opção (b));
+ISSUE-05 / DIV-DP-12 (dono do produto: portas humanas das releases contidas); **DIV-DP-16** (estágio de código desta feature:
+ADR-0007; estágio de testes: migração de CHK-TEST-0009-04; depois nova rodada deste estágio). A precondição "Validação de staging
+`SUCCESS`" fica `[ ]`: o relatório de 2026-10-28 é do build de `5ed7a5b`.
+
+**Itens recusados ou não aplicados, com motivo**
+- ISSUE-02, "`<sha>` passa a `5ed7a5b`": superado — o build servido e a nomear é o de `6b314b2`; `5ed7a5b` entra no histórico de
+  `REL-0003`, na cadeia de C2 e em DIV-DP-02.
+- ISSUE-02, "conferência `git ls-files --eol` como linha de `check_bundle.py`": não adotado; `check_bundle.py` não executa git e
+  só lê os caminhos dados. Ficou como passo do *Promote* (1), precondição e etapa 0 de `REL-0003`, que é a outra forma que o
+  relatório admite.
+- ISSUE-03, "precondição *Validação de staging* `[x]` com o relatório de 2026-10-28": não aplicado — esse relatório valida o build
+  de `5ed7a5b`; para `6b314b2` a precondição espera a próxima validação.
+- Corrigir ADR-0007 no código ou migrar CHK-TEST-0009-04: fora da cerca de escrita deste estágio (§14); registrado como DIV-DP-16
+  para os estágios de código e de testes desta feature.
+- Opção 2 de *Promoção bloqueada* (b) mantida como `git push origin 6ea3862:master`: não mantida — publicaria o acerto v5 com
+  drift e turbo que o dono do produto retirou depois; reescrita como entrega nova sem a Kart Park (DIV-DP-15).
+- Nenhuma linha nova de smoke nem passo humano novo (§16): as 30 linhas e H1–H8 foram reescritas onde o D-Spec de 2026-10-30
+  mudou o roteiro (E2E-02, E2E-03), e as verificações novas das ferramentas observam o que ADR-0007 e o treino contínuo já pedem.
+- Nada foi executado contra produção; nenhum push, reexecução ou escrita no GitHub (só `gh run list`/`view`); nenhum valor de
+  segredo escrito; nada fora de `600 Deploy/Output/pista-kart-park/` foi escrito (o artefato servido baixado foi para o
+  diretório temporário da sessão).

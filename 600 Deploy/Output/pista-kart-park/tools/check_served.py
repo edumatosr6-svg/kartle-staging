@@ -2,7 +2,7 @@
 
 Uso (só leitura; três GET em HTTPS, nenhum outro efeito):
     python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/
-    python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-DYFBop8t.js
+    python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-BwruE9Pq.js
 
 Imprime uma linha por verificação (`ok`/`FAIL`/`warn`) e um resumo
 `status=... js=index-<hash>.js js_bytes=... css_bytes=... cache_control=... last_modified=... track_sha256=... checks=... failed=...`
@@ -10,16 +10,21 @@ Imprime uma linha por verificação (`ok`/`FAIL`/`warn`) e um resumo
   1. a URL responde 200 em HTTPS (a URL tem de começar por `https://`; `http://` é recusado antes de qualquer pedido);
   2. o `index.html` servido referencia exatamente um `assets/index-<hash>.js` e um `.css` sob a base da URL;
   3. (opcional, segundo argumento) o `<hash>` do JS é o esperado — o impresso no passo *Build* da execução aprovada;
-  4. o HTML servido tem os elementos desta feature (`#track-name`, `#track-selector`, `#track-credit`,
-     `#lap-result-credit`) e os herdados (`#scene`, `#track-status`, `#lap-offer`, `#lap-result`, `#lap-result-setup`,
-     `#preset-label`, `#handling-preset` com `arcade` selecionado); `Circuito Aurora` e `esri` ausentes;
+  4. o HTML servido tem os elementos desta feature (`#track-name`, `#track-selector`, `#track-credit`) e os herdados
+     (`#scene`, `#track-status`, `#lap-offer`, `#lap-result`, `#preset-label`, `#handling-preset` com `arcade`
+     selecionado; do treino de voltas seguidas de `race-lap-validation`: `#lap-training-result`, `#lap-best-valid`,
+     `#lap-end-training`); `Circuito Aurora` e `esri` ausentes;
+  4b. o crédito no resultado de cada volta do treino (ADR-0007; DES-0007; AC-US-0006-04..06): `#lap-training-result-credit`
+     dentro de `#lap-training-result` no HTML e nomeado no JS (o alvo de `renderCredit`), e nenhum `lap-result-credit`
+     no HTML nem no JS (retirado de `#lap-result`, que não exibe volta de treino);
   5. o JS servido responde 200 e carrega o arquivo da Kart Park **uma vez** (`{"schemaVersion":3,"trackId":"kart-park"`),
      JSON legível cujo SHA-256 (com o `\n` final do arquivo) é o da entrada `kart-park` 1 do registro na árvore desta
-     release (`KART_PARK_V1_SHA256`, `tracks/registry.json` em `d9139a2`) — a página serve a versão publicada, byte a
+     release (`KART_PARK_V1_SHA256`, `tracks/registry.json` em `6b314b2`, mesmo blob desde `d9139a2`) — a página serve a versão publicada, byte a
      byte (NFR-0006); o literal mede menos de 200 000 bytes (NFR-0001); 38 marcadores, 34 zebras, 684 pontos, 1 barreira;
   6. os textos do seletor e do crédito, o retorno da zebra (`vibrate(20)`, `lowpassHz:160`), a barreira
      (`barrierContact`), as malhas da cena, nenhum texto proibido (`esri`, `41.45`, `41,45`, `41450`, `KARTPLAN`,
-     `recorde`, `Circuito Aurora`, `helmet`, `boxGeo`) e os identificadores das releases anteriores;
+     `recorde`, `Circuito Aurora`, `helmet`, `boxGeo`) e os identificadores das releases contidas (`arcade-assistido-v6`
+     desde o acerto de 2026-10-29 de `dirigibilidade`);
   7. o CSS servido responde 200 e tem `.track-selector` e `.track-credit`;
   8. tamanho do JS servido e da soma JS + CSS + HTML contra o limite de 3 145 728 bytes (RNF02).
 Não substitui o `smoke.md`: não executa a página, não mede ritmo, não lê o console nem sente a vibração.
@@ -36,7 +41,7 @@ expected_js = sys.argv[2] if len(sys.argv) > 2 else None
 LIMIT = 3 * 1024 * 1024
 TRACK_LITERAL_LIMIT = 200_000
 TRACK_HEAD = '{"schemaVersion":3,"trackId":"kart-park"'
-# tracks/registry.json, entrada kart-park 1 (STAGING), árvore de d9139a2 — 43 013 bytes com o LF final.
+# tracks/registry.json, entrada kart-park 1 (STAGING), árvore de 6b314b2 (blob igual ao de d9139a2 e 5ed7a5b) — 43 013 bytes com o LF final.
 KART_PARK_V1_SHA256 = "04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1"
 failed = 0
 checks = 0
@@ -80,9 +85,12 @@ js_name = js_refs[0].split("/")[-1] if js_refs else ""
 if expected_js:
     report("hash do JS é o esperado", js_name == expected_js, f"servido {js_name}, esperado {expected_js}")
 
-for el in ("track-name", "track-selector", "track-credit", "lap-result-credit", "scene", "track-status", "lap-offer",
-           "lap-result", "lap-result-setup", "preset-label", "handling-preset"):
+for el in ("track-name", "track-selector", "track-credit", "scene", "track-status", "lap-offer", "lap-result",
+           "preset-label", "handling-preset", "lap-training-result", "lap-best-valid", "lap-end-training"):
     report(f"elemento `#{el}` no HTML servido", f'id="{el}"' in html)
+report("ADR-0007: `#lap-training-result-credit` dentro de `#lap-training-result` no HTML servido",
+       bool(re.search(r'<div id="lap-training-result"[^>]*>(?:(?!</div>).)*id="lap-training-result-credit"', html, re.S)))
+report("ADR-0007: `#lap-result-credit` retirado do HTML servido", 'id="lap-result-credit"' not in html)
 report("opção `arcade` selecionada por padrão", '<option value="arcade" selected>' in html)
 report("`Circuito Aurora` ausente do HTML servido", "Circuito Aurora" not in html)
 report("`esri` ausente do HTML servido", "esri" not in html.lower())
@@ -126,6 +134,8 @@ for marker in ("Kart Park — São José dos Pinhais (traçado aproximado)", "di
                "noopener noreferrer", "_blank", "selectedTrackId", "TRAINING", "curbWheelCount", "barrierContact",
                "barrierTouching", "lowpassHz:160"):
     report(f"texto `{marker}` no JS servido", marker in js_text)
+report("ADR-0007: o JS servido desenha o crédito em `lap-training-result-credit`", "lap-training-result-credit" in js_text)
+report("ADR-0007: nenhum `lap-result-credit` no JS servido", "lap-result-credit" not in js_text)
 report("`trackId:`kart-park`` no catálogo do JS servido", bool(re.search(r"trackId:[`'\"]kart-park[`'\"]", js_text)))
 report("`vibrate(20)` no JS servido", bool(re.search(r"vibrate\(\s*20\s*\)", js_text)))
 report("fonte `noise` do som da zebra no JS servido", bool(re.search(r"source:[`'\"]noise[`'\"]", js_text)))
@@ -136,8 +146,8 @@ for ghost in ("esri", "41.45", "41,45", "41450", "kartplan", "recorde", "circuit
     report(f"texto `{ghost}` ausente do JS servido (sem distinção de caixa)", ghost not in js_lower)
 for ghost in ("helmet", "boxGeo", "XMLHttpRequest", "sendBeacon"):
     report(f"símbolo `{ghost}` ausente do JS servido", ghost not in js_text)
-for ident in ("kart01-decals", "=1.38,", "arcade-assistido-v5", "arcade-assistido-v4", "realista-aluguel-4t-v4", "Kartle · ", "synthetic"):
-    report(f"release anterior: `{ident}` no JS servido", ident in js_text)
+for ident in ("kart01-decals", "=1.38,", "arcade-assistido-v6", "arcade-assistido-v4", "realista-aluguel-4t-v4", "Kartle · ", "synthetic"):
+    report(f"release contida: `{ident}` no JS servido", ident in js_text)
 
 css_status, _, css_body = fetch_asset(css_refs[0]) if css_refs else (0, {}, b"")
 css_text = css_body.decode("utf-8", errors="replace")

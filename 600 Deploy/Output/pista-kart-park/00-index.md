@@ -1,8 +1,8 @@
 ---
 stage: deploy
 feature: pista-kart-park
-status: validated
-generated: 2026-10-28T00:00:47Z
+status: draft
+generated: 2026-10-30T18:18:33Z
 files: 10
 ---
 
@@ -12,13 +12,13 @@ files: 10
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-release.md` | - | Release — pista Kart Park (staging; produção bloqueada pela decisão Esri) | draft | 1.0.0 |
-| `97-changelog.md` | - | Registro de mudanças — pista Kart Park (estágio de deploy) | draft | 1.0.0 |
-| `98-divergences.md` | - | Registro de divergências e lacunas devidas ao humano (estágio de deploy) | draft | 1.0.0 |
-| `REL-0001-config.md` | REL-0001 | Configuração de ambiente — nomes e significados, nunca valores; nenhuma chave para a Kart Park | draft | 1.0.0 |
-| `REL-0002-migration.md` | REL-0002 | Migração — o arquivo de pista ganha o esquema 3 com o leitor do 2 mantido; nada persistido muda; a versão publicada é imutável | draft | 1.0.0 |
-| `REL-0003-rollout.md` | REL-0003 | Rollout — staging agora, produção bloqueada pela decisão Esri; ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages | draft | 1.0.0 |
-| `REL-0004-mobile.md` | REL-0004 | Canal web-mobile — a mesma página; vibração da zebra, inclinação negada e navegador sem vibração | draft | 1.0.0 |
-| `REL-0005-observability.md` | REL-0005 | Observabilidade — o que a release registra, o que se mede, qual alerta soaria e como se vê a promoção indevida | draft | 1.0.0 |
-| `runbook.md` | - | Runbook — publicar em staging, verificar e reverter a release da Kart Park; promoção a produção BLOQUEADA pela decisão Esri | draft | 1.0.0 |
-| `smoke.md` | - | Verificações de fumaça — por canal, cada uma observando um limiar; executadas em staging (produção só depois da decisão Esri) | draft | 1.0.0 |
+| `01-release.md` | - | Release — pista Kart Park (staging; produção bloqueada pela decisão Esri) | draft | 1.1.0 |
+| `97-changelog.md` | - | Registro de mudanças — pista Kart Park (estágio de deploy) | draft | 1.1.0 |
+| `98-divergences.md` | - | Registro de divergências e lacunas devidas ao humano (estágio de deploy) | draft | 1.1.0 |
+| `REL-0001-config.md` | REL-0001 | Configuração de ambiente — nomes e significados, nunca valores; nenhuma chave para a Kart Park | draft | 1.1.0 |
+| `REL-0002-migration.md` | REL-0002 | Migração — o arquivo de pista ganha o esquema 3 com o leitor do 2 mantido; nada persistido muda; a versão publicada é imutável | draft | 1.1.0 |
+| `REL-0003-rollout.md` | REL-0003 | Rollout — staging agora, produção bloqueada pela decisão Esri; ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages | draft | 1.1.0 |
+| `REL-0004-mobile.md` | REL-0004 | Canal web-mobile — a mesma página; vibração da zebra, inclinação negada e navegador sem vibração | draft | 1.1.0 |
+| `REL-0005-observability.md` | REL-0005 | Observabilidade — o que a release registra, o que se mede, qual alerta soaria e como se vê a promoção indevida | draft | 1.1.0 |
+| `runbook.md` | - | Runbook — publicar em staging, verificar e reverter a release da Kart Park; promoção a produção BLOQUEADA pela decisão Esri | draft | 1.1.0 |
+| `smoke.md` | - | Verificações de fumaça — por canal, cada uma observando um limiar; executadas em staging (produção só depois da decisão Esri) | draft | 1.1.0 |

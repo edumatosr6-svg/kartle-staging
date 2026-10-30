@@ -25,12 +25,16 @@ Verifica, sem executar nada (copiado e adaptado de `600 Deploy/Output/modelo-kar
      `41.45`, `41,45`, `41450`, `KARTPLAN`, `recorde` (AC-US-0006-09), `Circuito Aurora`, nem os símbolos do kart
      provisório `helmet`/`boxGeo`; `XMLHttpRequest`/`sendBeacon` ausentes; `fetch(` só avisa (o polyfill de
      `modulepreload` do Vite o contém; os módulos da feature são provados por CHK-TEST-0011-02);
-  7. as releases anteriores continuam no JS (`kart01-decals`, `=1.38,`, `arcade-assistido-v5`, `arcade-assistido-v4`,
-     `realista-aluguel-4t-v4`, `Kartle · `, `synthetic`);
-  8. `dist/index.html` tem os elementos desta feature (`#track-name`, `#track-selector`, `#track-credit`,
-     `#lap-result-credit`) e os herdados (`#scene`, `#track-status`, `#lap-offer`, `#lap-result`, `#lap-result-setup`,
-     `#preset-label`, `#handling-preset` com `arcade` selecionado); `Circuito Aurora` e `esri` ausentes do HTML e do CSS;
-     o CSS tem `.track-selector` e `.track-credit`;
+  7. as releases contidas continuam no JS (`kart01-decals`, `=1.38,`, `arcade-assistido-v6` — o acerto publicado desde
+     2026-10-29 —, `arcade-assistido-v4`, `realista-aluguel-4t-v4`, `Kartle · `, `synthetic`);
+  8. `dist/index.html` tem os elementos desta feature (`#track-name`, `#track-selector`, `#track-credit`) e os herdados
+     (`#scene`, `#track-status`, `#lap-offer`, `#lap-result`, `#preset-label`, `#handling-preset` com `arcade`
+     selecionado; do treino de voltas seguidas de `race-lap-validation`: `#lap-training-result`, `#lap-best-valid`,
+     `#lap-end-training`); `Circuito Aurora` e `esri` ausentes do HTML e do CSS; o CSS tem `.track-selector` e
+     `.track-credit`;
+  8b. o crédito no resultado de cada volta do treino (ADR-0007; DES-0007; AC-US-0006-04..06): `#lap-training-result-credit`
+     dentro de `#lap-training-result` em `index.html` e nomeado no JS (o alvo de `renderCredit`); nenhum
+     `lap-result-credit` no HTML nem no JS;
   9. nenhum arquivo de `dist/` contém `localStorage`, `sessionStorage` ou `indexedDB` — textual sobre o bundle inteiro
      (inclui a biblioteca three), por isso só avisa (`warn`): a prova de camada é CHK-TEST-0011-02;
  10. tamanho: o JS e o total de `dist/` abaixo de 3 145 728 bytes (RNF02);
@@ -152,16 +156,23 @@ report("`fetch(` ausente do JS (textual; o polyfill de modulepreload do Vite o c
        f"{js_text.count('fetch(')} ocorrência(s)", level="warn")
 
 # 7. previous releases
-for ident in ("kart01-decals", "=1.38,", "arcade-assistido-v5", "arcade-assistido-v4", "realista-aluguel-4t-v4", "Kartle · ", "synthetic"):
-    report(f"release anterior: `{ident}` no JS", ident in js_text)
+for ident in ("kart01-decals", "=1.38,", "arcade-assistido-v6", "arcade-assistido-v4", "realista-aluguel-4t-v4", "Kartle · ", "synthetic"):
+    report(f"release contida: `{ident}` no JS", ident in js_text)
 
 # 8. html and css
 html_path = root / "index.html"
 html = html_path.read_text(encoding="utf-8", errors="replace") if html_path.is_file() else ""
 report("dist/index.html existe", bool(html))
-for el in ("track-name", "track-selector", "track-credit", "lap-result-credit", "scene", "track-status", "lap-offer",
-           "lap-result", "lap-result-setup", "preset-label", "handling-preset"):
+for el in ("track-name", "track-selector", "track-credit", "scene", "track-status", "lap-offer", "lap-result",
+           "preset-label", "handling-preset", "lap-training-result", "lap-best-valid", "lap-end-training"):
     report(f"elemento `#{el}` em index.html", f'id="{el}"' in html)
+
+# 8b. ADR-0007: the credit of each training lap result
+report("ADR-0007: `#lap-training-result-credit` dentro de `#lap-training-result` em index.html",
+       bool(re.search(r'<div id="lap-training-result"[^>]*>(?:(?!</div>).)*id="lap-training-result-credit"', html, re.S)))
+report("ADR-0007: `#lap-result-credit` retirado de index.html", 'id="lap-result-credit"' not in html)
+report("ADR-0007: o JS desenha o crédito em `lap-training-result-credit`", "lap-training-result-credit" in js_text)
+report("ADR-0007: nenhum `lap-result-credit` no JS", "lap-result-credit" not in js_text)
 report("opção `arcade` selecionada por padrão", '<option value="arcade" selected>' in html)
 report("`Circuito Aurora` ausente de index.html", "Circuito Aurora" not in html)
 report("`esri` ausente de index.html e do CSS", "esri" not in html.lower() and "esri" not in css_text.lower())
