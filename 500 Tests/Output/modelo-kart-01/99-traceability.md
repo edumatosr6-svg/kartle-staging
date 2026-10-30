@@ -1,7 +1,7 @@
 ---
 stage: test
 feature: modelo-kart-01
-generated: 2026-10-27T21:31:20Z
+generated: 2026-10-30T14:53:23Z
 rows: 54
 ---
 

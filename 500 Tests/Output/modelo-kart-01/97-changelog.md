@@ -206,3 +206,45 @@ aprovadas, 2 reprovadas — CHK-TEST-0004-11 (`SIM_CONTRACT`, `inputContractUnch
 - **Acrescentar ao registro `DETERMINISM` um campo com os campos não comparados:** declinado; API-0002 fixa os campos do
   registro e CHK-TEST-0004-16 os confere campo a campo (superfície congelada em rodada de correção, conventions §16). A lista
   fica nesta entrada e na coluna de TEST-0004.
+
+## 2026-10-30 — rodada 3, Modo B (linha de base da simulação regravada com `arcade-assistido-v6`)
+
+### Entrada
+
+- FB-02 da `dirigibilidade`, aplicado no D-Spec validado (`reports/dspec-validation/dspec-validation-20261030-1413.md`):
+  ADR-0004 ("Regravação com `arcade-assistido-v6`"), ADR-0003 decisão 6, DM-0001.
+- Entrega do código da `dirigibilidade` (commit `cfad3dc`, acerto `arcade-assistido-v6`). Com o fixture ainda em
+  `arcade-assistido-v5`, `readSimBaseline` devolvia `BASELINE_MISSING` e reprovavam CHK-TEST-0004-09, -11, -12, -13, -14,
+  -15 e -16.
+
+### O que mudou
+
+- `tests/fixtures/kart01-sim-baseline.json` regravado com `npm run baseline:kart01 -- --force --commit a361c9c9970195acf0b11c0b2f31ea21b91d7fce`
+  sobre a árvore de `HEAD` (`src/` e `scripts/` sem alteração local). Proveniência: `recordedOnCommit` `a361c9c…`,
+  `recordedAtUtc` 2026-10-30T14:51:27Z, `stepS` 1/120, `trackId` `synthetic`, `trackVersion` 2, motorista de 75 kg.
+- `ARCADE_ASSISTIDO`: `setupVersion` `arcade-assistido-v5` → `arcade-assistido-v6`; 3 531 → 3 525 passos, 143 → 136
+  trechos de `inputRuns`, `lapMs` 29 419 → 29 369, `VALID`; `finalKart` novo.
+- `REALISTA_ALUGUEL_4T`: `realista-aluguel-4t-v4` inalterado; mesmos 5 272 passos, mesmos `inputRuns`, `lapMs` 43 932; o
+  `finalKart` só ganhou `telemetry.barrierTouching` e `telemetry.barrierContact` (DES-0003 de `pista-kart-park`), que agora
+  decidem em CHK-TEST-0004-13.
+- `wheelPositions`, `simWheelbaseM` 1,04, `simTrackWidthM` 1,20 e `inputTypeLine` iguais aos gravados antes.
+- TEST-0004 1.1.0 → 1.2.0: linha "Fixtures" (proveniência da linha de base) e a frase de CHK-TEST-0004-13 sobre os campos de
+  `pista-kart-park`, agora gravados.
+- Nenhum arquivo de teste nem `tests/helpers/kart01Report.ts` mudou: o leitor compara `setupVersion` com `PUBLISHED_SETUPS`, e as
+  cópias alteradas em memória (`setupVersion` `arcade-assistido-v4`, etc.) seguem diferentes do publicado.
+
+### Migração de verificações existentes
+
+Nenhuma verificação modificada, renomeada, fundida ou removida; todas carried. CHK-TEST-0004-09, -11 a -16 voltam a comparar a
+simulação real (`drive` com `autopilot()` sobre `PUBLISHED_SETUPS`) contra a volta gravada com o acerto v6.
+
+### Execução
+
+`npx tsx --test tests/*.test.ts` com os repórteres `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`),
+2026-10-30: 393 verificações, 393 aprovadas, 0 reprovadas, 0 puladas, ~36 s. Nenhuma verificação de marcas de pneu ou de
+congelamento do Kart 01 reprovou nesta execução.
+
+### Itens declinados, com o motivo
+
+- **Alterar as verificações de marcas de pneu / congelamento do Kart 01:** fora do escopo desta rodada; a rodada de código do
+  Kart 01 que as implementa vem depois.
