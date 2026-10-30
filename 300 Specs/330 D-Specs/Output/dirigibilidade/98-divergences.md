@@ -3,14 +3,14 @@ title: Divergências — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 4.0.0
+version: 4.1.0
 sources: []
 ---
 
 # Divergências
 
 Registro durável dos requisitos deste conjunto que o sistema em execução não satisfaz (conventions §6). O
-F-Spec (4.0.1) é normativo: nenhuma linha abaixo enfraquece um requisito. Cada linha cita o que existe hoje em
+F-Spec (4.1.0) é normativo: nenhuma linha abaixo enfraquece um requisito. Cada linha cita o que existe hoje em
 `arquivo:linha` — a árvore corrente, que implementa o projeto 3.1.0 deste conjunto e já carrega o código de
 `pista-kart-park` e de `modelo-kart-01` —, a etapa que deve a mudança e o item de projeto que a fecha. Caminhos
 relativos à raiz do repositório.
@@ -29,10 +29,12 @@ relativos à raiz do repositório.
 | REQ-FEAT-0004-02, -07 (veredito) | `TOP_SPEED` entre 65 km/h e 72 km/h; `WALL_CONTACT` vazio como `MEASUREMENT_MISSING`; `ACCELERATION`/`TOP_SPEED` com os campos da área | `scripts/handlingBench.ts:34-38` (`THRESHOLDS.topSpeedMps` `105 / 3.6`), `judge` de `WALL_CONTACT` com `THRESHOLD_EXCEEDED`; reta em `testPadLane` sem campos da área | código | DES-0004 | open |
 | API-0001 2.0.0 (REQ-FEAT-0002-11 a -13, REQ-FEAT-0003-13) | telemetria com `positionXM`, `positionZM`, `headingRad` e sem `driftActive` | `src/physics.ts:441-456` tem `driftActive` e não tem posição nem rumo | código | DES-0002 | open |
 | REQ-FEAT-0003-14 | HUD sem indicador de carga de drift, turbo, impulso, combo ou pontuação | `index.html:18` (`ESTILO`, `#style-score`, `#combo`), `:30` (`#drift-hud`); `src/main.ts:500-506` (mensagens de prêmio), `:613-624` (medidor, rótulos, `boosting`) | código | DES-0005 | open |
+| REQ-FEAT-0003-18, -19, -20; SCR-0003 1.0.0 | tela inicial, dica da barra de ferramentas e guia de manobras sem texto, ícone ou controle que mencione ou ofereça o drift ou o turbo, nos dois canais e nos dois idiomas | `index.html:19` (`#welcome`: "Entre de lado. Saia voando.", "Acelere, encaixe o drift e solte para dar o impulso." e "Espaço + curva para drift"), `:34` (`.control-hint`: "Dirigir · Espaço: drift → turbo"), `:35` (`.maneuver-guide`, `aria-label` "Como fazer drift", três passos só do drift e do turbo); `src/style.css:3` (regras `.maneuver-guide`); observado na árvore de 2026-10-30 | código | DES-0009 | open |
+| REQ-FEAT-0003-21; SCR-0001 1.2.0 | controle de toque de `web-mobile` sem o botão "Drift" nem outro controle de drift ou turbo, com o sensor ativo e no recuo para toque | `index.html:32` (`<button data-control="drift" aria-label="Segurar para drift">Drift</button>`); `src/main.ts:549` (`touch.has('drift')` no `Input`), `:655-656` (`driftButton.disabled`); `src/style.css:3` (`.touch-controls button[data-control=drift]`); observado na árvore de 2026-10-30 | código | DES-0007 | open |
 | REQ-FEAT-0003-15, REQ-FEAT-0005-13; SCR-0002 1.2.0 | texto compartilhado e resultado sem a `setupVersion` e sem conteúdo de drift | `src/handlingMessages.ts:9` escreve `· <setupVersion>`; `index.html:25` tem `#lap-result-setup`, preenchido em `src/main.ts:466` | código | DES-0006 | open |
 | REQ-FEAT-0005-01 a -04, -10 (fim da volta) | a volta do piloto de teste, a volta cronometrada e a reprodução de replay terminam no primeiro resultado, também quando o treino de `race-lap-validation` passar a só chegar a `ENDED` por `endTraining` | `scripts/handlingBench.ts:506`, `scripts/keyboard-lap.ts:32` e `src/setupRecords.ts:120` (`replayLap`) param na fase `ENDED`; hoje coincide com o primeiro resultado, e deixa de coincidir com a mudança projetada no D-Spec de `race-lap-validation` (feedback `reports/feedbacks/race-lap-validation/feedback-20261030-1256.md`) | código | DES-0003, DES-0004 | open |
 | REQ-FEAT-0006-08, NFR-0004 | entrada datada de `arcade-assistido-v6` e linhas de base `arcade-assistido-v4` e `realista-aluguel-4t-v4` medidas com os ensaios desta versão, uma entrada por chave | `docs/physics.md:196-280` (prosa de v5) e `:282-429` (bloco com v4, Realista e v5 medidos com os ensaios da revisão 3) | código | DM-0001, ADR-0003 | open |
-| as provas em `npm test` (REQ-FEAT-0001-06, REQ-FEAT-0002-06, REQ-FEAT-0003-08, REQ-FEAT-0004-07, REQ-FEAT-0006-04, -05) e o roteiro registrado (AC-US-0003-09, -11, AC-US-0004-06, AC-US-0005-05, -07) | verificações de [test-strategy](test-strategy.md) 6.0.0; `docs/handling-device-log.md` | `tests/dirigibilidade-*.test.ts` (dez arquivos) e `tests/fixtures/records.ts` provam o projeto 5.1.0; `tests/maneuvers.test.ts:68-80` exige o drift pelo passo; `docs/handling-device-log.md` não existe | testes | test-strategy | open |
+| as provas em `npm test` (REQ-FEAT-0001-06, REQ-FEAT-0002-06, REQ-FEAT-0003-08, REQ-FEAT-0004-07, REQ-FEAT-0006-04, -05) e o roteiro registrado (AC-US-0003-09, -11 a -15, AC-US-0004-06, AC-US-0005-05, -07) | verificações de [test-strategy](test-strategy.md) 6.1.0; `docs/handling-device-log.md` | `tests/dirigibilidade-*.test.ts` (dez arquivos) e `tests/fixtures/records.ts` provam o projeto 5.1.0; `tests/maneuvers.test.ts:68-80` exige o drift pelo passo; `docs/handling-device-log.md` não existe | testes | test-strategy | open |
 
 ## Linhas resolvidas que continuam valendo
 

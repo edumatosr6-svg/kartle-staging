@@ -1,8 +1,8 @@
 ---
 stage: dspec
 feature: dirigibilidade
-generated: 2026-10-30T13:39:12Z
-rows: 271
+generated: 2026-10-30T15:37:08Z
+rows: 282
 ---
 
 # Traceability
@@ -47,6 +47,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0003 | DES-0006 | - | `web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md` |
 | FEAT-0003 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
 | FEAT-0003 | DES-0008 | - | `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` |
+| FEAT-0003 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
 | FEAT-0004 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
 | FEAT-0004 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | FEAT-0004 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
@@ -73,6 +74,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0006 | DES-0005 | - | `web/DES-0005-hud-velocidade-e-aderencia.md` |
 | FEAT-0006 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
 | FEAT-0006 | DES-0008 | - | `security/DES-0008-privacidade-dos-registros-e-da-saida-dos-ensaios.md` |
+| FEAT-0006 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
 | FEAT-0006 | DM-0001 | - | `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` |
 | FLOW-0001 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
 | FLOW-0001 | DES-0002 | - | `core/DES-0002-telemetria-de-dirigibilidade.md` |
@@ -98,6 +100,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | NFR-0004 | DM-0001 | - | `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` |
 | NFR-0005 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | NFR-0005 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
+| NFR-0005 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
 | NFR-0006 | ADR-0002 | - | `adr/ADR-0002-formato-do-replay-e-registro-de-volta-em-memoria.md` |
 | NFR-0007 | ADR-0001 | - | `adr/ADR-0001-versao-do-acerto-como-registro-novo-no-codigo.md` |
 | NFR-0007 | ADR-0003 | - | `adr/ADR-0003-linha-de-base-legivel-por-maquina-em-docs-physics.md` |
@@ -163,6 +166,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0003-10 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
 | REQ-FEAT-0003-10 | DES-0002 | - | `core/DES-0002-telemetria-de-dirigibilidade.md` |
 | REQ-FEAT-0003-10 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
+| REQ-FEAT-0003-10 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
 | REQ-FEAT-0003-11 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
 | REQ-FEAT-0003-12 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0003-13 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
@@ -182,6 +186,10 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0003-16 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
 | REQ-FEAT-0003-17 | ADR-0004 | - | `adr/ADR-0004-ensaios-como-biblioteca-e-parametros-de-ensaio.md` |
 | REQ-FEAT-0003-17 | DES-0004 | - | `core/DES-0004-ensaios-de-dirigibilidade-e-saida.md` |
+| REQ-FEAT-0003-18 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
+| REQ-FEAT-0003-19 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
+| REQ-FEAT-0003-20 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
+| REQ-FEAT-0003-21 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
 | REQ-FEAT-0004-01 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
 | REQ-FEAT-0004-02 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
 | REQ-FEAT-0004-03 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
@@ -238,6 +246,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0006-01 | DES-0002 | - | `core/DES-0002-telemetria-de-dirigibilidade.md` |
 | REQ-FEAT-0006-01 | DES-0005 | - | `web/DES-0005-hud-velocidade-e-aderencia.md` |
 | REQ-FEAT-0006-01 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
+| REQ-FEAT-0006-01 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
 | REQ-FEAT-0006-02 | ADR-0005 | - | `adr/ADR-0005-pista-de-teste-como-ambiente-da-simulacao-e-velocidade-mantida.md` |
 | REQ-FEAT-0006-02 | DES-0001 | - | `core/DES-0001-acerto-arcade-assistido-v6-e-assistencias.md` |
 | REQ-FEAT-0006-02 | DES-0002 | - | `core/DES-0002-telemetria-de-dirigibilidade.md` |
@@ -283,7 +292,9 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | RULE-0003 | DES-0003 | - | `core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md` |
 | RULE-0003 | DM-0001 | - | `data/DM-0001-dado-publicado-registros-e-linha-de-base.md` |
 | SCR-0001 | DES-0005 | - | `web/DES-0005-hud-velocidade-e-aderencia.md` |
+| SCR-0001 | DES-0007 | - | `web/DES-0007-integracao-da-aplicacao-e-adaptadores.md` |
 | SCR-0002 | DES-0006 | - | `web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md` |
+| SCR-0003 | DES-0009 | - | `web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md` |
 
 ## Items with no upstream source
 

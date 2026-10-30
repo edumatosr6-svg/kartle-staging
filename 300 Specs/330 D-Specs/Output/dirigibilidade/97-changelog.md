@@ -3,7 +3,7 @@ title: Registro de mudanças — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 4.0.1
+version: 4.1.0
 sources: []
 ---
 
@@ -1099,3 +1099,96 @@ acrescentado; a tabela de `ISSUE-01` define valores de campos que API-0003 já t
 **Versões**: `DES-0001` 4.0.1; `DES-0003` 2.1.1; `DES-0004` 6.0.1; `DM-0001` 3.0.1; este changelog 4.0.1; todos em
 `status: draft`. Intocados nesta rodada: os demais arquivos. `00-index.md` e `99-traceability.md` regenerados
 pelo gate.
+
+## 2026-10-30 — rodada 12, Mode C (F-Spec 4.1.0 revalidado contra o seed `revision: 6`, `fspec-validation-20261030-1517.md`)
+
+**Gatilho**: o F-Spec foi revalidado (SUCCESS, `fspec-validation-20261030-1517`) contra o seed `revision: 6` e os
+requisitos 4.4.0 (`DOMAIN/DEC-17`): requisitos novos REQ-FEAT-0003-18 (tela inicial, AC-US-0003-12),
+REQ-FEAT-0003-19 (dica da barra de ferramentas, AC-US-0003-13), REQ-FEAT-0003-20 (guia de manobras,
+AC-US-0003-14) e REQ-FEAT-0003-21 (controle de toque sem o botão "Drift", AC-US-0003-15); tela nova `SCR-0003`
+1.0.0; `SCR-0001` 1.2.0 cobre o controle de toque; `FEAT-0003` 4.1.0; `FEAT-0006` 2.2.0 (REQ-FEAT-0006-01 nomeia
+todas as telas da retirada; REQ-FEAT-0006-08 diz "os limites em vigor"). Nota de posicionamento do coordenador:
+a rodada de código de `race-lap-validation` acrescentou `#lap-end-training` em `index.html:34`, a mesma linha da
+dica da tecla de drift.
+
+**O que mudou**
+
+- `web/DES-0009` (1.0.0, **novo**): a tela inicial (`#welcome`, `index.html:19`), a dica da barra de ferramentas
+  (`.control-hint`, `index.html:34`) e o guia de manobras (`.maneuver-guide`, `index.html:35`) sem drift nem
+  turbo, por remoção: saem o `<h2>` "Entre de lado. Saia voando.", a frase "Acelere, encaixe o drift e solte
+  para dar o impulso." e o trecho "· Espaço + curva para drift" de `#welcome`; o trecho "· Espaço: drift →
+  turbo" de `.control-hint` (fica "Dirigir"); a seção `.maneuver-guide` inteira, cujo conteúdo era só o drift
+  (estado Vazio de SCR-0003), e as suas regras em `src/style.css:3`. A edição troca só o texto dentro de
+  `.control-hint`: `.actions` e `#lap-end-training` não são tocados. Os contêineres de `pista-kart-park` e de
+  `race-lap-validation` dentro de `#welcome` ficam. Motivo de um item novo e não de uma extensão: nenhum item
+  do conjunto cobria essas três telas (DES-0005 é o HUD, SCR-0001); o código continua nos módulos existentes.
+- `web/DES-0007` (1.3.0): realiza REQ-FEAT-0003-21 — sai o `<button data-control="drift">` de `index.html:32`, a
+  leitura `|| touch.has('drift')` de `src/main.ts:549` (o comando de drift passa a vir só da tecla de drift), as
+  linhas `driftButton` de `src/main.ts:655-656` (sem o botão, a consulta devolveria `null` e lançaria a cada
+  quadro) e a regra `.touch-controls button[data-control=drift]` de `src/style.css:3`; um só `.touch-controls`
+  serve o sensor ativo e o recuo para toque. As linhas de `src/main.ts` citadas no item foram conferidas de novo
+  na árvore corrente (depois da rodada de código de `race-lap-validation`). Fonte nova: SCR-0001.
+- Mesmo fato nos outros sítios: `web/DES-0005` (2.0.1) deixa de dizer que o botão de toque fica e que os textos
+  de instrução não mudam, e remete a DES-0007 e DES-0009; cita SCR-0001 1.2.0. `01-architecture.md` (4.1.0):
+  base no F-Spec 4.1.0 e seed `revision: 6`, SCR-0001 a SCR-0003, item "Nenhuma tela ensina nem oferece o
+  drift", linhas dos adaptadores e de `index.html`/`src/style.css` e a mensagem do quadro no diagrama.
+  `test-strategy.md` (6.1.0): roteiro E2E-04 (tela inicial, dica e ausência do guia nos dois canais e nos dois
+  idiomas; controle de toque com o sensor ativo e no recuo; `#lap-end-training` intacto), E2E-01 sem o botão de
+  drift do celular, níveis web e mobile E2E, linha de FEAT-0003, caminhos de AC-US-0003-12 a -15 por texto em
+  `tests/dirigibilidade-hud-text.test.ts`. `98-divergences.md` (4.1.0): duas linhas abertas (REQ-FEAT-0003-18 a
+  -20, fechadas por DES-0009; REQ-FEAT-0003-21, por DES-0007) e a linha dos testes com AC-US-0003-12 a -15.
+- `data/DM-0001` (3.0.2): a entrada em prosa de `docs/physics.md` traz os resultados "com os limites em vigor"
+  (REQ-FEAT-0006-08 em FEAT-0006 2.2.0), não "da revisão 5".
+
+**Superfície**: Mode C sobre o F-Spec movido; DES-0009 e as remoções de DES-0007 realizam os quatro requisitos
+novos. Nenhum módulo, campo, contrato, valor de enum, configuração, texto ou elemento de tela acrescentado: os
+requisitos novos só exigem retirada. Itens: 8 DES, 1 DM e 6 ADR antes; 9 DES, 1 DM e 6 ADR depois. Requisitos
+realizados: os 68 `REQ-*` do F-Spec 4.1.0 (64 antes); 37 `AC-*` (33 antes) e 9 NFR.
+
+**Tabela de migração** (conventions §17): nenhum requisito, contrato, campo ou ensaio retirado nem renomeado.
+
+| Item | Antes (rodada 11) | Agora |
+|---|---|---|
+| botão de toque `[data-control="drift"]` | fica, como controle de drift sem efeito | **retirado** (REQ-FEAT-0003-21) |
+| comando de drift no `Input` da aplicação | tecla Espaço e botão de toque | só a tecla Espaço; o campo `drift` de `Input` fica com o mesmo nome e faixa |
+| ensino do drift em `#welcome` e em `.control-hint` | não muda (fora do F-Spec 4.0.1) | **retirado**, sem texto novo |
+| `.maneuver-guide` | não muda | **retirado** inteiro (conteúdo só de drift) |
+
+**Itens fechados**: o pedido do coordenador desta rodada. A proposta ao autor da rodada 10 ("os textos de
+instrução do drift e do turbo nas boas-vindas, na barra e no guia de manobras devem sair?") foi respondida pelo
+seed `revision: 6` e sai da lista. Nenhum `ISSUE-<nn>` pendente (`dspec-validation-20261030-1333` é SUCCESS) e
+nenhum `FB-<nn>` novo.
+
+**Itens recusados, com motivo**
+
+- Um título novo para `#welcome` no lugar de "Entre de lado. Saia voando.", ou um guia de manobras com outro
+  conteúdo: seria texto novo de tela (RNF11; SCR-0003, estado Vazio); a retirada não põe nada no lugar.
+- Manter o `<h2>` "Entre de lado. Saia voando." por não nomear o drift: entrar de lado é a manobra de drift e
+  sair voando é o impulso, e o parágrafo seguinte os ligava; REQ-FEAT-0003-18 proíbe texto que os mencione.
+- Retirar a tecla Espaço do adaptador de teclado, o `preventDefault` do Espaço em `src/main.ts:378` ou o campo
+  `drift` de `Input`: o F-Spec mantém o comando de drift no `Input`, sem efeito (REQ-FEAT-0003-13, NFR-0006); o
+  `preventDefault` só impede a rolagem da página e não ensina nada.
+- Retirar a regra `.welcome h2` ou `.touch-controls button:disabled` de `src/style.css`: a primeira estiliza o
+  `<h2>` da falta de WebGL (`src/main.ts:33`), a segunda é genérica; nenhuma é de drift.
+- Editar a linha de `index.html:34` além do texto de `.control-hint` (por exemplo, reordenar ou reescrever
+  `.actions`): tocaria `#lap-end-training`, de `race-lap-validation`.
+- Estender AC-US-0003-15 à contagem antes do sinal verde: o critério é observado durante a volta; a remoção é
+  estática e vale em qualquer fase, sem alargar o critério.
+- Reconferir contra a árvore corrente todas as citações `arquivo:linha` do conjunto (a seção de as-built de
+  `01-architecture.md`, a tabela de retirada de DES-0005, as demais linhas abertas de `98-divergences.md`), que a
+  rodada de código desta feature e a de `race-lap-validation` deslocaram: fora do que esta rodada Mode C
+  recebeu; conferidas de novo só as citações dos sítios tocados (DES-0007 inteiro, DES-0009, as linhas novas de
+  `98-divergences.md`). As citações de linha de `modelo-kart-01` em DES-0005, já deslocadas, saíram do
+  parágrafo editado; ADR-0006 as mantém como contexto.
+- Os itens recusados das rodadas 1 a 11 continuam recusados pelos mesmos motivos, salvo "Retirar o campo
+  `drift` de `Input` ou o botão de drift do toque" e "Retirar os textos de instrução do drift fora do HUD", da
+  rodada 10, cuja parte do botão e dos textos o F-Spec 4.1.0 agora exige (a do campo `drift` continua recusada).
+
+**Para a validação encaminhar a outras features**: nenhum. As retiradas não tocam os contêineres de
+`pista-kart-park` e de `race-lap-validation` em `#welcome`, nem `#lap-end-training`, nem `#lap-control-fallback`;
+nenhum teste dessas features lê os textos retirados.
+
+**Versões**: `01-architecture.md` 4.1.0; `DES-0005` 2.0.1; `DES-0007` 1.3.0; `DES-0009` 1.0.0; `DM-0001` 3.0.2;
+`test-strategy.md` 6.1.0; `98-divergences.md` 4.1.0; este changelog 4.1.0; todos em `status: draft`. Intocados:
+`DES-0001` a `DES-0004`, `DES-0006`, `DES-0008` e `ADR-0001` a `ADR-0006`. `00-index.md` e `99-traceability.md`
+regenerados pelo gate.

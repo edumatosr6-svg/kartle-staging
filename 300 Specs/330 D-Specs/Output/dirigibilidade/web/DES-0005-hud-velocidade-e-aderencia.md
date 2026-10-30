@@ -4,7 +4,7 @@ title: HUD de velocidade e estado de aderência, sem indicador de drift ou turbo
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 2.0.0
+version: 2.0.1
 sources: [SCR-0001, FLOW-0001, API-0001, FEAT-0003, FEAT-0004, FEAT-0006, REQ-FEAT-0003-14, REQ-FEAT-0004-06, REQ-FEAT-0004-09, REQ-FEAT-0006-01]
 ---
 
@@ -17,7 +17,8 @@ sinal verde e o fim da volta, nos dois canais, sem remover nem ocultar os dois e
 último valor mantido na suspensão (REQ-FEAT-0004-09); nenhum indicador de carga de drift, de turbo ou de
 impulso, combo ou pontuação de drift no HUD, em nenhum estado e com o comando de drift mantido
 (AC-US-0003-09; REQ-FEAT-0003-14); a retirada é só remoção de exibição, sem regra nova na renderização
-(REQ-FEAT-0006-01; `SEED/RE-01`, `DOMAIN/DEC-16`). Tela: SCR-0001 1.1.0.
+(REQ-FEAT-0006-01; `SEED/RE-01`, `DOMAIN/DEC-16`). Tela: SCR-0001 1.2.0 (o controle de toque que ela também cobre é de
+[DES-0007](DES-0007-integracao-da-aplicacao-e-adaptadores.md)).
 
 ## Posicionamento
 
@@ -49,15 +50,16 @@ Retirada da exibição do drift e do turbo **(muda)**:
 | `src/main.ts:613-624` | a escrita de `#style-score` e `#combo`, o cálculo de `tier` e de `fill`, a escrita de `#drift-fill`, `#drift-meter` (`aria-valuenow`, `aria-label`), `#drift-hud` (`data-tier`, `hidden`), `#drift-label`, `#drift-help` e a classe `boosting` em `.game-shell` |
 | `src/style.css:3` | as regras só desses elementos: `.style-score`, `.style-score em`, `.drift-hud`, `.drift-hud strong`, `.drift-hud small`, `.drift-meter`, `.drift-meter i`, os três `.drift-hud[data-tier=…] .drift-meter i`, `.boosting`, e as ocorrências de `.drift-hud` dentro de `@media(max-width:700px)` e `@media(pointer:coarse)` |
 
-Ficam, porque não são indicador de carga, turbo, impulso, combo nem pontuação: o botão de toque
-`[data-control="drift"]` (`index.html:31`, `src/main.ts:625-626`), que é o controle de drift do adaptador de
-toque e entrega o comando que a simulação ignora (RULE-0001; SCR-0001, Ações); a leitura do comando em
-`src/main.ts:495`; e as leituras de `state.maneuvers` que pertencem a `modelo-kart-01` (`:553`, `:555`,
-`:559`, `:586`), que passam a ler sempre o valor inicial
-([ADR-0006](../adr/ADR-0006-retirada-do-drift-e-do-turbo-com-janela-de-compatibilidade.md)). Os textos de
-instrução do drift fora do HUD (`index.html:19` boas-vindas, `:33` dica da barra, `:34` guia de manobras) não
-são HUD durante a volta nem resultado, e não mudam nesta rodada (motivo no changelog). `src/audio.ts` não
-muda: `reward` deixa de ser chamado.
+Ficam, porque não são indicador de carga, turbo, impulso, combo nem pontuação: a leitura da tecla de drift
+no `Input` (`src/main.ts:549`); e as leituras de `state.maneuvers` que pertencem a `modelo-kart-01`, que passam a
+ler sempre o valor inicial
+([ADR-0006](../adr/ADR-0006-retirada-do-drift-e-do-turbo-com-janela-de-compatibilidade.md)). Fora do HUD, a
+retirada do drift e do turbo tem dono próprio neste conjunto: o botão "Drift" do controle de toque
+(`index.html:32`, `src/main.ts:655-656`; REQ-FEAT-0003-21) sai por
+[DES-0007](DES-0007-integracao-da-aplicacao-e-adaptadores.md), e os textos de ensino do drift na tela inicial,
+na dica da barra de ferramentas e no guia de manobras (`index.html:19`, `:34`, `:35`; REQ-FEAT-0003-18 a -20)
+saem por [DES-0009](DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md). `src/audio.ts` não muda:
+`reward` deixa de ser chamado.
 
 Conversão: `km/h = speedMps × 3,6`, arredondada ao inteiro; nenhuma outra transformação. O canal
 `web-mobile` usa os mesmos elementos e a mesma leitura; a inclinação só muda o adaptador.

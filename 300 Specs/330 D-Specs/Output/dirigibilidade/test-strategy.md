@@ -3,7 +3,7 @@ title: Estratégia de testes — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 6.0.0
+version: 6.1.0
 sources: []
 ---
 
@@ -39,8 +39,8 @@ essa condição.
 | Integração | `npm test` | os ensaios de RULE-0002 sobre a física real, na pista de teste aberta e na pista sintética, via `scripts/handlingBench.ts`; a volta do piloto de teste por `src/lap.ts`; `replayLap`; a recuperação com acelerador e esterço zerados juntos por `step` |
 | Contrato | `npm test` | forma e unidades de API-0001 2.0.0, API-0002 1.2.0 e API-0003 4.0.1 campo a campo (inclusive `benchEnvironment` e os campos da área em todo registro `TEST_PAD`, e a ausência dos `benchId` e campos retirados); códigos de rejeição; `STEP_CONTRACT`; `REALISTA_UNCHANGED`; presets congelados; camada e símbolos proibidos; ausência por texto dos elementos de drift, turbo e versão na tela |
 | Bench | `npm run bench:handling`, `npm run bench:physics` | os mesmos registros mais `STEP_COST`; produção das linhas de base (`--previous`, `--realista`) |
-| Web E2E | roteiro registrado em Chrome, Edge, Firefox e Safari atuais, `web-desktop` | HUD em todos os quadros sem indicador de drift ou turbo; resultado sem versão do acerto; melhor tempo só comparável; texto compartilhado |
-| Mobile E2E | roteiro registrado em celular intermediário de referência, `web-mobile` | inclinação proporcional e toque com o mesmo HUD; controle de drift do toque sem efeito; compartilhar pela Web Share API |
+| Web E2E | roteiro registrado em Chrome, Edge, Firefox e Safari atuais, `web-desktop` | HUD em todos os quadros sem indicador de drift ou turbo; resultado sem versão do acerto; melhor tempo só comparável; texto compartilhado; tela inicial, dica da barra de ferramentas e guia de manobras sem drift nem turbo |
+| Mobile E2E | roteiro registrado em celular intermediário de referência, `web-mobile` | inclinação proporcional e toque com o mesmo HUD; controle de toque sem o botão "Drift", com o sensor ativo e no recuo para toque; tela inicial e guia sem drift nem turbo; compartilhar pela Web Share API |
 
 ## Fixtures e como chegar a cada estado
 
@@ -66,7 +66,7 @@ essa condição.
 |---|---|---|---|---|---|---|---|
 | FEAT-0001 resposta do volante | sim | sim | sim | `bench:handling` | — | — | limiares medidos no estado da simulação, na pista de teste aberta; nenhum elemento de tela próprio |
 | FEAT-0002 aderência em curva | sim | sim | sim | `bench:handling` | — | — | raio e giro medidos da posição e do rumo da telemetria |
-| FEAT-0003 traseira viva, sem drift nem turbo | sim | sim | sim | `bench:handling` | E2E-01, E2E-02 | E2E-01, E2E-03 | condução normal, recuperação, `DRIFT_INERT` e `SPEED_CAP` na simulação; a ausência dos indicadores na tela e no texto compartilhado exige tela |
+| FEAT-0003 traseira viva, sem drift nem turbo | sim | sim | sim | `bench:handling` | E2E-01, E2E-02, E2E-04 | E2E-01, E2E-03, E2E-04 | condução normal, recuperação, `DRIFT_INERT` e `SPEED_CAP` na simulação; a ausência dos indicadores e do ensino do drift na tela, no texto compartilhado e no controle de toque exige tela; a ausência por texto em `index.html`, `src/style.css` e `src/main.ts` é contrato |
 | FEAT-0004 aceleração, velocidade, grama, parede e HUD | sim | sim | sim | `bench:physics` | E2E-01 | E2E-01 | limiares na simulação; "todos os quadros" exige tela |
 | FEAT-0005 determinismo, piloto de teste e versão | sim | sim | sim | `bench:handling` | E2E-02 | E2E-02 | registros e comparabilidade puros; a exibição e o compartilhar exigem tela |
 | FEAT-0006 transversais | sim | sim | sim | `bench:handling`, `bench:physics` | — | — | camada, contrato de passo, Realista, paridade, custo, `race-lap-validation` e `docs/physics.md` |
@@ -75,9 +75,10 @@ essa condição.
 
 | Id | O que se faz e se registra | Canal |
 |---|---|---|
-| E2E-01 | iniciar uma volta com o Arcade assistido; gravar a tela do sinal verde ao fim; verificar que `#speed` (km/h) e `#handling` (texto) estão visíveis com valor em todos os quadros, inclusive em grama e após bater; segurar Espaço (desktop) ou o botão de drift (celular) em curvas e retas: nenhum medidor, rótulo "TURBO"/"CARREGANDO DRIFT", pontos de estilo, combo, mensagem de prêmio ou brilho de turbo aparece em quadro algum, e a pilotagem não muda de forma visível; pausar (Esc, troca de aba; cobrir o sensor no celular) e verificar que os dois elementos mantêm o último valor | desktop e celular |
+| E2E-01 | iniciar uma volta com o Arcade assistido; gravar a tela do sinal verde ao fim; verificar que `#speed` (km/h) e `#handling` (texto) estão visíveis com valor em todos os quadros, inclusive em grama e após bater; segurar Espaço (desktop) em curvas e retas: nenhum medidor, rótulo "TURBO"/"CARREGANDO DRIFT", pontos de estilo, combo, mensagem de prêmio ou brilho de turbo aparece em quadro algum, e a pilotagem não muda de forma visível; pausar (Esc, troca de aba; cobrir o sensor no celular) e verificar que os dois elementos mantêm o último valor | desktop e celular |
 | E2E-02 | completar uma volta com o Arcade; ver no resultado o tempo, sem a versão do acerto e sem conteúdo de drift ou turbo; trocar para o Realista: o melhor tempo passa a `—`; completar uma volta com o Realista: o melhor tempo mostra só o tempo dessa volta, nunca o do Arcade nem uma diferença entre os dois; voltar ao Arcade: `—` de novo; compartilhar e verificar o texto (pista, versão da pista e tempo; sem versão do acerto, sem segundo tempo, sem estilo, combo ou turbo) | desktop (área de transferência) e celular (Web Share) |
 | E2E-03 | com a inclinação ativa, uma volta inteira; verificar o mesmo HUD e que o esterço parcial não força a traseira (texto de aderência nunca "Saindo de traseira"/"Derrapando" sem acelerador cheio e esterço cheio) | celular |
+| E2E-04 | com o navegador em português e de novo em inglês: abrir o jogo e registrar a tela inicial (`#welcome`) antes da volta e de novo depois de uma volta; registrar a barra de ferramentas (desktop: a dica ao lado de W A S D) e a área abaixo dela; verificar que nenhum texto, ícone ou controle menciona ou oferece o drift, a tecla Espaço, carga, turbo, mini-turbo, impulso, combo ou pontuação, e que não há guia de manobras; no celular, iniciar uma volta com a inclinação ativa e outra com a permissão negada (recuo para toque) e registrar o controle de toque durante a contagem e a volta: só ←, →, Freio e Acelerar, sem botão "Drift" nem outro controle de drift ou turbo; no desktop, ver que o botão "encerrar treino" de `race-lap-validation` continua na barra durante um treino | desktop e celular |
 
 ## Critérios de aceite: como o teste chega a cada um
 
@@ -104,6 +105,10 @@ essa condição.
 | AC-US-0003-09 | `hud-text` (C): `index.html` sem `style-score`, `combo`, `drift-hud`, `drift-meter`, `drift-label`, `drift-help` e `lap-result-setup`; `src/main.ts` sem esses identificadores, sem `chargeTier`, sem import de `./maneuvers` e sem mensagem de pontos de estilo; `src/style.css` sem `.drift-hud`, `.drift-meter`, `.style-score` e `.boosting`; E2E-01 e E2E-02 na tela |
 | AC-US-0003-10 | `rear` (I): `SPEED_CAP` nos dois `inputMode`: `maxObservedSpeedMps <= topSpeedMps`, `topSpeedMps` igual ao do registro `TOP_SPEED` da mesma execução, e `maxObservedSpeedMps` igual ao máximo recomputado sobre os traços cobertos (sem `CORNER_RADIUS` a 70 km/h quando 19,44 m/s passa de `topSpeedMps`); registros sintéticos: sem `topSpeedMps`, `MEASUREMENT_MISSING`; acima, `THRESHOLD_EXCEEDED` |
 | AC-US-0003-11 | `hud-text` (U): `formatSharedText` sobre `newResult()` válido e inválido contém exatamente `Kartle`, `trackId`, `v<trackVersion>` e o tempo ou o estado inválido, sem `setupVersion`, segundo tempo, "estilo", "turbo", "drift" ou "combo", nos dois idiomas; E2E-02 |
+| AC-US-0003-12 | `hud-text` (C): `index.html` não casa `/drift\|turbo\|impulso\|combo\|Espaço/i` e não contém `Entre de lado` nem `Saia voando`; `#welcome` continua com `#track-selector`, `#track-credit`, `#track-status` e `#lap-offer`; as mensagens de `src/lapMessages.ts` em `pt` e `en` não casam `/drift\|turbo\|impulso\|mini-?turbo\|combo/i`; E2E-04 nos dois canais e nos dois idiomas |
+| AC-US-0003-13 | `hud-text` (C): o `<span class="control-hint">` de `index.html` tem exatamente o texto `Dirigir`; `#lap-end-training` continua dentro de `.actions` (a retirada não o tocou); o mesmo padrão sobre `index.html` de AC-US-0003-12; E2E-04 |
+| AC-US-0003-14 | `hud-text` (C): `index.html` não contém `maneuver-guide` nem `Como fazer drift`; `src/style.css` não contém `.maneuver-guide`; E2E-04 nos dois canais e nos dois idiomas |
+| AC-US-0003-15 | `hud-text` (C): `index.html` não contém `data-control="drift"` nem `Segurar para drift`, e `.touch-controls` tem exatamente os quatro botões `left`, `right`, `brake`, `throttle`; `src/main.ts` não contém `[data-control="drift"]` nem `touch.has('drift')` e continua com `drift: keys.has(' ')`; `src/style.css` não contém `data-control=drift`; o mesmo `.touch-controls` serve o sensor ativo e o recuo (DES-0007), e E2E-04 registra os dois no celular |
 | AC-US-0004-01 | `speed` (I): `ACCELERATION` (`TEST_PAD`, `testAreaRadiusM` 1 500, `driverMassKg` 75): `zeroToSixtyKmhMs <= 2500` |
 | AC-US-0004-02 | `speed` (I): `TOP_SPEED`: `65 / 3.6 <= topSpeedMps <= 72 / 3.6`; registros sintéticos com 18,05 e 20,01 m/s são `THRESHOLD_EXCEEDED`, com 18,056 e 20,0 são `PASS` |
 | AC-US-0004-03 | `speed` (I): `GRASS_LOSS` à velocidade estabilizada (`grassEntry(topSpeedMps)`): `speedAfterOneSMps <= 0.7 × entrySpeedMps`; os 120 passos em `GRASS` sem `wallContact`; registro sintético dentro do limiar julgado com `observed` é `FAIL` |
@@ -148,7 +153,7 @@ migração dos requisitos 4.3.0 e do F-Spec 4.0.0):
 | `tests/dirigibilidade-speed.test.ts` | mantida; `TOP_SPEED` contra 65–72 km/h; `WALL_CONTACT` vazio como `MEASUREMENT_MISSING` |
 | `tests/dirigibilidade-telemetry.test.ts` | mantida; sem `driftActive`, com posição e rumo; `testPadArea` no lugar de `testPadLane`/`testPadArc`; laços até o primeiro resultado (`:34`, `:45`) |
 | `tests/dirigibilidade-setup-version.test.ts` | mantida; `arcade-assistido-v6`, `v5Replay()`; laços até o primeiro resultado (`:48-55`, `:100-104`, `:114-120`) |
-| `tests/dirigibilidade-hud-text.test.ts` | mantida; texto compartilhado sem `setupVersion`; ausência dos elementos do drift e de `#lap-result-setup` |
+| `tests/dirigibilidade-hud-text.test.ts` | mantida; texto compartilhado sem `setupVersion`; ausência dos elementos do drift e de `#lap-result-setup`; **ganha** as verificações por texto de AC-US-0003-12 a -15 (tela inicial, dica, guia e controle de toque) |
 | `tests/dirigibilidade-contract.test.ts`, `tests/dirigibilidade-test-pilot.test.ts` | mantidas, com os `benchId` e campos de API-0003 4.0.1 e o fim da volta no primeiro resultado |
 | `tests/helpers/handling.ts` | `ARCADE_CONFIG` passa ao `config` publicado (`ARCADE_ASSISTIDO_V6`), não a `ARCADE_ASSISTIDO_V5`; ganha `untilFirstResult` |
 | `tests/maneuvers.test.ts:68-80` ("player-induced drift generates real lateral slip and a useful exit boost") | **retirada** (`DOMAIN/DEC-15`: o drift através do passo deixa de existir); as demais verificações do arquivo ficam durante a janela de compatibilidade e saem na retirada final (ADR-0006) |

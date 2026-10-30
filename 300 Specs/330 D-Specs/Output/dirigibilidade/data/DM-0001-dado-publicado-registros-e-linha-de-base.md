@@ -4,7 +4,7 @@ title: Dado publicado do acerto, registros de volta e replay, saída dos ensaios
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 3.0.1
+version: 3.0.2
 sources: [API-0002, API-0003, RULE-0002, RULE-0003, FEAT-0005, FEAT-0006, REQ-FEAT-0002-06, REQ-FEAT-0005-05, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0006-08, REQ-FEAT-0006-09, NFR-0004, NFR-0009]
 ---
 
@@ -143,7 +143,7 @@ bloco as entradas de 2026-10-22 com a mesma chave; `arcade-assistido-v6`, acresc
 mantida como registro da rodada substituída (nenhum ensaio a lê). A prosa datada de 2026-10-22 e de
 2026-10-27 fica, como histórico, e a entrada nova em prosa (`## Dirigibilidade — Arcade assistido v6`) diz a
 data, a `setupVersion`, os parâmetros do acerto e de ensaio e os resultados ao lado da linha de base, com os
-limites da revisão 5 (REQ-FEAT-0006-08).
+limites em vigor (REQ-FEAT-0006-08, F-Spec FEAT-0006 2.2.0).
 
 ## Plano de migração
 

@@ -3,21 +3,21 @@ title: Arquitetura — dirigibilidade do Arcade assistido
 feature: dirigibilidade
 stage: dspec
 status: validated
-version: 4.0.0
+version: 4.1.0
 sources: []
 ---
 
 # Arquitetura
 
-Este conjunto projeta como cada `REQ-*` do F-Spec validado de `dirigibilidade` (4.0.1, contra o seed
-`revision: 5` e os requisitos 4.3.0; FEAT-0001 a FEAT-0006, API-0001 a API-0003, RULE-0001 a RULE-0003,
-SCR-0001, SCR-0002, FLOW-0001 a FLOW-0003) é realizado sobre o código em execução. Os caminhos são relativos à
+Este conjunto projeta como cada `REQ-*` do F-Spec validado de `dirigibilidade` (4.1.0, contra o seed
+`revision: 6` e os requisitos 4.4.0; FEAT-0001 a FEAT-0006, API-0001 a API-0003, RULE-0001 a RULE-0003,
+SCR-0001 a SCR-0003, FLOW-0001 a FLOW-0003) é realizado sobre o código em execução. Os caminhos são relativos à
 raiz do repositório (diretriz do estágio: o código vive em `src/`, `tests/`, `scripts/`; `400 Code/Source/`
 está vazio). O produto é um cliente de navegador sem servidor, sem conta e sem banco: não existem as pastas
 `backend/` e `mobile/` deste estágio. Os itens da simulação ficam em `core/`, os de apresentação em `web/`
 (o mesmo cliente serve `web-desktop` e `web-mobile`) e as garantias de privacidade em `security/`.
 
-**O que o F-Spec 4.0.1 muda neste projeto** (seed `revision: 5`; `DOMAIN/DEC-15`, `DOMAIN/DEC-16`):
+**O que os F-Specs 4.0.1 e 4.1.0 mudam neste projeto** (seed `revision: 5` e `revision: 6`; `DOMAIN/DEC-15` a `DOMAIN/DEC-17`):
 
 - **Acerto C.** O Arcade assistido passa à versão `arcade-assistido-v6`, um registro novo
   `ARCADE_ASSISTIDO_V6` igual a `ARCADE_ASSISTIDO_V5` com `governorSpeed` 19,5 m/s, `assistLateralG` 2,4,
@@ -48,6 +48,14 @@ está vazio). O produto é um cliente de navegador sem servidor, sem conta e sem
   [DES-0006](web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md)). O campo `maneuvers` do `State` e
   o módulo `src/maneuvers.ts` ficam numa janela de compatibilidade, com o valor inicial constante, até que os
   leitores de outras features deixem de os nomear ([ADR-0006](adr/ADR-0006-retirada-do-drift-e-do-turbo-com-janela-de-compatibilidade.md)).
+- **Nenhuma tela ensina nem oferece o drift** (F-Spec 4.1.0, seed `revision: 6`, `DOMAIN/DEC-17`). A tela
+  inicial (`#welcome`), a dica da barra de ferramentas (`.control-hint`) e o guia de manobras
+  (`.maneuver-guide`, cujo conteúdo era só o drift e sai inteiro) perdem o texto do drift e do turbo, sem texto
+  novo no lugar ([DES-0009](web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md)); o controle de
+  toque de `web-mobile` perde o botão "Drift", com o sensor ativo e no recuo para toque, e o comando de drift
+  passa a vir só da tecla de drift ([DES-0007](web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)). Tudo
+  por remoção, sem regra nova na renderização nem no adaptador; o botão `#lap-end-training` de
+  `race-lap-validation`, na mesma linha de `index.html` que a dica, não é tocado.
 - **Condução normal = a volta do piloto de teste inteira.** `NORMAL_DRIVING` passa a um registro só, em
   `SYNTHETIC_TRACK`, sobre todos os passos da volta; o classificador de passo (`classifyHandlingSteps`) sai
   com as classes de passo que RULE-0001 4.0.0 trocou por contextos de observação.
@@ -94,10 +102,10 @@ dado de pista publicado: não tem `trackId`, não entra em registro algum e nenh
 | Simulação | `src/setupRecords.ts` | existente, inalterado | leitores e construtores dos registros ([DES-0003](core/DES-0003-versao-do-acerto-registros-e-comparabilidade.md)); a versão nova chega pelo dado publicado |
 | Simulação (lugar na árvore: `scripts/`) | `scripts/handlingBench.ts` | existente, **alterado** | a lista de ensaios de RULE-0002 4.0.1 e o contrato API-0003 4.0.1 ([DES-0004](core/DES-0004-ensaios-de-dirigibilidade-e-saida.md)) |
 | Aplicação (programa de bench; lugar: `scripts/`) | `scripts/keyboard-lap.ts`, `scripts/physics-bench.ts` | existentes, inalterados | pontos de entrada de `bench:handling` e `bench:physics`; únicos que leem o relógio de parede e `node:os` |
-| Adaptadores de controle | em `src/main.ts` | inalterados | teclado binário, inclinação proporcional e toque entregam o `Input` saturado, inclusive o comando de drift, que a simulação ignora ([DES-0007](web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)) |
+| Adaptadores de controle | em `src/main.ts` | existentes, **alterados** só por remoção | teclado binário, inclinação proporcional e toque entregam o `Input` saturado; o comando de drift vem só da tecla de drift e a simulação o ignora; o controle de toque perde o botão "Drift" e a leitura dele ([DES-0007](web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)) |
 | Aplicação | `src/main.ts` | existente, **alterado** | HUD sem indicador de drift, turbo, combo ou pontuação; sem mensagem de prêmio; resultado sem a `setupVersion` ([DES-0005](web/DES-0005-hud-velocidade-e-aderencia.md), [DES-0006](web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md)) |
 | Aplicação | `src/handlingMessages.ts` | existente, **alterado** | texto compartilhado sem a `setupVersion` |
-| Aplicação | `index.html`, `src/style.css` | existentes, **alterados** | saem `.style-score` (com `#style-score` e `#combo`), `#drift-hud` e `#lap-result-setup`, e as regras de estilo só deles (`.style-score`, `.drift-hud`, `.drift-meter`, `.boosting`) |
+| Aplicação | `index.html`, `src/style.css` | existentes, **alterados** | saem `.style-score` (com `#style-score` e `#combo`), `#drift-hud` e `#lap-result-setup`, e as regras de estilo só deles (`.style-score`, `.drift-hud`, `.drift-meter`, `.boosting`) ([DES-0005](web/DES-0005-hud-velocidade-e-aderencia.md), [DES-0006](web/DES-0006-resultado-melhor-tempo-e-texto-compartilhado.md)); saem o ensino do drift e do turbo em `#welcome` e em `.control-hint`, a seção `.maneuver-guide` e as suas regras ([DES-0009](web/DES-0009-tela-inicial-dica-e-guia-de-manobras-sem-drift.md)), e o botão `[data-control="drift"]` com a sua regra ([DES-0007](web/DES-0007-integracao-da-aplicacao-e-adaptadores.md)) |
 
 Nenhum módulo novo nesta rodada. O que já justificava cada módulo próprio (I10) continua: `src/setupRecords.ts`
 importa `src/lap.ts` e não pode viver em `src/physics.ts` sem inverter a dependência; a biblioteca de
@@ -146,7 +154,7 @@ sequenceDiagram
     loop cada quadro
         M->>P: getHandlingTelemetry(lap.kart, setupRef)
         P-->>M: speedMps, handling, posicao, rumo
-        M-->>J: km/h e texto de aderencia, sem indicador de drift ou turbo
+        M-->>J: km/h e texto de aderencia, sem indicador de drift ou turbo, controle de toque sem botao Drift
     end
     L-->>M: fase ENDED, LapResult com setupId e setupVersion copiados
     M->>R: buildLapRecord(result, setupRef) e compareLapRecords(melhor, atual)
