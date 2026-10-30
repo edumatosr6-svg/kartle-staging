@@ -3,7 +3,7 @@ title: Registro de mudanças — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.3.0
+version: 1.4.0
 sources: []
 ---
 
@@ -330,3 +330,92 @@ novo escrito; nenhuma outra feature precisa mudar.
 - Campo novo no modelo (por exemplo `measuredDiameterM`) ou registro novo em API-0002: recusado; nenhum é
   necessário e a invocação pediu nenhum campo novo salvo se inevitável.
 - Nenhum requisito foi enfraquecido, removido ou dividido; nenhuma superfície acrescentada.
+
+## 2026-10-30 — rodada 5, Mode C (F-Spec revalidado: `fspec-validation-20261030-1202.md`, SUCCESS)
+
+**Origem**: o F-Spec de `modelo-kart-01` foi revalidado (rodadas 4 e 5 do changelog dele; seed `revision: 3`,
+`DOMAIN/DEC-07` e `DOMAIN/DEC-08`): a câmera de corrida fica atrás do piloto termine a volta ou não, sem
+depender do tipo da volta; o kart é mostrado onde a simulação o põe — congelado só quando a simulação para,
+depois do `ENDED` de uma volta oficial (regra de `race-lap-validation`); no treino as voltas são seguidas; não há
+indicação de drift, nem fumaça ou chama de turbo no escapamento, nem efeito de turbo no campo de visão (só a
+base de 62° e a regra de retrato); as marcas de pneu continuam. No F-Spec: o requisito 10 de FEAT-0003 e os 02
+e 03 de FEAT-0005 retirados; REQ-FEAT-0003-16, REQ-FEAT-0003-17, REQ-FEAT-0005-09 e REQ-FEAT-0005-10 novos
+(64 requisitos); API-0003 em 2.0.0 sem `baseVerticalFovDeg` e `turboFovDeltaDeg`. Nenhum `ISSUE-<nn>`,
+`FB-<nn>` ou `FEEDBACK-<nn>`: a rodada é a mudança do upstream.
+
+**O que mudou**
+
+- `web/DES-0003` (1.2.0): realiza os 16 requisitos de FEAT-0003 e API-0003 2.0.0. `CameraView` sem os dois
+  campos retirados; `CameraFrameInputs` sem `turboActive`; `TURBO_FOV_DELTA_DEG` retirado; `computeCameraView`
+  em `RACE_CHASE` com `verticalFovDeg` = base da forma; a função `baseVerticalFovDeg` passa a
+  `shapeVerticalFovDeg` (o nome antigo é o de um campo retirado que API-0003 não deixa voltar); `decideCameraMode`
+  dá `RACE_CHASE` para qualquer fase de volta ativa fora da contagem e não lê `lapKind` (comportamento que o
+  código corrente já tem, `src/gameCamera.ts:72-76`); seção nova "Retirada (I3)" com o ponto de rejeição pela
+  ausência e a prova no teste de contrato. `sources:` sem o requisito 10, com 16 e 17.
+- `adr/ADR-0002` (1.2.0): contexto, decisão 2 revogada (efeito de turbo), decisão 7 nova (modo só pela fase,
+  sem tipo de volta), alternativas e consequências com o treino; título sem o turbo.
+- `web/DES-0004` (1.3.0): a chamada de `computeCameraView` passa exatamente cinco entradas, sem condição de
+  turbo (REQ-FEAT-0003-17); o fim de uma volta de treino segue o kart que a sessão tiver (REQ-FEAT-0003-16);
+  linha dos jatos de escapamento marcada como retirada; seção nova "Revisão 1.3.0 sobre a árvore corrente"
+  (`src/main.ts:581-587`, `:150-157`, `:553`, `:555-556`).
+- `web/DES-0005` (1.2.0, mudança maior): só marcas de pneu; o jato de escapamento (`src/main.ts:150-157`,
+  `:555-556`) e o nó `escapamentoSaida` retirados (REQ-FEAT-0005-10); nenhum objeto da cena é indicação de
+  drift, e a designação da versão 1.1.0 (as marcas como indicação de drift) foi retirada (REQ-FEAT-0005-09); a
+  condição de situação das marcas (`src/main.ts:559`) declarada como do jogo e não desta feature; marcas
+  depois do fim da volta oficial (nenhum trecho novo) e depois do fim de uma volta de treino (trechos novos).
+  `sources:` sem os requisitos 02 e 03, com 09 e 10.
+- `web/DES-0001` (1.2.0) e `adr/ADR-0001` (1.1.0): `anchors.exhaustOutlet` retirado do modelo
+  (`Kart01Model.anchors` = `{ bumperPlate }`), porque o seu único consumidor era o jato; nenhuma geometria,
+  chamada de desenho, triângulo ou medida muda; o exemplo da decisão 4 de ADR-0001 atualizado.
+- `adr/ADR-0003` (1.1.0): decisão 4 nova — a ordem de entrega com a `dirigibilidade`, que o F-Spec deixou à
+  etapa de design: as mudanças desta rodada só removem leitores do turbo que esta feature acrescentou e não
+  dependem de ordem; a condição de situação das marcas é trocada pela `dirigibilidade` ao retirar o drift; a
+  parte "kart em movimento" de AC-US-0003-14 depende do código de `race-lap-validation` (US-10 da revisão 3).
+- `test-strategy.md` (1.4.0): fixtures novos (volta de treino concluída seguida de 120 passos; `LapStateView`
+  variando só `lapKind` ou `lapPhase`; `Input` com drift e aceleração); E2E-02, E2E-04 e E2E-05 reescritos
+  (treino; todos os comandos sem mudar o campo de visão; nenhuma indicação de drift nem fumaça ou chama de
+  turbo); AC-US-0003-04 a -06 sem "sem turbo", com a ausência dos nomes retirados; AC-US-0003-10 e -13 com
+  volta oficial e treino; AC-US-0003-14, AC-US-0005-04 e AC-US-0005-05 novos; AC-US-0005-01 com o fim da volta
+  oficial e de treino; linhas do critério 09 de US-0003 e dos critérios 02 e 03 de US-0005 retiradas; "Verificações
+  existentes" diz quais verificações desta feature saem com os critérios retirados.
+- `01-architecture.md` (1.3.0): F-Spec 1.3 e 64 requisitos; decisões de 2026-10-29; as-built da árvore corrente
+  (o que a rodada 5 retira); camadas, diagrama de sequência, fluxo do fim de volta oficial e de treino,
+  compatibilidade (efeito de turbo e campos de API-0003 retirados; fumaça e drift retirados) e rastros de
+  decisão.
+- `98-divergences.md` (1.3.0): cabeçalho no F-Spec 1.3; linhas dos três requisitos retirados removidas; textos
+  de REQ-FEAT-0003-04 a -07, -15 e -11 nas redações novas; quatro linhas novas com a árvore corrente:
+  REQ-FEAT-0003-05 a -07 e -17 (parcela de turbo), REQ-FEAT-0005-10 (jato), REQ-FEAT-0005-09 (drift ainda no
+  jogo, devido pela `dirigibilidade`), REQ-FEAT-0003-16 e REQ-FEAT-0005-01 no treino (kart congela no fim de
+  toda volta, devido por `race-lap-validation`).
+- Os arquivos editados voltaram a `status: draft`; o gate e o validador decidem. `web/DES-0002`, `web/DES-0006`,
+  `security/DES-0007`, `data/DM-0001` e `adr/ADR-0004` sem mudança: nenhum requisito que realizam mudou.
+  `00-index.md` e `99-traceability.md` regenerados pelo gate com `--emit`.
+
+**Itens fechados**: nenhum `ISSUE-<nn>`, `FB-<nn>` ou `FEEDBACK-<nn>` (rodada gerada pela mudança do
+upstream). Divergências registradas: as quatro linhas novas acima. Feedback: nenhum escrito (numa etapa de
+especificação o feedback a outra feature é do validador, conventions §14).
+
+**Itens recusados, com motivo**
+
+- Decidir o modo da câmera pelo tipo da volta (`lapKind`): não feito; RULE-0002 o exclui das entradas e os
+  critérios 13 e 14 de US-0003 pedem a mesma pose nos dois casos. Por isso a volta `RECON` não tem regra
+  própria aqui.
+- Mudar a condição de situação das marcas de pneu (`src/main.ts:559`, que lê `maneuvers.drifting`) para outra
+  que não dependa do drift: não feito. REQ-FEAT-0005-04 diz que esta feature muda onde a marca aparece, não
+  quando; a condição é anterior a esta feature e a retirada do drift é da `dirigibilidade`, que a troca no seu
+  código. Se, retirado o drift, o jogo deixar de desenhar marcas em toda situação, o requisito 01 de FEAT-0005
+  fica sem situação em que valer — decisão do dono do produto pela `dirigibilidade`, não desta etapa.
+- Retirar o HUD da manobra (`#drift-hud`, a classe `.boosting`, as mensagens de `notify`): não feito; não é
+  efeito junto ao Kart 01 exibido e é da `dirigibilidade`.
+- Mudar o formato `inputRuns` da linha de base (`[contagem, throttle, brake, steer, drift]`, DM-0001): não
+  feito; o F-Spec desta rodada não mudou API-0002 nem o contrato `Input` da simulação, que é da `dirigibilidade`.
+  Se aquela feature retirar `drift` do `Input`, a linha de base volta a `BASELINE_MISSING` e a mudança chega a
+  este conjunto por feedback da etapa de código.
+- Atualizar o estado das linhas da rodada 1 de `98-divergences.md` para `resolved`: não feito; a resolução é
+  registrada pela etapa de código, que trabalhou sobre elas, e esta rodada só carrega o F-Spec 1.3.
+- Manter `anchors.exhaustOutlet` no modelo sem consumidor: recusado; seria um nó sem requisito que o realize.
+- Manter o nome `baseVerticalFovDeg` para a função interna: recusado; API-0003 2.0.0 não deixa o nome
+  retirado voltar com outro significado, e o teste de contrato afirma a ausência do nome no código.
+- Exigir, por ordem de entrega, que o código desta rodada espere o da `dirigibilidade` (como a decisão 1 de
+  ADR-0003 fez na primeira rodada): recusado; as mudanças só removem leitores do turbo desta feature e não
+  dependem de ordem (ADR-0003, decisão 4).

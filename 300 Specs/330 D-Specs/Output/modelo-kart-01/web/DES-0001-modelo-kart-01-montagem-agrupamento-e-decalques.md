@@ -4,7 +4,7 @@ title: Modelo Kart 01 — montagem a partir do código do Cowork, agrupamento po
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [FEAT-0001, FEAT-0002, FEAT-0004, FEAT-0006, RULE-0001, RULE-0003, FLOW-0003, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-17, REQ-FEAT-0002-01, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-10, REQ-FEAT-0004-03, REQ-FEAT-0004-04, REQ-FEAT-0006-02, REQ-FEAT-0006-03, NFR-0003, NFR-0004]
 ---
 
@@ -57,7 +57,7 @@ Referencial do modelo (o do código do Cowork): metros; Y para cima; **frente do
 | `steeringWheelAngleRad(steerAngleRad)` | `(rad) => rad` | `STEERING_WHEEL_RATIO × steerAngleRad`: mesmo sinal, 0 em 0, módulo estritamente crescente (RULE-0003) |
 | `buildKart01Model()` | `() => Kart01Model` | monta o kart com o piloto, aplica o agrupamento por material e devolve os nós nomeados; puro em relação ao DOM; duas chamadas dão dois modelos independentes e iguais |
 | `updateKart01Pose(model, pose)` | `(Kart01Model, { steerAngleRad: number (rad); wheelSpinRevs: Record<WheelName, number> (rotações) }) => void` | esterça as duas rodas dianteiras por `steerAngleRad` em torno do eixo vertical de cada roda; põe o giro de cada roda em `−2π × wheelSpinRevs[nome]` rad em torno do seu eixo (a convenção de `kart.js`, `giro.rotation.x = −distancia / raio`); gira o volante por `steeringWheelAngleRad(steerAngleRad)`; recoloca os braços com a cinemática de `atualizarBracos`. Idempotente: a mesma pose aplicada duas vezes deixa os mesmos nós |
-| `Kart01Model` | tipo | `root: THREE.Group` (nome `kart`); `groups: Record<Kart01GroupName, THREE.Group>` (16 entradas); `wheels: Record<WheelName, { steer: THREE.Group; spin: THREE.Group; diameterM: number }>`; `steeringWheel: THREE.Group` (`volanteGiro`); `arms: readonly [ArmNodes, ArmNodes]`; `anchors: { exhaustOutlet: THREE.Object3D; bumperPlate: THREE.Mesh }`; `materials: { body: THREE.MeshStandardMaterial; plate: THREE.MeshStandardMaterial; sidepod: THREE.MeshStandardMaterial }`; `palette: typeof KART01_PALETTE` |
+| `Kart01Model` | tipo | `root: THREE.Group` (nome `kart`); `groups: Record<Kart01GroupName, THREE.Group>` (16 entradas); `wheels: Record<WheelName, { steer: THREE.Group; spin: THREE.Group; diameterM: number }>`; `steeringWheel: THREE.Group` (`volanteGiro`); `arms: readonly [ArmNodes, ArmNodes]`; `anchors: { bumperPlate: THREE.Mesh }`; `materials: { body: THREE.MeshStandardMaterial; plate: THREE.MeshStandardMaterial; sidepod: THREE.MeshStandardMaterial }`; `palette: typeof KART01_PALETTE` |
 | `WheelName` | tipo | `'rodaDianteiraEsq' \| 'rodaDianteiraDir' \| 'rodaTraseiraEsq' \| 'rodaTraseiraDir'`, na ordem de `wheelPositions` (dianteira esquerda, dianteira direita, traseira esquerda, traseira direita) |
 | `paintKart01Decals(model)` (`src/kart01Decals.ts`) | `(Kart01Model) => void` | pinta duas `CanvasTexture` (placa 512 × 352 px com o número; adesivo lateral 1024 × 192 px com o número e `KARTLE`) e as atribui a `materials.plate.map` e `materials.sidepod.map`; o fundo da placa é pintado **branco** e a `color` do material continua `KART01_PALETTE.placa`, de modo que a placa exibida tem exatamente a cor da ficha e o número a cor `borracha`; fonte: `Archivo, "Arial Black", Impact, sans-serif` sem `@font-face` (nenhum download; cai na fonte do sistema); chamada repetida substitui e descarta (`dispose`) as texturas anteriores |
 
@@ -98,11 +98,13 @@ quadro, `updateKart01Pose` resolve o cotovelo com `resolverCotovelo` e posiciona
 quaternion; sem escala por quadro). As mãos ficam no aro em qualquer ângulo (REQ-FEAT-0002-04) exatamente
 como no código do Cowork, porque a posição da mão é `maoNoVolante(lado, ânguloDoVolante)`.
 
-Nós de ancoragem (sem geometria, logo sem chamada de desenho): `anchors.exhaustOutlet`, `Object3D` nomeado
-`escapamentoSaida`, filho do grupo `motor`, na extremidade traseira da `ponteira` — coordenadas do modelo
-(0,39, 0,33, 0,77) m —, onde [DES-0005](DES-0005-efeitos-presos-ao-kart.md) prende a fumaça; `anchors.bumperPlate`,
-a malha `placaTraseira` do grupo `paraChoqueTraseiro`, cuja cor de material é `bumperPlateColorHex` em
-API-0002. Os nós `steer` de cada roda ficam no centro da roda (posição `(x, raio, z)` de `defRodas`), de modo
+Ponto de ancoragem: `anchors.bumperPlate`, a malha `placaTraseira` do grupo `paraChoqueTraseiro`, cuja cor
+de material é `bumperPlateColorHex` em API-0002. O nó sem geometria `anchors.exhaustOutlet` (`Object3D`
+`escapamentoSaida`, filho do grupo `motor`, hoje em `src/kart01Model.ts:45`, `:526-530` e `:539`), que a
+versão 1.1.0 punha na ponteira para [DES-0005](DES-0005-efeitos-presos-ao-kart.md) prender a fumaça de turbo,
+é **retirado** nesta versão: a fumaça ou chama de turbo não é exibida em nenhum quadro (REQ-FEAT-0005-10, F-Spec
+1.3) e o nó fica sem consumidor. Sem geometria, a retirada não muda malhas, chamadas de desenho, triângulos nem
+medidas; o grupo `motor`, com o `escapamento` e a `ponteira`, continua como está (é peça do kart, não efeito). Os nós `steer` de cada roda ficam no centro da roda (posição `(x, raio, z)` de `defRodas`), de modo
 que o esterço gira a roda em torno do seu próprio eixo vertical; o nó `spin` é filho do `steer`.
 
 O que o agrupamento **não** muda: nenhuma geometria, segmento, chanfro, posição ou escala de peça; o número

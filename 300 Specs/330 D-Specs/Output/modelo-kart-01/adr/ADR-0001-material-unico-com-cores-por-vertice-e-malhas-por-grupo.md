@@ -4,7 +4,7 @@ title: Um material opaco com cores por vértice e as malhas de cada grupo mescla
 feature: modelo-kart-01
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [RULE-0001, FEAT-0001, FEAT-0002, FEAT-0004, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0002-10, REQ-FEAT-0004-03, REQ-FEAT-0004-04, NFR-0004]
 ---
 
@@ -37,8 +37,10 @@ de materiais, é o que precisa cair.
 3. Cada braço vira três malhas rígidas (braço superior com o cotovelo; antebraço com o punho; luva), porque
    os seus comprimentos são constantes na cinemática de `atualizarBracos`; a posição e a orientação de cada
    uma continuam calculadas por quadro pela mesma cinemática.
-4. Nós de ancoragem sem geometria (`escapamentoSaida`) substituem as sub-malhas nomeadas que a mesclagem
-   absorve.
+4. Nós de ancoragem sem geometria substituem as sub-malhas nomeadas que a mesclagem absorve, quando um
+   efeito precisa de um ponto do modelo. O único da rodada 1, `escapamentoSaida`, saiu na rodada 5 com a
+   fumaça de turbo que nele se prendia (F-Spec 1.3; [DES-0001](../web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md));
+   hoje nenhum efeito precisa de um, e a regra fica para o próximo.
 5. Resultado planejado: 27 malhas, 27 chamadas, 3 materiais, 5.128 triângulos
    ([DES-0001](../web/DES-0001-modelo-kart-01-montagem-agrupamento-e-decalques.md), tabela do plano); margem
    de 3 chamadas abaixo do limite.
@@ -69,4 +71,4 @@ de materiais, é o que precisa cair.
 
 ## Estado
 
-Aceita nesta rodada.
+Aceita na rodada 1; na rodada 5 o exemplo da decisão 4 foi atualizado (nó do escapamento retirado), sem mudar a decisão.
