@@ -55,3 +55,6 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   (DOMAIN/DEC-10), o resultado mostra só o tempo total e a validade, sem linha de setores. As suposições do
   condutor de 2026-10-29 (treino termina por pausa ou "encerrar treino"; melhor volta válida visível;
   reposicionar livre no treino) já estão no seed rev 3 (US-10 e US-7) e valem como texto do seed.
+- 2026-11-03 — **Opção de produção (Eduardo Matos): 1 — esperar a decisão Esri.** Nenhum push de `master` a
+  `origin` até lá; depois as quatro features sobem juntas. As opções 2 (`6ea3862`) e 3 (ramo sem a Kart Park)
+  ficam descartadas.

@@ -99,3 +99,8 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   testes encontrou o drift ainda ensinado em `index.html` (tela inicial, dica da barra, guia de manobras) e o
   botão "Drift" no controle de toque. O pedido do dono do produto foi tirar o drift do jogo; a rev 6 nomeia
   essas telas na restrição de exibição, para que nada ofereça um comando que não faz mais nada.
+- 2026-11-03 — **Opção de produção (Eduardo Matos): 1 — esperar a decisão Esri** (a única rota para produção);
+  sobe junto com as outras três features.
+- 2026-11-03 — **`#lap-share` inalcançável aceito por agora (Eduardo Matos):** enquanto o jogo oferecer só o
+  treino, o compartilhar da volta oficial fica sem caminho na tela; a metade humana de E2E-02 que depende dele
+  (D14, M10) sai das linhas a executar até a volta oficial ser ofertada.

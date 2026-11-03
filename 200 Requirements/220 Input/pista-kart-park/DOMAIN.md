@@ -28,3 +28,5 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   bastam**. Barreira só nos trechos com 6 m de grama ou menos (US-4).
 - 2026-10-22 — **OPEN-04 fechado:** som da zebra no teclado: um **ruído curto e grave que se repete**
   enquanto houver roda na zebra, com o som ligado.
+- 2026-11-03 — **OPEN-01 continua aberto (Eduardo Matos):** a Kart Park **segue só em staging**; nenhuma
+  liberação, nem remedição sem Esri, por enquanto. A produção espera a decisão (opção 1 dos runbooks).

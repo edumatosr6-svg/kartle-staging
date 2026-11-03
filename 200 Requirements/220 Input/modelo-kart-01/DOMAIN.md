@@ -38,3 +38,9 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   andamento, a mais de 6 m/s e com derrapagem lateral (telemetria da simulação) acima de 0,055 rad — os dois
   limites que já existiam, sem o termo do drift. Com o acerto C, a derrapagem lateral chega a 0,08 rad em
   condução normal na pista sintética, então as marcas aparecem nas curvas mais fortes (seed rev 4, US-5).
+- 2026-11-03 — **Opção de produção (Eduardo Matos): 1 — esperar a decisão Esri;** sobe junto com as outras três
+  features.
+- 2026-11-03 — **AC-US-0003-13 na forma completa aceito como inalcançável por agora (Eduardo Matos):** enquanto o
+  jogo oferecer só o treino, o fim da volta oficial (câmera na pose de corrida com o painel de resultado até a
+  próxima visão geral) não tem caminho na tela; D11/M11 e essa parte de H2 saem das linhas a executar até a
+  volta oficial ser ofertada. O treino contínuo continua conferido.
