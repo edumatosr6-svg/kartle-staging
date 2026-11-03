@@ -3,7 +3,7 @@ id: REL-0002
 title: Migração — arquivo de pista (leitor v1/v2 mantido), estado da volta e sessão de treino em memória, dado persistido intocado
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.2.0
 sources: [DM-0001, DM-0002, ADR-0006, NFR-0012, TEST-0009, TEST-0015, CHK-TEST-0009-01, CHK-TEST-0009-03]
 ---

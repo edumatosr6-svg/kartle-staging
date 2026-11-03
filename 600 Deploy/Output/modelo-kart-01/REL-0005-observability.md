@@ -3,7 +3,7 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.2.0
 sources: [DES-0001, DES-0003, DES-0004, DES-0007, DM-0001, NFR-0001, NFR-0002, NFR-0004, NFR-0005, NFR-0006, TEST-0001, TEST-0004]
 ---

@@ -2,7 +2,7 @@
 title: Runbook — promover, verificar e reverter a release de dirigibilidade (arcade-assistido-v6, sem drift nem turbo)
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.1.0
 sources: [DM-0001, DES-0001, DES-0005, DES-0006, DES-0007, DES-0009, ADR-0006, NFR-0002, NFR-0003, NFR-0004, NFR-0009, TEST-0007, TEST-0008, TEST-0010]
 ---

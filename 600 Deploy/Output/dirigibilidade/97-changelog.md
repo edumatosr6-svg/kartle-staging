@@ -2,7 +2,7 @@
 title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de deploy)
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.1.0
 sources: []
 ---

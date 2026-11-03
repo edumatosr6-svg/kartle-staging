@@ -2,7 +2,7 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DES-0001, DES-0005, DES-0008, DES-0009, DES-0010, ADR-0006, NFR-0003, NFR-0004, NFR-0006, NFR-0007, TEST-0009, TEST-0013, TEST-0015]
 ---

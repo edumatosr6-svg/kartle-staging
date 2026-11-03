@@ -3,7 +3,7 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DES-0008, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, NFR-0005, CHK-TEST-0013-03]
 ---

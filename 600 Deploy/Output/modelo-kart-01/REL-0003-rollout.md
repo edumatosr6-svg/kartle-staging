@@ -3,7 +3,7 @@ id: REL-0003
 title: Rollout — ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.2.0
 sources: [DES-0003, DES-0004, DES-0007, ADR-0003, NFR-0001, NFR-0002, NFR-0003, NFR-0006, TEST-0003, TEST-0004]
 ---

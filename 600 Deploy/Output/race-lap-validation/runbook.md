@@ -2,7 +2,7 @@
 title: Runbook — promover, verificar e reverter a release de validação de volta
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DM-0001, DM-0002, DES-0001, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, TEST-0009, TEST-0015]
 ---

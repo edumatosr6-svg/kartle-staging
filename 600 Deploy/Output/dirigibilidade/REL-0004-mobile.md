@@ -3,7 +3,7 @@ id: REL-0004
 title: Canal web-mobile — a mesma página, sem loja, sem assinatura, sem versão mínima instalada
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.1.0
 sources: [DES-0005, DES-0006, DES-0007, DES-0009, NFR-0002, NFR-0003, TEST-0007]
 ---

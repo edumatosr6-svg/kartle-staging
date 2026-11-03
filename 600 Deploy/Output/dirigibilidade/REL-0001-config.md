@@ -3,7 +3,7 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.1.0
 sources: [DES-0001, DES-0008, DES-0009, ADR-0006, NFR-0005, TEST-0010]
 ---

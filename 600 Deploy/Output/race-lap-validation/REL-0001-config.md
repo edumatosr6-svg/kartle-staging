@@ -3,7 +3,7 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DES-0011, NFR-0004, NFR-0005]
 ---

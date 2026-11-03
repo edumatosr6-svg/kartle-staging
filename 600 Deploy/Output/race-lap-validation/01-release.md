@@ -2,7 +2,7 @@
 title: Release — validação de volta de corrida
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DM-0001, DM-0002, DES-0001, DES-0007, DES-0008, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, NFR-0006, NFR-0007, NFR-0012]
 ---

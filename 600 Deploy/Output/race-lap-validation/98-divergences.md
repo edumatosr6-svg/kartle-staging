@@ -2,7 +2,7 @@
 title: Registro de divergências e lacunas devidas ao humano (estágio de deploy)
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: []
 ---

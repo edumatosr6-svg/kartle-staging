@@ -2,7 +2,7 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.1.0
 sources: [DES-0001, DES-0005, DES-0006, DES-0007, DES-0008, DES-0009, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0007, NFR-0009, TEST-0007, TEST-0008, TEST-0010]
 ---

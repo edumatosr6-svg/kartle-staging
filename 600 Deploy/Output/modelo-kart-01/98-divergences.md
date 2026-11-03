@@ -2,7 +2,7 @@
 title: Registro de divergências e lacunas devidas ao humano (estágio de deploy)
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.2.0
 sources: []
 ---

@@ -3,7 +3,7 @@ id: REL-0004
 title: Canal web-mobile — a mesma página, sem loja, sem assinatura, sem versão mínima instalada
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.2.0
 sources: [DES-0007, DES-0008, DES-0011, ADR-0006, NFR-0003, NFR-0006, TEST-0003, TEST-0015]
 ---
