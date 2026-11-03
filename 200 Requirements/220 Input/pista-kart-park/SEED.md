@@ -1,8 +1,8 @@
 ---
 name: pista-kart-park
-description: Primeira pista real do Kartle, a Kart Park (São José dos Pinhais, PR), jogável no treino ao lado da pista sintética por um seletor, com traçado suavizado e apresentado como aproximado, barreira entre trechos quase encostados, zebras com efeito, quatro setores, marcadores de percurso e crédito OpenStreetMap/ODbL. Ler antes de qualquer trabalho com pistas reais, seleção de pista, zebras ou atribuição de dados de mapa.
-revision: 1
-date: 2026-10-22
+description: Primeira pista real do Kartle, a Kart Park (São José dos Pinhais, PR), jogável no treino ao lado da pista sintética por um seletor, com traçado suavizado e apresentado como aproximado, barreira entre trechos quase encostados, zebras com efeito, quatro setores, marcadores de percurso, crédito OpenStreetMap/ODbL e acabamento visual (faixa branca de borda, zebra com relevo, barreira de pneus, grama com variação de tom). Ler antes de qualquer trabalho com pistas reais, seleção de pista, zebras, desenho da pista ou atribuição de dados de mapa.
+revision: 2
+date: 2026-11-03
 author: eduardo.matos
 channels: [web-desktop, web-mobile]
 ---
@@ -13,7 +13,9 @@ O Kartle ganha sua primeira pista real, a **Kart Park**, em São José dos Pinha
 da pista sintética, e o jogador escolhe uma das duas no treino livre. A pista é apresentada como
 **traçado aproximado** da pista real: a linha central, que veio de satélite, é suavizada. Uma barreira
 física separa os dois trechos que quase se encostam, as zebras têm efeito na pilotagem e a volta tem
-quatro setores. O crédito ao OpenStreetMap aparece onde o jogador vê a pista.
+quatro setores. O crédito ao OpenStreetMap aparece onde o jogador vê a pista. A revisão 2 dá à pista o
+acabamento de um kartódromo: faixa branca nas bordas, zebra com relevo, barreira de pneus e grama com
+variação de tom. Esse acabamento é só desenho e não muda a pilotagem.
 
 ## Contexto
 
@@ -89,6 +91,25 @@ Medições do traçado bruto, de três métodos independentes (`NOTES.md`):
   - O nome exibido é "Kart Park — São José dos Pinhais (traçado aproximado)", com o comprimento de
     687 m.
   - O recorde de 41,45 s da pista real não aparece, porque ele vale para o traçado oficial de 750 m.
+- **US-7** Como Jogador, quero que a Kart Park tenha o acabamento de um kartódromo, para reconhecer o lugar
+  e ler a pista enquanto piloto.
+  - As duas bordas do asfalto têm uma faixa branca contínua de 0,10 m de largura, por dentro do asfalto,
+    em toda a volta.
+  - Rodar sobre a faixa de borda é rodar no asfalto: a aderência, a saída de pista e o corte não mudam.
+  - A zebra aparece com relevo: rente ao asfalto do lado da pista e com no máximo 0,05 m de altura do
+    lado de fora.
+  - O kart não sobe, não pula e não é desviado pela zebra. A aderência, a vibração e o som da zebra
+    continuam como em US-5.
+  - A barreira de US-4 aparece como uma fileira de pneus pretos empilhados, com 0,9 m de altura, em toda
+    a extensão dela.
+  - A face dos pneus desenhados fica a no máximo 0,05 m da face de colisão da barreira, dos dois lados:
+    o kart para quando encosta nos pneus que o jogador vê.
+  - Nenhum pneu invade o asfalto nem a zebra.
+  - Com a Kart Park selecionada, a grama mostra ao menos dois tons de verde. Cada tom difere da cor de
+    grama de hoje (`#68865b`) entre 8 % e 20 % em luminância.
+  - O desenho da grama é o mesmo toda vez que a Kart Park abre, em qualquer aparelho.
+  - Todos os tons de grama são grama para a simulação.
+  - Com a pista sintética selecionada, nada muda na aparência dela.
 
 ## Regras de domínio
 
@@ -106,14 +127,16 @@ Medições do traçado bruto, de três métodos independentes (`NOTES.md`):
 | Suavizar e apresentar como traçado aproximado | decisão de 2026-10-22 |
 | Barreira física nos trechos quase encostados | decisão de 2026-10-22 |
 | Zebra conta como pista, com 85 % de aderência e vibração no celular | decisão de 2026-10-22 |
+| Faixa de borda, relevo da zebra, pneus e tons da grama são só desenho | I2, decisão de 2026-11-03 |
 
 ## Requisitos não funcionais
 
 | Requisito | Limite |
 |---|---|
 | Arquivo da pista | menor que 200 KB (RNF02) |
-| Taxa de quadros na Kart Park | 60 fps em notebook e 30 fps em celular intermediário (RNF03) |
+| Taxa de quadros na Kart Park | 60 fps em notebook e 30 fps em celular intermediário (RNF03), com o acabamento de US-7 |
 | Determinismo | mesmas entradas, mesmo tempo e mesmos setores na Kart Park (RNF07) |
+| Acabamento sem efeito na volta | as mesmas entradas dão o mesmo tempo, os mesmos setores e a mesma trajetória antes e depois da revisão 2 |
 | Jogar sem servidor | sim (RNF08) |
 | Crédito visível | 100 % das telas listadas em US-6 com a Kart Park selecionada (RNF09) |
 
@@ -127,13 +150,20 @@ Medições do traçado bruto, de três métodos independentes (`NOTES.md`):
 - A pista é convertida offline para o formato que o jogo lê, com os eixos do jogo: leste = +x,
   norte = −z. Motivo: I10; com outro mapeamento, o circuito fica espelhado.
 - Nenhuma dependência nova de execução.
+- A revisão 2 muda só o desenho. O arquivo publicado da pista continua byte a byte igual e a versão
+  continua `kart-park` 1. Motivo: I3/I5 (desenho não é versão de pista) e as validações de volta, zebra
+  e barreira já aprovadas em staging continuam valendo.
+- A aparência da pista sintética não muda. Motivo: o acabamento é desta pista real, e a sintética segue
+  como pista de ensaio.
 
 ## Impacto no domínio
 
 - **I1**: o seletor é só de treino. A pista de cada desafio diário continua sendo decidida pela feature
   do desafio.
-- **I2**: geometria, largura, zebra e barreira entram na simulação como dado. A tela só desenha.
-- **I3 / I5**: `kart-park` entra como versão 1. Suavizar de novo ou mudar a linha é uma versão nova.
+- **I2**: geometria, largura, zebra e barreira entram na simulação como dado. A tela só desenha. O
+  acabamento de US-7 fica todo do lado do desenho.
+- **I3 / I5**: `kart-park` entra como versão 1. Suavizar de novo ou mudar a linha é uma versão nova. O
+  acabamento de US-7 não é versão nova, porque não muda o arquivo.
 - **I6**: crédito e licença dos dados derivados.
 - **I8**: o contrato de passo não muda. O efeito da zebra é um dado de superfície.
 - **I10**: nenhum editor de pista no jogo.
@@ -152,6 +182,8 @@ Todos os pontos abaixo foram fechados pelo dono do produto em 2026-10-22; as dec
   alguns deles também precisam de barreira?
 - **OPEN-04** Qual é o som da zebra no teclado? Um ruído curto que se repete, ou outro?
 
+A revisão 2 não abre ponto novo.
+
 ## Fora do escopo
 
 - As outras duas pistas reais da etapa 3, um catálogo de pistas e o calendário do desafio diário.
@@ -160,3 +192,7 @@ Todos os pontos abaixo foram fechados pelo dono do produto em 2026-10-22; as dec
 - Recorde da pista real e qualquer comparação com tempos reais.
 - O cenário além de asfalto, zebra, grama e barreiras, como árvores, tribuna e boxes, que é de outra
   feature.
+- Zebra com relevo na física (o kart subir ou trepidar na zebra): o relevo de US-7 é só desenho.
+- Chão com foto de satélite ou textura baixada da rede.
+- Aproximar o traçado dos 750 m oficiais: o caminho OSM de origem fecha em 676 m, e corrigir pede uma fonte
+  nova de medição (`NOTES.md`).

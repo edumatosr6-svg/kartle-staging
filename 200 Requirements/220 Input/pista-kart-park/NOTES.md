@@ -41,3 +41,16 @@ Proveniência (a pipeline não lê este arquivo):
 - Conversão para o jogo: x = leste e z = −norte. Usar z = +norte espelha o circuito e troca esquerda e
   direita.
 - Pista sintética, para comparação: 240 pontos, 368,5 m, largura fixa de 11 m, sentido horário.
+
+## Medições da revisão 2 (2026-11-03)
+
+Feitas sobre o arquivo publicado `src/tracks/kart-park-v1.json` com `buildTrackGeometry` (script
+descartável, fora do repositório), para o acabamento de US-7:
+
+- Barreira: 1 linha, 381 segmentos, 53,3 m. A linha central da barreira fica a no mínimo 0,51 m da borda
+  do asfalto mais próxima (p10 0,53 m, mediana 0,75 m) e a no mínimo 5,04 m de qualquer quadrilátero de
+  zebra; nenhum ponto da barreira cai dentro de zebra. Com a face de colisão a 0,10 m da linha
+  (`BARRIER_HALF_WIDTH_M`), sobram ≥ 0,41 m de grama entre o pneu e o asfalto.
+- Zebras no arquivo publicado: 34 trechos (a da largada dividida), 386,8 m, todos com 1 m de largura.
+- Caminho OSM `way/128739206` (API do OSM, 2026-11-03): fechado, 57 nós, 676,0 m, `width=6`,
+  `name=Pista de Kart`. A diferença para os 750 m oficiais já está no OSM; não vem do preparo.
