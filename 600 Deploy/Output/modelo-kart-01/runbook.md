@@ -2,8 +2,8 @@
 title: Runbook — promover, verificar e reverter a release do modelo Kart 01 e da câmera de jogo
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: [DM-0001, DES-0001, DES-0003, DES-0004, DES-0005, DES-0007, ADR-0003, NFR-0001, NFR-0002, NFR-0003, NFR-0006, TEST-0001, TEST-0003, TEST-0004]
 ---
 
@@ -19,9 +19,9 @@ loop: cada um é de um humano, e a promoção a produção é sempre do dono do 
 | dono do produto | conta GitHub `edumatosr6-svg` (revisor obrigatório do ambiente `github-pages` de produção); é quem executa as linhas humanas H1–H6 nos aparelhos de referência |
 | repositório de **produção** | `edumatosr6-svg/kartle` — `https://github.com/edumatosr6-svg/kartle` (público), remoto local `origin`, ramo `master`, site `https://edumatosr6-svg.github.io/kartle/`; execuções em `https://github.com/edumatosr6-svg/kartle/actions` |
 | repositório de **staging** | `edumatosr6-svg/kartle-staging` — `https://github.com/edumatosr6-svg/kartle-staging` (público), remoto local `staging`, ramo `staging`, site `https://edumatosr6-svg.github.io/kartle-staging/`; execuções em `https://github.com/edumatosr6-svg/kartle-staging/actions` |
-| `<sha>` | o hash do commit da árvore verificada: `6b314b2193c25cd6384a3f64cffdc369637b3753` (seed rev 4). Um commit posterior **só de registro** (que não toque `src/`, `scripts/`, `tests/`, `tracks/`, `index.html`, `docs/kart-01/kart.js`, `package.json` nem `package-lock.json`, como `483c5fa`) não invalida a release; qualquer outro invalida |
-| `<hash>` | o hash de conteúdo no nome do JS (`assets/index-<hash>.js`), impresso no passo *Build* da execução que se publica; para a árvore de `<sha>`, **`BwruE9Pq`** (build limpo e staging, 694 094 bytes, sha256 `023fb54be8e8c3f6…`) |
-| `<run-staging>` | a execução de staging que publicou `<sha>`: **41101055606** (`success`) |
+| `<sha>` | o hash do commit da árvore verificada e servida: `e70aad9ddf5cf42da6c5957b4023afdbf6cacd03` (seed rev 4; contra o `6b314b2` da versão 1.1.0 muda só o ADR-0007 de `pista-kart-park` — `01-release.md`, *Mudança `6b314b2` → `e70aad9` e contenção*). Um commit posterior **só de registro** (que não toque `src/`, `scripts/`, `tests/`, `tracks/`, `index.html`, `docs/kart-01/kart.js`, `package.json` nem `package-lock.json`, como `1bb63aa` ou `6ca677e`) não invalida a release, desde que a sua execução fique verde e `check_served` dê o mesmo resultado; qualquer outro invalida |
+| `<hash>` | o hash de conteúdo no nome do JS (`assets/index-<hash>.js`), impresso no passo *Build* da execução que se publica; para a árvore de `<sha>`, **`DmxsQuIL`** (build limpo e staging, 694 178 bytes, sha256 `79e3182c…`) |
+| `<run-staging>` | a execução de staging que publicou `<sha>`: **41109469203** (`success`); **em vigor**, **41156803005** (`1bb63aa`, só registro, os mesmos bytes; `success`) |
 | `<run-anterior>` / `<sha-anterior>` | o alvo do caminho B em staging: execução **41076989728**, commit **`652bbaa`** (árvore de `07b5cfa`: Kart 01 da revisão anterior com o código do +4° de turbo, do jato e das marcas presas ao drift; acerto `arcade-assistido-v6`; Kart Park; treino de uma volta); o seu `<hash-anterior>` é lido no passo *Build* dessa execução |
 | "execução verde" | uma execução do workflow `pages` com os dois trabalhos (`build`, `deploy`) concluídos com sucesso |
 | `check_served` | `python -I "600 Deploy/Output/modelo-kart-01/tools/check_served.py" <URL> index-<hash>.js` — três GET de leitura; `checks=40 failed=0` aprova |
@@ -45,16 +45,19 @@ armazenamento no navegador nem aplicativo nativo. A feature fica ativa ao servir
 
 ## Preconditions
 
-- [x] **Commit verificado existe**: `6b314b2193c25cd6384a3f64cffdc369637b3753` (`master`), a árvore que os vereditos de código e
-      de testes verificaram. Quem executa confere: `git log --oneline -5` mostra `6b314b2` (ou só commits de registro acima dele,
-      como `483c5fa`) e `git status` não acusa modificação em `src/`, `scripts/`, `tests/`, `tracks/`, `index.html`,
+- [x] **Commit verificado existe**: `e70aad9ddf5cf42da6c5957b4023afdbf6cacd03` (`master`), a árvore que a suíte 444/444 e a
+      execução de staging verificaram. Quem executa confere: `git log --oneline -8` mostra `e70aad9` (ou só commits de registro
+      acima dele, como `1bb63aa` e `6ca677e`) e `git status` não acusa modificação em `src/`, `scripts/`, `tests/`, `tracks/`, `index.html`,
       `package.json` nem no lockfile. O que se publica é o commit, não a árvore de trabalho.
 - [x] Veredito de código `SUCCESS`: `400 Code/Output/modelo-kart-01/reports/code-validation/code-validation-20261030-1655.md`
       (seed rev 4).
 - [x] Veredito de testes `SUCCESS`: `500 Tests/Output/modelo-kart-01/reports/test-validation/test-validation-20261030-1743.md`
-      (443 verificações, 443 aprovadas, 66 desta feature; `fresh: true`).
+      (443 verificações, 443 aprovadas, 66 desta feature; `fresh: true`; árvore de `6b314b2`), aplicável a `<sha>`: nenhum teste
+      nem módulo desta feature muda entre `6b314b2` e `e70aad9`; na execução local de 2026-11-03 sobre `e70aad9` (veredito
+      `test-validation-20261103-1743.md` de `race-lap-validation`) e nas execuções 41109469203 e 41156803005, 444/444 (66/66 desta feature).
 - [ ] Validação de staging `SUCCESS` para `<sha>`: relatório em `600 Deploy/Output/modelo-kart-01/reports/deploy-validation/`
-      — **aguarda o validador** sobre esta revisão do registro (o relatório de 2026-10-27 vale para `6ea3862`, não para `<sha>`).
+      — **aguarda o validador** sobre esta revisão do registro (o relatório de 2026-10-27 vale para `6ea3862`; o de 2026-11-03,
+      `deploy-validation-20261103-1741.md`, é `FAIL` por ISSUE-07 — registro em `6b314b2` —, que esta revisão corrige).
 - [x] Histórico de migração: **não se aplica** — não há banco; nenhum formato publicado ou persistido muda por esta feature; a
       linha de base da simulação vive no repositório e não no bundle (`REL-0002`).
 - [x] Feature flag: **não há** (ADR-0003); a feature fica ativa ao servir o `index.html` novo.
@@ -62,20 +65,23 @@ armazenamento no navegador nem aplicativo nativo. A feature fica ativa ao servir
       obrigatório `edumatosr6-svg` e política de ramos restrita a `master`; staging com *Source* = GitHub Actions, sem revisor e
       política de ramos **sem restrição** — a reconferir depois de qualquer despublicação. Nenhuma credencial configurada: o
       Pages usa o token OIDC da execução (D-DP-05).
-- [x] **Execução verde do workflow `pages` em staging para `<sha>`**: `<run-staging>` 41101055606; a URL de staging serve
-      `index-BwruE9Pq.js` desde 2026-10-30 17:48:06Z (200 em HTTPS; `check_served` 40/40; byte a byte o JS do build limpo). Em
+- [x] **Execução verde do workflow `pages` em staging para `<sha>`**: `<run-staging>` 41109469203, e a em vigor 41156803005 (só
+      registro); a URL de staging serve `index-DmxsQuIL.js` desde 2026-10-31 01:46:48Z (200 em HTTPS; `check_served` 40/40 em
+      2026-11-03; byte a byte o JS e o CSS do build limpo). Em
       produção, **nenhuma execução verde** e nada aprovado; a URL responde 404.
 - [x] **Alvo de reversão em staging retido**: 41076989728 (`652bbaa`), caminho B; procedimento ensaiado no mesmo site em
-      2026-10-27 (≈ 1 min 17 s / ≈ 2 min 12 s). O par desta revisão (41076989728 ↔ 41101055606) não foi reexecutado por este
+      2026-10-27 (≈ 1 min 17 s / ≈ 2 min 12 s). O par desta revisão (41076989728 ↔ 41156803005) não foi reexecutado por este
       registro (nenhum comando contra o GitHub; `98-divergences.md`, DIV-DP-03).
-- [ ] **`docs/kart-01/device-log.md` com as linhas H1–H6 registradas sobre `index-BwruE9Pq.js`, nos aparelhos de referência
+- [ ] **`docs/kart-01/device-log.md` com as linhas H1–H6 registradas sobre `index-DmxsQuIL.js`, nos aparelhos de referência
       nomeados** (notebook e celular intermediário, paisagem e retrato): as 24 linhas `unverified` do veredito de testes
       (AC-US-0001-14..16, AC-US-0002-01, -03..-06, AC-US-0003-08, -10..-14, AC-US-0004-01, -02, AC-US-0005-01, -04..-07,
       NFR-0001, NFR-0002; NFR-0006 linha 1 é revisão de código) dependem disso. O arquivo existe com a execução 1 (navegador
-      embutido, build de 2026-10-27, parcial); a seção *Execuções nos aparelhos de referência* diz "Não executadas" (DIV-DP-01).
-- [ ] **Portas humanas das releases contidas** nesta: `docs/handling-device-log.md` da `dirigibilidade` (o arquivo não existe),
-      a execução seguinte de `docs/lap-validation-device-log.md` (`race-lap-validation`) e `docs/kart-park-device-log.md`
-      (`pista-kart-park`). Promover `<sha>` promove as quatro; as listas cabem na mesma sessão de aparelho sobre este bundle
+      embutido, build de 2026-10-27, parcial); a seção *Execuções nos aparelhos de referência* diz "Não executadas"; a
+      execução no celular de 2026-10-30 (aparelho não nomeado, só paisagem, sem medida) é qualitativa e não marca nenhuma
+      linha (DIV-DP-01).
+- [ ] **Portas humanas das releases contidas** nesta: `docs/handling-device-log.md` da `dirigibilidade`, a execução 3 de
+      `docs/lap-validation-device-log.md` (`race-lap-validation`) e `docs/kart-park-device-log.md` (`pista-kart-park`) — os três
+      existem desde `1bb63aa` só com a mesma execução qualitativa no celular, que não fecha nenhuma linha. Promover `<sha>` promove as quatro; as listas cabem na mesma sessão de aparelho sobre este bundle
       (DIV-DP-12).
 - [ ] **Decisão Esri registrada em `DOMAIN.md` da `pista-kart-park`, ou escolha registrada entre as opções 1 a 3 de
       `01-release.md`** (*Produção — opções enquanto a decisão Esri não existe*). Sem uma das duas, **não há pergunta de
@@ -88,14 +94,14 @@ armazenamento no navegador nem aplicativo nativo. A feature fica ativa ao servir
 
 | # | Passo | Esperado | Leva | Desfaz-se por |
 |---|---|---|---|---|
-| 1 | conferir o commit: `git log --oneline -5`; `git status` | `6b314b2` ou só commits de registro acima dele (hoje `483c5fa`); nenhuma modificação local em `src/`, `scripts/`, `tests/`, `tracks/`, `index.html`, `package.json`, lockfile | 1 min | nada a desfazer: leitura local |
+| 1 | conferir o commit: `git log --oneline -5`; `git status` | `e70aad9` ou só commits de registro acima dele (hoje `bb5cd3a` … `6ca677e` e os posteriores); nenhuma modificação local em `src/`, `scripts/`, `tests/`, `tracks/`, `index.html`, `package.json`, lockfile | 1 min | nada a desfazer: leitura local |
 | 2 | `npm ci` | saída 0; `package-lock.json` inalterado | 1 a 2 min | nada externo: só recria `node_modules/` |
-| 3 | `npm test` | saída 0; `443 passed, 0 failed, 0 skipped` (66 em `tests/modelo-kart-01-*.test.ts`) | 1 a 3 min | nada a desfazer |
-| 4 | `npm run build` | saída 0; `dist/assets/index-<hash>.js` e um CSS, nenhum outro arquivo em `dist/assets/`; anotar o `<hash>` (com `-- --base=/kartle-staging/`, `BwruE9Pq`) — é a conferência local; o artefato publicado é o do workflow | 1 min | nada externo: apagar `dist/` local |
-| 5 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` e `check_bundle` | `within_limit=True` (≈ 711 561 bytes, RNF02); `checks=48 failed=0` | 10 s | nada a desfazer: leitura |
+| 3 | `npm test` | saída 0; `444 passed, 0 failed, 0 skipped` (66 em `tests/modelo-kart-01-*.test.ts`) | 1 a 3 min | nada a desfazer |
+| 4 | `npm run build` (no Git Bash do Windows, `MSYS_NO_PATHCONV=1` antes de um `--base=/…/`) | saída 0; `dist/assets/index-<hash>.js` e um CSS, nenhum outro arquivo em `dist/assets/`; anotar o `<hash>` (com `-- --base=/kartle-staging/`, `DmxsQuIL`) — é a conferência local; o artefato publicado é o do workflow | 1 min | nada externo: apagar `dist/` local |
+| 5 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` e `check_bundle` | `within_limit=True` (711 620 no workflow; ≈ 711 668 no Windows pelo CRLF do `index.html`; RNF02); `checks=48 failed=0` | 10 s | nada a desfazer: leitura |
 | 6 | registrar o alvo de reversão em `docs/kart-01/device-log.md`: staging → execução 41076989728 (`652bbaa`), caminho B; produção → "nenhuma execução verde anterior; reversão pelo caminho A (Unpublish site)" | nota registrada com os números conferidos na aba Actions de cada repositório | 2 min | nada a desfazer: anotação |
-| 7 | publicar em **staging**: `git push staging master:staging` (**feito**: `<run-staging>` 41101055606, `6b314b2`) e conferir `check_served https://edumatosr6-svg.github.io/kartle-staging/ index-<hash>.js`. Se o `deploy` falhar **sem executar nenhum passo**, liberar a política de ramos do ambiente e *Re-run all jobs* | execução verde (`npm test` 443 aprovados; `Measure dist` `within_limit=True`; `deploy` concluído); `check_served` `checks=40 failed=0` (**hoje: 200, `index-BwruE9Pq.js`, 40/40, servido desde 17:48:06Z**) | 3 a 5 min (execução) + até 10 min de cache | R1/R2 sobre `kartle-staging` (caminho B: 41076989728; ou A) |
-| 8 | executar `smoke.md` em staging (D1–D16, M1–M11) **e as linhas humanas H1–H6 abaixo**, e registrar em `docs/kart-01/device-log.md` (uma entrada por aparelho e orientação, nomeando `index-BwruE9Pq.js`) | todas as linhas dentro do limiar; D4/M4 sem kart de caixas; D7/M6 com placa `01` e sombra; D10/D13/M7 com o kart inteiro na curva e o campo de visão constante; D11/M11 com a câmera atrás do piloto depois da chegada; D12 com marcas só em curva forte; H6 com `minFps` ≥ 60 e ≥ 30 | 90 a 150 min | nada a desfazer: observação; o registro fica como histórico |
+| 7 | publicar em **staging**: `git push staging master:staging` (**feito**: `<run-staging>` 41109469203, `e70aad9`; em vigor 41156803005, só registro) e conferir `check_served https://edumatosr6-svg.github.io/kartle-staging/ index-<hash>.js`. Se o `deploy` falhar **sem executar nenhum passo**, liberar a política de ramos do ambiente e *Re-run all jobs* | execução verde (`npm test` 444 aprovados; `Measure dist` `within_limit=True`; `deploy` concluído); `check_served` `checks=40 failed=0` (**2026-11-03: 200, `index-DmxsQuIL.js`, 40/40, servido desde 2026-10-31 01:46:48Z**) | 3 a 5 min (execução) + até 10 min de cache | R1/R2 sobre `kartle-staging` (caminho B: 41076989728; ou A) |
+| 8 | executar `smoke.md` em staging (D1–D16, M1–M11) **e as linhas humanas H1–H6 abaixo**, e registrar em `docs/kart-01/device-log.md` (uma entrada por aparelho e orientação, nomeando `index-DmxsQuIL.js`) | todas as linhas dentro do limiar; D4/M4 sem kart de caixas; D7/M6 com placa `01` e sombra; D10/D13/M7 com o kart inteiro na curva e o campo de visão constante; D11/M11 com a câmera atrás do piloto depois da chegada; D12 com marcas só em curva forte; H6 com `minFps` ≥ 60 e ≥ 30 | 90 a 150 min | nada a desfazer: observação; o registro fica como histórico |
 | 9 | **decisão Esri ou escolha da opção** (`01-release.md`): sem uma das duas, **parar aqui**. Opção 1 (decisão Esri tomada e entregue pela `pista-kart-park`): a árvore a promover passa a ser a do commit dessa entrega, e os passos 1–8 repetem-se para ela. Opção 2: a árvore a promover é `6ea3862` e o runbook que vale é o validado em 2026-10-27 (versão 1.0.0 deste arquivo), não este | escolha registrada no relatório de validação e em `DOMAIN.md`, com data | até a decisão; sem decisão, vale "não promover" | nada a desfazer |
 | 10 | **pergunta ao dono do produto**: promover o commit escolhido no passo 9 a produção? (D-DP-06). Lembrete: produção nunca serviu um `dist/`; promover esta release é também promover `dirigibilidade`, `race-lap-validation` e `pista-kart-park`, com as suas portas humanas no estado que a precondição correspondente registra | resposta explícita registrada; "não" encerra aqui sem efeito | até 1 dia útil; sem resposta, vale "não" | nada a desfazer |
 | 11 | publicar em **produção**: `git push origin master` (avanço rápido a partir de `05c3570`, **nunca** `--force`); em `https://github.com/edumatosr6-svg/kartle/actions`, abrir a execução **mais recente** cujo `build` esteja verde, conferir que o commit é o do passo 9 e que o passo *Build* imprime o `index-<hash>.js` esperado; **nunca** aprovar a 39827702391 (`05c3570`) nem outra execução de árvore diferente; só depois do "sim" do passo 10, **Review deployments** → marcar `github-pages` → **Approve and deploy** | `build` verde com `npm test` todo aprovado e `Measure dist` `within_limit=True`; após a aprovação, `deploy` verde com a URL `https://edumatosr6-svg.github.io/kartle/` | 3 a 5 min de execução + o tempo até o clique | R1 (caminho A em produção); antes do clique, **Reject** deixa tudo como está |
@@ -128,7 +134,7 @@ no celular de referência (NFR-0001, RNF03).
 
 As seis linhas do estágio de testes que só a tela, o aparelho, a orientação ou o relógio de parede decidem
 (`500 Tests/Output/modelo-kart-01/98-divergences.md`; `test-strategy.md` E2E-01 a E2E-06, seed rev 4). Executadas sobre a URL de
-**staging** (`index-BwruE9Pq.js`), no notebook e no celular de referência nomeados pelo modelo comercial, com a página em primeiro
+**staging** (`index-DmxsQuIL.js`), no notebook e no celular de referência nomeados pelo modelo comercial, com a página em primeiro
 plano, e registradas em `docs/kart-01/device-log.md` (build, aparelho, navegador, versão, DPR, área de jogo em px, orientação,
 método da contagem, `fpsPerSecond`, `minFps`, resultado por roteiro, download, data) — uma entrada por aparelho e por orientação.
 Nenhuma pode ser feita por um loop nem sob automação do navegador (o ritmo sob automação é inválido: execução 1 do registro).
@@ -143,9 +149,9 @@ Nenhuma pode ser feita por um loop nem sob automação do navegador (o ritmo sob
 | H6 | taxa de quadros 60/30 e download | uma volta completa em corrida com a aba em primeiro plano e sem pausa, contando os quadros de cada segundo (ferramentas de desempenho do navegador ou trecho no console; nunca código do jogo): no **notebook** em paisagem; no **celular** em paisagem **e** em retrato; numa primeira visita com cache vazio, ler os bytes comprimidos transferidos | `fpsPerSecond` (lista) e `minFps` por aparelho e orientação; bytes comprimidos; **uma entrada por aparelho e orientação** | NFR-0001 / AC-US-0004-01: `minFps` ≥ 60 no notebook; AC-US-0004-02: `minFps` ≥ 30 no celular nas duas formas (uma medida em desktop não vale, I9); NFR-0002: abaixo de 3 145 728 bytes | E2E-06 |
 
 Resultado esperado do conjunto: 6 linhas `PASS` registradas (3 entradas no device log: notebook paisagem, celular paisagem,
-celular retrato, cada uma nomeando `index-BwruE9Pq.js`); a partir daí as 24 linhas `unverified` do veredito de testes ficam
+celular retrato, cada uma nomeando `index-DmxsQuIL.js`; a execução no celular de 2026-10-30 não é nenhuma delas); a partir daí as 24 linhas `unverified` do veredito de testes ficam
 verificadas na sua metade humana, e a precondição correspondente deste runbook fecha. Uma linha reprovada é `FAIL CODE` (defeito
-de aplicação), nunca de empacotamento: o bundle é o mesmo que passou nas 443 verificações — exceto a placa sem número num navegador
+de aplicação), nunca de empacotamento: o bundle é o mesmo que passou nas 444 verificações — exceto a placa sem número num navegador
 sem contexto 2D (ambiente; anotar o navegador) e um `minFps` abaixo do limiar num aparelho fora da referência (I9; anotar o modelo).
 
 ## Roll back

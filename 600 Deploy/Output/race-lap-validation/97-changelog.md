@@ -2,8 +2,8 @@
 title: Registro de mudanças — validação de volta de corrida (estágio de deploy)
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: []
 ---
 
@@ -583,3 +583,53 @@ ISSUE-03 aberto, ambiental; ISSUE-18 e ISSUE-19 fecharam na rodada 9).
 
 - Nenhum comando contra produção, nenhum `git` de escrita, `npm` ou `gh`; nenhum valor de segredo escrito;
   `docs/lap-validation-device-log.md`, `DOMAIN.md`, `SCOPE-BACKLOG.md` e os registros das outras features não editados.
+
+## 2026-11-03 — rodada 11, Modo B (relatório `deploy-validation-20261103-1735.md`, FAIL; escopo: ISSUE-04, `blocker`)
+
+O registro passa do candidato `6b314b2` ao build que staging serve, `e70aad9`, no molde do que `pista-kart-park` fez em
+`bb5cd3a`. Nenhuma superfície nova (§16): nenhuma linha de fumaça, roteiro, ferramenta, chave ou opção acrescentada; as
+linhas de tabela novas (*Mudança do build*, execuções 41109469203 e 41156803005) registram fatos do build servido.
+
+**Fatos de entrada** (lidos nesta rodada, só leitura): veredito de testes `SUCCESS` **sobre `e70aad9`**,
+`500 Tests/Output/race-lap-validation/reports/test-validation/test-validation-20261103-1743.md` (commit `6ca677e`; 444/444,
+179/179 desta feature); `git diff --stat 6b314b2 e70aad9 -- src index.html tests …`: `index.html`, `src/main.ts`,
+`src/style.css` (ADR-0007 de `pista-kart-park`, `38354bb`) e `tests/pista-kart-park-screens.test.ts`; `e70aad9..6ca677e` só
+registros; `gh run view` de 41156803005 (`1bb63aa`, `success`, *Test* 444/444, *Build* `index-DmxsQuIL.js`, *Measure dist*
+711 620 / 188 719) e de 41109469203 (`e70aad9`, `success`); GET de staging (200, `Last-Modified` 2026-10-31 01:46:48 GMT;
+sha256 `ba4e81a4…`, `79e3182c…`, `5e1c964b…`); `check_served.py … index-DmxsQuIL.js` 53/53; build limpo de `e70aad9` no
+rascunho (`git archive`, `npm ci`, `MSYS_NO_PATHCONV=1 npx vite build --base=/kartle-staging/`): JS e CSS com os mesmos
+sha256, `index.html` igual depois de normalizar o CRLF; `git grep` em `e70aad9`: 0 variáveis de ambiente, 0 rede ou
+armazenamento nos módulos e em `src/main.ts`; `docs/lap-validation-device-log.md`, *Execução no celular — 2026-10-30*.
+
+**O que mudou**
+
+- `01-release.md` (1.3.0): veredito de testes `test-validation-20261103-1743.md`; linha nova *Mudança do build
+  `6b314b2` → `e70aad9`* (o que o ADR-0007 muda e por que pediu veredito novo); `<sha>` = `e70aad9` com a regra de
+  invalidação por commit só de registro; execução em vigor 41156803005 e primeira de `e70aad9` 41109469203; servido com
+  os três sha256 e o build limpo; alvo B mantido (41076989728) com as execuções intermédias nomeadas; precondições com a
+  execução no celular de 2026-10-30 como evidência qualitativa que não fecha linha; medida de `e70aad9` (711 620 /
+  188 719; +143 contra `6b314b2`).
+- `runbook.md` (1.3.0): `<sha>`, `<hash>` `DmxsQuIL`, execução em vigor; precondições de commit, veredito e staging sobre
+  `e70aad9`; precondição da validação de staging aponta ISSUE-04; *Promote* 1, 3, 4 (com `MSYS_NO_PATHCONV=1`), 5, 7;
+  opção 2 de produção com `e70aad9`; caminho C com o conflito esperado em `src/main.ts`.
+- `smoke.md` (1.3.0): build `e70aad9`/`DmxsQuIL`, 444 na suíte; a execução no celular não dá nenhuma linha.
+- `REL-0001` (1.3.0) e `REL-0002` (1.2.0): reconferência em `e70aad9`. `REL-0003` (1.3.0): estado de staging, 444,
+  711 620, proveniência pelo pipeline. `REL-0004` (1.2.0): bytes e a execução no celular, qualitativa. `REL-0005` (1.3.0):
+  bytes, `check_served` com `DmxsQuIL`, entradas 41109469203 e 41156803005.
+- `98-divergences.md` (1.3.0): DIV-DP-05, DIV-DP-06 (veredito novo; a execução no celular registrada sem fechar nada),
+  DIV-DP-07 (bytes novos).
+
+**Itens fechados**: **ISSUE-04** (registro atrás do staging) — o registro nomeia `e70aad9`, o que staging serve, com
+veredito de testes sobre ele; a confirmação é da revalidação.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **ISSUE-01** (portas humanas; DIV-DP-06, DIV-DP-07): a execução 3 pelo roteiro H1–H6, com aparelho nomeado e medidas;
+  a execução no celular de 2026-10-30 fica registrada como qualitativa.
+- **ISSUE-02** (DIV-DP-15): a escolha do dono do produto entre as opções de produção, em `DOMAIN.md`.
+- **ISSUE-03** (ensaio de reversão reutilizado): nenhuma ação deste estágio; o alvo 41076989728 segue retido.
+
+**Itens recusados**: nenhum.
+
+- Nenhum redeploy (staging já serve `e70aad9`), nenhum comando contra produção, nada aprovado; `gh` e GET só de leitura;
+  nenhum valor de segredo escrito; `docs/`, `DOMAIN.md` e os registros das outras features não editados por esta entrada.

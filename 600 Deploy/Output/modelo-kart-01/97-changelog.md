@@ -2,8 +2,8 @@
 title: Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de deploy)
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: []
 ---
 
@@ -139,3 +139,62 @@ oficial na página pelo backlog); DIV-DP-15 (decisão Esri ou escolha entre as o
 **Itens recusados**: nenhum. **Verificações removidas**: nenhuma verificação de critério; nas ferramentas, a presença de
 `#lap-result-setup` e de `exhaustOutlet` foi substituída porque o elemento e a âncora deixaram de existir por decisão registrada
 (`cfad3dc`; seed rev 3/4), não por perda de cobertura.
+
+## 2026-11-03 — revisão 3, Modo B (relatório `deploy-validation-20261103-1741.md`, FAIL; escopo: ISSUE-07, `blocker`, e ISSUE-06)
+
+**Gatilho**: o registro nomeava `6b314b2` (`index-BwruE9Pq.js`, execução 41101055606), mas staging serve o build de `e70aad9`
+(`index-DmxsQuIL.js`, sha256 `79e3182c…`) pela execução 41156803005 do commit de registro `1bb63aa`; pela regra do `<sha>`,
+`e70aad9` (que muda `src/main.ts`, `index.html`, `src/style.css` e um teste de outra feature) invalidava o candidato. O
+registro passa a `e70aad9` no molde de `pista-kart-park` em `bb5cd3a`. Nenhuma superfície nova (§16): nenhuma linha de
+fumaça, ferramenta, chave ou passo acrescentado; as linhas de tabela novas registram fatos do build servido.
+
+**Entradas lidas** (só leitura): `git diff --stat 6b314b2 e70aad9` (só o ADR-0007 de `pista-kart-park` e
+`tests/pista-kart-park-screens.test.ts`; nenhum `tests/modelo-kart-01-*`, `tests/helpers/`, `tests/fixtures/`, nem
+`src/kart01Model.ts`, `src/gameCamera.ts`, `src/kartPose.ts`, `src/kart01Decals.ts`, `docs/kart-01/kart.js`);
+`e70aad9..6ca677e` só registros; o veredito `test-validation-20261030-1743.md` (o mais novo desta feature) e o JUnit da
+execução fresca de 2026-11-03 do veredito `test-validation-20261103-1743.md` de `race-lap-validation` (444/444; 66/66 desta
+feature); `gh run view` de 41109469203 e 41156803005 e o log desta (444/444, `index-DmxsQuIL.js`, 711 620 / 188 719); GET
+de staging (200, `Last-Modified` 2026-10-31 01:46:48 GMT); `check_served.py … index-DmxsQuIL.js` 40/40; build limpo de
+`e70aad9` no rascunho (`git archive`, `npm ci`, `MSYS_NO_PATHCONV=1 npx vite build --base=/kartle-staging/`): mesmos sha256
+de JS e CSS, `index.html` igual depois de normalizar o CRLF, `check_bundle.py <dist> docs/kart-01/device-log.md` 48/48 sem
+`warn`; `docs/kart-01/device-log.md`, *Execução no celular — 2026-10-30*.
+
+**O que mudou**
+
+- `01-release.md` (1.2.0): abertura e releases contidas com o ADR-0007; proveniência em 2026-11-03 — veredito aplicável a
+  `e70aad9` (66/66 na suíte 444/444), commit `e70aad9` com os commits de registro acima, linha nova *Mudança `6b314b2` →
+  `e70aad9` e contenção*, build limpo com `MSYS_NO_PATHCONV=1` e os sha256, staging 41109469203 e em vigor 41156803005, CI
+  444, alvo B mantido com as execuções intermédias; produção e opções em `e70aad9`; precondições com a execução no celular
+  de 2026-10-30 como evidência qualitativa e as portas das releases contidas com os logs que agora existem; medida
+  711 620 / 188 719.
+- `runbook.md` (1.2.0): `<sha>` `e70aad9` com a regra de commit só de registro, `<hash>` `DmxsQuIL`, `<run-staging>`;
+  precondições (commit, veredito aplicável, validação de staging com ISSUE-07, execução verde, par de reversão, registro em
+  tela, portas contidas); *Promote* 1, 3, 4 (com `MSYS_NO_PATHCONV=1`), 5, 7, 8; H1–H6 sobre `index-DmxsQuIL.js`.
+- `smoke.md` (1.2.0), `REL-0002` (1.2.0), `REL-0003` (1.2.0), `REL-0004` (1.2.0), `REL-0005` (1.2.0): `<hash>`, CSS, 444,
+  bytes, execuções e o par de reversão de `e70aad9`; `REL-0004` com a execução qualitativa no celular.
+- `98-divergences.md` (1.2.0): estado em 2026-11-03 para `e70aad9`; DIV-DP-01 (a execução no celular não fecha nada),
+  DIV-DP-02 e DIV-DP-04 refeitas, DIV-DP-03 (par 41076989728 ↔ 41156803005), DIV-DP-07, DIV-DP-11, DIV-DP-12 (os três logs
+  das releases contidas existem, nenhuma porta fechada), DIV-DP-15.
+
+**Itens fechados**
+
+- **ISSUE-07** (registro atrás do staging): o registro nomeia o build servido, com a contenção e o veredito de testes
+  aplicável; a confirmação é da revalidação.
+- **ISSUE-06** (medidas sem `MSYS_NO_PATHCONV=1`): as medidas de 6 667 / 711 561 / 188 918 saem; ficam as do servido e do
+  *Measure dist* de `e70aad9` (711 620 / 188 719), com a causa nomeada em `01-release.md`.
+- Defeito de registro de **ISSUE-04**: `docs/handling-device-log.md` era dado como inexistente (DIV-DP-12, `runbook.md`,
+  `01-release.md`); corrigido. A porta em si continua aberta.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **ISSUE-01** (H1–H6; DIV-DP-01, DIV-DP-07): as três entradas nos aparelhos de referência nomeados, com `fpsPerSecond` e
+  `minFps`; a execução no celular de 2026-10-30 fica registrada como qualitativa.
+- **ISSUE-02** (par de reversão não reexecutado; DIV-DP-03): nenhuma ação deste estágio.
+- **ISSUE-03** (decisão Esri; DIV-DP-15): o dono do produto registra a decisão ou a opção 1/2/3.
+- **ISSUE-04** (portas humanas das releases contidas; DIV-DP-12): as linhas em aberto de cada log.
+- **ISSUE-05** (AC-US-0003-13 completo inalcançável; DIV-DP-14): aceitação do dono do produto ou a oferta da volta oficial.
+
+**Itens recusados**: nenhum.
+
+**Nada foi executado contra produção**; nenhum push, redeploy, reexecução ou aprovação (staging já serve `e70aad9`); `gh` e
+GET só de leitura; nenhum valor de segredo escrito; `docs/` e as pastas de outras features não foram tocados (§14).

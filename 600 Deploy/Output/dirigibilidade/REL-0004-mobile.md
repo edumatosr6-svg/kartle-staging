@@ -3,8 +3,8 @@ id: REL-0004
 title: Canal web-mobile — a mesma página, sem loja, sem assinatura, sem versão mínima instalada
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.0.0
+status: draft
+version: 2.1.0
 sources: [DES-0005, DES-0006, DES-0007, DES-0009, NFR-0002, NFR-0003, TEST-0007]
 ---
 
@@ -32,12 +32,14 @@ O produto não tem aplicativo nativo e deliberadamente não terá (I10). O canal
 | HUD em todos os quadros, inclusive na grama e após bater; último valor mantido na pausa (AC-US-0004-06) | `#speed` e `#handling` escritos por quadro a partir da telemetria (DES-0005) | **H4** no celular: gravação da tela do sinal verde ao fim; cobrir o sensor pausa e mantém o valor — E2E-01 |
 | HTTPS para os sensores (RNF06, I6) | a inclinação só é ativada com `window.isSecureContext` e `DeviceOrientationEvent`; em iOS pede `requestPermission` | M1: a URL abre com cadeado; "Ativar inclinação" pede permissão e passa a dirigir |
 | 30 fps sustentados numa volta completa em celular intermediário (RNF03), com o custo por passo até 1,10 × a linha de base (NFR-0002) | no máximo 12 passos por quadro; o v6 custa 181,3 µs por passo contra 173,9 µs da linha de base v4 (1,04 ×) na máquina de referência (2026-10-30) | **H5** no celular: fps médio e mínimo numa volta; `npm run bench:handling` na máquina de referência (`STEP_COST` `PASS`) |
-| Carregamento até o kart andar abaixo de 10 s em 4G (RNF01) | tamanho do bundle: 711 477 bytes (188 912 comprimidos) | M2, em rede 4G real, cache vazio |
+| Carregamento até o kart andar abaixo de 10 s em 4G (RNF01) | tamanho do bundle: 711 620 bytes (188 719 comprimidos) | M2, em rede 4G real, cache vazio |
 
 ## Dispositivos de referência
 
 Os aparelhos e navegadores nomeados para RNF03 e NFR-0003 (notebook e celular intermediário) são decisão do dono do
-produto e devem constar de `docs/handling-device-log.md` — **arquivo que ainda não existe** (nenhum estágio o criou; este não
-o cria — cerca de escrita, §14; `98-divergences.md`, DIV-DP-01). As cinco linhas humanas H1–H5 do `runbook.md` são a
-"execução 1" desse log; podem ser feitas na mesma sessão das portas humanas de `race-lap-validation`, `modelo-kart-01` e
+produto e devem constar de `docs/handling-device-log.md` — arquivo que o dono do produto criou em `1bb63aa` (este estágio não o
+escreve — cerca de escrita, §14; `98-divergences.md`, DIV-DP-01) com uma *Execução no celular — 2026-10-30* sobre `e70aad9`:
+o próprio celular, **sem modelo, navegador nem versão**, sem medida — "virou bem", "rodou legal" sem fps, o resto pelo
+resumo. É evidência qualitativa e **não nomeia aparelho de referência nem fecha linha**. As cinco linhas humanas H1–H5 do
+`runbook.md` são a primeira execução nos aparelhos de referência desse log; podem ser feitas na mesma sessão das portas humanas de `race-lap-validation`, `modelo-kart-01` e
 `pista-kart-park`, sobre a mesma URL de staging, porque o bundle é um só. Esta release não escolhe aparelhos.

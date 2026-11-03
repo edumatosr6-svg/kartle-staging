@@ -3,8 +3,8 @@ id: REL-0002
 title: Migração — arquivo de pista (leitor v1/v2 mantido), estado da volta e sessão de treino em memória, dado persistido intocado
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: [DM-0001, DM-0002, ADR-0006, NFR-0012, TEST-0009, TEST-0015, CHK-TEST-0009-01, CHK-TEST-0009-03]
 ---
 
@@ -16,7 +16,7 @@ O produto não tem banco no MVP (I5; DM-0001, seção *Não há banco*). Os "esq
 
 | Esquema | Onde vive | Versão nesta release | Persistido |
 |---|---|---|---|
-| Arquivo de pista | empacotado no bundle (`SYNTHETIC_TRACK_FILE` em `src/track.ts`; a Kart Park em `src/tracks/kart-park-v1.json`, da release `pista-kart-park`) | primeira release: `schemaVersion` 2, `synthetic` `trackVersion` 2 (DM-0001). No build desta rodada (`6b314b2`) o leitor está no esquema 3 (`TRACK_SCHEMA_VERSION = 3`, mudança da release `pista-kart-park`, com o leitor das versões 1 e 2 mantido); **esta rodada não muda o arquivo nem o leitor** | não: viaja dentro do JS |
+| Arquivo de pista | empacotado no bundle (`SYNTHETIC_TRACK_FILE` em `src/track.ts`; a Kart Park em `src/tracks/kart-park-v1.json`, da release `pista-kart-park`) | primeira release: `schemaVersion` 2, `synthetic` `trackVersion` 2 (DM-0001). No build desta rodada (`e70aad9`) o leitor está no esquema 3 (`TRACK_SCHEMA_VERSION = 3`, mudança da release `pista-kart-park`, com o leitor das versões 1 e 2 mantido); **esta rodada não muda o arquivo nem o leitor** | não: viaja dentro do JS |
 | Estado e resultado da volta | memória da página (`LapSession`, `LapResult`; DM-0002 1.2.0) | sem versão: tipo interno, descartado ao recarregar | não |
 | Sessão de treino de voltas seguidas (seed rev 3; ADR-0006) | a mesma `LapSession`, com `lapSequenceCount`, `lapStartMs`, a lista de resultados (`trainingLapMs` em cada um) e `bestValidLapMs` derivado (DM-0002, INV-1 a INV-10) | sem versão: campos novos de um tipo interno, descartados ao recarregar ou ao encerrar o treino | não: 0 entradas no armazenamento do site (E2E-08; `smoke.md` D9/M9) |
 | Dado do jogador no navegador | nenhum escrito por esta feature (DES-0011; `CHK-TEST-0013-03`) | — | a feature não lê nem escreve |

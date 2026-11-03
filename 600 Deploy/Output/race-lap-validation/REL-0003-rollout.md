@@ -3,8 +3,8 @@ id: REL-0003
 title: Rollout — ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: [DM-0001, DM-0002, DES-0007, DES-0011, ADR-0006, NFR-0003, NFR-0004, TEST-0009, TEST-0015]
 ---
 
@@ -19,7 +19,7 @@ bundle (`REL-0002`).
 | Ordem | Passo | Quem | Desfaz-se por |
 |---|---|---|---|
 | 1 | anotar a última execução verde do workflow `pages` em cada repositório (alvo do caminho B): **staging** → 41076989728 (`652bbaa`); **produção** → nenhuma (nunca serviu um `dist/`; caminho A) | executor do runbook | não se desfaz: é a rede de segurança |
-| 2 | `git push staging master:staging` → o workflow constrói e publica em **staging**; `check_served.py`; `smoke.md` e as linhas humanas H1–H6 (`runbook.md`). **Estado em 2026-10-30**: execução 41101055606 (`6b314b2`) success; a URL serve `index-BwruE9Pq.js`; `check_served.py` 53/53; as linhas humanas esperam a execução 3 | executor do runbook | caminho B em staging: *Re-run all jobs* de 41076989728 |
+| 2 | `git push staging master:staging` → o workflow constrói e publica em **staging**; `check_served.py`; `smoke.md` e as linhas humanas H1–H6 (`runbook.md`). **Estado em 2026-11-03**: execução 41109469203 (`e70aad9`) success e a em vigor 41156803005 (`1bb63aa`, só registro, mesmos bytes); a URL serve `index-DmxsQuIL.js`; `check_served.py` 53/53; as linhas humanas esperam a execução 3 (a execução no celular de 2026-10-30 é qualitativa) | executor do runbook | caminho B em staging: *Re-run all jobs* de 41076989728 |
 | 3 | **escolha da opção de produção** (`runbook.md`, *Produção*: esperar a decisão Esri, publicar `6ea3862` antes, ou portar o treino contínuo para um ramo sem a Kart Park) e **pergunta de promoção** (D-DP-06) | dono do produto | não promover |
 | 4 | o push a `origin` correspondente à opção escolhida (nunca `--force`) → o workflow constrói em `edumatosr6-svg/kartle` e **para à espera do revisor**; *Approve and deploy* só na execução do commit escolhido; o cache renova em até 10 min. **Estado em 2026-10-30**: nada promovido; a referência local `origin/master` é `05c3570`; nenhuma execução de produção deve ser aprovada antes do passo 3 | dono do produto | R1 do `runbook.md`: *Unpublish site* (A, enquanto nada tiver sido promovido) ou *Re-run all jobs* da execução anterior + aprovação (B) |
 | 5 | `smoke.md`, *Verificação em produção*, e vigilância por 24 h (`REL-0005`) | dono do produto | idem 4 |
@@ -80,11 +80,11 @@ OIDC da execução). Etapas e a saída que aprova cada uma, na própria execuç�
 
 | # | Etapa | Comando ou ação no workflow | Saída observável que aprova a etapa |
 |---|---|---|---|
-| 1 | obter o commit | `actions/checkout` do commit do push (`6b314b2` em staging nesta rodada) | o cabeçalho da execução mostra o hash |
+| 1 | obter o commit | `actions/checkout` do commit do push (`e70aad9`, e o commit de registro `1bb63aa`, em staging nesta rodada) | o cabeçalho da execução mostra o hash |
 | 2 | Node e instalação | `actions/setup-node` com `node-version-file: .nvmrc` e `cache: npm`; `npm ci` | Node 24.x no log; saída 0; lockfile inalterado |
-| 3 | testar | `npm test` | saída 0; 443 aprovados em `6b314b2` (179 desta feature), 0 reprovados, 0 pulados |
+| 3 | testar | `npm test` | saída 0; 444 aprovados em `e70aad9` (179 desta feature), 0 reprovados, 0 pulados |
 | 4 | construir | `npm run build -- --base=/kartle/` em produção, `--base=/kartle-staging/` em staging (o nome vem de `github.event.repository.name`; o Pages de projeto serve em `/<nome do repositório>/` e o `index.html` referencia `/kartle/assets/...` ou `/kartle-staging/assets/...`) | saída 0; o log do Vite lista `dist/index.html`, `dist/assets/index-<hash>.js`, `dist/assets/index-<hash>.css` |
-| 5 | medir | `python3 -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True` (RNF02: abaixo de 3 145 728 bytes); saída 0, senão a execução falha aqui. Medido sobre o artefato servido em staging nesta rodada: 711 477 bytes |
+| 5 | medir | `python3 -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True` (RNF02: abaixo de 3 145 728 bytes); saída 0, senão a execução falha aqui. Na execução 41156803005: `total_bytes=711620` |
 | 6 | empacotar | `actions/configure-pages`; `actions/upload-pages-artifact` com `path: dist` | artefato `github-pages` anexado à execução |
 | 7 | publicar | trabalho `deploy`, ambiente `github-pages`, `actions/deploy-pages` | **staging**: publica de imediato (exige a política de ramos do ambiente sem restrição — tabela acima; um `deploy` falhado com zero passos é esse pré-requisito em falta); **produção**: fica em *Waiting* até o revisor obrigatório clicar *Approve and deploy* (D-DP-06); depois, a URL do ambiente na execução |
 | 8 | smoke em staging | `tools/check_served.py` (53 verificações, só leitura) e `smoke.md` + H1–H6 (humano) | `checks=53 failed=0`; todas as linhas com resultado dentro do limiar |
@@ -92,7 +92,8 @@ OIDC da execução). Etapas e a saída que aprova cada uma, na própria execuç�
 | 10 | verificar | `smoke.md`, *Verificação em produção*, depois dos 10 min de cache | limiares de RNF01, RNF02, RNF06 observados |
 
 O workflow corre desde 2026-10-21 (DIV-DP-10, DIV-DP-11); a prova de que o build é reproduzido pelo pipeline a partir
-do commit é, nesta rodada, a execução 41101055606 (`6b314b2`) e o *asset* servido conferido por `check_served.py`. Em
+do commit é, nesta rodada, a execução 41109469203 (`e70aad9`), a em vigor 41156803005 (`1bb63aa`, só registro) e o *asset*
+servido conferido por `check_served.py` e igual, byte a byte, ao build limpo de `e70aad9`. Em
 produção nenhuma execução é verde, por desenho: o `deploy` espera o revisor, e nesta rodada também a escolha da opção de
 produção (passo 3). Um push de `staging` para o repositório de produção constrói e testa, mas o `if` do trabalho `deploy`
 impede a publicação.

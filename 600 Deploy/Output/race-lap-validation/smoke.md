@@ -2,8 +2,8 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: [DES-0001, DES-0005, DES-0008, DES-0009, DES-0010, ADR-0006, NFR-0003, NFR-0004, NFR-0006, NFR-0007, TEST-0009, TEST-0013, TEST-0015]
 ---
 
@@ -15,10 +15,12 @@ não prova nada. Os roteiros `E2E-nn` são os de `300 Specs/330 D-Specs/Output/r
 e o resultado é registrado em `docs/lap-validation-device-log.md` por número de execução, com aparelho, navegador, versão
 e medida. As execuções 1 (local, parcial) e 2 (staging, operador de sessão: D1, D3, D4, D14) foram sobre a primeira
 release; **a execução 3**, humana, é a do roteiro de `runbook.md` (*Linhas humanas*, H1–H6) sobre o build desta rodada.
+A execução no celular de 2026-10-30 do mesmo log (sobre `e70aad9`, aparelho não nomeado, sem medida) é qualitativa:
+nenhuma linha abaixo é dada por ela.
 
 URLs (GitHub Pages, D23): staging `https://edumatosr6-svg.github.io/kartle-staging/`, produção
 `https://edumatosr6-svg.github.io/kartle/` — sempre com a barra final. "A URL" é a de staging antes da promoção e a de
-produção depois dela. O build desta rodada (commit `6b314b2`, `assets/index-BwruE9Pq.js`) contém também as releases
+produção depois dela. O build desta rodada (commit `e70aad9`, `assets/index-DmxsQuIL.js`) contém também as releases
 `dirigibilidade`, `modelo-kart-01` e `pista-kart-park`: a página abre na pista **Kart Park** e a oferta tem **só "treino"**
 (a volta oficial e a de reconhecimento chegam com o desafio diário, DES-0009). Todas as linhas abaixo correm sobre o treino.
 
@@ -77,7 +79,7 @@ Depois da promoção: D1, D2, D3, D4, D5, D6, D14, D15 e D16 em `web-desktop`; M
 ## Limites desta lista
 
 - Nenhuma linha acima é automatizada: o projeto não tem ferramenta de E2E e a feature não acrescenta dependência
-  (test-strategy). `npm test` (179 verificações desta feature; 443 na suíte em `6b314b2`) prova as regras;
+  (test-strategy). `npm test` (179 verificações desta feature; 444 na suíte em `e70aad9`) prova as regras;
   `check_served.py` prova que o artefato servido carrega os textos e os elementos; estas linhas provam a página pilotada.
 - **E2E-13** (painel só com tempo total e validade numa pista sem setores) não tem linha: a página servida não abre pista de
   fixture e nenhuma pista do catálogo é `INCOMPLETE` (a mesma razão de E2E-06). Decidido por `npm test` (CHK-TEST-0015-25,

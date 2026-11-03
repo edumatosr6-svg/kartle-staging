@@ -2,8 +2,8 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.0.0
+status: draft
+version: 2.1.0
 sources: [DES-0001, DES-0005, DES-0006, DES-0007, DES-0008, DES-0009, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0007, NFR-0009, TEST-0007, TEST-0008, TEST-0010]
 ---
 
@@ -26,13 +26,13 @@ assistido** (opção `arcade` de `#handling-preset`, selecionada por padrão), q
 
 Preparação comum: cache vazio (janela anônima), painel de rede e console abertos, idioma do navegador anotado,
 `python -I "600 Deploy/Output/dirigibilidade/tools/check_served.py" <URL> index-<hash>.js` executado uma vez (dois GET de
-leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `BwruE9Pq` em staging, execução 41101055606).
+leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `DmxsQuIL` em staging, execução 41156803005).
 
 ## Canal `web-desktop` (Chrome, Edge, Firefox e Safari nas versões atuais)
 
 | # | O que se faz | O que se observa | Limiar | Roteiro | prod |
 |---|---|---|---|---|---|
-| D1 | abrir a URL | cadeado válido (certificado `*.github.io`); painel de rede sem recurso em `http://`; `index.html`, `assets/index-<hash>.js` e `assets/index-oR7KyBh_.css` carregados de `/kartle-staging/assets/` (ou `/kartle/assets/`) com 200; `check_served.py` com `checks=22 failed=0` e o `<hash>` esperado | RNF06: 0 recursos inseguros, certificado válido; integridade: `<hash>` igual ao da execução aprovada (`REL-0005`) | — | sim |
+| D1 | abrir a URL | cadeado válido (certificado `*.github.io`); painel de rede sem recurso em `http://`; `index.html`, `assets/index-<hash>.js` e `assets/index-q-biCwua.css` carregados de `/kartle-staging/assets/` (ou `/kartle/assets/`) com 200; `check_served.py` com `checks=22 failed=0` e o `<hash>` esperado | RNF06: 0 recursos inseguros, certificado válido; integridade: `<hash>` igual ao da execução aprovada (`REL-0005`) | — | sim |
 | D2 | com o painel de rede limitando a 4G e cache vazio, recarregar e cronometrar da navegação até o kart responder à primeira tecla | tempo medido | RNF01: abaixo de 10 s | — | sim |
 | D3 | na mesma carga, ler o total transferido no painel de rede | bytes transferidos | RNF02: abaixo de 3 145 728 bytes; esperado da ordem de 189 KB comprimidos ou 711 KB brutos (`01-release.md`) | — | sim |
 | D4 | ao terminar de carregar, ler `#preset-label`, `#handling-preset`, a tela inicial (`#welcome`) e a barra de ferramentas | `#preset-label` = `ARCADE ASSISTIDO · TREINO LIVRE`; `#handling-preset` com `arcade` selecionado (`#assist-description` "Direção progressiva…"); `#lap-offer` com o botão da volta de treino; a dica ao lado de W A S D é `Dirigir`; nenhum texto, ícone ou controle da tela inicial ou da barra menciona drift, Espaço, carga, turbo, impulso, combo ou pontuação; não há guia de manobras | NFR-0009: o acerto padrão é o publicado; AC-US-0003-12, -13, -14: 0 menções a drift ou turbo. A observação nos dois idiomas é **H3** | E2E-04 | sim |
@@ -72,7 +72,7 @@ Na entrega que promover (hoje bloqueada pela decisão Esri — `01-release.md`, 
 - `check_served.py` e `check_bundle.py` provam o **servido** e o **empacotado** (hash, elementos, ausência de drift e turbo no
   HTML, controles de toque, acerto corrente e anterior, bloco de linha de base), não o comportamento: não executam a página,
   não medem ritmo nem leem o console. O JS servido ainda lê o campo `drift` de `Input` (contrato de passo, I8), por isso o
-  padrão de drift é verificado só no HTML e no CSS. O comportamento é provado por `npm test` (443 verificações, 65 desta
+  padrão de drift é verificado só no HTML e no CSS. O comportamento é provado por `npm test` (444 verificações, 65 desta
   feature) e pelo `bench:handling` (56 registros `PASS`), e por estas linhas e por H1–H5 na tela.
 - D14 e M10 (compartilhar) ficam na lista mas não são executáveis neste bundle: o botão só aparece no resultado de uma volta
   oficial ou de reconhecimento, que esta página não oferece; o texto compartilhado é provado por `CHK-TEST-0007-02` e

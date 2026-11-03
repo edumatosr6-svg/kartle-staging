@@ -3,8 +3,8 @@ id: REL-0004
 title: Canal web-mobile — a mesma página, sem loja, sem assinatura, sem versão mínima instalada
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: [DES-0007, DES-0008, DES-0011, ADR-0006, NFR-0003, NFR-0006, TEST-0003, TEST-0015]
 ---
 
@@ -31,7 +31,7 @@ canal `web-desktop`, aberta no navegador do celular, com inclinação ou toque n
 | Sensor negado ou perdido (I4) | pausa por `SENSOR_LOST` depois de cerca de 500 ms sem leitura; texto de controle por toque visível quando a permissão é negada (ADR-0005, DES-0007) | roteiro E2E-05 |
 | Texto de estado e motivo com 16 px no mínimo e contraste 4,5:1 (NFR-0006) | `src/style.css` (`--lap-state-size`, fichas) | roteiro E2E-07, medido no aparelho |
 | 30 fps sustentados numa volta completa em celular intermediário (NFR-0003) | `src/frameClock.ts`: no máximo 12 passos por quadro (teto de 0,1 s), DES-0007 | roteiro E2E-10, no aparelho nomeado; uma execução em desktop não vale (I9) |
-| Carregamento até o kart andar abaixo de 10 s em 4G (RNF01) | tamanho do bundle (`01-release.md`: 711 477 bytes servidos em staging nesta rodada; 188 898 gzip) | medida em rede 4G real ou limitada, cache vazio |
+| Carregamento até o kart andar abaixo de 10 s em 4G (RNF01) | tamanho do bundle (`01-release.md`: 711 620 bytes servidos em staging nesta rodada; 188 719 gzip) | medida em rede 4G real ou limitada, cache vazio |
 | Treino de voltas seguidas por toque (seed rev 3; ADR-0006) | `index.html`: `#pause` ("❚❚ pausar" / "▶ continuar") e `#lap-end-training` ("encerrar treino") na barra de ações, os dois por toque; `#lap-training-result` ao lado do estado da volta | M13 e M14 (E2E-12): os dois botões alcançáveis e legíveis, em paisagem e em retrato, sem cobrir a pista; o painel legível na tela pequena |
 
 ## Dispositivos de referência
@@ -39,8 +39,10 @@ canal `web-desktop`, aberta no navegador do celular, com inclinação ou toque n
 Os aparelhos e navegadores nomeados para NFR-0003 (notebook e celular intermediário) são os de RNF03 e devem constar do
 registro humano `docs/lap-validation-device-log.md`. O log tem a **execução 1** (local, só `web-desktop`, parcial, de
 estado e texto) e a **execução 2** (staging, desktop, operador de sessão: D1, D3, D4 e D14 da primeira release passam;
-nenhuma medida de ritmo válida sob automação). Nenhuma linha `M*` foi executada até agora. **Falta a execução 3**, humana,
-sobre o build desta rodada em staging (`6b314b2`), pelo roteiro de `runbook.md` (*Linhas humanas*, H1–H6): no notebook,
+nenhuma medida de ritmo válida sob automação). Em 2026-10-30 o dono do produto testou no próprio celular sobre `e70aad9`
+(aparelho sem modelo, navegador nem versão; paisagem): o corte invalida a volta e o kart segue; o resto passou só pelo
+resumo e o fps não foi medido — evidência qualitativa, que **não fecha nenhuma linha `M*`**. **Falta a execução 3**, humana,
+sobre o build desta rodada em staging (`e70aad9`), pelo roteiro de `runbook.md` (*Linhas humanas*, H1–H6): no notebook,
 H1 a H4 (inclusive o treino de voltas seguidas, E2E-12); no celular, **H5** (M1–M12) e **H6** (M13, M14: o treino de
 voltas seguidas por inclinação ou toque, "pausar" e "encerrar treino" por toque). Esta release não escolhe aparelhos: é
 decisão do dono do produto, registrada no log.

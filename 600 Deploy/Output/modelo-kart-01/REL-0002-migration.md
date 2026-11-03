@@ -3,8 +3,8 @@ id: REL-0002
 title: Migração — nenhum formato publicado ou persistido muda; a linha de base fica no repositório
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: [DM-0001, ADR-0003, ADR-0004, DES-0007, NFR-0006, NFR-0007, TEST-0004]
 ---
 
@@ -29,7 +29,7 @@ que nenhuma mudança de dado persistido ou de esquema é necessária (DM-0001). 
 
 | # | Revisão | O que faz | Ordem | Duração | Reversão (downgrade) | Como a reversão foi ensaiada |
 |---|---|---|---|---|---|---|
-| 1 | o Kart 01 e a câmera de jogo do seed rev 4 (marcas pela telemetria, sem efeitos de turbo, câmera atrás do piloto no treino contínuo) substituem no bundle a revisão anterior (DES-0001 a DES-0005) | o `index.html` novo referencia `index-BwruE9Pq.js`; nenhum dado é convertido, gravado ou lido | única; aplicada no mesmo passo em que o bundle é publicado | 0 s de indisponibilidade: não há dado armazenado a converter | republicar o bundle anterior (`runbook.md` R1: caminho B em staging — execução 41076989728 da árvore `652bbaa`; caminho A em produção, onde nada foi publicado; caminho C pelo repositório: `git revert` de `6b314b2` e `aeaf504`, ADR-0003) | procedimento do caminho B ensaiado em staging em 2026-10-27 19:29–19:33Z (mesmo site, mesmo workflow: reexecução de 39631099098 → `index-Cqfgl3da.js` em ≈ 1 min 17 s; reexecução de 40566728590 → `index-BiFxJ0FY.js` em ≈ 2 min 12 s); o par desta revisão (41076989728 ↔ 41101055606) não foi reexecutado (DIV-DP-03) |
+| 1 | o Kart 01 e a câmera de jogo do seed rev 4 (marcas pela telemetria, sem efeitos de turbo, câmera atrás do piloto no treino contínuo) substituem no bundle a revisão anterior (DES-0001 a DES-0005) | o `index.html` novo referencia `index-DmxsQuIL.js`; nenhum dado é convertido, gravado ou lido | única; aplicada no mesmo passo em que o bundle é publicado | 0 s de indisponibilidade: não há dado armazenado a converter | republicar o bundle anterior (`runbook.md` R1: caminho B em staging — execução 41076989728 da árvore `652bbaa`; caminho A em produção, onde nada foi publicado; caminho C pelo repositório: `git revert` de `6b314b2` e `aeaf504`, ADR-0003) | procedimento do caminho B ensaiado em staging em 2026-10-27 19:29–19:33Z (mesmo site, mesmo workflow: reexecução de 39631099098 → `index-Cqfgl3da.js` em ≈ 1 min 17 s; reexecução de 40566728590 → `index-BiFxJ0FY.js` em ≈ 2 min 12 s); o par desta revisão (41076989728 ↔ 41156803005) não foi reexecutado (DIV-DP-03) |
 | 2 | linha de base da simulação como fixture versionado, regravada com v6 (DM-0001, ADR-0004) | `tests/fixtures/kart01-sim-baseline.json`, `schemaVersion` 1, `recordedOnCommit` `a361c9c`, lido por `npm test` (`DETERMINISM`, `SIM_CONTRACT`, `WHEEL_POSITIONS`) | mesma publicação (vive no commit; não é servida) | 0 s | `git revert` de `07b5cfa` volta à gravação de `b86b200` — só válido junto com a volta do acerto v5; "nenhum registro foi persistido fora dele" (DM-0001, *Reversão*); uma forma futura é `schemaVersion` 2 com o leitor de 1 mantido (I3, I5) | `CHK-TEST-0004-11` e `-13` reprovam quando o fixture não bate com a simulação corrente (`BASELINE_MISSING`); `npm run baseline:kart01` recusa regravar sem `--force` |
 
 Não há revisão 3. A forma anterior do produto não carregava nada que esta release deixe de ler, e nenhuma versão em execução recebe

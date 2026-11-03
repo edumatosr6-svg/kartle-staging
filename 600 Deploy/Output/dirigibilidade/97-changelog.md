@@ -2,8 +2,8 @@
 title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de deploy)
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.0.0
+status: draft
+version: 2.1.0
 sources: []
 ---
 
@@ -121,3 +121,57 @@ e compartilhar no aparelho → H4 (resultado) e DIV-DP-13 (compartilhar).
 
 **Nada foi executado contra produção**; nenhum push, nenhuma reexecução, nenhuma aprovação; nenhum valor de segredo escrito;
 `.github/`, `src/`, `tests/`, `docs/` e as pastas de outras features não foram tocados (§14).
+
+## 2026-11-03 — rodada 3, Modo B (relatório `deploy-validation-20261103-1738.md`, FAIL; escopo: ISSUE-08, `blocker`)
+
+**Gatilho**: o registro nomeava `6b314b2` (`index-BwruE9Pq.js`, execução 41101055606), mas staging serve o build de `e70aad9`
+(`index-DmxsQuIL.js`, sha256 `79e3182c…`), pela execução 41156803005 do commit de registro `1bb63aa`; pela regra do próprio
+`<sha>`, `e70aad9` (que toca `src/main.ts`, `index.html`, `src/style.css` e um teste de outra feature) invalidava o candidato.
+O registro passa a `e70aad9` no molde de `pista-kart-park` em `bb5cd3a`. Nenhuma superfície nova (§16): nenhuma linha de
+fumaça, ferramenta, chave ou passo acrescentado; as linhas de tabela novas registram fatos do build servido.
+
+**Entradas lidas** (só leitura): `git diff --stat 6b314b2 e70aad9` (só o ADR-0007 de `pista-kart-park` e
+`tests/pista-kart-park-screens.test.ts`; nenhum `tests/dirigibilidade-*`, `tests/helpers/`, `tests/fixtures/`,
+`src/physics.ts`, `src/handlingMessages.ts`, `src/setupRecords.ts` nem `docs/physics.md`); `e70aad9..6ca677e` só registros;
+o veredito `test-validation-20261030-1638.md` (o mais novo desta feature) e o JUnit da execução fresca de 2026-11-03 do
+veredito `test-validation-20261103-1743.md` de `race-lap-validation` (444/444; 65/65 desta feature); `gh run view` de
+41109469203 e 41156803005 e o log desta (444/444, `index-DmxsQuIL.js`, 711 620 / 188 719); GET de staging (200,
+`Last-Modified` 2026-10-31 01:46:48 GMT); `check_served.py … index-DmxsQuIL.js` 22/22; build limpo de `e70aad9` no rascunho
+(`git archive`, `npm ci`, `MSYS_NO_PATHCONV=1 npx vite build --base=/kartle-staging/`): mesmos sha256 de JS e CSS,
+`index.html` igual depois de normalizar o CRLF, `check_bundle.py <dist> docs/physics.md` 25/25; `git grep` em `e70aad9`: 0
+variáveis de ambiente; `docs/handling-device-log.md` (criado em `1bb63aa`).
+
+**O que mudou**
+
+- `01-release.md` (2.1.0): proveniência em 2026-11-03 — veredito aplicável a `e70aad9` (65/65 na suíte 444/444), commit
+  `e70aad9` com os commits de registro acima, linha nova *Mudança `6b314b2` → `e70aad9` e contenção*, suíte 444, build limpo
+  com os sha256, staging 41109469203 e em vigor 41156803005, CI 444, alvo B mantido com as execuções intermédias;
+  precondições com o log criado e a execução no celular de 2026-10-30 como evidência qualitativa que não fecha linha;
+  promoção e reprodução em `e70aad9`; medida 711 620 / 188 719 (+143 contra `6b314b2`; +2 599 contra `652bbaa`).
+- `runbook.md` (2.1.0): `<sha>` `e70aad9` com a regra de commit só de registro, `<hash>` `DmxsQuIL`, execuções de staging;
+  precondições (commit, veredito aplicável, validação de staging com ISSUE-08, execução verde, par de reversão, log
+  existente sem linha marcada); *Promote* 1, 3, 4 (com `MSYS_NO_PATHCONV=1`), 5, 7; H1–H5 sobre 41156803005; R2.
+- `smoke.md` (2.1.0): `<hash>` e CSS servidos, 444. `REL-0001` (2.1.0): reconferência em `e70aad9`. `REL-0003` (2.1.0):
+  estado de staging, aprovação a partir de `e70aad9`, nomes dos *assets*, pipeline com 444 e 711 620. `REL-0004` (2.1.0):
+  bytes; o log existe com a execução qualitativa no celular. `REL-0005` (2.1.0): bytes, `<hash>`, entradas 41156803005,
+  41109469203 e 41101055606.
+- `98-divergences.md` (2.1.0): DIV-DP-01 (o log existe; a execução no celular não fecha nada), DIV-DP-02 e DIV-DP-04
+  refeitas para `e70aad9`, DIV-DP-03 (par 41076989728 ↔ 41156803005), DIV-DP-07, DIV-DP-11, DIV-DP-14.
+
+**Itens fechados**: **ISSUE-08** (registro atrás do staging) — o registro nomeia o build servido, com a contenção e o
+veredito de testes aplicável; a confirmação é da revalidação.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **ISSUE-01** (portas humanas; DIV-DP-01, DIV-DP-07): H1–H5 nos aparelhos nomeados, com medida; a execução no celular de
+  2026-10-30 fica registrada como qualitativa. Corrigido aqui o defeito de registro que ela expôs: o log era dado como
+  inexistente.
+- **ISSUE-05** (ensaio de reversão reutilizado; DIV-DP-03): nenhuma ação deste estágio.
+- **ISSUE-06** (`#lap-share` inalcançável; DIV-DP-13): reclassificação da metade humana de E2E-02 ou aceitação do dono do
+  produto.
+- **ISSUE-07** (decisão Esri; DIV-DP-14): o dono do produto registra a decisão ou a de esperar.
+
+**Itens recusados**: nenhum.
+
+**Nada foi executado contra produção**; nenhum push, redeploy, reexecução ou aprovação (staging já serve `e70aad9`); `gh` e
+GET só de leitura; nenhum valor de segredo escrito; `docs/` e as pastas de outras features não foram tocados (§14).

@@ -3,8 +3,8 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.0.0
+status: draft
+version: 2.1.0
 sources: [DES-0001, DES-0008, DES-0009, ADR-0006, NFR-0005, TEST-0010]
 ---
 
@@ -13,7 +13,7 @@ sources: [DES-0001, DES-0008, DES-0009, ADR-0006, NFR-0005, TEST-0010]
 ## O cliente continua sem ler configuração
 
 A página não lê variável de ambiente, chave, credencial nem arquivo de configuração em tempo de execução nem de build;
-esta feature não muda isso, nem no seed rev 6 (acerto `arcade-assistido-v6`, drift e turbo retirados — commit `6b314b2`):
+esta feature não muda isso, nem no seed rev 6 (acerto `arcade-assistido-v6`, drift e turbo retirados; reconferido em `e70aad9`, o commit servido, com `git grep`: 0 ocorrências de `import.meta.env`/`process.env`):
 
 | Evidência | Resultado |
 |---|---|
