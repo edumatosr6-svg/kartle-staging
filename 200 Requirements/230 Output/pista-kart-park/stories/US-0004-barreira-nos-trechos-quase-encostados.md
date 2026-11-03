@@ -4,7 +4,7 @@ title: Barreira nos trechos quase encostados
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [SEED/US-4, SEED/MED, SEED/RD-04, SEED/RD-11, SEED/IM-I2, SEED/RI-03, DOMAIN/DEC-03, DOMAIN/DEC-10]
 ---
 
@@ -42,9 +42,9 @@ da volta.
 - AC-US-0004-04: No estado da simulação, um kart conduzido contra a barreira, de qualquer dos dois lados
   e em qualquer velocidade que o kart alcance, não está do outro lado da barreira em nenhum passo de
   `STEP` (`DOMAIN/DEC-03`).
-- AC-US-0004-05: No estado da simulação, a velocidade e a posição do kart depois de uma colisão com a
-  barreira são as mesmas que depois de uma colisão com o muro existente, para a mesma velocidade e o
-  mesmo ângulo de impacto.
+- AC-US-0004-05: No estado da simulação, a velocidade e a posição do kart, medidas no referencial local
+  do obstáculo, o mesmo número de passos de `STEP` depois do contato, são as mesmas numa colisão com a
+  barreira e numa colisão com o muro existente, para a mesma velocidade e o mesmo ângulo de impacto.
 - AC-US-0004-06: Na tela, a barreira é desenhada em todo o seu comprimento (RF07, `SEED/IM-I2`).
 
 ## Casos anormais

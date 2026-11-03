@@ -2,8 +2,8 @@
 stage: req
 feature: pista-kart-park
 status: validated
-generated: 2026-10-22T14:29:19Z
-files: 22
+generated: 2026-11-03T19:00:01Z
+files: 25
 ---
 
 # Index
@@ -12,12 +12,12 @@ files: 22
 
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
-| `01-context.md` | - | Contexto — pista Kart Park | validated | 1.0.0 |
-| `02-glossary.md` | - | Glossário — pista Kart Park | validated | 1.0.0 |
-| `97-changelog.md` | - | Changelog — pista Kart Park | validated | 1.0.0 |
+| `01-context.md` | - | Contexto — pista Kart Park | draft | 1.1.1 |
+| `02-glossary.md` | - | Glossário — pista Kart Park | draft | 1.1.1 |
+| `97-changelog.md` | - | Changelog — pista Kart Park | draft | 1.2.0 |
 | `98-divergences.md` | - | Divergências — pista Kart Park | validated | 1.0.0 |
 | `nfr/NFR-0001-tamanho-do-arquivo-da-pista.md` | NFR-0001 | Tamanho do arquivo da pista | validated | 1.0.0 |
-| `nfr/NFR-0002-taxa-de-quadros.md` | NFR-0002 | Taxa de quadros na Kart Park | validated | 1.0.0 |
+| `nfr/NFR-0002-taxa-de-quadros.md` | NFR-0002 | Taxa de quadros na Kart Park | draft | 1.1.0 |
 | `nfr/NFR-0003-determinismo.md` | NFR-0003 | Determinismo na Kart Park | validated | 1.0.0 |
 | `nfr/NFR-0004-sem-servidor.md` | NFR-0004 | Jogar sem servidor | validated | 1.0.0 |
 | `nfr/NFR-0005-credito-visivel.md` | NFR-0005 | Crédito visível | validated | 1.0.0 |
@@ -26,11 +26,14 @@ files: 22
 | `nfr/NFR-0008-contrato-de-passo-inalterado.md` | NFR-0008 | Contrato de passo inalterado | validated | 1.0.0 |
 | `nfr/NFR-0009-pista-dos-ensaios-automaticos.md` | NFR-0009 | Pista dos ensaios automáticos | validated | 1.0.0 |
 | `nfr/NFR-0010-sem-dependencia-nova.md` | NFR-0010 | Nenhuma dependência nova de execução | validated | 1.0.0 |
-| `nfr/NFR-0011-codigo-depois-de-dirigibilidade.md` | NFR-0011 | Código só depois de dirigibilidade | validated | 1.0.0 |
-| `nfr/NFR-0012-publicacao-condicionada-a-licenca.md` | NFR-0012 | Publicação condicionada à licença Esri | validated | 1.0.0 |
+| `nfr/NFR-0011-codigo-depois-de-dirigibilidade.md` | NFR-0011 | Código só depois de dirigibilidade | draft | 1.0.1 |
+| `nfr/NFR-0012-publicacao-condicionada-a-licenca.md` | NFR-0012 | Publicação condicionada à licença Esri | draft | 1.0.1 |
+| `nfr/NFR-0013-acabamento-sem-efeito-na-volta.md` | NFR-0013 | Acabamento sem efeito na volta | draft | 1.0.0 |
+| `nfr/NFR-0014-arquivo-da-pista-inalterado.md` | NFR-0014 | Arquivo da pista inalterado pelo acabamento | draft | 1.0.0 |
 | `stories/US-0001-escolha-da-pista-no-treino.md` | US-0001 | Escolha da pista no treino | validated | 1.0.0 |
-| `stories/US-0002-forma-da-pista-real.md` | US-0002 | Forma da pista real | validated | 1.0.0 |
+| `stories/US-0002-forma-da-pista-real.md` | US-0002 | Forma da pista real | draft | 1.0.1 |
 | `stories/US-0003-setores-e-validacao-da-volta.md` | US-0003 | Setores e validação da volta | validated | 1.0.0 |
-| `stories/US-0004-barreira-nos-trechos-quase-encostados.md` | US-0004 | Barreira nos trechos quase encostados | validated | 1.0.0 |
-| `stories/US-0005-zebra-com-efeito.md` | US-0005 | Zebra com efeito | validated | 1.0.0 |
+| `stories/US-0004-barreira-nos-trechos-quase-encostados.md` | US-0004 | Barreira nos trechos quase encostados | draft | 1.0.1 |
+| `stories/US-0005-zebra-com-efeito.md` | US-0005 | Zebra com efeito | draft | 1.0.1 |
 | `stories/US-0006-credito-e-nome-da-pista.md` | US-0006 | Crédito e nome da pista | validated | 1.0.0 |
+| `stories/US-0007-acabamento-visual.md` | US-0007 | Acabamento visual da Kart Park | draft | 1.1.0 |

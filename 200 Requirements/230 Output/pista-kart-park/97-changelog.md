@@ -3,7 +3,7 @@ title: Changelog — pista Kart Park
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
+version: 1.2.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -67,3 +67,86 @@ sources: [SEED, DOMAIN]
 - `NOTES.md` da pasta do seed não foi lido (fora da lista de entrada da etapa). O arquivo de origem só
   foi resumido por script para confirmar que o trecho de zebra que cruza a largada passa 3 m dela, como o
   seed diz; nenhum número dele entrou no conjunto além dos do seed.
+
+## 2026-11-03 — rodada 2, Mode A (regeneração a partir do seed revision 2)
+
+**O que mudou**
+
+- O seed passou de `revision: 1` para `revision: 2` (2026-11-03, commit `a5bb426`). A única mudança de
+  conteúdo é o acabamento visual da Kart Park; tudo o que a revisão 2 não mudou foi mantido com os mesmos
+  ids e o mesmo texto: US-0001 a US-0006, NFR-0001, NFR-0003 a NFR-0011 e `98-divergences.md`.
+- Novo: US-0007 (acabamento visual, `SEED/US-7`), com 16 critérios, AC-US-0007-01 a AC-US-0007-16, que
+  cobrem os onze critérios do seed, separados onde um critério do seed juntava dois comportamentos
+  (largura e presença da faixa; aderência e corte; borda de dentro e de fora da zebra; altura e distância
+  dos pneus).
+- Novo: NFR-0013 (acabamento sem efeito na volta, `SEED/NF-06`) e NFR-0014 (arquivo publicado byte a
+  byte igual e `trackVersion` 1, `SEED/RE-05`).
+- NFR-0002 (1.1.0): a taxa de quadros passa a ser medida com o acabamento de US-0007 na tela
+  (`SEED/NF-02` revisto).
+- `01-context.md` (1.1.0): carimbo do seed em `revision: 2`; rótulos novos `SEED/US-7`, `SEED/RD-13`,
+  `SEED/NF-06`, `SEED/RE-05`, `SEED/RE-06`, `SEED/FE-06` a `SEED/FE-08`; textos de `SEED/NF-02`,
+  `SEED/IM-I2` e `SEED/IM-I3I5` atualizados; as duas restrições novas citadas; fora do escopo com os três
+  itens novos; famílias de NFR atualizadas.
+- `DOMAIN/DEC-12` rotulado: a entrada de 2026-11-03 de `DOMAIN.md` diz que a decisão sobre a licença Esri
+  continua pendente e a Kart Park segue só em staging. Não muda nenhum critério — confirma `DOMAIN/DEC-08`
+  e o NFR-0012, que passa a citá-la (1.0.1); `01-context.md` deixa de dizer que nenhum ponto resta e diz
+  que nenhum ponto é carregado por este conjunto.
+- `02-glossary.md` (1.1.0): acabamento, cena desenhada, faixa de borda, relevo da zebra, barreira de
+  pneus, face de colisão, tom de grama, cor de grama de hoje e luminância relativa.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` (rodada de Mode A por mudança de revisão).
+
+**Itens recusados ou lidos, com motivo**
+
+- "Difere ... entre 8 % e 20 % em luminância" (`SEED/US-7`) virou a luminância relativa da WCAG 2 de
+  cada tom, com a diferença medida como fração da luminância relativa de `#68865b` (AC-US-0007-13). É a
+  leitura decidível mais literal de "difere X %"; a leitura em pontos percentuais absolutos daria tons
+  muito mais afastados. O validador ou o autor pode pedir a outra leitura.
+- "O kart para quando encosta nos pneus que o jogador vê" não virou critério à parte: é a consequência
+  observável da distância de no máximo 0,05 m entre a face dos pneus e a face de colisão
+  (AC-US-0007-11) junto com US-0004 (critérios 04 e 05); fica como caso anormal de US-0007.
+- "A aderência, a vibração e o som da zebra continuam como em US-5" não repete os critérios de US-0005:
+  AC-US-0007-08 os referencia, para que um fato fique num lugar só.
+- "Rente ao asfalto do lado da pista" virou altura de 0 m na borda do lado do asfalto (AC-US-0007-05); o
+  seed não dá tolerância, e nenhuma foi inventada.
+- O motivo de `SEED/FE-08` cita 676 m do caminho OSM e `NOTES.md`; o conjunto só repete o item de fora do
+  escopo, porque `NOTES.md` não é lido (fora da lista de entrada da etapa).
+- US-0004 e US-0005 não foram editadas: a revisão 2 não muda nenhum critério delas; US-0007 as cita.
+- O NFR-0006 não foi editado: sua regra "mudança de conteúdo é versão nova" continua valendo, e a
+  revisão 2 não muda o conteúdo do arquivo (NFR-0014).
+
+## 2026-11-03 — rodada 3, Mode B (relatório `req-validation-20261103-1854.md`)
+
+**O que mudou**
+
+- US-0007 (1.1.0): critérios não atômicos divididos, ids novos no fim, nenhum id existente renumerado.
+  AC-US-0007-04 fica com a saída de pista e AC-US-0007-17 recebe o corte com rodas na faixa de borda por
+  mais de 1000 ms (ISSUE-07). AC-US-0007-08 fica com a aderência (AC-US-0005-06), AC-US-0007-18 recebe a
+  vibração em `web-mobile` (AC-US-0005-07 e 08) e AC-US-0007-19 o som em `web-desktop` (AC-US-0005-09 a
+  12) (ISSUE-08). AC-US-0007-13 fica com os ao menos 2 tons de verde e AC-US-0007-20 recebe a faixa de
+  luminância de cada tom, com a mesma leitura de antes (ISSUE-09). AC-US-0007-15 fica com a aderência e
+  AC-US-0007-21 recebe o estado de superfície da grama (ISSUE-10). AC-US-0007-14 passa a se observar na
+  cena desenhada: o tom de grama por posição do chão, em metros do mundo do jogo (ISSUE-12).
+- NFR-0011 (1.0.1) e `01-context.md` (1.1.1): a Fonte e a restrição citam só `SEED/RE-02`; a frase sobre
+  registrar a dependência no D-Spec saiu, por não ter fonte no seed nem em `DOMAIN.md` (ISSUE-01,
+  ISSUE-02). A instrução do autor de 2026-10-22 continua registrada na rodada 1 deste changelog.
+- `02-glossary.md` (1.1.1): "Borda da pista" definida como a borda do asfalto ou, onde há zebra, a borda
+  de fora da zebra (`SEED/US-5`); os critérios de corte de US-0003 já usam o termo (ISSUE-03).
+- US-0004 (1.0.1): AC-US-0004-05 diz o referencial (local do obstáculo) e o instante (o mesmo número de
+  passos de `STEP` depois do contato) da comparação (ISSUE-04).
+- US-0005 (1.0.1): AC-US-0005-02 mede o trecho de volta na linha central original, com a exceção do
+  trecho dividido na largada (ISSUE-05).
+- US-0002 (1.0.1): AC-US-0002-05 diz que o ponto correspondente é o de mesmo índice, leitura de "varia
+  ponto a ponto como no arquivo" (`SEED/US-2`) (ISSUE-06).
+- Arquivos editados que estavam `validated` voltaram a `draft`. `00-index.md` e `99-traceability.md`
+  regenerados pelo gate.
+
+**Itens fechados**: ISSUE-01, ISSUE-02, ISSUE-03, ISSUE-04, ISSUE-05, ISSUE-06, ISSUE-07, ISSUE-08,
+ISSUE-09, ISSUE-10, ISSUE-12.
+
+**Itens recusados, com motivo**
+
+- ISSUE-11 (leitura da luminância em AC-US-0007-20, antes AC-US-0007-13): mantida como está. O seed não
+  diz qual luminância nem se a diferença é relativa; escolher outra leitura é decisão do autor, a fixar em
+  `DOMAIN.md`. O validador marcou o item como info e o critério é decidível como escrito.
+- Nenhum critério, história ou NFR novo além das divisões pedidas; nenhuma linha de divergência.

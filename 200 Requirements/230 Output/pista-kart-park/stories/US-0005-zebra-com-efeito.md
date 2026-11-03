@@ -4,7 +4,7 @@ title: Zebra com efeito
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [SEED/US-5, SEED/MED, SEED/RD-04, SEED/RD-12, SEED/IM-I2, SEED/IM-I8, SEED/RI-04, DOMAIN/DEC-05, DOMAIN/DEC-11]
 ---
 
@@ -37,7 +37,9 @@ Como Jogador, quero sentir a zebra, para usar e respeitar a zebra como num kart 
 - AC-US-0005-01: No arquivo de pista gerado, há 34 trechos de zebra: os 33 do arquivo de origem, com o
   trecho que cruza a linha de largada dividido em dois na linha de largada (`SEED/MED`).
 - AC-US-0005-02: No arquivo de pista gerado, cada trecho de zebra tem o lado (esquerda ou direita, no
-  sentido de corrida) e cobre o trecho de volta declarados para ele no arquivo de origem.
+  sentido de corrida) e cobre o trecho de volta declarados para ele no arquivo de origem, com a distância de volta medida na
+  linha central original; o trecho que cruza a linha de largada cobre, nas suas duas partes, o trecho
+  declarado (critério 01).
 - AC-US-0005-03: Na tela, cada trecho de zebra é desenhado no lado da pista declarado no arquivo de
   origem.
 - AC-US-0005-04: No estado da simulação, um kart com rodas sobre a zebra e nenhuma roda na grama não

@@ -3,7 +3,7 @@ title: Contexto — pista Kart Park
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
+version: 1.1.1
 sources: [SEED, DOMAIN]
 ---
 
@@ -16,7 +16,9 @@ lado** da pista sintética, e o Jogador escolhe uma das duas no treino livre por
 (`SEED.md`, Visão geral; `DOMAIN/DEC-01`). A Kart Park é apresentada como **traçado aproximado** da pista
 real: a linha central, que veio de satélite, é suavizada. Uma barreira física separa os dois trechos que
 quase se encostam, as zebras têm efeito na pilotagem e a volta tem quatro setores. O crédito ao
-OpenStreetMap aparece onde o Jogador vê a pista.
+OpenStreetMap aparece onde o Jogador vê a pista. A revisão 2 do seed dá à Kart Park o acabamento de um
+kartódromo — faixa branca nas bordas, zebra com relevo, barreira de pneus e grama com variação de tom —,
+que é só desenho e não muda a pilotagem (US-0007, NFR-0013, NFR-0014).
 
 É a primeira das três pistas reais da etapa 3 de `requirements/08` (`SEED.md`, Contexto). O traçado de
 origem (`kart-park.json`, formato `kartle-pista` v1, citado no Contexto do seed) foi gerado pelo dono do
@@ -27,7 +29,7 @@ que o arquivo de pista gerado offline os traga (US-0003).
 **Compatibilidade.** Hoje o treino usa a pista sintética, a única existente (`SEED.md`, Visão geral).
 Esta feature muda a pista com que o jogo abre: passa a ser a Kart Park (US-0001, `DOMAIN/DEC-06`). A
 pista sintética **não é aposentada**: continua selecionável no seletor (US-0001) e continua sendo a pista
-dos ensaios automáticos (NFR-0009). Nenhum critério deste conjunto muda a pista sintética.
+dos ensaios automáticos (NFR-0009). Nenhum critério deste conjunto muda a pista sintética, nem a sua aparência (US-0007, `SEED/RE-06`).
 
 **Padrão seguro.** O comportamento novo vale ligado por padrão assim que a feature é entregue, como o
 seed pede ("A Kart Park vem selecionada quando o jogo abre"). É seguro ligado porque o seletor é só de
@@ -35,8 +37,8 @@ treino e não gera resultado de desafio diário (US-0001, I1), a pista sintétic
 intacta para os ensaios (NFR-0009) e a Kart Park fica só em staging até a decisão sobre a licença Esri
 (NFR-0012).
 
-Seed: `200 Requirements/220 Input/pista-kart-park/SEED.md`, `revision: 1`, `date: 2026-10-22`, autor
-`eduardo.matos`. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de 2026-10-22
+Seed: `200 Requirements/220 Input/pista-kart-park/SEED.md`, `revision: 2`, `date: 2026-11-03`, autor
+`eduardo.matos`; a revisão 2 acrescenta só o acabamento visual da Kart Park. Camada de domínio durável: `DOMAIN.md` da mesma pasta, cujas decisões de 2026-10-22
 prevalecem sobre os pontos em aberto correspondentes do seed. Todos os números do seed foram medidos pelo
 dono do produto (`SEED.md`, Contexto).
 
@@ -65,7 +67,7 @@ aparecem no arquivo.
 
 | Rótulo | Item |
 |---|---|
-| `SEED/US-1` … `SEED/US-6` | As seis histórias de usuário da seção Histórias de usuário, na ordem do seed |
+| `SEED/US-1` … `SEED/US-7` | As sete histórias de usuário da seção Histórias de usuário, na ordem do seed; `SEED/US-7` é o acabamento visual (revisão 2) |
 | `SEED/MED` | A tabela de medições do traçado bruto da seção Contexto |
 | `SEED/RD-01` | Circuito fechado de 400 a 1500 m (RF02) |
 | `SEED/RD-02` | Pista em metros e no sentido de corrida, preparada offline (RF03, RF06, I10) |
@@ -79,23 +81,27 @@ aparecem no arquivo.
 | `SEED/RD-10` | Suavizar e apresentar como traçado aproximado (decisão de 2026-10-22) |
 | `SEED/RD-11` | Barreira física nos trechos quase encostados (decisão de 2026-10-22) |
 | `SEED/RD-12` | Zebra conta como pista, com 85 % de aderência e vibração no celular (decisão de 2026-10-22) |
+| `SEED/RD-13` | Faixa de borda, relevo da zebra, pneus e tons da grama são só desenho (I2, decisão de 2026-11-03) |
 | `SEED/NF-01` | Arquivo da pista menor que 200 KB (RNF02) |
-| `SEED/NF-02` | Taxa de quadros na Kart Park: 60 fps em notebook e 30 fps em celular intermediário (RNF03) |
+| `SEED/NF-02` | Taxa de quadros na Kart Park: 60 fps em notebook e 30 fps em celular intermediário (RNF03), com o acabamento de US-7 |
 | `SEED/NF-03` | Determinismo: mesmas entradas, mesmo tempo e mesmos setores na Kart Park (RNF07) |
 | `SEED/NF-04` | Jogar sem servidor (RNF08) |
 | `SEED/NF-05` | Crédito visível em 100 % das telas de US-6 com a Kart Park selecionada (RNF09) |
+| `SEED/NF-06` | Acabamento sem efeito na volta: as mesmas entradas dão o mesmo tempo, os mesmos setores e a mesma trajetória antes e depois da revisão 2 |
 | `SEED/RE-01` | A pista sintética continua sendo a pista dos ensaios automáticos de `dirigibilidade` e `race-lap-validation` |
 | `SEED/RE-02` | O código desta feature só começa depois que `dirigibilidade` passar nos testes e for commitada |
 | `SEED/RE-03` | Conversão offline para o formato que o jogo lê, com os eixos do jogo leste = +x, norte = −z |
 | `SEED/RE-04` | Nenhuma dependência nova de execução |
+| `SEED/RE-05` | A revisão 2 muda só o desenho: o arquivo publicado da pista continua byte a byte igual e a versão continua `kart-park` 1 |
+| `SEED/RE-06` | A aparência da pista sintética não muda |
 | `SEED/IM-I1` | O seletor é só de treino; a pista de cada desafio diário é da feature do desafio |
-| `SEED/IM-I2` | Geometria, largura, zebra e barreira entram na simulação como dado; a tela só desenha |
-| `SEED/IM-I3I5` | `kart-park` entra como versão 1; suavizar de novo ou mudar a linha é versão nova |
+| `SEED/IM-I2` | Geometria, largura, zebra e barreira entram na simulação como dado; a tela só desenha; o acabamento de US-7 fica todo do lado do desenho |
+| `SEED/IM-I3I5` | `kart-park` entra como versão 1; suavizar de novo ou mudar a linha é versão nova; o acabamento de US-7 não é versão nova, porque não muda o arquivo |
 | `SEED/IM-I6` | Crédito e licença dos dados derivados |
 | `SEED/IM-I8` | O contrato de passo não muda; o efeito da zebra é um dado de superfície |
 | `SEED/IM-I10` | Nenhum editor de pista no jogo |
 | `SEED/RI-01` … `SEED/RI-04` | Os quatro riscos da seção Riscos e incógnitas, na ordem do seed (licença Esri, tolerância da suavização, atalhos pela grama, som da zebra) |
-| `SEED/FE-01` … `SEED/FE-05` | Os cinco itens da seção Fora do escopo, na ordem do seed |
+| `SEED/FE-01` … `SEED/FE-08` | Os oito itens da seção Fora do escopo, na ordem do seed; `SEED/FE-06` a `SEED/FE-08` vêm da revisão 2 |
 | `DOMAIN/DEC-01` | Entrada da pista: a Kart Park entra ao lado da pista sintética, com um seletor de pista |
 | `DOMAIN/DEC-02` | Licença: usar os dados agora e mostrar o crédito OSM/ODbL; a dúvida sobre os dados derivados da Esri bloqueia só a promoção para produção; staging pode usar a pista |
 | `DOMAIN/DEC-03` | Atalho entre trechos quase encostados: barreira física entre os trechos; o kart bate e não passa |
@@ -107,11 +113,14 @@ aparecem no arquivo.
 | `DOMAIN/DEC-09` | Tolerância da suavização: a linha central suavizada fica a até 0,30 m da original em todo ponto |
 | `DOMAIN/DEC-10` | Atalhos pela grama de 12 a 26 m: os marcadores a cada 25 m bastam; barreira só nos trechos com 6 m de grama ou menos |
 | `DOMAIN/DEC-11` | Som da zebra no teclado: um ruído curto e grave que se repete enquanto houver roda na zebra, com o som ligado |
+| `DOMAIN/DEC-12` | Licença Esri, 2026-11-03: a decisão continua pendente; a Kart Park segue só em staging, sem liberação nem remedição sem Esri por enquanto, e a produção espera a decisão |
 
 ## Decisões de domínio aplicadas
 
 Os quatro riscos do seed foram fechados pelo dono do produto em 2026-10-22 (`SEED.md`, Riscos e
-incógnitas). Não resta ponto em aberto neste conjunto.
+incógnitas). Em 2026-11-03 o dono do produto registrou que a decisão sobre a licença Esri continua
+pendente (`DOMAIN/DEC-12`); ela bloqueia só a promoção para produção, como já dizem `DOMAIN/DEC-08` e o
+NFR-0012. A revisão 2 do seed não abre ponto novo. Não resta ponto em aberto que este conjunto carregue.
 
 | Decisão | Fecha | Histórias e NFRs |
 |---|---|---|
@@ -126,6 +135,7 @@ incógnitas). Não resta ponto em aberto neste conjunto.
 | `DOMAIN/DEC-09` | `SEED/RI-02` | US-0002 |
 | `DOMAIN/DEC-10` | `SEED/RI-03` | US-0003, US-0004 |
 | `DOMAIN/DEC-11` | `SEED/RI-04` | US-0005 |
+| `DOMAIN/DEC-12` | — (mantém `SEED/RI-01` pendente só para a produção) | NFR-0012 |
 
 A licença Esri (`SEED/RI-01`) bloqueia **só a promoção para produção**: não bloqueia nenhuma etapa de
 especificação, e staging pode usar a pista (`DOMAIN/DEC-02`, `DOMAIN/DEC-08`). Esse limite é o NFR-0012.
@@ -151,6 +161,7 @@ fato estão indicados.
 | Trechos quase encostados | entre ≈ 371–414 m e ≈ 580–615 m de volta, com 0,9 m a 6 m de grama entre as bordas | US-0004 |
 | Zebras | 33 trechos, 389,9 m no total; uma passa 3 m da linha de largada | US-0005 |
 | Tamanho do arquivo | 32.189 bytes | NFR-0001 |
+| Cor de grama de hoje | `#68865b` (citada em `SEED/US-7`) | US-0007, referência dos tons de grama |
 
 ## Restrições (citadas do seed, seção Restrições)
 
@@ -158,23 +169,27 @@ fato estão indicados.
   `race-lap-validation`. Motivo: esses ensaios têm números calibrados nela." — NFR-0009, US-0001.
 - "O código desta feature só começa depois que `dirigibilidade` passar nos testes e for commitada.
   Motivo: as duas mudam `src/physics.ts` e `src/track.ts`, e `dirigibilidade` congela as regras de
-  volta enquanto está em andamento (NFR-0008 dela)." — NFR-0011. Por decisão do autor para esta execução
-  (2026-10-22), essa dependência deve ser registrada no D-Spec.
+  volta enquanto está em andamento (NFR-0008 dela)." — NFR-0011.
 - "A pista é convertida offline para o formato que o jogo lê, com os eixos do jogo: leste = +x,
   norte = −z. Motivo: I10; com outro mapeamento, o circuito fica espelhado." — US-0002.
 - "Nenhuma dependência nova de execução." — NFR-0010.
+- "A revisão 2 muda só o desenho. O arquivo publicado da pista continua byte a byte igual e a versão
+  continua `kart-park` 1. Motivo: I3/I5 (desenho não é versão de pista) e as validações de volta, zebra
+  e barreira já aprovadas em staging continuam valendo." — NFR-0014, NFR-0013, US-0007.
+- "A aparência da pista sintética não muda. Motivo: o acabamento é desta pista real, e a sintética segue
+  como pista de ensaio." — US-0007 (critério 16).
 
 ## Famílias de requisitos não funcionais
 
 | Família | Tratamento |
 |---|---|
 | Tamanho de download (RNF02) | Especificada: NFR-0001 |
-| Taxa de quadros (RNF03) | Especificada: NFR-0002 |
-| Determinismo (RNF07) | Especificada: NFR-0003, NFR-0008 |
+| Taxa de quadros (RNF03) | Especificada: NFR-0002, com o acabamento de US-0007 na tela |
+| Determinismo (RNF07) | Especificada: NFR-0003, NFR-0008; acabamento sem efeito na volta: NFR-0013 |
 | Disponibilidade / solo sem servidor (RNF08) | Especificada: NFR-0004 |
 | Comportamento offline | Especificada por NFR-0004 no que toca serviços remotos; o seed não pede jogar sem a entrega dos arquivos do próprio jogo |
 | Crédito e licença de dados (RNF09, I6) | Especificada: NFR-0005, NFR-0012 |
-| Compatibilidade do dado de pista (I3, I5) | Especificada: NFR-0006 |
+| Compatibilidade do dado de pista (I3, I5) | Especificada: NFR-0006; arquivo inalterado pela revisão 2: NFR-0014 |
 | Observabilidade / evidência (I9) | Especificada: NFR-0007; telemetria em tempo de execução dispensada — o produto não coleta dados (RNF10) |
 | Restrições de entrega | Especificadas: NFR-0009 (pista dos ensaios), NFR-0010 (dependências), NFR-0011 (ordem do código), NFR-0012 (publicação) |
 | Tempo até pilotar (RNF01) | Dispensada: o seed não fixa limite de carregamento para esta feature |
@@ -196,3 +211,8 @@ fato estão indicados.
 - `SEED/FE-04` — Recorde da pista real e qualquer comparação com tempos reais.
 - `SEED/FE-05` — O cenário além de asfalto, zebra, grama e barreiras, como árvores, tribuna e boxes, que
   é de outra feature.
+- `SEED/FE-06` — Zebra com relevo na física (o kart subir ou trepidar na zebra): o relevo de US-7 é só
+  desenho.
+- `SEED/FE-07` — Chão com foto de satélite ou textura baixada da rede.
+- `SEED/FE-08` — Aproximar o traçado dos 750 m oficiais: o caminho OSM de origem fecha em 676 m, e
+  corrigir pede uma fonte nova de medição.

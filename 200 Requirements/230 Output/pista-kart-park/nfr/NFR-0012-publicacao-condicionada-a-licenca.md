@@ -4,8 +4,8 @@ title: Publicação condicionada à licença Esri
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
-sources: [SEED/RI-01, SEED/IM-I6, DOMAIN/DEC-02, DOMAIN/DEC-07, DOMAIN/DEC-08]
+version: 1.0.1
+sources: [SEED/RI-01, SEED/IM-I6, DOMAIN/DEC-02, DOMAIN/DEC-07, DOMAIN/DEC-08, DOMAIN/DEC-12]
 ---
 
 # NFR-0012 — Publicação condicionada à licença Esri

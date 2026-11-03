@@ -1,8 +1,8 @@
 ---
 stage: req
 feature: pista-kart-park
-generated: 2026-10-22T14:29:19Z
-rows: 70
+generated: 2026-11-03T19:00:01Z
+rows: 88
 ---
 
 # Traceability
@@ -17,9 +17,11 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | DOMAIN/DEC-02 | NFR-0012 | - | `nfr/NFR-0012-publicacao-condicionada-a-licenca.md` |
 | DOMAIN/DEC-02 | US-0006 | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09 | `stories/US-0006-credito-e-nome-da-pista.md` |
 | DOMAIN/DEC-03 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06 | `stories/US-0004-barreira-nos-trechos-quase-encostados.md` |
+| DOMAIN/DEC-03 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | DOMAIN/DEC-04 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | DOMAIN/DEC-04 | US-0006 | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09 | `stories/US-0006-credito-e-nome-da-pista.md` |
 | DOMAIN/DEC-05 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12 | `stories/US-0005-zebra-com-efeito.md` |
+| DOMAIN/DEC-05 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | DOMAIN/DEC-06 | NFR-0009 | - | `nfr/NFR-0009-pista-dos-ensaios-automaticos.md` |
 | DOMAIN/DEC-06 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07 | `stories/US-0001-escolha-da-pista-no-treino.md` |
 | DOMAIN/DEC-07 | NFR-0005 | - | `nfr/NFR-0005-credito-visivel.md` |
@@ -30,14 +32,21 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | DOMAIN/DEC-10 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11 | `stories/US-0003-setores-e-validacao-da-volta.md` |
 | DOMAIN/DEC-10 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06 | `stories/US-0004-barreira-nos-trechos-quase-encostados.md` |
 | DOMAIN/DEC-11 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12 | `stories/US-0005-zebra-com-efeito.md` |
+| DOMAIN/DEC-12 | NFR-0012 | - | `nfr/NFR-0012-publicacao-condicionada-a-licenca.md` |
 | SEED/FE-04 | US-0006 | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09 | `stories/US-0006-credito-e-nome-da-pista.md` |
+| SEED/FE-06 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
+| SEED/FE-07 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | SEED/IM-I1 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07 | `stories/US-0001-escolha-da-pista-no-treino.md` |
 | SEED/IM-I10 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/IM-I2 | NFR-0007 | - | `nfr/NFR-0007-regras-na-simulacao.md` |
+| SEED/IM-I2 | NFR-0013 | - | `nfr/NFR-0013-acabamento-sem-efeito-na-volta.md` |
 | SEED/IM-I2 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/IM-I2 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06 | `stories/US-0004-barreira-nos-trechos-quase-encostados.md` |
 | SEED/IM-I2 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12 | `stories/US-0005-zebra-com-efeito.md` |
+| SEED/IM-I2 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | SEED/IM-I3I5 | NFR-0006 | - | `nfr/NFR-0006-versao-imutavel-da-pista.md` |
+| SEED/IM-I3I5 | NFR-0014 | - | `nfr/NFR-0014-arquivo-da-pista-inalterado.md` |
+| SEED/IM-I3I5 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | SEED/IM-I6 | NFR-0005 | - | `nfr/NFR-0005-credito-visivel.md` |
 | SEED/IM-I6 | NFR-0012 | - | `nfr/NFR-0012-publicacao-condicionada-a-licenca.md` |
 | SEED/IM-I6 | US-0006 | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09 | `stories/US-0006-credito-e-nome-da-pista.md` |
@@ -52,11 +61,13 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | SEED/NF-03 | NFR-0003 | - | `nfr/NFR-0003-determinismo.md` |
 | SEED/NF-04 | NFR-0004 | - | `nfr/NFR-0004-sem-servidor.md` |
 | SEED/NF-05 | NFR-0005 | - | `nfr/NFR-0005-credito-visivel.md` |
+| SEED/NF-06 | NFR-0013 | - | `nfr/NFR-0013-acabamento-sem-efeito-na-volta.md` |
 | SEED/RD-01 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/RD-02 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/RD-03 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/RD-04 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06 | `stories/US-0004-barreira-nos-trechos-quase-encostados.md` |
 | SEED/RD-04 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12 | `stories/US-0005-zebra-com-efeito.md` |
+| SEED/RD-04 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | SEED/RD-05 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11 | `stories/US-0003-setores-e-validacao-da-volta.md` |
 | SEED/RD-06 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11 | `stories/US-0003-setores-e-validacao-da-volta.md` |
 | SEED/RD-07 | NFR-0006 | - | `nfr/NFR-0006-versao-imutavel-da-pista.md` |
@@ -67,11 +78,16 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | SEED/RD-10 | US-0006 | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09 | `stories/US-0006-credito-e-nome-da-pista.md` |
 | SEED/RD-11 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06 | `stories/US-0004-barreira-nos-trechos-quase-encostados.md` |
 | SEED/RD-12 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12 | `stories/US-0005-zebra-com-efeito.md` |
+| SEED/RD-13 | NFR-0013 | - | `nfr/NFR-0013-acabamento-sem-efeito-na-volta.md` |
+| SEED/RD-13 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | SEED/RE-01 | NFR-0009 | - | `nfr/NFR-0009-pista-dos-ensaios-automaticos.md` |
 | SEED/RE-01 | US-0001 | AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07 | `stories/US-0001-escolha-da-pista-no-treino.md` |
 | SEED/RE-02 | NFR-0011 | - | `nfr/NFR-0011-codigo-depois-de-dirigibilidade.md` |
 | SEED/RE-03 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/RE-04 | NFR-0010 | - | `nfr/NFR-0010-sem-dependencia-nova.md` |
+| SEED/RE-05 | NFR-0014 | - | `nfr/NFR-0014-arquivo-da-pista-inalterado.md` |
+| SEED/RE-05 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
+| SEED/RE-06 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 | SEED/RI-01 | NFR-0012 | - | `nfr/NFR-0012-publicacao-condicionada-a-licenca.md` |
 | SEED/RI-02 | US-0002 | AC-US-0002-01, AC-US-0002-02, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-07, AC-US-0002-08 | `stories/US-0002-forma-da-pista-real.md` |
 | SEED/RI-03 | US-0003 | AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11 | `stories/US-0003-setores-e-validacao-da-volta.md` |
@@ -83,6 +99,8 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | SEED/US-4 | US-0004 | AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06 | `stories/US-0004-barreira-nos-trechos-quase-encostados.md` |
 | SEED/US-5 | US-0005 | AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12 | `stories/US-0005-zebra-com-efeito.md` |
 | SEED/US-6 | US-0006 | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09 | `stories/US-0006-credito-e-nome-da-pista.md` |
+| SEED/US-7 | NFR-0002 | - | `nfr/NFR-0002-taxa-de-quadros.md` |
+| SEED/US-7 | US-0007 | AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21 | `stories/US-0007-acabamento-visual.md` |
 
 ## Items with no upstream source
 

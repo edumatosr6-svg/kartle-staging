@@ -3,7 +3,7 @@ title: Glossário — pista Kart Park
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
+version: 1.1.1
 sources: [SEED, DOMAIN]
 ---
 
@@ -32,6 +32,7 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Eixos do jogo | Mapeamento das direções geográficas no jogo: leste = +x, norte = −z (`SEED/RE-03`) | ambos |
 | Largura do asfalto | Largura da pista em cada ponto da linha central, medida ponto a ponto na imagem (de 4,4 m a 10,8 m, mediana 7,0 m); desvio aceito da regra geral "largura do OSM quando houver, senão 8 m" (`SEED/RD-03`) | ambos |
 | Borda do asfalto | Cada uma das duas linhas a meia largura do asfalto da linha central, perpendicular a ela, uma de cada lado | ambos |
+| Borda da pista | O limite de fora da pista para a saída de pista e o corte: a borda do asfalto ou, onde há zebra, a borda de fora da zebra, porque rodar sobre a zebra conta como estar na pista (`SEED/US-5`) | ambos |
 | Grampo | Curva de raio muito pequeno; a Kart Park tem dois, de raio ≈ 6 m, perto de 78 m e de 218 m de volta (`SEED/MED`) | ambos |
 | Grama | Superfície fora do asfalto e da zebra; tem ≈ 40 % da aderência do asfalto (`DOMAIN/DEC-05`, referência) | ambos |
 | Trechos quase encostados | Duas partes da pista que não se seguem ao longo da volta e têm 6 m de grama ou menos entre as bordas do asfalto; a medição do seed encontrou um par: ≈ 371–414 m e ≈ 580–615 m de volta (`SEED/US-4`, `SEED/MED`) | ambos |
@@ -57,3 +58,12 @@ Os termos valem igualmente em `web-desktop` e `web-mobile`, salvo indicação.
 | Esri World Imagery | Imagem de satélite sobre a qual foram medidas larguras, bordas e zebras; a licença para publicar dado derivado dela é decidida antes da promoção para produção (`DOMAIN/DEC-08`) | nenhum (dado) |
 | Versão da pista | O `trackVersion` publicado de uma pista; uma versão publicada nunca muda, e mudar a pista é publicar versão nova (I3, I5) | nenhum (dado) |
 | Staging / produção | Os dois ambientes de publicação; a Kart Park fica só em staging até a decisão sobre a licença Esri (`DOMAIN/DEC-08`) | ambos |
+| Acabamento | O desenho de kartódromo da Kart Park da revisão 2: faixa de borda, relevo da zebra, barreira de pneus e tons de grama; é só desenho e não entra na simulação (`SEED/US-7`, `SEED/RD-13`) | ambos |
+| Cena desenhada | O que a tela desenha, com as medidas em metros do mundo do jogo, de onde se leem larguras, alturas e distâncias do acabamento | ambos |
+| Faixa de borda | Faixa branca contínua de 0,10 m de largura, por dentro do asfalto, junto a cada borda do asfalto, em toda a volta da Kart Park; para a simulação é asfalto (`SEED/US-7`) | ambos |
+| Relevo da zebra | Altura desenhada da zebra: 0 m na borda do lado do asfalto e no máximo 0,05 m na borda de fora; não entra na simulação (`SEED/US-7`, `SEED/FE-06`) | ambos |
+| Barreira de pneus | Desenho da barreira de US-0004 como fileira de pneus pretos empilhados com 0,9 m de altura, com a face a no máximo 0,05 m da face de colisão (`SEED/US-7`) | ambos |
+| Face de colisão | Superfície da barreira, dada no arquivo de pista, em que o kart bate e para | ambos |
+| Tom de grama | Cada verde em que a grama da Kart Park é desenhada; são ao menos 2, e todos são grama para a simulação (`SEED/US-7`) | ambos |
+| Cor de grama de hoje | `#68865b`, a cor de grama de antes da revisão 2, referência dos tons de grama (`SEED/US-7`) | ambos |
+| Luminância relativa | Luminância de uma cor na definição da WCAG 2; a de cada tom de grama difere da de `#68865b` entre 8 % e 20 % desse valor | ambos |

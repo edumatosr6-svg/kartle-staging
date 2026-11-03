@@ -4,7 +4,7 @@ title: Forma da pista real
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [SEED/US-2, SEED/MED, SEED/RD-01, SEED/RD-02, SEED/RD-03, SEED/RD-10, SEED/RE-03, SEED/IM-I2, SEED/IM-I10, SEED/RI-02, DOMAIN/DEC-04, DOMAIN/DEC-09]
 ---
 
@@ -40,7 +40,7 @@ Como Jogador, quero que a Kart Park tenha a forma da pista real, para reconhecer
   nos eixos do jogo (leste = +x, norte = −z) gira no sentido anti-horário visto de cima (`SEED/RE-03`:
   com outro mapeamento, o circuito fica espelhado).
 - AC-US-0002-05: No arquivo de pista gerado, a largura do asfalto em cada ponto é a do ponto
-  correspondente do arquivo de origem, variando ponto a ponto de 4,4 m a 10,8 m, sem uma largura fixa
+  de mesmo índice do arquivo de origem, variando ponto a ponto de 4,4 m a 10,8 m, sem uma largura fixa
   (`SEED/RD-03`).
 - AC-US-0002-06: No arquivo de pista gerado, a distância de cada ponto da linha central suavizada à
   linha central original é de no máximo 0,30 m (`DOMAIN/DEC-09`).
