@@ -3,9 +3,9 @@ id: DES-0011
 title: Verificações V01 a V18 do arquivo, registro de publicação e promoção — implementação
 feature: pista-kart-park
 stage: code
-status: validated
-version: 1.1.0
-sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13]
+status: draft
+version: 1.2.0
+sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, FEAT-0008, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13, REQ-FEAT-0008-28, REQ-FEAT-0008-29]
 ---
 
 # DES-0011 — Verificações V01 a V18, registro de publicação e promoção — implementação
@@ -34,3 +34,9 @@ sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT
 As provas em `npm test` (`tests/pista-kart-park-track-file.test.ts` com um teste por V, cópias desviadas, `-publication.test.ts`
 com o resumo registrado e a unicidade do par) são do estágio de testes; `verifyTrackFile` executado duas vezes nesta rodada deu
 listas iguais.
+
+Rodada 5 (2026-11-03, DES-0011 1.1.0, seed `revision: 2`):
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0008-28, -29 | sem mudança de código: `src/tracks/kart-park-v1.json` intacto (SHA-256 `04ce5e51…`, igual ao `sha256` da única entrada `kart-park` de `tracks/registry.json`, `trackVersion` 1); nenhuma versão 2 da Kart Park; `scripts/trackChecks.ts` e `scripts/track-pipeline.ts` não tocados. A afirmação literal do resumo em `npm test` é do estágio de testes |

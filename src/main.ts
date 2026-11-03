@@ -236,6 +236,7 @@ function chooseTrack(trackId: string) {
   const ready = training.sessionState === 'READY';
   trackGeometry = training.environment?.track;
   syntheticScene.visible = ready && !trackGeometry;
+  ground.visible = !(ready && trackGeometry);
   for (const group of Object.values(trackScenes)) if (group) group.visible = false;
   if (ready && trackGeometry) {
     const id = training.selectedTrackId;

@@ -234,3 +234,27 @@ verify kart-park 1` V01–V18 `PASS`, `VERIFIED`; arquivo de pista e registro in
   começa em `:359`).
 - Reescrever os parágrafos das rodadas 1 a 3 deste changelog e de `01-implementation.md`: não aplicado; são histórico daquelas árvores
   (481 linhas) e passam a dizer de que árvore são.
+
+## 2026-11-03 — rodada 5, Mode A (seed `revision: 2`; projeto DES-0008 2.1.0, `dspec-validation-20261103-1946`)
+
+- `src/trackScene.ts` (134 → 262 linhas): grama em 2 tons por `grassToneAt` (filho `grass`), faixa de borda de 0,10 m (filho
+  `edge-lines`), zebra em rampa de 0 a 0,04 m, barreira como `InstancedMesh` de pilhas de 5 pneus de raio `BARRIER_HALF_WIDTH_M`
+  (uma em cada vértice e a no máximo 0,12 m), seis filhos na ordem do projeto; `BARRIER_COLOR` e `BARRIER_HEIGHT_M` retirados.
+- `src/main.ts:239`: `ground.visible = !(ready && trackGeometry)` em `chooseTrack`.
+- Manifesto: `web/DES-0008` 2.0.0, `core/DES-0006` 1.2.0, `pipeline/DES-0011` 1.2.0, `98-divergences.md` 1.5.0 (linha 16
+  `resolved`), `01-implementation.md` 1.5.0; `00-index.md` e `99-traceability.md` por `lint_artifacts.py --emit`.
+- Simulação, `src/tracks/kart-park-v1.json` (SHA-256 `04ce5e51…`, `trackVersion` 1) e `tracks/registry.json` não tocados.
+- Medido nesta rodada sobre o arquivo publicado: 646 pilhas de 132 triângulos; 2.736 triângulos de faixa de borda, largura
+  perpendicular 0,1000 m em todo segmento, nenhum vértice interno fora do asfalto; zebras a y 0,035 e 0,075; grama 1.600 vértices,
+  800 triângulos. `npx tsc --noEmit` 0; `npm test` 442/444 — reprovam `CHK-TEST-0010-03` (uma caixa por segmento) e
+  `CHK-TEST-0010-05` (quatro filhos), afirmações da revisão 1 que DES-0008 2.1.0 substitui (estágio de testes).
+
+**Itens fechados**: linha 16 de `98-divergences.md` do projeto.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Gravar `tests/fixtures/kartParkRev1Trace.json` nesta rodada: não aplicado. DES-0006 1.2.0 e a estratégia de testes atribuem o traço
+  ao estágio de testes, "com a simulação do commit anterior ao código da revisão 2" (hash no arquivo), e o estágio de código não
+  escreve em `tests/`. Esse commit é `f926815`; esta rodada não faz commit e não toca nenhum módulo de simulação, de modo que o traço
+  gravado de `f926815` é o da simulação de antes.
+- Atualizar `CHK-TEST-0010-03` e `CHK-TEST-0010-05`: são do estágio de testes.

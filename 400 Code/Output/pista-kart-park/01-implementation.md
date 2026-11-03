@@ -2,8 +2,8 @@
 title: Registro de implementação — pista Kart Park
 feature: pista-kart-park
 stage: code
-status: validated
-version: 1.4.0
+status: draft
+version: 1.5.0
 sources: []
 ---
 
@@ -119,7 +119,7 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 | `src/lap.ts` | alterado (`kartAtStart`, corte por `trackEdgeDistanceM`, reposicionamento na linha central do ambiente) | simulação | DES-0004 |
 | `src/trainingSession.ts` | novo (94 linhas) | simulação | DES-0005, DM-0002 |
 | `src/curbFeedback.ts` | novo (37 linhas) | aplicação pura | DES-0009, DM-0002 |
-| `src/trackScene.ts` | novo (134 linhas) | aplicação | DES-0008 |
+| `src/trackScene.ts` | novo (134 linhas); rodada 5: 262 linhas (`grassToneAt`, `grassMesh`, `edgeLinesMesh`, relevo da zebra, pilhas de pneus) | aplicação | DES-0008 |
 | `src/lapMessages.ts` | alterado (`OSM_CREDIT`, `creditFor`, `optionLabel`; `MESSAGES` inalterado, 20 chaves) | aplicação pura | DES-0007 |
 | `src/audio.ts` | alterado (`SoundSignal`, `ENGINE_SOUND`, `REWARD_SOUND`, `CURB_SOUND`, `curb()`, `soundOn()`) | aplicação | DES-0009 |
 | `src/main.ts` | alterado (553 → 646 linhas: importações, `syntheticScene`, sessão e catálogo, `renderCredit`, `chooseTrack`, `renderOffer` com seletor e crédito, `beginLap` por `startTrainingLap`, minimapa por sessão, crédito no resultado, retorno da zebra no laço de passos, kart ocioso da sessão, abertura na Kart Park); rodada 4 (666 → 670): crédito do resultado em `renderTrainingResult` `:479-484`, chamada de `renderResult` ao crédito retirada, comentário do estado da zebra `:164-165` | aplicação | DES-0007, DES-0008, DES-0009, ADR-0007 |
@@ -187,3 +187,7 @@ Kart Park com `válida em andamento`; nenhum erro de console. Taxa de quadros, v
 A matriz `99-traceability.md` e o índice `00-index.md` são gerados pelo gate a partir dos campos `sources` dos registros `core/`,
 `data/`, `web/`, `pipeline/` e `security/`; cada registro nomeia, por `REQ-*`, o arquivo e o símbolo que o realiza. As divergências
 herdadas do D-Spec (15 linhas: 13 da rodada 1 do projeto e 2 da rodada 4) estão em `98-divergences.md`, com o encerramento das duas verificações de outras features que a rodada 1 reprovava.
+
+Rodada 5, Mode A (2026-11-03): o acabamento visual da revisão 2 do seed, projeto DES-0008 2.1.0 (`dspec-validation-20261103-1946`,
+commit `f926815`), sobre a árvore de `f926815`: `src/trackScene.ts` (262 linhas) e uma linha de `src/main.ts` (`:239`, 671 linhas).
+Nenhum outro arquivo de código; detalhe em `web/DES-0008` 2.0.0 e `97-changelog.md`.

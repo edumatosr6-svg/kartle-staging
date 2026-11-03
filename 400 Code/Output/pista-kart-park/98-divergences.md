@@ -2,8 +2,8 @@
 title: Divergências — pista Kart Park (estágio de código)
 feature: pista-kart-park
 stage: code
-status: validated
-version: 1.4.0
+status: draft
+version: 1.5.0
 sources: []
 ---
 
@@ -32,6 +32,7 @@ relativos à raiz do repositório; as medidas são as de `01-implementation.md`.
 | 13 | REQ-FEAT-0007-13, REQ-FEAT-0006-14 | promoção a produção com a Kart Park só com a decisão Esri registrada | código, deploy | DES-0011, DES-0012, ADR-0005 | resolved (código); open (deploy) | `scripts/track-pipeline.ts:40-62` (`--esri-decision` só com `promote`, obrigatório, 1 a 200 caracteres sem controle), `:151-160` (`promote`: `STAGING` → `PRODUCTION` com `promotedAtUtc` e `esriDecisionRef`; repetido sem efeito); `tracks/registry.json` em `STAGING`; a lista de verificação da release e o ato de promover são da etapa de deploy |
 | 14 | REQ-FEAT-0006-04, -05, -06; REQ-FEAT-0003-14 (linha aberta pelo projeto em 2026-10-30) | crédito OSM no resultado de cada volta na Kart Park, que no treino de voltas seguidas é o painel do resultado da volta do treino; `#lap-result-credit` retirado | código | DES-0007 1.3.0, ADR-0007 | resolved | rodada 4: `index.html:26` (`#lap-training-result-credit`, `p.lap-chip.track-credit`, oculto, último filho de `#lap-training-result`; `#lap-result-credit` retirado de `#lap-result`); `src/main.ts:478-484` (`renderTrainingResult`: o redesenho troca só os elementos do resultado, antes do contêiner do crédito, que nunca é removido, e no mesmo ramo chama `renderCredit($('lap-training-result-credit'), creditFor(selectedOption(result.trackId)))`; com o painel oculto o crédito fica oculto com ele); `src/main.ts` `renderResult` (`:488-516`) sem chamada ao crédito; `src/style.css:8` (`#lap-training-result-credit a{pointer-events:auto}`); nenhum `lap-result-credit` em `src/` nem `index.html`. A prova (`CHK-TEST-0009-04` migrada) é do estágio de testes |
 | 15 | REQ-FEAT-0003-08, -10, -12, -13, -15; REQ-FEAT-0001-05 (linha aberta pelo projeto em 2026-10-30) | volta na Kart Park pelas regras de `race-lap-validation`, cujo treino só chega a `ENDED` por `endTraining` | testes | DES-0004, DES-0005, estratégia de testes | open | nenhuma mudança de código: `src/lap.ts` e `src/trainingSession.ts` já realizam o treino de voltas seguidas (`startTrainingLap` inicia o treino inteiro; `selectTrainingTrack` devolve `lap` `undefined` e não toca a lista do treino recebido); as verificações e `drive` que esperam `ENDED` na chegada e no corte são do estágio de testes (migração planejada no changelog do projeto, rodada 4) |
+| 16 | REQ-FEAT-0008-01, -02, -06, -07, -12 a -18, -22 (linha aberta pelo projeto em 2026-11-03, `98-divergences.md` 1.2.0, seed `revision: 2`) | faixa branca de 0,10 m por dentro de cada borda do asfalto, relevo desenhado da zebra, barreira como pilha de pneus pretos de 0,9 m com a face a até 0,05 m da face de colisão, grama em 2 tons por posição | código | DES-0008 2.1.0 | resolved | rodada 5: `src/trackScene.ts:10-19` (constantes), `:33-60` (`grassToneAt`, `grassMesh`), `:83-122` (`inwardNormal`, `edgeLinesMesh`), `:146-147` (relevo da zebra), `:164-224` (`tyreStackGeometry`, `tyreStackCentres`, `barriersMesh`), `:249-254` (`buildTrackScene`, seis filhos); `src/main.ts:239` (`ground.visible`) |
 
 ## Verificações de outras features reprovadas pela rodada 1 (não editadas; conventions §14) — encerradas antes da rodada 2
 

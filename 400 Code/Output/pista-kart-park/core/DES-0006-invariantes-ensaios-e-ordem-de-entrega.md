@@ -3,9 +3,9 @@ id: DES-0006
 title: Invariantes da simulação, contrato de passo, pista dos ensaios, dependências e ordem de entrega — implementação
 feature: pista-kart-park
 stage: code
-status: validated
-version: 1.1.0
-sources: [FEAT-0007, FLOW-0002, REQ-FEAT-0007-03, REQ-FEAT-0007-04, REQ-FEAT-0007-06, REQ-FEAT-0007-07, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10, REQ-FEAT-0007-11, REQ-FEAT-0007-12]
+status: draft
+version: 1.2.0
+sources: [FEAT-0007, FEAT-0008, FLOW-0002, REQ-FEAT-0007-03, REQ-FEAT-0007-04, REQ-FEAT-0007-06, REQ-FEAT-0007-07, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10, REQ-FEAT-0007-11, REQ-FEAT-0007-12, REQ-FEAT-0008-08, REQ-FEAT-0008-25, REQ-FEAT-0008-26, REQ-FEAT-0008-27]
 ---
 
 # DES-0006 — Invariantes, contrato de passo, pista dos ensaios, dependências e ordem de entrega — implementação
@@ -30,3 +30,11 @@ Restrição atravessando `src/trackGeometry.ts`, `src/trackData.ts`, `src/physic
 Rodada 4 (DES-0006 1.1.0): `src/main.ts` lê `listLapResults` (`:567-568`, um registro por item novo, de `race-lap-validation`)
 ao lado de `getTrackContact`, `getLapState` e `getLapResult`, sem decidir regra; a retirada de `src/maneuvers.ts` da lista de
 simulação do teste de camada desta feature é do estágio de testes (`CHK-TEST-0011-01`); nenhum arquivo de código mudou por este item.
+
+Rodada 5 (2026-11-03, DES-0006 1.2.0, seed `revision: 2`): a rodada altera só `src/trackScene.ts` e `src/main.ts` (aplicação,
+DES-0008); nenhum módulo de simulação, `src/trackData.ts`, `src/trackGeometry.ts`, `src/curbFeedback.ts`, `src/audio.ts`,
+`src/tracks/kart-park-v1.json` nem `tracks/registry.json` foi tocado (`git status` da rodada).
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0008-08, -25, -26, -27 | simulação inalterada pelo acabamento: `BARRIER_HALF_WIDTH_M` (`src/trackGeometry.ts:17`), `CURB_GRIP_PC` (`src/physics.ts:13`) e `STEP` (`:6`) sem mudança; `src/trackScene.ts` é importado só por `src/main.ts:15`; as constantes `EDGE_LINE_WIDTH_M`, `CURB_RELIEF_M`, `TYRE_*` e `GRASS_*` existem só em `src/trackScene.ts:10-19`. O traço `tests/fixtures/kartParkRev1Trace.json` é do estágio de testes, gravado com a simulação do commit anterior ao código da revisão 2, `f926815` (esta rodada não faz commit e não toca a simulação) |

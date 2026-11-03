@@ -1,8 +1,8 @@
 ---
 stage: code
 feature: pista-kart-park
-generated: 2026-10-30T18:36:00Z
-rows: 258
+generated: 2026-11-03T19:59:44Z
+rows: 292
 ---
 
 # Traceability
@@ -56,6 +56,9 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0007 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
 | FEAT-0007 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | FEAT-0007 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
+| FEAT-0008 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
+| FEAT-0008 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| FEAT-0008 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | FLOW-0001 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
 | FLOW-0001 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | FLOW-0002 | DES-0003 | - | `core/DES-0003-superficie-por-roda-zebra-e-barreira.md` |
@@ -253,6 +256,36 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0007-13 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0007-13 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
 | REQ-FEAT-0007-13 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| REQ-FEAT-0008-01 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-02 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-03 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-04 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-05 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-06 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-07 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-08 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
+| REQ-FEAT-0008-08 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-09 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-10 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-11 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-12 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-13 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-14 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-15 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-16 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-17 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-18 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-19 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-20 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-21 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-22 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-23 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-24 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
+| REQ-FEAT-0008-25 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
+| REQ-FEAT-0008-26 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
+| REQ-FEAT-0008-27 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
+| REQ-FEAT-0008-28 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
+| REQ-FEAT-0008-29 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | RULE-0001 | DES-0002 | - | `core/DES-0002-geometria-da-pista-declarada-no-arquivo.md` |
 | RULE-0001 | DES-0003 | - | `core/DES-0003-superficie-por-roda-zebra-e-barreira.md` |
 | RULE-0001 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
@@ -267,6 +300,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | RULE-0005 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | RULE-0005 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
 | RULE-0005 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| RULE-0006 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
 | SCR-0001 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | SCR-0002 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | SCR-0003 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
