@@ -3,17 +3,18 @@
 // (strategy: lap, integration level, DES-0004, RULE-0001, RULE-0003 of race-lap-validation).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { getTrackContact, type Input } from '../src/physics';
+import { getTrackContact, wheelPositions, type Input } from '../src/physics';
 import { getLapResult, getLapState, listLapResults, pauseLap, repositionKart, resumeLap, stepLap, type LapResult, type LapSession, type LapStateView } from '../src/lap';
 import { toMs } from '../src/lapTiming';
 import { describeTrainingResult, formatLapTime, message } from '../src/lapMessages';
 import { crossLine, sideOf } from '../src/track';
-import { nearestOnCenterline, positionAtLapM } from '../src/trackGeometry';
+import { classifySurface, closestOnSegment, nearestOnCenterline, positionAtLapM } from '../src/trackGeometry';
+import { EDGE_LINE_WIDTH_M } from '../src/trackScene';
 import { kartParkFile, kartParkGeometry } from './fixtures/kartParkFiles';
 import { syntheticReading } from './fixtures/trackFiles';
 import { autopilot, completeLap } from './helpers/autopilot';
 import {
-  completeKartParkLap, constant, drive, IDLE, kartAtLapM, kartParkPilot, lapDistanceOf, lapResults, runCountdown, seedLap, startKartParkLap, type StepHook,
+  completeKartParkLap, constant, drive, IDLE, KART_PARK_CONFIG, kartAtLapM, kartParkPilot, lapDistanceOf, lapResults, runCountdown, seedLap, startKartParkLap, type StepHook,
 } from './helpers/kartParkPilot';
 
 const g = kartParkGeometry();
@@ -297,4 +298,33 @@ test('CHK-TEST-0005-12 the lap on the Kart Park uses the default cut limits of 3
   assert.equal(lap.trackStatus, 'COMPLETE', 'AC-US-0003-07: the Kart Park is COMPLETE');
   const inputs: Input[] = reference.inputs;
   assert.ok(inputs.length === reference.lap.stepCount, 'AC-US-0003-07: one input per running step of the reference lap');
+});
+
+test('CHK-TEST-0005-13 riding with wheels on the edge line for more than 1000 ms, no wheel beyond the asphalt edge, is not a cut', () => {
+  // AC-US-0007-17
+  const half = KART_PARK_CONFIG.trackWidth / 2;
+  const edgeDistance = (p: { x: number; z: number }) => {
+    let best = Infinity;
+    for (const e of [g.leftEdge, g.rightEdge]) for (let i = 0; i < e.length; i++) best = Math.min(best, closestOnSegment(e[i], e[(i + 1) % e.length], p).distanceM);
+    return best;
+  };
+  // Between 15 and 55 m the pilot holds the left wheels 0.05 m inside the left edge, at walking pace; elsewhere it drives the lap.
+  const FROM = 15, TO = 55;
+  const onLine = kartParkPilot(g, { offsetM: m => m > FROM && m < TO ? widthAt(m) / 2 - half - EDGE_LINE_WIDTH_M / 2 : 0, maxSpeedMps: 2, steerGain: 1 });
+  const lapPilot = kartParkPilot(g);
+  let run = 0, longest = 0, maxOffTrackSteps = 0;
+  const { lap } = drive(runCountdown(startKartParkLap()), l => { const m = lapDistanceOf(g, l.kart); return m > FROM - 10 && m < TO + 5 ? onLine(l) : lapPilot(l); }, 12000, (_b, a) => {
+    const k = a.kart, sin = Math.sin(k.heading), cos = Math.cos(k.heading);
+    const wheels = wheelPositions(KART_PARK_CONFIG).map(p => ({ x: k.x + p.forward * sin + p.left * cos, z: k.z + p.forward * cos - p.left * sin }));
+    const noneBeyond = wheels.every(w => classifySurface(g, w) === 'asphalt');
+    const someOnLine = wheels.some(w => classifySurface(g, w) === 'asphalt' && edgeDistance(w) <= EDGE_LINE_WIDTH_M);
+    if (noneBeyond && someOnLine) { run++; longest = Math.max(longest, run); } else run = 0;
+    maxOffTrackSteps = Math.max(maxOffTrackSteps, a.offTrackSteps);
+  });
+  assert.ok(longest >= 121, `AC-US-0007-17: the kart must ride with wheels on the edge line and none beyond the edge for more than 120 consecutive steps (${longest})`);
+  assert.equal(maxOffTrackSteps, 0, `AC-US-0007-17: the cut counter must stay at 0 on the edge line (${maxOffTrackSteps})`);
+  const items = lapResults(lap);
+  assert.equal(items.length, 1, `AC-US-0007-17: the finish crossing lists the result of the lap (${items.length})`);
+  assert.notEqual(items[0].invalidReason, 'CUT', 'AC-US-0007-17: the lap must not be invalidated by a cut');
+  assert.equal(items[0].lapValidity, 'VALID', `AC-US-0007-17: the lap stays VALID (${items[0].invalidReason ?? 'no reason'})`);
 });

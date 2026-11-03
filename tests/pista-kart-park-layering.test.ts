@@ -131,3 +131,23 @@ test('CHK-TEST-0011-07 no check of this feature needs the renderer: the suites i
   const scene = code('src/trackScene.ts');
   assert.ok(!rendering.test(scene) && !uses(scene, 'document') && !uses(scene, 'window'), 'NFR-0007: trackScene.ts builds geometry only');
 });
+
+test('CHK-TEST-0011-08 the drawing of the Kart Park reads no clock, random source, window, screen or device: the grass tone is a function of the position only', () => {
+  // AC-US-0007-14
+  const scene = code('src/trackScene.ts');
+  for (const symbol of ['Math.random', 'Date', 'performance', 'window', 'navigator', 'innerWidth', 'devicePixelRatio', 'matchMedia']) {
+    assert.ok(!uses(scene, symbol), `AC-US-0007-14: src/trackScene.ts must not use ${symbol}`);
+  }
+  assert.deepEqual(imports(scene).sort(), ['./track', './trackGeometry', 'three'], 'AC-US-0007-14: the drawing imports three and the track geometry only');
+});
+
+test('CHK-TEST-0011-09 the finish of the drawing loads no image or texture from the network and reads no address, storage or configuration', () => {
+  // NFR-0004, AC-US-0007-14 (REQ-FEAT-0008-23, -24)
+  const scene = code('src/trackScene.ts');
+  // Loaders are reached as THREE.<name> (TextureLoader, ImageLoader, FileLoader...): matched anywhere in the text.
+  assert.ok(!/Loader/.test(scene), 'NFR-0004, AC-US-0007-14: src/trackScene.ts must not create a loader');
+  for (const symbol of ['fetch', 'XMLHttpRequest', 'location', 'localStorage', 'sessionStorage', 'URLSearchParams']) {
+    assert.ok(!uses(scene, symbol), `NFR-0004, AC-US-0007-14: src/trackScene.ts must not use ${symbol}`);
+  }
+  assert.ok(!/new\s+Image\b|https?:|import\.meta\.env/.test(scene), 'NFR-0004, AC-US-0007-14: src/trackScene.ts must not create an image, name an address or read the build configuration');
+});

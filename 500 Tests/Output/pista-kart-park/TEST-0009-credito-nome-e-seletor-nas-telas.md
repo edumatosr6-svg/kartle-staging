@@ -3,9 +3,9 @@ id: TEST-0009
 title: Crédito, nome, comprimento e seletor nas telas — regras puras de src/lapMessages.ts e os textos de DOM que src/main.ts e index.html emitem
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.1.0
-sources: [AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0003-06, NFR-0005]
+status: draft
+version: 1.2.0
+sources: [AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0003-06, NFR-0005, AC-US-0007-16]
 ---
 
 # TEST-0009 — Crédito, nome, comprimento e seletor nas telas
@@ -32,3 +32,6 @@ sources: [AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006
 | CHK-TEST-0009-09 | AC-US-0003-06 | an invalid lap shows its reason in the result title, and the missed-marker reason reads "marcador pulado" | `message('reasonMissedMarker', 'pt')` ≠ "marcador pulado" (en ≠ "missed marker"), mapa de razões alterado, título do resultado sem a razão |
 | CHK-TEST-0009-10 | AC-US-0001-03 | a FAILED session shows the data error and offers no lap | ramo `FAILED`/`UNREADABLE`/`UNSUPPORTED_SCHEMA` sem `trackDataError` ou sem `return` antes da oferta, oferta não esvaziada |
 | CHK-TEST-0009-11 | AC-US-0006-04 | the result of a training lap on the synthetic track takes no credit and one on the Kart Park takes the OSM credit, valid or not | cruzamento da chegada sem exatamente um item em `listLapResults`, item com `trackId` diferente da pista da volta (mutação S6), volta sem marcadores `VALID`, entrada do catálogo da sintética com crédito (S5), resultado inválido da Kart Park sem `OSM_CREDIT` |
+| CHK-TEST-0009-12 | AC-US-0007-16 | the synthetic track keeps the image of before revision 2: the same ground colour, shown whenever no schema-3 drawing is, and no finish drawn for it | `ground` sem o plano de 2.000 m em `#68865b` (D18); `ground.visible` recebendo algo além de `!(ready && trackGeometry)` (D17: oculto com a sintética `READY`); `buildTrackScene` chamado com outro argumento ou fora do ramo `ready && trackGeometry`; sessão sintética com geometria de arquivo |
+
+A comparação da imagem da sintética com o pacote anterior à revisão 2 (0 pixel diferente) é E2E-09 do roteiro registrado; aqui fica a parte de texto e de sessão.

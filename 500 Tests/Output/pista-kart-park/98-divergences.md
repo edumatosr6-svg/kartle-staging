@@ -2,14 +2,14 @@
 title: Registro de divergências, verificação reprovada e critérios não verificados em npm test
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 ---
 
 # 98 — Divergências
 
-A execução de 2026-10-30, depois da rodada 4 do código (`38354bb`) (`npx tsx --test tests/*.test.ts`, totais do próprio runner em `reports/npm-test-latest.log` e
-`reports/junit-latest.xml`) coletou 444 verificações, todas aprovadas; as 103 `CHK-TEST-00nn-nn` desta feature estão entre elas.
+A execução de 2026-11-03, sobre o código da revisão 2 do seed (`fbfb073`) (`npx tsx --test tests/*.test.ts`, totais do próprio runner em `reports/npm-test-latest.log` e
+`reports/junit-latest.xml`) coletou 467 verificações, todas aprovadas; as 126 `CHK-TEST-00nn-nn` desta feature estão entre elas.
 A linha 12 de `400 Code/Output/pista-kart-park/98-divergences.md` (verificações de `npm test` na Kart Park: determinismo,
 camadas, critérios de US-0002 a US-0005) é atendida por `tests/pista-kart-park-*.test.ts`; a linha 13 (promoção) continua da
 etapa de deploy, com a regra provada em CHK-TEST-0012-04.
@@ -31,6 +31,9 @@ etapa de deploy, com a regra provada em CHK-TEST-0012-04.
 | AC-US-0003-02 | "o ponto ... cuja distância de volta, medida na linha central original ... é a mais próxima de 201,6 m, de 350,3 m e de 529,9 m" | CHK-TEST-0001-09: o índice que minimiza \|d_o(i) − D_k\| na origem convertida pelo teste e o cruzamento do limite a ≤ 0,01 m da distância publicada desse ponto (199,394 / 347,042 / 525,650 m) | o alvo é medido na linha original e o ponto é lido na publicada, como o critério diz; os valores publicados (≈ 2 m abaixo dos alvos) são a consequência de 682,116 m contra 687,52 m da origem, registrada em `01-implementation.md` |
 | AC-US-0006-09 | "nenhuma tela exibe o recorde de 41,45 s" | CHK-TEST-0009-07 e CHK-TEST-0001-16 proíbem `41,45`, `41.45`, `41450`, `00:41`, `KARTPLAN`, `recorde:`, `recordeMs` nos textos de tela e nos módulos, e também `recorde` no arquivo publicado; a palavra `recorde` sozinha é aceita em `index.html` | `index.html` traz o texto de marketing do jogo ("O próximo recorde é seu", "Seu próximo recorde começa na curva") desde antes da feature; o critério é sobre o recorde da pista real |
 | AC-US-0005-06 | "`tireForce(..., 'curb', acerto).capacity` igual a 0,85 da de `'asphalt'`" e "stepping the simulation" | CHK-TEST-0003-01 (função pura, 1e-12) e CHK-TEST-0003-02: no passo integrado o atrito recuperado de `capacity/(carga × (550/carga)^0,12)` por roda é 0,85 do asfalto a 1e-9; a razão bruta das capacidades no mesmo passo é 0,85 ± 0,01 (0,849993 medido) | as cargas por roda divergem nos subpassos seguintes ao primeiro (transferência de carga), o que a capacidade carrega; a razão dos atritos é exata |
+| AC-US-0007-02 | "em cada segmento das duas tiras, os dois vértices internos ficam a 0,10 m da reta do segmento de borda correspondente, com tolerância de 1e-6 m" (estratégia 1.3.0) | CHK-TEST-0010-07 mede a distância de cada vértice interno à reta do segmento de borda (bordas da geometria em `float64`) e aceita 2e-5 m | os vértices desenhados são um atributo `Float32BufferAttribute`; com coordenadas até ~90 m um ulp é 7,6e-6 m, e o desvio medido é 3,7e-6 m (faixa da esquerda, segmento 292). A tolerância de 1e-6 m não é atingível por nenhum desenho em `float32`; 2e-5 m continua 85 vezes abaixo do erro da bissetriz sem o fator 1/cos(θ/2) (1,7 mm, mutação D2), que a verificação reprova. A linha da estratégia fica para a próxima rodada do D-Spec |
+| AC-US-0007-05, AC-US-0007-06 | "os vértices de `curbs` do lado do asfalto ficam a `y` `CURB_Y`" | CHK-TEST-0010-08/-09 usam `CURB_Y` = 0,035 m escrito no teste a partir de DES-0008 (linha `curbs`: "a `y` `CURB_Y` (0,035)"); o lado do asfalto de cada faixa são os seus dois vértices mais perto da linha central | `src/trackScene.ts` não exporta `CURB_Y` e a etapa de testes não acrescenta superfície (a constante continua do projeto); o lado é medido na geometria desenhada, sem depender da ordem dos vértices |
+| AC-US-0007-17 | "o piloto com deslocamento lateral que põe as rodas de um lado sobre a faixa de borda, sem roda além da borda, por mais de 120 passos" | CHK-TEST-0005-13: entre 15 e 55 m de volta o piloto vai a 2 m/s com `steerGain` 1 e deslocamento `widthM/2 − trackWidth/2 − EDGE_LINE_WIDTH_M/2`; no resto da volta, o piloto normal | a faixa tem 0,10 m e o piloto decide a cada 6 passos: a 7 m/s ou mais a oscilação lateral passa de 0,05 m e a maior sequência sem roda fora do asfalto ficava entre 13 e 65 passos (medido no rascunho); a 2 m/s, 280 passos seguidos. É calibração da fixture, não do critério: a volta inteira continua `VALID` e sem `CUT` |
 
 ## Critérios cuja metade de tela, aparelho, som, vibração, navegador ou rede só é verificável pelo roteiro registrado
 
@@ -49,7 +52,7 @@ vibração, rede do navegador ou relógio de parede fica **unverified** até o r
 | AC-US-0002-08 | unverified | o asfalto desenhado com as larguras do arquivo | CHK-TEST-0002-01, CHK-TEST-0010-01 (vértices do asfalto = bordas do arquivo) | asfalto com larguras variáveis visto na tela: E2E-03 | registro humano |
 | AC-US-0003-06 | unverified | a tela exibe "marcador pulado" | CHK-TEST-0005-03 (`describeTrainingResult` do item de `listLapResults`), CHK-TEST-0009-09 (título do resultado com a razão) | o texto visto na tela de resultado: E2E-03 | registro humano |
 | AC-US-0003-11 | unverified | a tela de resultado exibe o tempo total e os 4 setores | CHK-TEST-0005-02 (resultado com `lapMs` e 4 `sectorMs`, formato) | a tela de resultado, perda de foco e recarga: E2E-03 | registro humano |
-| AC-US-0004-06 | unverified | a barreira desenhada em todo o comprimento | CHK-TEST-0010-03 (381 instâncias somando 53,29 m) | a barreira vista na tela ao longo dos trechos: E2E-03 | registro humano |
+| AC-US-0004-06 | unverified | a barreira desenhada em todo o comprimento | CHK-TEST-0010-03 (pilha de pneus centrada em cada um dos 382 vértices e centros a no máximo 0,12 m em cada segmento) | a barreira vista na tela ao longo dos trechos: E2E-03 | registro humano |
 | AC-US-0005-03 | unverified | cada zebra desenhada no lado declarado | CHK-TEST-0010-02 (toda faixa do lado do seu trecho, 34 trechos desenhados) | as zebras vistas na tela: E2E-03 | registro humano |
 | AC-US-0005-07 | unverified | o aparelho vibra 20 ms a cada 0,25 s com roda na zebra | CHK-TEST-0008-01, -06 (decisão por passo), CHK-TEST-0008-08 (`navigator.vibrate(CURB_PULSE_MS)` só com `feedback.pulse`) | a vibração sentida no celular de referência, nenhuma fora da zebra ou em pausa: E2E-05 | registro humano (celular intermediário de RNF03) |
 | AC-US-0005-08 | unverified | nenhum pulso novo sem roda na zebra | CHK-TEST-0008-02 | idem: E2E-05 | registro humano |
@@ -65,3 +68,10 @@ vibração, rede do navegador ou relógio de parede fica **unverified** até o r
 | NFR-0012 (segunda linha) | n/a | crédito da Esri junto ao OSM depois da liberação | CHK-TEST-0012-04 (promoção exige `--esri-decision`; registro em `STAGING`) | só existe depois da decisão registrada em `DOMAIN.md`; E2E da entrega que promover (REQ-FEAT-0006-14) | dono do produto, etapa de deploy |
 | REQ-FEAT-0001-13 | unverified | inclinação negada: toque com o aviso, seletor e pista inalterados | nenhuma nova (comportamento de `race-lap-validation`, inalterado) | E2E-05 | registro humano |
 | REQ-FEAT-0007-12, NFR-0011 | n/a | código só depois da entrega de `dirigibilidade` | nenhuma: o estágio não executa `git`; o manifesto da etapa de código registra `6ea3862` descendente de `b86b200` | — | manifesto de código (registrado) |
+| AC-US-0007-01 | unverified | faixa branca contínua nas duas bordas, na tela | CHK-TEST-0010-06 (duas tiras fechadas de 684 segmentos sobre o asfalto, largada a ≥ 0,10 m das bordas), -07 | a faixa vista contínua junto às zebras e na largada: E2E-03 | registro humano |
+| AC-US-0007-09 | unverified | fileira de pneus pretos empilhados, na tela | CHK-TEST-0010-03 (pilhas em toda a extensão), -10 (canais sRGB ≤ 0,17), -11 (0,9 m) | os pneus vistos pretos e empilhados: E2E-03 | registro humano |
+| AC-US-0007-11 | unverified | o kart encosta nos pneus vistos, sem entrar | CHK-TEST-0010-12 (face a ≤ 0,05 m da superfície de contato, nos dois sentidos), CHK-TEST-0004-02 a -05 (o kart para na superfície de contato) | o kart encostado nos pneus visto na tela: E2E-03 | registro humano |
+| AC-US-0007-13, AC-US-0007-20 | unverified | ao menos 2 tons de verde na grama, com a luminância exigida, na tela | CHK-TEST-0010-14, -16 | a grama vista em 2 tons: E2E-03 | registro humano |
+| AC-US-0007-14 | unverified | o mesmo tom no mesmo lugar em duas aberturas, em aparelhos diferentes | CHK-TEST-0010-15 (duas construções iguais, tom de `grassToneAt` em 1.000 posições), CHK-TEST-0011-08, -09 (nada de canal, tela, relógio ou configuração em `src/trackScene.ts`) | reabrir, redimensionar e girar o aparelho: E2E-03, E2E-05 | registro humano |
+| AC-US-0007-16 | unverified | a imagem da pista sintética igual à de antes da revisão 2 | CHK-TEST-0009-12 (`ground` `#68865b` visível sem desenho de esquema 3; acabamento só da geometria do arquivo) | 0 pixel diferente entre o pacote de `f926815` e o atual: E2E-09 | registro humano |
+| AC-US-0007-18, AC-US-0007-19 | unverified | vibração e som da zebra com o relevo na tela | CHK-TEST-0008-01 a -08 sem mudança; CHK-TEST-0006-05 (trajetória sobre a zebra igual à de antes) | E2E-05 (vibração), E2E-04 (som) com o relevo na tela | registro humano |

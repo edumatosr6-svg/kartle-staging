@@ -1,5 +1,6 @@
 // TEST-0003 — the curb as a surface of the simulation: 85 % grip per tyre, wheels on the curb are on the track, and the contact
-// reading of API-0003 (strategy: surface, unit, integration and contract levels, RULE-0001, DES-0003, ADR-0004).
+// reading of API-0003; the visual finish of seed revision 2 leaves the surfaces alone: the edge line is asphalt and every grass
+// tone is grass (strategy: surface, unit, integration and contract levels, RULE-0001, RULE-0006, DES-0003, ADR-0004).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
@@ -7,7 +8,8 @@ import {
   type Environment, type KartConfig, type State, type Surface,
 } from '../src/physics';
 import { initialState } from '../src/physics';
-import { positionAtLapM } from '../src/trackGeometry';
+import { classifySurface, closestOnSegment, positionAtLapM } from '../src/trackGeometry';
+import { EDGE_LINE_WIDTH_M, grassToneAt } from '../src/trackScene';
 import { kartParkEnvironment, kartParkGeometry } from './fixtures/kartParkFiles';
 import { advance, KART_PARK_CONFIG, kartAtLapM, seededKart } from './helpers/kartParkPilot';
 import { Seeded } from './helpers/seeded';
@@ -15,6 +17,45 @@ import { Seeded } from './helpers/seeded';
 const g = kartParkGeometry();
 const env = kartParkEnvironment();
 const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
+// The four wheel positions of a state, computed by the test from wheelPositions and the heading (FL, FR, RL, RR).
+const wheelsOf = (kart: State) => {
+  const sin = Math.sin(kart.heading), cos = Math.cos(kart.heading);
+  return wheelPositions(KART_PARK_CONFIG).map(p => ({ x: kart.x + p.forward * sin + p.left * cos, z: kart.z + p.forward * cos - p.left * sin }));
+};
+const edgeDistance = (p: { x: number; z: number }) => {
+  let best = Infinity;
+  for (const e of [g.leftEdge, g.rightEdge]) for (let i = 0; i < e.length; i++) best = Math.min(best, closestOnSegment(e[i], e[(i + 1) % e.length], p).distanceM);
+  return best;
+};
+// Karts with the wheels of one side 0.05 m inside the asphalt edge (on the drawn edge line), at lap distances around the lap.
+const onEdgeLine = (() => {
+  const half = KART_PARK_CONFIG.trackWidth / 2;
+  const out: { label: string; kart: State; lineWheels: number[] }[] = [];
+  for (let lapM = 5; lapM < g.lapLengthM; lapM += 11) for (const side of ['LEFT', 'RIGHT'] as const) {
+    const width = g.centerline[positionAtLapM(g, lapM).index].widthM;
+    const sign = side === 'LEFT' ? 1 : -1;
+    const lineWheels = side === 'LEFT' ? [0, 2] : [1, 3];
+    // Signed distance inside the asphalt edge of the outermost wheel of the side; the kart is moved sideways until it is 0.05 m.
+    const inside = (k: State) => Math.min(...lineWheels.map(w => { const p = wheelsOf(k)[w]; return (classifySurface(g, p) === 'asphalt' ? 1 : -1) * edgeDistance(p); }));
+    let lateral = sign * (width / 2 - half - EDGE_LINE_WIDTH_M / 2);
+    for (let i = 0; i < 8; i++) lateral += sign * (inside(kartAtLapM(lapM, lateral)) - EDGE_LINE_WIDTH_M / 2);
+    const kart = kartAtLapM(lapM, lateral);
+    // Kept where both wheels of the side stand on the line (where the edge curves under the wheelbase they cannot both be).
+    if (lineWheels.every(w => { const p = wheelsOf(kart)[w]; return classifySurface(g, p) === 'asphalt' && edgeDistance(p) <= EDGE_LINE_WIDTH_M; })) out.push({ label: `${side} at ${lapM} m`, kart, lineWheels });
+  }
+  assert.ok(out.length >= 20, `fixture: at least 20 karts with the wheels of one side on the edge line (${out.length})`);
+  return out;
+})();
+// Karts off the track, centred on a boundary between two grass stripes, wheels on both tones.
+const onBothTones = (() => {
+  const out: State[] = [];
+  for (const [dx, dz] of [[40, 0], [-40, 0], [0, 40], [0, -40]]) {
+    const x = 5 * Math.round(((dx > 0 ? g.bounds.maxX : dx < 0 ? g.bounds.minX : (g.bounds.minX + g.bounds.maxX) / 2) + dx) / 5);
+    const z = (dz > 0 ? g.bounds.maxZ : dz < 0 ? g.bounds.minZ : (g.bounds.minZ + g.bounds.maxZ) / 2) + dz;
+    out.push(seededKart({ x, z }, 0, 5));
+  }
+  return out;
+})();
 // The setups are read from PUBLISHED_SETUPS, whatever version is published (arcade-assistido-v6 since dirigibilidade, FB-02):
 // the checks measure the curb rule (ratios to the asphalt of the same setup), never the numbers of one version. The literal v5
 // the Kart Park pilot is calibrated on is measured too, after the published ones (configs.slice(0, 3) keeps the step check).
@@ -144,4 +185,51 @@ test('CHK-TEST-0003-05 the wheel surfaces of the reading are the surfaces at the
   if ('code' in grass) throw new Error('fixture: no contact');
   assert.deepEqual([...grass.wheelSurfaces], ['GRASS', 'GRASS', 'GRASS', 'GRASS'], 'AC-US-0005-04: far from the track every wheel is on the grass');
   assert.ok(grass.beyondTrackEdgeM > 10, 'AC-US-0005-04: and the edge distance is large');
+});
+
+test('CHK-TEST-0003-06 the wheels on the drawn edge line, inside the asphalt edge, read ASPHALT with grip 1, as on the asphalt', () => {
+  // AC-US-0007-03
+  for (const { label, kart, lineWheels } of onEdgeLine) {
+    const wheels = wheelsOf(kart);
+    for (const w of lineWheels) {
+      assert.ok(classifySurface(g, wheels[w]) === 'asphalt' && edgeDistance(wheels[w]) <= EDGE_LINE_WIDTH_M, `fixture: ${label}: wheel ${w} must stand on the edge line (${edgeDistance(wheels[w]).toFixed(3)} m from the edge)`);
+    }
+    const contact = getTrackContact(kart, env, KART_PARK_CONFIG);
+    if ('code' in contact) throw new Error('fixture: no contact');
+    for (const w of lineWheels) {
+      assert.equal(contact.wheelSurfaces[w], 'ASPHALT', `AC-US-0007-03: ${label}: wheel ${w} on the edge line must read ASPHALT`);
+      assert.equal(contact.wheelGripPc[w], 1, `AC-US-0007-03: ${label}: wheel ${w} on the edge line must have the asphalt grip 1 (${contact.wheelGripPc[w]})`);
+    }
+  }
+});
+
+test('CHK-TEST-0003-07 a kart with wheels on the edge line and none beyond the asphalt edge is not off the track', () => {
+  // AC-US-0007-04
+  for (const { label, kart } of onEdgeLine) {
+    assert.ok(wheelsOf(kart).every(w => classifySurface(g, w) === 'asphalt'), `fixture: ${label}: no wheel beyond the asphalt edge`);
+    const contact = getTrackContact(kart, env, KART_PARK_CONFIG);
+    if ('code' in contact) throw new Error('fixture: no contact');
+    assert.equal(contact.beyondTrackEdgeM, 0, `AC-US-0007-04: ${label}: the kart on the edge line must not be beyond the track edge (${contact.beyondTrackEdgeM} m)`);
+  }
+});
+
+test('CHK-TEST-0003-08 a wheel on either grass tone has the grass grip, the same for every tone', () => {
+  // AC-US-0007-15
+  const grassGrip = KART_PARK_CONFIG.grassFriction / KART_PARK_CONFIG.friction;
+  for (const kart of onBothTones) {
+    const tones = new Set(wheelsOf(kart).map(w => grassToneAt(w.x, w.z)));
+    assert.equal(tones.size, 2, `fixture: the wheels of the kart at (${kart.x}, ${kart.z}) stand on both grass tones`);
+    const contact = getTrackContact(kart, env, KART_PARK_CONFIG);
+    if ('code' in contact) throw new Error('fixture: no contact');
+    for (let w = 0; w < 4; w++) assert.ok(near(contact.wheelGripPc[w], grassGrip, 1e-12), `AC-US-0007-15: wheel ${w} on tone ${grassToneAt(wheelsOf(kart)[w].x, wheelsOf(kart)[w].z)} must have the grass grip ${grassGrip} (${contact.wheelGripPc[w]})`);
+  }
+});
+
+test('CHK-TEST-0003-09 a wheel on either grass tone reads GRASS, the same for every tone', () => {
+  // AC-US-0007-21
+  for (const kart of onBothTones) {
+    const contact = getTrackContact(kart, env, KART_PARK_CONFIG);
+    if ('code' in contact) throw new Error('fixture: no contact');
+    assert.deepEqual([...contact.wheelSurfaces], ['GRASS', 'GRASS', 'GRASS', 'GRASS'], `AC-US-0007-21: every wheel of the kart at (${kart.x}, ${kart.z}), on both tones, must read GRASS`);
+  }
 });

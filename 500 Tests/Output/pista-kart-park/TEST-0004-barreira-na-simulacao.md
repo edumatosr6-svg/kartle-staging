@@ -3,9 +3,9 @@ id: TEST-0004
 title: Barreira na simulação — único obstáculo do ambiente do arquivo, intransponível, com a resposta do muro, contato só no passo de entrada
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.0.1
-sources: [AC-US-0004-02, AC-US-0004-04, AC-US-0004-05]
+status: draft
+version: 1.0.2
+sources: [AC-US-0004-02, AC-US-0004-04, AC-US-0004-05, AC-US-0007-11]
 ---
 
 # TEST-0004 — Barreira na simulação
@@ -27,3 +27,5 @@ sources: [AC-US-0004-02, AC-US-0004-04, AC-US-0004-05]
 | CHK-TEST-0004-04 | AC-US-0004-05 | after a collision with a barrier line the kart has the position and velocity it has after the same collision with the existing wall, step by step | posição e velocidade normais e tangenciais, `yawRate`, rumo ou `speed` no referencial local diferindo em mais de 1e-9 do muro do passo do contato aos 10 seguintes (60 a 90°) em 24 lançamentos (2 lados × 90°, 60°, 45°, 30° × 10, 20, 30 m/s; mutação B), contatos em passos diferentes de mais de 1, menos de 240 passos comparados |
 | CHK-TEST-0004-05 | AC-US-0004-05 | barrierContact is true only in the step the touching begins, barrierTouching while it lasts, and the contact reading mirrors it | `barrierContact` num passo cujo anterior já tocava, contatos ≠ episódios de toque, contato sem toque, `getTrackContact().barrierContact` ≠ telemetria, estado inicial com contato; não depende da resposta ao obstáculo: com o bloco da barreira desligado (mutação B da rodada 1) continua passando, porque `barrierTouching`/`barrierContact` nascem da proximidade de 0,11 m no fim do passo — a resposta é decidida por -02 e -04 |
 | CHK-TEST-0004-06 | AC-US-0004-02 | a copy of the file without barriers gives an environment where a seeded 2000-step run never touches a barrier and never throws | segmento de obstáculo sem declaração, `nearestBarrier` definido, `barrierTouching`/`barrierContact` verdadeiros em algum dos 2 000 passos, exceção ou estado não finito |
+
+AC-US-0007-11, metade da simulação ("o kart para na superfície de contato"): as verificações -02 a -05 deste registro, sem mudança, mostram o kart parando a `BARRIER_HALF_WIDTH_M` da poligonal dos dois lados; a metade do desenho (a face dos pneus a no máximo 0,05 m dessa superfície) é a verificação -12 de TEST-0010.

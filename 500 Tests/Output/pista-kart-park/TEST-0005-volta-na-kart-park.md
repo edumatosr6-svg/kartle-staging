@@ -3,9 +3,9 @@ id: TEST-0005
 title: Volta na Kart Park — válida com o piloto da Kart Park, marcador pulado, corte pela borda do arquivo, atalho da curva 4, zebra como pista, chegada de novo, contramão, pausa e reposicionamento
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.1.0
-sources: [AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0005-05, AC-US-0001-06]
+status: draft
+version: 1.2.0
+sources: [AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11, AC-US-0005-05, AC-US-0001-06, AC-US-0007-17]
 ---
 
 # TEST-0005 — Volta na Kart Park
@@ -33,3 +33,4 @@ sources: [AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003
 | CHK-TEST-0005-10 | AC-US-0003-11 | a pause freezes the Kart Park lap, the resume continues it, and the markers passed before the pause still count | menos de 3 marcadores antes da pausa, pausa recusada, `stepCount` ou kart alterados em 100 passos pausados, retomada recusada ou sem os marcadores já passados, cruzamento da chegada sem exatamente um item, item não `VALID`, marcadores antes do fechamento ≠ todos, fase ≠ `RUNNING` depois da chegada (mutação M2) |
 | CHK-TEST-0005-11 | AC-US-0001-06 | the reposition of a training lap on the Kart Park puts the kart on the nearest point of the file centerline, facing the travel sense, at rest | reposicionamento recusado, kart a mais de 1e-6 m da linha central da Kart Park (linha sintética: mutação que troque `nearestOnTrack`), rumo diferente do sentido de corrida, velocidade ≠ 0, `offTrackSteps` ≠ 0, volta `INVALID`, kart a mais de 2 m dos 250 m de volta |
 | CHK-TEST-0005-12 | AC-US-0003-07 | the lap on the Kart Park uses the default cut limits of 3 m and 1000 ms and the lines of the file | `cutDistanceM` ≠ 3, `cutDurationMs` ≠ 1000, linhas da volta diferentes das do arquivo, `trackStatus` ≠ `COMPLETE`, número de entradas gravadas ≠ passos da volta de referência |
+| CHK-TEST-0005-13 | AC-US-0007-17 | riding with wheels on the edge line for more than 1000 ms, no wheel beyond the asphalt edge, is not a cut | entre 15 e 55 m o piloto a 2 m/s (`steerGain` 1) segura as rodas da esquerda a `EDGE_LINE_WIDTH_M/2` por dentro da borda, no resto da volta o piloto normal: menos de 121 passos seguidos com roda na faixa de borda e nenhuma roda fora do asfalto, `offTrackSteps` > 0 (S7: a faixa de borda contada como saída de pista), chegada sem exatamente um item em `listLapResults`, item com `CUT` ou não `VALID` |

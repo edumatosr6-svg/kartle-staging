@@ -3,9 +3,9 @@ id: TEST-0008
 title: Retorno da zebra — pulsos de 20 ms a cada 30 passos em web-mobile, som a cada 12 passos em web-desktop, nada sem roda na zebra nem em passo já tratado, som da zebra distinto construído num AudioContext de substituição
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.0.0
-sources: [AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12]
+status: draft
+version: 1.0.1
+sources: [AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12, AC-US-0007-18, AC-US-0007-19]
 ---
 
 # TEST-0008 — Retorno da zebra
@@ -29,3 +29,5 @@ sources: [AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005
 | CHK-TEST-0008-06 | AC-US-0005-07, AC-US-0005-09 | over the contact sequence of a real curb run, every pulse and repeat starts with a wheel on the curb, at the declared intervals, several times | corrida com menos de 121 passos na zebra (mutação I), pares fora de ordem, pulso ou repetição num passo sem roda na zebra, intervalos abaixo de 30/12, menos de 4 pulsos ou 10 repetições, passo na zebra 30 ou mais passos depois do último pulso sem pulsar (mutação D) |
 | CHK-TEST-0008-07 | AC-US-0005-12 | the curb sound is a filtered noise burst unlike the engine (triangle) and the reward (sine), built only with the sound on | descritores com a mesma `source`, zebra não `noise`, nó criado sem contexto, motor com ≠ 1 oscilador ou de outro tipo, `curb()` criando algo diferente de fonte de buffer + filtro `lowpass` em 160 Hz + ganho, recompensa com fonte de buffer ou filtro ou osciladores de outro tipo, `curb()` com som desligado criando nó, buffer de ruído com outro tamanho |
 | CHK-TEST-0008-08 | AC-US-0005-09, AC-US-0005-07 | the application plays the curb sound and vibrates only from the per-step decision inside the step loop | `audio.curb(` ou `navigator.vibrate(` em mais de um lugar ou sem a guarda `feedback.sound`/`feedback.pulse`, contato lido de outro estado, decisão fora do laço após `stepLap`, canal/vibração/som passados com outros nomes, `vibrationAvailable` presumido, estado do retorno não zerado por sessão e por volta |
+
+AC-US-0007-18 e -19 (vibração e som da zebra com o relevo desenhado) são decididos pelas verificações -01 a -08 deste registro, sem mudança: o retorno lê só `curbWheelCount` de `getTrackContact`, que o desenho não altera (a física não importa `src/trackScene.ts`, TEST-0011 verificação -01; a trajetória sobre a zebra é a de antes, TEST-0006 verificação -05).

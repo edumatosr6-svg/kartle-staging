@@ -2,8 +2,8 @@
 title: Changelog do estágio de testes
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 ---
 
 # 97 — Changelog
@@ -322,3 +322,111 @@ cada vez; a cópia foi descartada. Linha de base: 103 verificações, 0 reprovad
 | S4 — `index.html`: `#lap-result-credit` volta | 1: CHK-TEST-0009-04 |
 | S5 — `src/trainingSession.ts`: a entrada `synthetic` passa a ter crédito OSM | 3: CHK-TEST-0007-11, CHK-TEST-0009-04, -11 |
 | S6 — `src/lap.ts`: todo resultado nomeia a Kart Park como pista | 1: CHK-TEST-0009-11 |
+
+## 2026-11-03 — rodada 5, Modo A sobre a revisão 2 do seed (acabamento visual, US-0007, NFR-0013, NFR-0014)
+
+### Entrada
+
+- Critérios validados: US-0007 (AC-US-0007-01 a -21), NFR-0013 e NFR-0014 (`req-validation-20261103-1900`); estratégia
+  `test-strategy.md` 1.3.0 e DES-0008 2.1.0 (`dspec-validation-20261103-1946`); código da revisão 2 em `fbfb073`
+  (`code-validation-20261103-2004` SUCCESS), que muda só `src/trackScene.ts` e uma linha de `src/main.ts`
+  (`git diff f926815 fbfb073 --stat -- src`: 2 arquivos; nenhum módulo da simulação).
+- Antes da rodada, a suíte da feature tinha 103 verificações, 101 aprovadas: CHK-TEST-0010-03 e -05 reprovavam contra o desenho
+  da revisão 2 (afirmavam uma caixa por segmento e quatro filhos na cena).
+
+### Atrito de verificações
+
+Antes: 103 ids nas 12 suítes. Depois: 126. Retiradas 0; modificadas 2 (CHK-TEST-0010-03, -05); adicionadas 23.
+
+### Migração
+
+| Id | O que mudou | Por que o critério continua coberto |
+|---|---|---|
+| CHK-TEST-0010-03 | de "uma instância por segmento, no ponto médio, escala z = comprimento, 0,2 m de espessura" para "uma `InstancedMesh` de pilhas de pneus, com uma pilha centrada (1e-4 m) em cada vértice de cada poligonal de `barriers`, vãos de no máximo `TYRE_SPACING_M` entre centros seguidos em cada segmento, nenhuma pilha fora da poligonal", como a linha AC-US-0004-06 da estratégia 1.3.0 ("verificação migrada na rodada de 2026-11-03"). Ficam a barreira total > 50 m e a sombra projetada; passa a decidir também AC-US-0007-09 (pneus em toda a extensão) | AC-US-0004-06 continua "a barreira desenhada em todo o seu comprimento": cobrir cada vértice e não deixar vão maior que 0,12 m em nenhum segmento é cobrir a poligonal do primeiro ao último ponto; o desenho de antes (caixas nos pontos médios) reprova (R1b) |
+| CHK-TEST-0010-05 | a lista dos filhos da cena passa de 4 (`asphalt`, `curbs`, `barriers`, `start-line`) aos 6 de DES-0008 2.1.0 (`grass`, `asphalt`, `edge-lines`, `curbs`, `barriers`, `start-line`) e afirma `buildTrackScene.length` 1 (REQ-FEAT-0008-24) | AC-US-0002-08: a escala e os cantos do minimapa não mudam; a lista de partes do desenho segue o projeto vigente |
+
+### Adicionadas
+
+| Arquivo | Ids | Critérios |
+|---|---|---|
+| `scene` (TEST-0010) | CHK-TEST-0010-06 a -16 | AC-US-0007-01, -02, -05, -06, -09, -10, -11, -12, -13, -14, -20 |
+| `surface` (TEST-0003) | CHK-TEST-0003-06 a -09 | AC-US-0007-03, -04, -15, -21 |
+| `lap` (TEST-0005) | CHK-TEST-0005-13 | AC-US-0007-17 |
+| `determinism` (TEST-0006) | CHK-TEST-0006-05 a -07 | AC-US-0007-07, NFR-0013 |
+| `screens` (TEST-0009) | CHK-TEST-0009-12 | AC-US-0007-16 |
+| `layering` (TEST-0011) | CHK-TEST-0011-08, -09 | AC-US-0007-14, NFR-0004 (REQ-FEAT-0008-22 a -24) |
+| `publication` (TEST-0012) | CHK-TEST-0012-07 | NFR-0014 (REQ-FEAT-0008-28, -29) |
+
+AC-US-0007-08, -18 e -19 ("a verificação de ... sem mudança") e a metade de simulação de AC-US-0007-11 são decididos pelas
+verificações existentes, sem alteração: CHK-TEST-0003-01 a -03, CHK-TEST-0008-01 a -08 e CHK-TEST-0004-02 a -05; os registros
+TEST-0003, -0004 e -0008 passam a citá-los nas fontes.
+
+### Fixture `tests/fixtures/kartParkRev1Trace.json`
+
+Dados apenas (JSON, 1,3 MB; nenhum código). Gravado uma vez com a simulação de `f926815c2177ebf5b315a5e17cfb9e2f044acf5a`, o
+commit anterior ao código da revisão 2: `git worktree add --detach <rascunho>/wt-f926815 f926815`, `node_modules` por junção, e um
+programa de gravação no diretório de rascunho que importa `src/` e `tests/helpers/` **da árvore desse commit**; a árvore foi
+retirada depois (`git worktree remove`). O mesmo programa rodado sobre `fbfb073` deu um arquivo byte a byte igual (`cmp`), o que
+confirma o `git diff --stat` acima: nenhum arquivo da simulação difere. O campo `recordedFromCommit` guarda o hash e
+CHK-TEST-0006-05 o afirma. Sequências (DES-0006): `pilot-valid-lap` (6.675 passos, volta `VALID`, 55.622 ms, setores 19.443 /
+11.716 / 11.460 / 13.003 ms), `pilot-edge-curb-barrier` (4.626 passos: rodas da esquerda sobre a faixa de borda entre 15 e 55 m,
+o centro do kart sobre a primeira zebra de mais de 15 m depois de 60 m, atalho pela grama de 385 m para 600 m até a barreira, 360
+passos depois do primeiro `barrierContact`) e `seeded-2000` (as entradas de `Seeded(20261027)` de CHK-TEST-0006-04). Cada
+sequência guarda as entradas e, por passo, `x`, `z`, rumo e velocidade; as verificações reproduzem as entradas gravadas (não o
+piloto), de modo que uma mudança do piloto não altera a comparação.
+
+### Execução
+
+`npx tsx --test` com os repórteres `junit` (`reports/junit-latest.xml`) e `spec` (`reports/npm-test-latest.log`) sobre
+`tests/*.test.ts`, em `fbfb073` com as suítes desta rodada: **467 coletadas, 467 aprovadas**, 0 reprovadas, 0 puladas, ~46 s
+(444 de antes + 23 novas). As 12 suítes desta feature: 126 verificações; `scene` ~0,9 s (a face dos pneus 0,22 s), `determinism`
+~8 s (três reproduções do traço e as duas voltas de antes), `lap` com a volta a 2 m/s na faixa de borda.
+
+### Prova de que as verificações novas e mudadas podem falhar
+
+Cópia de `src/`, `scripts/`, `tests/`, `tracks/`, `docs/`, `index.html`, `package.json` e `tsconfig.json` no diretório de rascunho
+da sessão (`node_modules` por junção), as 12 suítes da feature, uma mutação de cada vez; a cópia foi descartada. Linha de base na
+cópia: 126 verificações, 0 reprovadas.
+
+| Mutação | Verificações que reprovaram (126 executadas) |
+|---|---|
+| R1b — `src/trackScene.ts` e `src/main.ts` de `f926815` (o desenho da revisão 1), com as constantes e `grassToneAt` da revisão 2 acrescentados para o módulo carregar | 13: CHK-TEST-0009-12, CHK-TEST-0010-03, -05, -06, -07, -09, -10, -11, -12, -14, -15, -16, CHK-TEST-0011-08 |
+| R1 — o mesmo sem as exportações acrescentadas | as suítes `scene`, `surface`, `lap` e `determinism` não carregam (exportação ausente); CHK-TEST-0009-12, CHK-TEST-0011-08 |
+| D1 — `EDGE_LINE_WIDTH_M` 0,10 → 0,11 | 1: CHK-TEST-0010-07 |
+| D2 — vértice interno na bissetriz sem o fator 1/cos(θ/2) | 1: CHK-TEST-0010-07 |
+| D3 — a faixa de borda sem o segmento de fechamento | 1: CHK-TEST-0010-06 |
+| D4 — o lado do asfalto da zebra também erguido | 1: CHK-TEST-0010-08 |
+| D5 — `CURB_RELIEF_M` 0,04 → 0,06 | 1: CHK-TEST-0010-09 |
+| D6 — pneus `#1b1b1b`/`#3a3a3a` | 1: CHK-TEST-0010-10 |
+| D7 — `TYRES_PER_STACK` 5 → 4 | 1: CHK-TEST-0010-11 |
+| D8 — `TYRE_RADIUS_M` 0,16 | 1: CHK-TEST-0010-12 |
+| D9 — sem pilha nos vértices, espaçamento 0,18 m | 2: CHK-TEST-0010-03, -12 |
+| D10 — `TYRE_RADIUS_M` 0,06 | 1: CHK-TEST-0010-12 |
+| D11 — pilhas deslocadas 0,5 m em x | 2: CHK-TEST-0010-03, -12 |
+| D19 — pilhas deslocadas 1,5 m em x | 3: CHK-TEST-0010-03, -12, -13 |
+| D12 — `GRASS_TONES` com `#68865b` | 1: CHK-TEST-0010-16 |
+| D13 — `GRASS_TONES` com `#7f7f7f` | 2: CHK-TEST-0010-14, -16 |
+| D14 — cada faixa de grama no tom da faixa seguinte | 1: CHK-TEST-0010-15 |
+| D15 — tom da faixa com `Date.now()` | 1: CHK-TEST-0011-08 |
+| D16 — `new THREE.TextureLoader()` em `src/trackScene.ts` | 1: CHK-TEST-0011-09 |
+| D17 — `src/main.ts`: `ground.visible = !ready` | 1: CHK-TEST-0009-12 |
+| D18 — `src/main.ts`: `ground` em `#6e8f60` | 1: CHK-TEST-0009-12 |
+| S1 — `src/physics.ts`: `CURB_GRIP_PC` 0,85 → 0,86 | 6: CHK-TEST-0003-01, -02, -03, CHK-TEST-0006-05, -06, -07 |
+| S2 — `src/trackGeometry.ts`: `BARRIER_HALF_WIDTH_M` 0,1 → 0,12 | 2: CHK-TEST-0004-04, CHK-TEST-0006-05 |
+| S3 — `trackEnvironment`: o asfalto a até 0,1 m da borda (a faixa) lido como grama | 4: CHK-TEST-0003-06, CHK-TEST-0006-05, -06, -07 |
+| S4 — `trackEnvironment`: uma faixa de 5 m de grama em duas lida como zebra | 6: CHK-TEST-0003-08, -09, CHK-TEST-0004-02, CHK-TEST-0006-05, -06, -07 |
+| S5 — `surfaceMu`: atrito do asfalto × 1,0001 | 4: CHK-TEST-0003-01, -02, CHK-TEST-0006-05, -06 |
+| S6 — o passo ignora a barreira | 4: CHK-TEST-0004-02, -03, -04, CHK-TEST-0006-05 |
+| S7 — `trackEdgeDistanceM`: centro a até `trackWidth/2` + 0,1 m da borda contado 3,5 m além dela | 4: CHK-TEST-0003-03, -07, CHK-TEST-0005-07, -13 |
+| F1 — `src/tracks/kart-park-v1.json` com um byte a mais | 5: CHK-TEST-0001-16, CHK-TEST-0012-01, -03, -05, -07 |
+
+Cada verificação nova ou mudada reprova em pelo menos uma mutação. CHK-TEST-0010-08 (lado do asfalto a 0 m) e -13 (pneus na
+grama) passam no desenho da revisão 1, onde o critério também valia (zebra plana; caixas na grama), e reprovam em D4 e D19.
+Durante a escrita, três verificações foram corrigidas na própria fixture, não no código: CHK-TEST-0003-06/-07 (karts escolhidos
+onde as duas rodas do lado cabem na faixa de 0,10 m sob a distância entre eixos, ao menos 20), CHK-TEST-0005-13 (piloto a 2 m/s,
+`98-divergences.md`) e CHK-TEST-0011-09 (os carregadores de `three` são `THREE.<nome>`: a busca por palavra com o prefixo excluído
+não via D16; passou a procurar `Loader` em qualquer posição).
+
+### Itens declinados
+
+Nenhum relatório de validação de testes pendente para esta rodada; nada declinado.

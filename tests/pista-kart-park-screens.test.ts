@@ -140,3 +140,20 @@ test('CHK-TEST-0009-11 the result of a training lap on the synthetic track takes
   assert.equal(creditOfResult('synthetic'), undefined, 'AC-US-0006-04: a synthetic-track result shows no credit');
   assert.equal(creditOfResult('kart-park'), OSM_CREDIT, 'AC-US-0006-04: an invalid Kart Park result shows the OSM credit');
 });
+
+test('CHK-TEST-0009-12 the synthetic track keeps the image of before revision 2: the same ground colour, shown whenever no schema-3 drawing is, and no finish drawn for it', () => {
+  // AC-US-0007-16
+  assert.ok(/const ground = new THREE\.Mesh\(new THREE\.PlaneGeometry\(2000, 2000\), material\('#68865b'\)\);/.test(main), 'AC-US-0007-16: the ground plane keeps the 2000 m plane and the colour #68865b');
+  const visibility = [...main.matchAll(/ground\.visible\s*=\s*([^;]+);/g)].map(m => m[1].trim());
+  assert.deepEqual(visibility, ['!(ready && trackGeometry)'], 'AC-US-0007-16: the ground is hidden only while the drawing of a schema-3 track is visible');
+  const calls = [...main.matchAll(/buildTrackScene\(([^)]*)\)/g)].map(m => m[1].trim());
+  assert.deepEqual(calls, ['trackGeometry'], 'AC-US-0007-16: the finish is built only from the track geometry');
+  const body = functionBody('chooseTrack');
+  assert.ok(/trackGeometry = training\.environment\?\.track;/.test(body) && body.indexOf('if (ready && trackGeometry)') >= 0 && body.indexOf('if (ready && trackGeometry)') < body.indexOf('buildTrackScene('), 'AC-US-0007-16: the finish is built only inside the branch of a READY track with a file geometry');
+  // The synthetic session has no file geometry, the Kart Park session has one: the finish can only be drawn for the Kart Park.
+  const sources = { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE };
+  const synth = selectTrainingTrack(initialTrainingSession(), undefined, 'synthetic', sources);
+  const park = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', sources);
+  assert.ok(synth.ok && synth.session.sessionState === 'READY' && synth.session.environment?.track === undefined, 'AC-US-0007-16: the synthetic session has no file geometry to draw a finish from');
+  assert.ok(park.ok && park.session.environment?.track !== undefined, 'AC-US-0007-16: the Kart Park session has one (the comparison can fail)');
+});

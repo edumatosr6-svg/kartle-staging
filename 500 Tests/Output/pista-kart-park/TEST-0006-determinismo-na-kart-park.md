@@ -3,9 +3,9 @@ id: TEST-0006
 title: Determinismo na Kart Park — mesma sequência de entradas, mesmo tempo, mesmos setores e mesmo estado; reprodução pela sessão de treino
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.1.0
-sources: [NFR-0003]
+status: draft
+version: 1.2.0
+sources: [NFR-0003, NFR-0013, AC-US-0007-07]
 ---
 
 # TEST-0006 — Determinismo na Kart Park
@@ -25,3 +25,8 @@ sources: [NFR-0003]
 | CHK-TEST-0006-02 | NFR-0003 | the whole session, kart included, is deepEqual after the two laps | qualquer campo de `LapSession` (fase, contadores, `kart` inteiro com telemetria e manobras, resultado) diferente entre as duas execuções; vistas de estado diferentes |
 | CHK-TEST-0006-03 | NFR-0003 | replaying the recorded inputs step by step, without the pilot, reproduces the same lap; one input changed does not | reprodução pela sessão de treino fechando a volta noutro passo, com `listLapResults`, `lapMs`, `sectorMs` ou kart na chegada diferentes dos do piloto (mutação M7: a sessão pilota outra massa); reprodução com o passo 600 alterado dando o mesmo kart (a comparação não poderia falhar) |
 | CHK-TEST-0006-04 | NFR-0003 | a seeded 2000-step input sequence from the Kart Park start gives deepEqual states in two runs | estado de algum dos 2 000 passos diferente entre as duas execuções (relógio, sorteio ou ordem de segmentos variável), execução que nunca sai do asfalto |
+| CHK-TEST-0006-05 | AC-US-0007-07, NFR-0013 | every sequence of the revision-1 trace gives, step by step, the same kart position, heading and speed as before revision 2 | `recordedFromCommit` ≠ `f926815…`, sequências diferentes das três de DES-0006, sequência com menos de 2.000 passos ou estados ≠ entradas, algum passo das entradas gravadas, reproduzidas com o código atual, com `x`, `z`, rumo ou velocidade diferente do gravado (igualdade exata: o JSON guarda cada `double`) (S1 zebra 0,86, S2 barreira 0,12 m, S3 faixa de borda como grama, S5 atrito do asfalto × 1,0001, S6 barreira ignorada) |
+| CHK-TEST-0006-06 | NFR-0013 | the lap of the revision-1 trace gives the same total time to the millisecond and the same 4 sector times as before revision 2 | a volta reproduzida sem exatamente um resultado, não `VALID`, com `lapMs` ou algum dos 4 `sectorMs` diferente do gravado (S5); a sequência com deslocamento completando outro número de voltas |
+| CHK-TEST-0006-07 | NFR-0013, AC-US-0007-07 | the offset sequence of the trace crosses the edge line, rides a curb and hits the barrier, so the comparison covers the three | nenhum passo reproduzido com roda no asfalto a até `EDGE_LINE_WIDTH_M` da borda, nenhum com `curbWheelCount` > 0, nenhum com `barrierContact` (S1, S3, S4: a trajetória reproduzida já não chega à zebra e à barreira como a gravada) |
+
+Traço `tests/fixtures/kartParkRev1Trace.json` (dados apenas, 1,3 MB): gravado uma vez em 2026-11-03 com a simulação de `f926815` (commit anterior ao código da revisão 2), num `git worktree` desse commit no diretório de rascunho da sessão; nunca regenerado a partir do código novo. Três sequências, cada uma com as entradas (`throttle`, `brake`, `steer`) e o estado do kart (`x`, `z`, rumo, velocidade) por passo, e `lapMs`/`sectorMs` de cada volta concluída: `pilot-valid-lap` (6.675 passos, volta `VALID` de 55.622 ms), `pilot-edge-curb-barrier` (4.626 passos: rodas da esquerda na faixa de borda entre 15 e 55 m, centro sobre a zebra direita seguinte, atalho pela grama de 385 m para 600 m até a barreira, 360 passos depois do primeiro contato) e `seeded-2000` (a sequência da verificação -04). As voltas começam em `runCountdown(startKartParkLap())`; a semeada em `kartAtLapM(0)`.

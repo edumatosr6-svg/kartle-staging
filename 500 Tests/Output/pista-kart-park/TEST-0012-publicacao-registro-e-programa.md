@@ -3,9 +3,9 @@ id: TEST-0012
 title: Publicação — trackVersion 1, resumo e tamanho no registro, reprodução byte a byte pelo preparo, recusas do programa numa cópia temporária (promoção sem decisão Esri, regeneração, argumentos)
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.0.0
-sources: [NFR-0006, NFR-0012, NFR-0001, AC-US-0002-06]
+status: draft
+version: 1.1.0
+sources: [NFR-0006, NFR-0012, NFR-0001, AC-US-0002-06, NFR-0014]
 ---
 
 # TEST-0012 — Publicação, registro e programa
@@ -27,3 +27,4 @@ sources: [NFR-0006, NFR-0012, NFR-0001, AC-US-0002-06]
 | CHK-TEST-0012-04 | NFR-0012 | no production entry exists without a recorded Esri decision, and the program refuses to promote without one | entrada `PRODUCTION` sem `esriDecisionRef` ou `promotedAtUtc`, `promote` sem `--esri-decision` saindo 0 ou sem "argumento inválido: --esri-decision" ou alterando o registro, decisão vazia aceita, promoção com decisão recusada ou sem gravar `PRODUCTION`/referência/instante ou alterando o resumo, segunda promoção não idempotente, registro do repositório fora de `STAGING` |
 | CHK-TEST-0012-05 | NFR-0006 | the program verifies the published version, refuses to regenerate it, treats a second publish as already registered, and validates its arguments before touching a file | `verify` saindo ≠ 0, sem 18 `PASS` ou sem `VERIFIED`; `prepare kart-park 1` aceito ou alterando o arquivo; `publish` repetido recusado ou sem "já registrado"; `trackVersion` `01`, `trackId` `synthetic`, `--esri-decision` fora de `promote` ou comando desconhecido aceitos ou com outra mensagem; `prepare kart-park 2` recusado, não escrevendo `kart-park-v2.json` ou tocando a versão 1 |
 | CHK-TEST-0012-06 | NFR-0001 | the published size is below the 200 000 byte limit the registry and the program apply | `fileBytes` ou o tamanho medido ≥ `MAX_FILE_BYTES`, `publish` sem a recusa no limite |
+| CHK-TEST-0012-07 | NFR-0014 | after revision 2 the published Kart Park file is byte for byte the version-1 publication: the recorded digest, trackVersion 1, the only Kart Park entry | entrada `kart-park` além da versão 1, `sha256` do registro ≠ o literal `04ce5e51…57b1` escrito no teste, SHA-256 dos bytes publicados ≠ esse literal (F1: um byte acrescentado), `trackVersion` ≠ 1 no arquivo |

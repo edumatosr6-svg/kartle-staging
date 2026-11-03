@@ -3,9 +3,9 @@ id: TEST-0011
 title: Camadas e invariantes — simulação sem renderizador, DOM, relógio, sorteio, rede ou armazenamento; regra de tela fora da sessão; contrato de passo; pista sintética dos ensaios; dependências
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.0.1
-sources: [NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009, NFR-0010]
+status: draft
+version: 1.1.0
+sources: [NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009, NFR-0010, AC-US-0007-14]
 ---
 
 # TEST-0011 — Camadas e invariantes
@@ -28,3 +28,5 @@ sources: [NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009, NFR-0010]
 | CHK-TEST-0011-05 | NFR-0009 | the synthetic track stays the track of the other features: none of their tests or benches names the Kart Park, and the test-pilot lap still passes on it | `'kart-park'`, `kartPark`, `trainingSession`, `trackEnvironment`, `kart-park-v1` ou `tracks/kart-park` no código (sem comentários) de algum teste de `race-lap-validation`, `dirigibilidade`, `modelo-kart-01`, `physics`, `maneuvers`, dos benches ou dos helpers/fixtures existentes; `TEST_PILOT_LAP` fora da `SYNTHETIC_TRACK`, `FAIL` ou com passo fora do asfalto |
 | CHK-TEST-0011-06 | NFR-0010 | the feature adds no runtime dependency: three stays the only one and the dev dependencies are unchanged | `dependencies` ≠ {`three`}, `devDependencies` ≠ {`@types/three`, `tsx`, `typescript`, `vite`}, módulo da feature importando pacote fora de `.`, `three`, `node:`; script `track` diferente |
 | CHK-TEST-0011-07 | NFR-0007 | no check of this feature needs the renderer: the suites import three only to build geometry in Node, and the scene module creates no renderer | suíte desta feature fora de `scene` importando `three`, `new THREE.WebGLRenderer`, `requestAnimationFrame(` ou `document.getElementById/createElement/body` numa suíte ou em `trackScene.ts`, `document`/`window` em `trackScene.ts` |
+| CHK-TEST-0011-08 | AC-US-0007-14 | the drawing of the Kart Park reads no clock, random source, window, screen or device: the grass tone is a function of the position only | `Math.random`, `Date` (D15), `performance`, `window`, `navigator`, `innerWidth`, `devicePixelRatio` ou `matchMedia` em `src/trackScene.ts`; importação além de `three`, `./track` e `./trackGeometry` |
+| CHK-TEST-0011-09 | NFR-0004, AC-US-0007-14 | the finish of the drawing loads no image or texture from the network and reads no address, storage or configuration | `TextureLoader` (D16), `ImageLoader`, `Loader`, `fetch`, `XMLHttpRequest`, `location`, `localStorage`, `sessionStorage`, `URLSearchParams`, `new Image`, um endereço `http(s):` ou `import.meta.env` em `src/trackScene.ts` (REQ-FEAT-0008-23, -24) |

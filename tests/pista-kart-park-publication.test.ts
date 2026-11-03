@@ -159,3 +159,15 @@ test('CHK-TEST-0012-06 the published size is below the 200 000 byte limit the re
   assert.ok(Buffer.byteLength(kartParkText()) < 200_000, 'NFR-0001: measured below 200 000 bytes');
   assert.match(readFileSync(PROGRAM, 'utf8'), /if \(fileBytes >= MAX_FILE_BYTES\) return fail/, 'NFR-0001: publish refuses a file at the limit');
 });
+
+test('CHK-TEST-0012-07 after revision 2 the published Kart Park file is byte for byte the version-1 publication: the recorded digest, trackVersion 1, the only Kart Park entry', () => {
+  // NFR-0014
+  // The digest recorded at the publication of version 1 (tracks/registry.json, 2026-10-27), written here literally so that a
+  // regenerated registry cannot carry a changed file with it.
+  const PUBLISHED_V1_SHA256 = '04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1';
+  const kartParkEntries = registry.entries.filter(e => e.trackId === 'kart-park');
+  assert.deepEqual(kartParkEntries.map(e => e.trackVersion), [1], 'NFR-0014: the only Kart Park entry of the registry is trackVersion 1');
+  assert.equal(kartParkEntries[0].sha256, PUBLISHED_V1_SHA256, 'NFR-0014: the registry keeps the digest of the version-1 publication');
+  assert.equal(sha256(readFileSync(PUBLISHED_PATH)), PUBLISHED_V1_SHA256, 'NFR-0014: the published file must be byte for byte the version-1 publication (0 bytes changed)');
+  assert.equal((JSON.parse(readFileSync(PUBLISHED_PATH, 'utf8')) as { trackVersion: number }).trackVersion, 1, 'NFR-0014: the published file keeps trackVersion 1');
+});

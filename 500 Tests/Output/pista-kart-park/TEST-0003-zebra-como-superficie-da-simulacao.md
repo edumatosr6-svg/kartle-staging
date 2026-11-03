@@ -3,9 +3,9 @@ id: TEST-0003
 title: Zebra como superfície da simulação — 85 % de aderência por pneu, rodas na zebra sem saída de pista e o contato de API-0003
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.0.1
-sources: [AC-US-0005-04, AC-US-0005-06]
+status: draft
+version: 1.1.0
+sources: [AC-US-0005-04, AC-US-0005-06, AC-US-0007-03, AC-US-0007-04, AC-US-0007-08, AC-US-0007-15, AC-US-0007-21]
 ---
 
 # TEST-0003 — Zebra como superfície da simulação
@@ -26,3 +26,9 @@ sources: [AC-US-0005-04, AC-US-0005-06]
 | CHK-TEST-0003-03 | AC-US-0005-04, AC-US-0005-06 | a kart with the wheels of one side on the curb and the others on the asphalt reads CURB on those wheels, grip 0.85 there, and edge distance 0 | `wheelSurfaces` sem `CURB` nas rodas do lado da zebra ou sem `ASPHALT` nas outras, `curbWheelCount` ≠ 2, `wheelGripPc` ≠ 0,85/1, `beyondTrackEdgeM` ≠ 0 (mutação C/I), `barrierContact` verdadeiro, roda na grama ou centro fora da pista em 30 passos |
 | CHK-TEST-0003-04 | AC-US-0005-04, AC-US-0005-06 | the contact reading has exactly the fields of API-0003, NO_STATE without a state, and never CURB nor barrier contact on the synthetic track | campo a mais ou a menos nos seis do contrato, `NO_STATE` ausente, listas de outro comprimento, `CURB` ou `barrierContact` na pista sintética em 300 passos semeados, aderência da grama diferente de `grassFriction/friction` |
 | CHK-TEST-0003-05 | AC-US-0005-04 | the wheel surfaces of the reading are the surfaces at the four wheel positions of the state, front-left first | `wheelSurfaces` diferente da classificação nas quatro posições de `wheelPositions` na ordem DE, DD, TE, TD; kart longe da pista com roda não `GRASS` ou `beyondTrackEdgeM` ≤ 10 m |
+| CHK-TEST-0003-06 | AC-US-0007-03 | the wheels on the drawn edge line, inside the asphalt edge, read ASPHALT with grip 1, as on the asphalt | roda do lado sobre a faixa de borda (posição calculada no teste por `wheelPositions` e o rumo; mantidos os karts, a cada 11 m e dos dois lados, com as duas rodas do lado no asfalto a no máximo `EDGE_LINE_WIDTH_M` da borda, ao menos 20) lida diferente de `ASPHALT` ou com `wheelGripPc` ≠ 1 (S3: a faixa de 0,1 m junto à borda é outra superfície) |
+| CHK-TEST-0003-07 | AC-US-0007-04 | a kart with wheels on the edge line and none beyond the asphalt edge is not off the track | os mesmos karts com `beyondTrackEdgeM` ≠ 0, ou com roda fora do asfalto (pré-condição) (S7: centro a até `trackWidth/2` + 0,1 m da borda contado 3,5 m além dela) |
+| CHK-TEST-0003-08 | AC-US-0007-15 | a wheel on either grass tone has the grass grip, the same for every tone | 4 karts fora da pista, centrados numa divisa de faixas de 5 m (rodas nos dois tons de `grassToneAt`), com alguma `wheelGripPc` ≠ `grassFriction/friction` (S4: um dos tons lido como zebra) |
+| CHK-TEST-0003-09 | AC-US-0007-21 | a wheel on either grass tone reads GRASS, the same for every tone | os mesmos karts com alguma roda ≠ `GRASS` (S4) |
+
+AC-US-0007-08 (aderência na zebra com o relevo desenhado) é decidido pelas verificações -01 a -03 deste registro, sem mudança: o relevo só existe na cena (TEST-0010, verificação -09) e a física não importa `src/trackScene.ts` (TEST-0011, verificação -01); S1 (`CURB_GRIP_PC` 0,86) reprova as três.
