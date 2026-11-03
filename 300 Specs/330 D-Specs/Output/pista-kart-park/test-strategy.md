@@ -2,8 +2,8 @@
 title: Estratégia de testes — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: []
 ---
 
@@ -53,6 +53,8 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | `tests/helpers/seeded.ts` (existente) | gerador congruencial de semente fixa | sequências de `Input` repetíveis, nunca `Math.random` |
 | fontes da sessão | `{'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE}` e a variante com o texto da Kart Park corrompido | sessão `READY` nas duas pistas; sessão `FAILED` |
 | sequência de contato | os pares (`simStepCount`, `curbWheelCount`) lidos por `getTrackContact` a cada passo de uma volta do piloto que passa por zebras, calculados no próprio teste | registro de pulsos e de repetições pedidos por passo |
+| `tests/fixtures/kartParkRev1Trace.json` | traço registrado uma vez pela etapa de testes com a simulação do commit anterior ao código da revisão 2 do seed (hash no arquivo), nunca regenerado pelo código novo: por passo, `x`, `z`, rumo e velocidade do kart; por volta, `lapMs` e os 4 `sectorMs`; das sequências de [DES-0006](core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md) (volta `VALID` do piloto, volta com deslocamento sobre a faixa de borda, a zebra e contra a barreira, sequência semeada) | a comparação antes e depois da revisão 2 (NFR-0013) sem guardar código antigo no repositório |
+| luminância WCAG 2 no teste | função do próprio teste: canais sRGB do hexadecimal, linearizados (`c/12,92` até 0,04045, senão `((c+0,055)/1,055)^2,4`), `L = 0,2126 R + 0,7152 G + 0,0722 B` | a faixa de luminância dos tons de grama sem confiar na constante do módulo |
 | `AudioContext` de substituição | classe do teste instalada em `globalThis.AudioContext` antes de `RaceAudio.toggle()`, que registra cada nó criado (oscilador com o seu `type`, fonte de buffer, filtro com `type` e `frequency`) e aceita `resume`, as ligações e as rampas de ganho sem produzir som; `src/audio.ts` não muda para o teste | o sinal que o motor, a recompensa e a zebra constroem, em Node |
 
 ## Funcionalidade por nível
@@ -65,7 +67,8 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | FEAT-0004 barreira | sim | sim | sim | sim | E2E-03 | E2E-05 | posição no arquivo, colisão na física; aparência na tela |
 | FEAT-0005 zebra | sim | sim | sim | sim | E2E-03, E2E-04 | E2E-05, E2E-06 | superfície e aderência na física, decisão do retorno pura; som e vibração só no aparelho |
 | FEAT-0006 crédito, nome e comprimento | sim | — | sim | sim | E2E-01, E2E-03, E2E-07, E2E-08 | E2E-05 | indicação de crédito, nome e comprimento no catálogo; textos, destino e rótulo em `src/lapMessages.ts`; exibição nas duas telas e sem rede no navegador |
-| FEAT-0007 transversais | sim | sim | — | sim | E2E-03, E2E-07 | E2E-05 | determinismo, camadas, dependências e contrato de passo em `npm test`; taxa de quadros e rede só no aparelho |
+| FEAT-0007 transversais | sim | sim | — | sim | E2E-03, E2E-07 | E2E-05 | determinismo, camadas, dependências e contrato de passo em `npm test`; taxa de quadros (com o acabamento) e rede só no aparelho |
+| FEAT-0008 acabamento visual | sim | sim | — | sim | E2E-03, E2E-04, E2E-07, E2E-09 | E2E-05 | as medidas do acabamento são da cena construída em Node (metros do mundo do jogo, sem tela); superfície, aderência, corte e o traço antes e depois da revisão 2 na simulação; o arquivo intacto no registro; a aparência, os dois canais, a rede e a imagem da sintética só no navegador e no aparelho |
 
 ## Como cada critério é alcançado
 
@@ -102,7 +105,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0004-03 | `track-file`: V15 |
 | AC-US-0004-04 | `barrier`: `seededKart` lançado contra a barreira dos dois lados, a 5, 10, 20, 30, 34,5, 60 e 200 m/s e a 90 e 30 graus, nunca termina um passo do outro lado |
 | AC-US-0004-05 | `barrier`: nos dois ambientes de grama, mesma velocidade, ângulo e `Input`, posição e velocidade no referencial local iguais a cada passo desde o passo com `barrierContact` e com `wallContact`; `barrierContact` verdadeiro só nesse passo |
-| AC-US-0004-06 | `scene`: uma instância por segmento, somando o comprimento de cada barreira; E2E-03 |
+| AC-US-0004-06 | `scene`: as pilhas de pneus cobrem cada poligonal de `barriers` do primeiro ao último ponto, com centros seguidos a no máximo `TYRE_SPACING_M` ao longo dela (verificação migrada na rodada de 2026-11-03: antes, uma caixa por segmento); E2E-03 |
 | AC-US-0005-01 | `track-file`: V12 (34 trechos) |
 | AC-US-0005-02 | `track-file`: V12 (lado e trecho por índice fracionário; a zebra da largada dividida) |
 | AC-US-0005-03 | `scene`: cada faixa no lado e no trecho declarados; E2E-03 |
@@ -125,11 +128,33 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0006-08 | `session`: `displayLengthM` da entrada `kart-park` é 687, independente do comprimento suavizado; `screens`: `optionLabel` dessa entrada termina em `687 m`; E2E-01 |
 | AC-US-0006-09 | `track-file`: V18; `session`: nenhum campo de recorde no catálogo; `screens`: nenhum "41,45" nem "41.45" em `index.html`, `src/main.ts`, `src/lapMessages.ts` e `src/trainingSession.ts` |
 
+| AC-US-0007-01 | `scene`: `edge-lines` tem duas tiras fechadas de 684 segmentos, uma por borda, com o vértice externo `i` igual a `leftEdge[i]` e a `rightEdge[i]`, sem segmento faltando junto a uma zebra ou no ponto 0; o centro de cada quadrilátero da tira é `asphalt` por `classifySurface`; no ponto 0, a linha de largada deixa ao menos `EDGE_LINE_WIDTH_M` de cada borda; E2E-03 (a faixa contínua junto às zebras e na largada) |
+| AC-US-0007-02 | `scene`: em cada segmento das duas tiras, os dois vértices internos ficam a 0,10 m da reta do segmento de borda correspondente, com tolerância de 1e-6 m; E2E-03 |
+| AC-US-0007-03 | `surface`: `seededKart` com as rodas de um lado a até `EDGE_LINE_WIDTH_M` da borda do asfalto e dentro dele (posições das rodas calculadas no teste por `wheelPositions` e o rumo do estado): `getTrackContact` dá `ASPHALT` e `wheelGripPc` 1 nessas rodas |
+| AC-US-0007-04 | `surface`: o mesmo estado dá `beyondTrackEdgeM` 0 |
+| AC-US-0007-05 | `scene`: os vértices de `curbs` do lado do asfalto ficam a `y` `CURB_Y`, isto é, relevo 0 m, em todos os trechos |
+| AC-US-0007-06 | `scene`: os vértices de fora ficam a `CURB_Y + CURB_RELIEF_M`, com `CURB_RELIEF_M` maior que 0 e no máximo 0,05; E2E-03 (o relevo visto de perto) |
+| AC-US-0007-07 | `determinism`: a sequência do traço que passa sobre a zebra dá, passo a passo, `x`, `z`, rumo e velocidade iguais aos de `kartParkRev1Trace.json` |
+| AC-US-0007-08 | `surface`: a verificação de AC-US-0005-06 sem mudança (`wheelGripPc` 0,85 em `CURB`), com o relevo desenhado na mesma árvore |
+| AC-US-0007-09 | `scene`: `barriers` é uma `InstancedMesh` de pilhas de pneus em toda a extensão (ver AC-US-0004-06), com cor de vértice preta (cada canal sRGB de no máximo 0,17); E2E-03 |
+| AC-US-0007-10 | `scene`: a caixa da geometria da pilha vai de `y` 0 a 0,9 m, com `TYRES_PER_STACK` pneus de `TYRE_HEIGHT_M` |
+| AC-US-0007-11 | `scene`: a cada 0,02 m de cada poligonal, de cada lado, ao longo da normal local, o afastamento da envoltória das pilhas (calculado sobre os vértices construídos de cada instância) fica a no máximo 0,05 m de `BARRIER_HALF_WIDTH_M`; `barrier`: as verificações de AC-US-0004-04 e -05 sem mudança mostram o kart parando na superfície de contato; E2E-03 (o kart encosta nos pneus vistos) |
+| AC-US-0007-12 | `scene`: 24 pontos do círculo externo de cada pneu, por instância, são `grass` por `classifySurface`: nenhum sobre o asfalto ou a zebra |
+| AC-US-0007-13 | `scene`: o atributo de cor de `grass` tem exatamente as 2 cores de `GRASS_TONES`, as duas com o canal verde maior que o vermelho e o azul; E2E-03 |
+| AC-US-0007-14 | `scene`: `buildTrackScene` duas vezes sobre a mesma geometria dá atributos de `grass` iguais número a número; a cor de cada faixa é `GRASS_TONES[grassToneAt(...)]`; 1.000 posições do gerador semeado dão em `grassToneAt` o tom da faixa que as contém; `layering`: `src/trackScene.ts` não usa `Math.random`, `Date`, `performance`, `window`, `navigator`, `innerWidth`, `devicePixelRatio` nem `matchMedia`; E2E-03 e E2E-05 (o mesmo tom no mesmo lugar em duas aberturas, com a janela redimensionada e o aparelho girado) |
+| AC-US-0007-15 | `surface`: `seededKart` fora do asfalto com rodas em posições de `grassToneAt` 0 e 1: a mesma `wheelGripPc` em todas |
+| AC-US-0007-16 | `screens`: no texto de `src/main.ts`, o `ground` continua `material('#68865b')`, `buildTrackScene` só é chamado com geometria de esquema 3 e `ground.visible` só recebe `!(ready && trackGeometry)`; E2E-09 (a imagem da pista sintética igual à do jogo de antes da revisão 2) |
+| AC-US-0007-17 | `lap`: o piloto com deslocamento lateral que põe as rodas de um lado sobre a faixa de borda, sem roda além da borda, por mais de 120 passos (1000 ms) seguidos: `offTrackSteps` continua 0 e o item novo de `listLapResults` na chegada não tem `CUT` |
+| AC-US-0007-18 | `feedback`: as verificações de AC-US-0005-07 e -08 sem mudança (o retorno lê só `curbWheelCount`, que o desenho não altera); E2E-05 com o relevo na tela |
+| AC-US-0007-19 | `feedback`: as verificações de AC-US-0005-09 a -12 sem mudança; E2E-04 com o relevo na tela |
+| AC-US-0007-20 | `scene`: com a luminância do teste, \|L(t) − L(`#68865b`)\| / L(`#68865b`) entre 0,08 e 0,20 para cada tom de `GRASS_TONES`, e as cores do atributo de `grass` convertidas de volta a sRGB são esses tons |
+| AC-US-0007-21 | `surface`: o mesmo estado de AC-US-0007-15 dá `GRASS` em todas as rodas |
+
 Os critérios transversais de FEAT-0007 e os requisitos sem critério de história:
 
 | Requisito | Teste e caminho |
 |---|---|
-| REQ-FEAT-0007-01, -02 | E2E-03 no notebook de referência (60 fps sustentados numa volta completa na Kart Park, medidos pelo medidor de quadros das ferramentas do navegador) e E2E-05 no celular intermediário (30 fps); métrica: quadros por segundo sustentados |
+| REQ-FEAT-0007-01, -02 | E2E-03 no notebook de referência (60 fps sustentados numa volta completa na Kart Park com o acabamento de FEAT-0008 na tela, medidos pelo medidor de quadros das ferramentas do navegador) e E2E-05 no celular intermediário (30 fps); métrica: quadros por segundo sustentados |
 | REQ-FEAT-0007-03, -04 | `determinism`: duas voltas do piloto com a mesma sequência dão `lapMs` e 4 `sectorMs` iguais |
 | REQ-FEAT-0007-05 | `layering`: nenhum símbolo de rede nos módulos desta feature; E2E-07: registro de rede do navegador da escolha da Kart Park ao fim da volta sem requisição a outro serviço, nos dois canais |
 | REQ-FEAT-0007-06, -07 | `layering` (proibições de camada) e esta tabela: cada critério de US-0002 a US-0005 tem verificação em `npm test` que o nomeia |
@@ -145,6 +170,11 @@ Os critérios transversais de FEAT-0007 e os requisitos sem critério de histór
 | REQ-FEAT-0005-16 a -19 | `feedback`: nenhum pulso em `web-desktop`; som em `web-mobile` pelas mesmas regras; nada com a volta pausada; sem vibração, o mesmo registro de repetições e nenhum erro; E2E-06 |
 | REQ-FEAT-0006-12, -13 | E2E-07 (crédito sem rede) e E2E-01, E2E-03, E2E-05 (as duas telas nos dois canais) |
 | REQ-FEAT-0006-14 | E2E da entrega que promover a Kart Park a produção, se a decisão liberar a licença Esri: as duas telas com o crédito da Esri no texto da decisão |
+| REQ-FEAT-0008-22 | `layering`: `src/trackScene.ts` não lê canal, tela nem aparelho (lista de AC-US-0007-14), e `buildTrackScene` recebe só a geometria; E2E-03 e E2E-05: as mesmas medidas vistas nos dois canais |
+| REQ-FEAT-0008-23 | `layering`: `src/trackScene.ts` não contém `TextureLoader`, `ImageLoader`, `Loader`, `fetch`, `new Image` nem `http`; E2E-07: registro de rede de uma volta na Kart Park sem requisição de imagem ou textura, e o acabamento igual com a rede bloqueada |
+| REQ-FEAT-0008-24 | `scene`: `buildTrackScene.length` é 1 e o grupo tem sempre os seis filhos; `layering`: nenhum parâmetro de endereço, armazenamento ou configuração lido em `src/trackScene.ts`; E2E-03 e E2E-05 medem a taxa de quadros com o acabamento |
+| REQ-FEAT-0008-25, -26, -27 | `determinism`: as sequências de `kartParkRev1Trace.json` dão `lapMs`, os 4 `sectorMs` e o estado do kart iguais em todos os passos, com a sequência que passa pela faixa de borda, pela zebra e pela barreira afirmando os três contatos |
+| REQ-FEAT-0008-28, -29 | `publication`: a única entrada `kart-park` é a de `trackVersion` 1, com o `sha256` registrado escrito literalmente no teste e igual ao dos bytes do arquivo publicado, cujo `trackVersion` é 1 |
 | REQ-FEAT-0003-15 | `lap`: chegada cruzada de novo depois de uma volta concluída, contramão, pausa e retomada na Kart Park como na sintética, pelas regras do treino de voltas seguidas de `race-lap-validation`; E2E-03: perda de foco e recarga |
 
 ## Roteiro registrado (`docs/kart-park-device-log.md`)
@@ -153,12 +183,13 @@ Os critérios transversais de FEAT-0007 e os requisitos sem critério de histór
 |---|---|---|
 | E2E-01 | `web-desktop`, os quatro navegadores | abrir: seletor com as duas opções, Kart Park marcada com "Kart Park — São José dos Pinhais (traçado aproximado) · 687 m", crédito com texto, menção e link; clicar no link abre `https://openstreetmap.org/copyright` em outra aba; escolher a pista sintética: crédito some; recarregar: Kart Park marcada; painel de armazenamento da origem vazio depois de voltas nas duas pistas |
 | E2E-02 | `web-desktop`, Chrome | encerrar o treino ("encerrar treino") volta à tela inicial com o seletor; trocar de pista: o kart vai para a largada da pista escolhida, sem volta em andamento; treino é a única oferta |
-| E2E-03 | `web-desktop`, notebook de referência | treino na Kart Park: asfalto com larguras variáveis, zebras nos lados declarados, barreira em todo o comprimento; ao cruzar a chegada, sem parar o kart, o painel do resultado da volta do treino com tempo total, 4 setores, "não oficial" e o crédito, e a volta seguinte em andamento; volta seguinte inválida por marcador pulado com "marcador pulado" e o crédito no painel; treino na sintética com o painel sem crédito; o link do crédito no painel abre outra aba e o treino pausa; perda de foco pausa; recarga sem resultado para a volta em andamento; 60 fps sustentados num treino de ao menos duas voltas |
+| E2E-03 | `web-desktop`, notebook de referência | treino na Kart Park: asfalto com larguras variáveis, zebras nos lados declarados, barreira em todo o comprimento; ao cruzar a chegada, sem parar o kart, o painel do resultado da volta do treino com tempo total, 4 setores, "não oficial" e o crédito, e a volta seguinte em andamento; volta seguinte inválida por marcador pulado com "marcador pulado" e o crédito no painel; treino na sintética com o painel sem crédito; o link do crédito no painel abre outra aba e o treino pausa; perda de foco pausa; recarga sem resultado para a volta em andamento; 60 fps sustentados num treino de ao menos duas voltas, com o acabamento na tela; na Kart Park, faixa branca contínua nas duas bordas (junto às zebras e na largada), zebra com relevo visto de perto, barreira de pneus pretos empilhados em que o kart encosta sem entrar, grama em 2 tons; reabrir a página e redimensionar a janela: o mesmo tom no mesmo lugar |
 | E2E-04 | `web-desktop`, Chrome e Firefox | som ligado: ruído grave repetido com roda na zebra, distinto do motor e da recompensa, nenhum fora da zebra; som desligado: nenhum |
-| E2E-05 | `web-mobile`, celular intermediário de referência | mesmo seletor e crédito; inclinação negada: toque com o aviso; vibração curta repetida com roda na zebra e nenhuma fora dela ou em pausa; 30 fps sustentados numa volta completa |
+| E2E-05 | `web-mobile`, celular intermediário de referência | mesmo seletor e crédito; inclinação negada: toque com o aviso; vibração curta repetida com roda na zebra e nenhuma fora dela ou em pausa, com o relevo na tela; 30 fps sustentados numa volta completa com o acabamento; o mesmo acabamento de E2E-03, e o mesmo tom no mesmo lugar depois de girar o aparelho |
 | E2E-06 | `web-mobile`, navegador sem `navigator.vibrate` | volta com zebras sem vibração, sem erro e sem aviso; volta igual |
-| E2E-07 | `web-desktop` e `web-mobile` | depois do carregamento, rede bloqueada: escolha da pista, volta, zebra, barreira e crédito funcionam; registro de rede sem requisição a outro serviço da escolha ao fim da volta |
+| E2E-07 | `web-desktop` e `web-mobile` | depois do carregamento, rede bloqueada: escolha da pista, volta, zebra, barreira e crédito funcionam; registro de rede sem requisição a outro serviço da escolha ao fim da volta, e nenhuma requisição de imagem ou textura do acabamento; o acabamento da Kart Park igual com a rede bloqueada |
 | E2E-08 | `web-desktop`, navegador em inglês | nome da Kart Park, "Pista sintética" e crédito em português, iguais; demais textos em inglês |
+| E2E-09 | `web-desktop`, Chrome, notebook de referência | o pacote do commit anterior ao código da revisão 2 e o pacote atual, um depois do outro, na mesma janela de 1280 × 720: pista sintética escolhida, kart na largada antes da contagem, câmera padrão; captura do canvas nos dois: 0 pixel diferente |
 
 ## Testes de outras features
 

@@ -4,7 +4,7 @@ title: Acabamento visual da Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0007, NFR-0013, NFR-0014, AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-20, AC-US-0007-21]
 ---
 
@@ -43,7 +43,7 @@ As bordas do asfalto, a normal, as zebras e a barreira são as de
 | Relevo da zebra, borda de fora | Altura maior que 0 m e de no máximo 0,05 m em todo o comprimento do trecho | AC-US-0007-06 |
 | Barreira de pneus | Cada barreira de `barriers` desenhada como uma fileira de pneus pretos empilhados em toda a sua extensão | AC-US-0007-09 |
 | Altura da pilha de pneus | 0,9 m em toda a extensão da barreira | AC-US-0007-10 |
-| Face dos pneus | De cada um dos dois lados, a face dos pneus fica a no máximo 0,05 m da face de colisão da barreira, em todo ponto da barreira. A face de colisão é a poligonal da barreira ([RULE-0001](RULE-0001-superficie-borda-da-pista-e-obstaculos.md), [API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)), em que o kart para dos dois lados; logo a fileira desenhada, medida perpendicular à poligonal, ocupa no máximo 0,05 m de cada lado dela | AC-US-0007-11 |
+| Face dos pneus | De cada um dos dois lados, a face dos pneus fica a no máximo 0,05 m da face de colisão da barreira, em todo ponto da barreira. A face de colisão é, de cada lado, a superfície da barreira em que o kart bate e para ([RULE-0001](RULE-0001-superficie-borda-da-pista-e-obstaculos.md), AC-US-0004-04, AC-US-0004-05), e não a poligonal dos pontos de `barriers` ([API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)), que não tem espessura. Esta regra não fixa a distância entre essa superfície e a poligonal: é de projeto, e o acabamento não a muda (NFR-0013). A distância de no máximo 0,05 m é medida entre a face dos pneus e essa superfície, do mesmo lado | AC-US-0007-11 |
 | Pneus fora da pista | Nenhum pneu desenhado sobre o asfalto nem sobre a zebra | AC-US-0007-12 |
 | Tons de grama | A grama da Kart Park é desenhada em ao menos 2 tons de verde | AC-US-0007-13 |
 | Luminância de cada tom | Para cada tom *t*: \|*L*(*t*) − *L*(`#68865b`)\| / *L*(`#68865b`) entre 0,08 e 0,20, com *L* a luminância relativa da WCAG 2 | AC-US-0007-20 |

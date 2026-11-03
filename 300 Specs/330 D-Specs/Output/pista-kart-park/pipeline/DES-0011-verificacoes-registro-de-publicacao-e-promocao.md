@@ -3,9 +3,9 @@ id: DES-0011
 title: Verificações V01 a V18 do arquivo, registro de publicação e promoção
 feature: pista-kart-park
 stage: dspec
-status: validated
-version: 1.0.2
-sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13]
+status: draft
+version: 1.1.0
+sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, FEAT-0008, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13, REQ-FEAT-0008-28, REQ-FEAT-0008-29]
 ---
 
 # DES-0011 — Verificações V01 a V18 do arquivo, registro de publicação e promoção
@@ -18,7 +18,10 @@ em `npm test` (REQ-FEAT-0002-01 a -11, -14; REQ-FEAT-0003-01 a -07; REQ-FEAT-000
 -03; REQ-FEAT-0006-09; REQ-FEAT-0007-07); a publicação com o resumo SHA-256 registrado e a imutabilidade de
 uma versão publicada (REQ-FEAT-0002-17, -18); a promoção a produção só com a decisão sobre a licença Esri
 registrada, e o crédito da Esri na entrega que promover, se a decisão o liberar (REQ-FEAT-0007-13,
-REQ-FEAT-0006-14).
+REQ-FEAT-0006-14). O acabamento visual da revisão 2 do seed não é versão nova da pista: o arquivo publicado
+`src/tracks/kart-park-v1.json` continua byte a byte o registrado na publicação da versão 1, com o mesmo
+SHA-256 e `trackVersion` 1, e nenhum passo de preparo, verificação ou publicação roda por causa dele
+(REQ-FEAT-0008-28, -29; RULE-0005 1.1.0, NFR-0014).
 
 ## Posicionamento
 
@@ -133,6 +136,11 @@ pares iguais; `trackId`, `trackVersion` e `esriDecisionRef` de cada entrada obed
 [DM-0002](../data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md); toda entrada `PRODUCTION` tem
 `esriDecisionRef` e `promotedAtUtc`; o catálogo do treino
 aponta para o arquivo registrado de maior `trackVersion`. A métrica de REQ-FEAT-0002-14 é o tamanho de V17.
+Para a revisão 2 (REQ-FEAT-0008-28, -29), o mesmo teste afirma que a entrada `kart-park` de `trackVersion` 1 é
+a única da Kart Park, que o seu `sha256` é `04ce5e51…f057b1` (o valor registrado em `stagedAtUtc`
+2026-10-27T21:58:06.132Z, escrito literalmente no teste) e é o SHA-256 dos bytes de `src/tracks/kart-park-v1.json`,
+e que `trackVersion` lido desse arquivo é 1: um arquivo alterado, um resumo regravado ou uma versão 2 da Kart
+Park reprovam.
 
 ## Determinismo (D-DS-07)
 

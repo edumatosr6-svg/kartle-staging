@@ -4,7 +4,7 @@ title: Tela inicial com o seletor de pista
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [US-0001, US-0006, NFR-0004, NFR-0005, AC-US-0001-01, AC-US-0001-02, AC-US-0001-05, AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09]
 ---
 
@@ -28,8 +28,8 @@ link é acionado com clique; em `web-mobile`, tudo por toque. A tela usa
 
 ## Pontos de entrada
 
-Abertura do jogo (e reabertura depois de recarregar a página); saída da tela de resultado de
-`race-lap-validation` ([SCR-0002](SCR-0002-credito-na-tela-de-resultado.md)).
+Abertura do jogo (e reabertura depois de recarregar a página); saída da tela de corrida pela ação
+"encerrar treino" de `race-lap-validation` ([SCR-0003](SCR-0003-kart-park-na-tela-de-corrida.md)).
 
 ## Elementos
 
@@ -68,5 +68,5 @@ são exibidos iguais nos dois idiomas; os demais textos seguem o idioma do naveg
 
 Sai para a tela de corrida de `race-lap-validation`, com os acréscimos de
 [SCR-0003](SCR-0003-kart-park-na-tela-de-corrida.md), quando `startLap` é aceito. Volta a ela a partir da
-tela de resultado ([SCR-0002](SCR-0002-credito-na-tela-de-resultado.md)), com a sessão e a opção
-selecionada inalteradas. Recarregar a página volta ao estado Carregando com a Kart Park.
+tela de corrida pela ação "encerrar treino" ([SCR-0003](SCR-0003-kart-park-na-tela-de-corrida.md)), com a
+sessão e a opção selecionada inalteradas. Recarregar a página volta ao estado Carregando com a Kart Park.

@@ -4,7 +4,7 @@ title: Abertura do jogo, escolha e troca de pista no treino
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [US-0001, US-0006, NFR-0004, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0006-01, AC-US-0006-04]
 ---
 
@@ -42,9 +42,12 @@ sequenceDiagram
     T->>S: startLap TRAINING, trackId e trackVersion da sessao, sem challengeNumber
     S-->>T: COUNTDOWN
     Note over S: volta pelas regras de race-lap-validation
-    S-->>R: getLapResult ao ENDED
-    R-->>J: resultado, credito OSM se a pista for a Kart Park
-    R->>T: sair para a tela inicial
+    loop cada volta do treino, sem parar o jogo
+        S-->>R: getLapResult ao cruzar a chegada
+        R-->>J: painel do resultado da volta do treino, credito OSM se a pista for a Kart Park
+    end
+    J->>R: encerrar treino
+    R->>T: volta para a tela inicial
 ```
 
 ## Passos
@@ -58,9 +61,9 @@ sequenceDiagram
 | 5 | Simulação | `selectTrainingTrack` com a pista escolhida: encerra a sessão corrente, descarta sem resultado uma volta não encerrada, abre a sessão nova na largada da pista escolhida | `LOADING`, depois `READY` | AC-US-0001-06, AC-US-0001-07 |
 | 6 | Jogador | Escolhe volta de treino, a única oferecida | | AC-US-0001-05 |
 | 7 | Tela inicial | Pede `startLap` de `race-lap-validation` com `lapKind` `TRAINING`, o `trackId` e o `trackVersion` da sessão e sem `challengeNumber` | `lapPhase` `COUNTDOWN` | AC-US-0001-03, AC-US-0001-04, AC-US-0001-05 |
-| 8 | Simulação | Conduz a volta pelas regras de `race-lap-validation` ([FLOW-0002](FLOW-0002-passo-de-simulacao-na-kart-park.md)) até `ENDED` | `ENDED` | US-0003 |
-| 9 | Tela de resultado | Exibe o resultado de `race-lap-validation` e, se a pista da volta tem `osmCredit`, a linha de crédito ([SCR-0002](../screens/SCR-0002-credito-na-tela-de-resultado.md)); nada é gravado como tentativa ou resultado de desafio diário | | AC-US-0001-05, AC-US-0006-04 |
-| 10 | Jogador | Sai da tela de resultado para a tela inicial (navegação de `race-lap-validation`); pode escolher outra pista (passo 4) ou outra volta (passo 6) | | US-0001, Pré-condições |
+| 8 | Simulação | Conduz as voltas do treino pelas regras de `race-lap-validation` ([FLOW-0002](FLOW-0002-passo-de-simulacao-na-kart-park.md)): cada cruzamento da chegada encerra uma volta e começa a seguinte, sem parar o jogo | `RUNNING` | US-0003 |
+| 9 | Tela de corrida | Exibe, no painel "Resultado da volta do treino" de `race-lap-validation`, o resultado da volta encerrada e, se a pista da volta tem `osmCredit`, a linha de crédito ([SCR-0002](../screens/SCR-0002-credito-na-tela-de-resultado.md)); nada é gravado como tentativa ou resultado de desafio diário | | AC-US-0001-05, AC-US-0006-04 |
+| 10 | Jogador | Aciona "encerrar treino" e volta à tela inicial (navegação de `race-lap-validation`); pode escolher outra pista (passo 4) ou outro treino (passo 6) | `ENDED` | US-0001, Pré-condições |
 
 ## Alternativas, erros e eventos fora de ordem
 

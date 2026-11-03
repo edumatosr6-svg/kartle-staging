@@ -3,7 +3,7 @@ title: Visão geral — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -32,7 +32,7 @@ em processo dentro do navegador e nos ensaios, únicos para os dois canais, e n�
 
 | Canal | O que esta especificação fixa |
 |---|---|
-| `web-desktop` | Seletor com as duas pistas, Kart Park selecionada ao abrir; pilotagem pelo teclado; zebras e barreira desenhadas, com o acabamento na Kart Park; retorno da zebra só pelo som, com o som ligado; crédito no seletor e na tela de resultado |
+| `web-desktop` | Seletor com as duas pistas, Kart Park selecionada ao abrir; pilotagem pelo teclado; zebras e barreira desenhadas, com o acabamento na Kart Park; retorno da zebra só pelo som, com o som ligado; crédito no seletor e no resultado da volta do treino |
 | `web-mobile` | O mesmo seletor, a mesma pista, o mesmo acabamento com as mesmas medidas e as mesmas regras; pilotagem por inclinação e toque, ou só toque com estado visível sem sensor ou sem permissão (I4); retorno da zebra pela vibração de 20 ms a cada 0,25 s, se o navegador permitir; o som da zebra é permitido e não exigido; o mesmo crédito |
 | Preparo offline (Curador do catálogo) | Sem canal de jogo: gera o arquivo de pista da Kart Park a partir do arquivo de origem, verifica-o e o publica como `trackVersion` 1, só em staging até a decisão sobre a licença Esri |
 
@@ -47,7 +47,7 @@ controle e no retorno da zebra.
 | Funcionalidades | `features/FEAT-0001` (seletor de pista no treino), `FEAT-0002` (forma, largura e versão do arquivo de pista), `FEAT-0003` (setores, chegada, marcadores e validação da volta), `FEAT-0004` (barreira nos trechos quase encostados), `FEAT-0005` (zebra com efeito), `FEAT-0006` (crédito, nome e comprimento), `FEAT-0007` (requisitos transversais), `FEAT-0008` (acabamento visual da Kart Park) |
 | Fluxos | `flows/FLOW-0001` (abertura do jogo, escolha e troca de pista), `FLOW-0002` (passo de simulação na Kart Park e retorno da zebra), `FLOW-0003` (preparo offline, verificação e publicação do arquivo de pista) |
 | Contratos | `api/API-0001` (dado de pista com linha central, larguras, zebras e barreiras), `API-0002` (catálogo e seleção da pista do treino), `API-0003` (contato do kart com a pista: superfície por roda, borda da pista e barreira) |
-| Telas | `screens/SCR-0001` (tela inicial com o seletor de pista), `SCR-0002` (crédito na tela de resultado), `SCR-0003` (Kart Park na tela de corrida e retorno da zebra) |
+| Telas | `screens/SCR-0001` (tela inicial com o seletor de pista), `SCR-0002` (crédito no resultado da volta do treino), `SCR-0003` (Kart Park na tela de corrida e retorno da zebra) |
 | Regras | `rules/RULE-0001` (superfície, borda da pista e obstáculos), `RULE-0002` (geometria e verificações do arquivo de pista gerado), `RULE-0003` (sessão de treino e seleção de pista), `RULE-0004` (retorno da zebra), `RULE-0005` (versão e publicação da pista), `RULE-0006` (acabamento visual da Kart Park) |
 
 O índice (`00-index.md`) e a matriz de rastreabilidade (`99-traceability.md`) são gerados pelo gate e não
@@ -70,7 +70,7 @@ suaviza, não converte e não edita pista.
 | Contrato | Dono | O que este conjunto faz com ele |
 |---|---|---|
 | Dado de pista (`readTrackData`, `schemaVersion`, `trackId`, `trackVersion`, `direction`, `startPosition`, `finishLine`, `sectorLimits`, `markers`, `cutDistanceM`, `cutDurationMs`, `trackDataStatus`) | `race-lap-validation` (API-0003 daquele conjunto) | Acrescenta a versão de esquema 3, com linha central, larguras, zebras, barreiras e indicação de dado OSM ([API-0001](api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)); a versão 2 continua lida como hoje |
-| Volta (`startLap`, `getLapState`, `getLapResult`, `lapKind`, `lapValidity`, `invalidReason`, `lapMs`, `sectorMs`, `challengeNumber`) e as telas de início de volta, de corrida e de resultado | `race-lap-validation` | Usados sem mudança; este conjunto acrescenta o seletor à tela de início de volta, o crédito à tela de resultado e o desenho da Kart Park à tela de corrida |
+| Volta (`startLap`, `getLapState`, `getLapResult`, `lapKind`, `lapValidity`, `invalidReason`, `lapMs`, `sectorMs`, `challengeNumber`) e as telas de início de volta e de corrida, com o painel "Resultado da volta do treino" e a ação "encerrar treino" | `race-lap-validation` | Usados sem mudança; este conjunto acrescenta o seletor à tela de início de volta, o crédito ao painel do resultado da volta do treino e o desenho da Kart Park à tela de corrida. Toda volta desta feature é `TRAINING` (REQ-FEAT-0001-11): no treino de `race-lap-validation` as voltas seguem uma após a outra, o resultado de cada uma aparece nesse painel sem parar o jogo, e o treino termina só pela ação "encerrar treino", que volta à tela inicial; a tela de resultado da volta daquele conjunto é só da volta oficial e da de reconhecimento, que esta feature não oferece |
 | Telemetria de dirigibilidade (`getHandlingTelemetry`, `simStepCount`, `surface`, `wallContact`) | `dirigibilidade` (API-0001 daquele conjunto) | Lida sem mudança de nome, valor ou significado; a superfície por roda com a zebra e o contato com a barreira são campos novos de [API-0003](api/API-0003-contato-do-kart-com-a-pista.md) |
 | `step(state, input, dt)`, `STEP`, `Input` | contrato de passo (I8) | Inalterados (NFR-0008) |
 
@@ -113,16 +113,17 @@ suaviza, não converte e não edita pista.
   contrato: o arquivo publicado não muda (NFR-0014), e a pista sintética fica com a aparência de antes
   (AC-US-0007-16).
 - **Face de colisão da barreira.** A barreira do arquivo é uma poligonal sem espessura
-  ([API-0001](api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)), e o kart para nela dos
-  dois lados; a face de colisão de cada lado é essa poligonal. Com a face dos pneus a no máximo 0,05 m
-  dela de cada lado (AC-US-0007-11), a fileira de pneus desenhada ocupa no máximo 0,05 m de cada lado da
-  poligonal. Dar espessura à barreira mudaria o arquivo (NFR-0014) ou a trajetória (NFR-0013).
+  ([API-0001](api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)); a face de colisão é, de
+  cada um dos dois lados, a superfície em que o kart bate e para (AC-US-0004-04, AC-US-0004-05), e não a
+  própria poligonal. A face dos pneus desenhados fica a no máximo 0,05 m dessa superfície, do mesmo lado
+  (AC-US-0007-11). Este conjunto não fixa a distância entre a superfície e a poligonal: é de projeto, e o
+  acabamento não a muda, porque mudá-la mudaria a trajetória (NFR-0013), nem muda o arquivo (NFR-0014).
 - **Retorno da zebra em tempo simulado.** O intervalo de 0,25 s entre pulsos de vibração e o intervalo
   entre repetições do som são contados em passos de `STEP` (I8, I9): com a simulação suspensa (pausa,
   perda de foco, perda do sensor), nenhum pulso ou repetição novo começa.
 - **Textos.** O nome da Kart Park, o crédito e o rótulo "Pista sintética" são exibidos em português nos
   dois idiomas do jogo: os critérios fixam o nome e o crédito sem condição de idioma, e os requisitos
-  dispensaram o idioma pt/en nesta feature. Os demais textos da tela inicial e da tela de resultado são os
+  dispensaram o idioma pt/en nesta feature. Os demais textos da tela inicial e do resultado da volta do treino são os
   de `race-lap-validation`, nos dois idiomas, sem mudança.
 - **Som da zebra em `web-mobile`.** Permitido e não exigido (MAY): os requisitos o declaram fora do que
   este conjunto exige, sem proibi-lo (US-0005, Canais).

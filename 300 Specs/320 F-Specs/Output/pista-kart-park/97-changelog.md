@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -199,3 +199,58 @@ sources: []
   mudança.
 - Sem mudança de conteúdo: `FEAT-0001` a `FEAT-0006`, `FLOW-0001` a `FLOW-0003`, `API-0001` a `API-0003`,
   `SCR-0001`, `SCR-0002`, `RULE-0001` a `RULE-0004`, `98-divergences.md`.
+
+## 2026-11-03 — rodada 4, Mode C (FEEDBACK-01, FEEDBACK-02; avisos de fspec-validation-20261103-1908)
+
+Nenhum `REQ-*` acrescentado, retirado ou com critério mudado; nenhum contrato de `api/` muda. Texto alinhado
+aos requisitos validados (US-0007 e glossário: "Face de colisão", "Tela de resultado") e ao que
+`race-lap-validation` nomeia hoje.
+
+**O que mudou**
+
+- `RULE-0006` (1.1.0), linha "Face dos pneus": a face de colisão é, de cada lado, a superfície em que o kart
+  bate e para, e não a poligonal de `barriers`; a regra não fixa a distância entre as duas (projeto) e mede
+  os 0,05 m entre a face dos pneus e essa superfície. Saiu a dedução "no máximo 0,05 m de cada lado da
+  poligonal".
+- `FEAT-0008` (1.1.0): critério de aceite do requisito 14 mede a face dos pneus contra a superfície de
+  contato da barreira de cada lado, como REQ-FEAT-0008-14 e o RULE-0006 corrigido. REQ-FEAT-0008-24 diz
+  "SHALL NOT retirar o acabamento nem nenhum dos seus quatro elementos", e o critério de aceite e a seção
+  Configuração verificam exatamente isso.
+- `01-overview.md` (1.2.0): decisão de forma "Face de colisão da barreira" reescrita como em RULE-0006;
+  linha da dependência `race-lap-validation`, canais, mapa de telas e textos falam do painel "Resultado da
+  volta do treino" e da ação "encerrar treino".
+- `02-glossary.md` (1.2.0): "Face de colisão" reescrito; termo novo "Tela de resultado" (o dos requisitos;
+  para a volta de treino, o painel "Resultado da volta do treino" da tela de corrida de
+  `race-lap-validation`).
+- `SCR-0003` (1.2.0): tons de grama com luminância relativa que difere da de `#68865b` entre 8 % e 20 %
+  desse valor, com a fórmula de RULE-0006; navegação sem `ENDED`: resultado no painel, saída por
+  "encerrar treino".
+- `SCR-0002` (1.1.0): o crédito fica dentro do painel "Resultado da volta do treino"; entrada no cruzamento
+  da chegada que encerra uma volta, com `lapPhase` `RUNNING`; estados Carregando, Vazio e Erro sem
+  `ENDED`; ações "Seguir pilotando" e "Encerrar o treino" no lugar de "Sair da tela"; navegação.
+- `SCR-0001` (1.0.2): entrada e retorno pela ação "encerrar treino", não pela tela de resultado.
+- `FLOW-0001` (1.0.2): diagrama e passos 8 a 10 com as voltas seguidas do treino, o painel e "encerrar
+  treino" (`ENDED` só no fim do treino).
+- `RULE-0003` (1.0.1), `FEAT-0003` (1.0.2), `FEAT-0001` (1.0.2): "volta já `ENDED`", "a volta termina no
+  passo" (corte), "na tela de resultado" e "depois da tela de resultado" alinhados ao treino: o corte
+  invalida sem encerrar, o resultado aparece no painel, o seletor é alcançado na abertura e depois de
+  "encerrar treino".
+
+**Itens fechados (resolvidos nesta rodada)**
+
+- `FEEDBACK-02` FB-01: resolvido. A leitura do D-Spec (superfície de contato a 0,1 m da poligonal, fileira
+  entre 0,073 m e 0,12 m) não foi trazida para cá: a distância é de projeto e fica no D-Spec.
+- `FEEDBACK-01` FB-01: resolvido, sem mudar `REQ-*`; a resolução vem do glossário dos requisitos ("Tela de
+  resultado": exibida ao fim de uma volta, com o tempo da volta) e da regra de que a volta na Kart Park
+  segue as de `race-lap-validation` (US-0003, `SEED/US-3`). A localização do crédito é a que o D-Spec
+  adotou (ADR-0007 daquele conjunto).
+- `ISSUE-01` e `ISSUE-02` de fspec-validation-20261103-1908 (avisos): aplicados como o relatório espera.
+
+**Itens recusados ou deixados, com motivo**
+
+- `FEAT-0006` e `API-0002` continuam dizendo "tela de resultado": é o termo dos requisitos (AC-US-0006-04 a
+  -06, NFR-0005), agora definido em `02-glossary.md` para a volta de treino; trocá-lo mudaria o texto dos
+  requisitos realizados.
+- `SCR-0002` mantém id, título e nome de arquivo: renomear quebraria as referências de outros estágios sem
+  ganho de significado.
+- Arquivos editados ficam `draft`. `00-index.md` e `99-traceability.md` regenerados pelo gate.

@@ -4,7 +4,7 @@ title: Setores, chegada, marcadores e validação da volta na Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11]
 ---
 
@@ -78,14 +78,16 @@ Linhas da volta: [API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e
 `sectorLimits`, `markers`, formas de `race-lap-validation`), [RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md)
 (posição e extensão de cada linha). Passo e corte: [FLOW-0002](../flows/FLOW-0002-passo-de-simulacao-na-kart-park.md),
 [RULE-0001](../rules/RULE-0001-superficie-borda-da-pista-e-obstaculos.md) (borda da pista). Validade, motivo,
-tempos e tela de resultado: regras e telas de `race-lap-validation`, sem mudança.
+tempos e resultado: regras e telas de `race-lap-validation`, sem mudança. A tela de resultado do requisito 14 é,
+para a volta de treino, a única desta feature, o painel "Resultado da volta do treino" da tela de corrida de `race-lap-validation`, sem parar o jogo
+([SCR-0002](../screens/SCR-0002-credito-na-tela-de-resultado.md)).
 
 | Situação | Comportamento |
 |---|---|
-| Volta completa sobre a pista, passando por todos os marcadores em ordem | `VALID`; tempo total e 4 tempos de setor na tela de resultado |
+| Volta completa sobre a pista, passando por todos os marcadores em ordem | `VALID`; tempo total e 4 tempos de setor no painel do resultado da volta do treino |
 | Atalho pela grama de 12 a 26 m (curva 4, de ≈ 147 m a ≈ 200 m) | Sem barreira; o kart, a mais de `cutDistanceM` da borda da pista, não cruza ao menos um marcador; a volta é `INVALID` com `MISSED_MARKER` ao cruzar a chegada |
 | Atalho pelos trechos quase encostados (≈ 371–414 m contra ≈ 580–615 m) | Impedido pela barreira ([FEAT-0004](FEAT-0004-barreira-nos-trechos-quase-encostados.md)) |
-| Kart a mais de 3 m da borda da pista por mais de 1000 ms | Corte: `INVALID` com `CUT`, a volta termina no passo |
+| Kart a mais de 3 m da borda da pista por mais de 1000 ms | Corte: `INVALID` com `CUT` no passo; no treino a volta é invalidada sem ser encerrada e o kart segue, pelas regras de treino de `race-lap-validation` |
 | Kart a mais de 3 m da borda por 1000 ms ou menos e de volta | Sem corte; se nesse intervalo ele não cruzou um marcador, a volta é invalidada por marcador pulado ao cruzar a chegada |
 | Rodas sobre a zebra | Pista: não acumulam tempo para o corte ([FEAT-0005](FEAT-0005-zebra-com-efeito.md)) |
 | Chegada cruzada de novo, contramão, pausa, perda de foco, recarga | Regras de `race-lap-validation`; nenhuma cria registro de desafio diário ([FEAT-0001](FEAT-0001-seletor-de-pista-no-treino.md)) |
@@ -124,8 +126,8 @@ declara; nenhuma configuração do jogo os altera.
   e 11).
 - Uma sequência de `Input` que sai da pista perto de 147 m, cruza a grama por dentro da curva 4 e volta
   perto de 200 m termina `INVALID` (satisfaz AC-US-0003-09; cobre os requisitos 06 e 12).
-- Uma volta pela pista, sem corte, passa por todos os marcadores e termina `VALID`, e a tela de resultado
-  exibe o tempo total e os 4 tempos de setor em `m:ss.mmm`, como na pista sintética (satisfaz
+- Uma volta pela pista, sem corte, passa por todos os marcadores e termina `VALID`, e o painel do resultado da
+  volta do treino exibe o tempo total e os 4 tempos de setor em `m:ss.mmm`, como na pista sintética (satisfaz
   AC-US-0003-10, AC-US-0003-11; cobre os requisitos 13 e 14).
 - Os casos de chegada cruzada de novo, contramão, pausa, perda de foco e recarga dão na Kart Park o mesmo
   resultado que na pista sintética (satisfaz AC-US-0003-10, AC-US-0003-11 nesses casos anormais; cobre o

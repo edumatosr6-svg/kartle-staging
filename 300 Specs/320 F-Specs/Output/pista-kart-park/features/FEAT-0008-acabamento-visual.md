@@ -4,7 +4,7 @@ title: Acabamento visual da Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [US-0007, NFR-0002, NFR-0004, NFR-0013, NFR-0014, AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21]
 ---
 
@@ -87,7 +87,8 @@ A taxa de quadros com o acabamento na tela é a de [FEAT-0007](FEAT-0007-requisi
   orientação (AC-US-0007-02, AC-US-0007-06, AC-US-0007-10, AC-US-0007-11, AC-US-0007-14).
 - REQ-FEAT-0008-23: O sistema SHALL NOT usar foto de satélite nem imagem ou textura baixada da rede no
   acabamento; o acabamento não acrescenta requisição de rede (NFR-0004; US-0007, caso anormal).
-- REQ-FEAT-0008-24: O sistema SHALL NOT retirar nem reduzir o acabamento para cumprir a taxa de quadros; um
+- REQ-FEAT-0008-24: O sistema SHALL NOT retirar o acabamento nem nenhum dos seus quatro elementos (faixa de
+  borda, relevo da zebra, barreira de pneus, tons de grama) para cumprir a taxa de quadros; um
   aparelho de referência que não a sustente com o acabamento é falha de NFR-0002 (NFR-0002; US-0007, caso
   anormal).
 - REQ-FEAT-0008-25: O sistema SHALL dar, para a mesma sequência de `Input` a partir do mesmo estado inicial
@@ -136,7 +137,7 @@ Não define estados. O desenho é função do dado de pista, do `trackId` da ses
 
 ## Configuração
 
-Nenhuma. Nenhuma configuração liga, desliga ou reduz o acabamento, nem muda a largura da faixa, a altura do
+Nenhuma. Nenhuma configuração liga ou desliga o acabamento ou um dos seus elementos, nem muda a largura da faixa, a altura do
 relevo e da pilha de pneus ou os tons de grama: são medidas fixadas pelos requisitos.
 
 ## Critérios de aceite
@@ -157,7 +158,7 @@ relevo e da pilha de pneus ou os tons de grama: são medidas fixadas pelos requi
   `web-desktop` satisfazem os critérios de aceite de [FEAT-0005](FEAT-0005-zebra-com-efeito.md) para
   AC-US-0005-07 a AC-US-0005-12 (satisfaz AC-US-0007-18, AC-US-0007-19; cobre os requisitos 10 e 11).
 - Na tela, a barreira aparece como pneus pretos empilhados em toda a extensão; na cena desenhada, a pilha
-  tem 0,9 m de altura, a face dos pneus fica a no máximo 0,05 m da poligonal da barreira de cada lado e
+  tem 0,9 m de altura, a face dos pneus fica, de cada um dos dois lados, a no máximo 0,05 m da superfície de contato da barreira, onde o kart para desse lado, e
   nenhum pneu está sobre o asfalto ou a zebra (satisfaz AC-US-0007-09 a AC-US-0007-12; cobre os requisitos
   12 a 15).
 - Na tela, a grama da Kart Park mostra ao menos 2 tons de verde, cada um com luminância relativa a uma
@@ -170,7 +171,8 @@ relevo e da pilha de pneus ou os tons de grama: são medidas fixadas pelos requi
   revisão 2 (satisfaz AC-US-0007-16; cobre o requisito 21).
 - O registro de rede do navegador numa volta na Kart Park não tem requisição de imagem ou textura do
   acabamento, e o acabamento aparece igual sem rede depois da abertura (cobre o requisito 23).
-- Nenhuma configuração ou caminho do jogo desliga o acabamento; o teste de taxa de quadros de
+- Nenhuma configuração ou caminho do jogo retira o acabamento nem nenhum dos seus quatro elementos; o
+  teste de taxa de quadros de
   [FEAT-0007](FEAT-0007-requisitos-transversais.md) é feito com ele na tela (cobre o requisito 24).
 - A saída de `npm test` avança a simulação na Kart Park com `STEP` pelas mesmas sequências de `Input` no
   jogo de antes e no de depois da revisão 2, com ao menos uma sequência sobre a faixa de borda, a zebra e

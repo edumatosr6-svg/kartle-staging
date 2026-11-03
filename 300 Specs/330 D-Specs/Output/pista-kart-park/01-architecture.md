@@ -2,16 +2,16 @@
 title: Arquitetura — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: []
 ---
 
 # Arquitetura
 
-Este conjunto projeta como cada `REQ-*` do F-Spec validado de `pista-kart-park` (FEAT-0001 a FEAT-0007,
-API-0001 a API-0003, FLOW-0001 a FLOW-0003, SCR-0001 a SCR-0003, RULE-0001 a RULE-0005) é realizado sobre o
-código em execução. Os caminhos são relativos à raiz do repositório (diretriz do estágio: o código vive em
+Este conjunto projeta como cada `REQ-*` do F-Spec validado de `pista-kart-park` (FEAT-0001 a FEAT-0008,
+API-0001 a API-0003, FLOW-0001 a FLOW-0003, SCR-0001 a SCR-0003, RULE-0001 a RULE-0006; seed `revision: 2`,
+validação `fspec-validation-20261103-1908`, SUCCESS) é realizado sobre o código em execução. Os caminhos são relativos à raiz do repositório (diretriz do estágio: o código vive em
 `src/`, `tests/`, `scripts/` e `index.html`; `400 Code/Source/` está vazio). O produto é um cliente de
 navegador sem servidor, sem conta e sem banco: não existem as pastas `backend/` e `mobile/` deste estágio
 (`web-mobile` roda o mesmo cliente). Os itens do dado de pista e da simulação ficam em `core/`, os da
@@ -53,7 +53,7 @@ relógio do aparelho ou no nome da pista, e nada é gravado no navegador
 | Simulação | `src/maneuvers.ts` | não usado por esta feature | o drift e o turbo saem do jogo (`dirigibilidade`, seed `revision: 5`, ADR-0006 daquela feature): o passo deixa de avançar a manobra e o módulo tem retirada projetada lá; nada desta feature depende dele (zebra, barreira e retorno da zebra não têm efeito de drift ou de turbo) |
 | Adaptadores de controle | em `src/main.ts` | inalterados | teclado, inclinação e toque continuam entregando o `Input` normalizado; nenhum campo novo (NFR-0008) |
 | Aplicação | `src/main.ts` | alterado | seletor, crédito, nome da pista, sessões, troca de cena, retorno da zebra ([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md), [DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md), [DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
-| Aplicação | `src/trackScene.ts` | **novo** | constrói o grupo Three.js de uma pista em esquema 3 (asfalto, zebras, barreiras, linha de largada) e a transformação do minimapa ([DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)) |
+| Aplicação | `src/trackScene.ts` | **novo**; alterado na revisão 2 | constrói o grupo Three.js de uma pista em esquema 3 (grama em 2 tons, asfalto, faixa de borda, zebras com relevo, barreira de pneus, linha de largada) e a transformação do minimapa; o acabamento de FEAT-0008 é só desenho e não entra na simulação ([DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)) |
 | Aplicação | `src/curbFeedback.ts` | **novo** | decisão pura, por passo, de pulso de vibração e de repetição do som da zebra (RULE-0004) ([DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
 | Aplicação | `src/lapMessages.ts` | alterado | textos do crédito OSM (`OSM_CREDIT`), regra de tela do crédito (`creditFor`) e rótulo da opção (`optionLabel`), fora de `message()` e sem tradução; aplicação pura, testável em `npm test` ([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)) |
 | Aplicação | `src/audio.ts` | alterado | som próprio da zebra e descritores de sinal dos três sons do jogo, dos quais cada som constrói o seu sinal ([DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |

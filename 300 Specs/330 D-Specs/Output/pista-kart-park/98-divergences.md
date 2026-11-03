@@ -2,8 +2,8 @@
 title: Divergências — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: validated
-version: 1.1.0
+status: draft
+version: 1.2.0
 sources: []
 ---
 
@@ -32,6 +32,7 @@ quase todo requisito diverge porque a Kart Park, o seletor, a zebra e a barreira
 | REQ-FEAT-0007-13, REQ-FEAT-0006-14 | promoção a produção com a Kart Park só com a decisão Esri registrada | `package.json:6-13` não tem script de publicação nem de promoção de pista e a raiz não tem `tracks/registry.json`, de modo que não há registro de publicação nem passo de promoção que o consulte; `index.html:19` (tela inicial) e `:25` (`#lap-result`) não têm crédito algum, nem o da Esri | código, deploy | DES-0011, DES-0012, ADR-0005 | open |
 | REQ-FEAT-0006-04, -05, -06; REQ-FEAT-0003-14 (rodada de 2026-10-30) | crédito OSM no resultado de cada volta na Kart Park, que no treino de voltas seguidas de `race-lap-validation` é o painel do resultado da volta do treino | `index.html:25` põe o crédito do resultado em `#lap-result` (`#lap-result-credit`); `src/main.ts:465` o desenha só em `renderResult`, chamado em `:592` quando a fase é `ENDED`; não existe `#lap-training-result` em `index.html` nem em `src/main.ts` (o painel é da rodada de código de `race-lap-validation`, ainda não entregue) | código | DES-0007, ADR-0007 | open |
 | REQ-FEAT-0003-08, -10, -12, -13, -15; REQ-FEAT-0001-05 (rodada de 2026-10-30) | volta na Kart Park pelas regras de `race-lap-validation`, cujo treino é uma sequência de voltas que só chega a `ENDED` por `endTraining` | as verificações esperam `ENDED` numa volta `TRAINING` na chegada (`tests/pista-kart-park-lap.test.ts:47`, `:100`, `:152`, `:227`) e no corte (`:120`; `tests/pista-kart-park-session.test.ts:103`); `tests/helpers/kartParkPilot.ts:114` interrompe o laço de `drive` só em `ENDED`, que a volta `TRAINING` iniciada em `:100` deixa de alcançar na chegada | testes | DES-0004, DES-0005 e a estratégia de testes | open |
+| REQ-FEAT-0008-01, -02, -06, -07, -12 a -18, -22 (rodada de 2026-11-03, seed `revision: 2`) | faixa branca de 0,10 m por dentro de cada borda do asfalto, relevo desenhado da zebra, barreira como pilha de pneus pretos de 0,9 m com a face a até 0,05 m da face de colisão, grama em ao menos 2 tons por posição | `src/trackScene.ts:121-126` monta o grupo com quatro filhos (`asphalt`, `curbs`, `barriers`, `start-line`), sem faixa de borda; `:39-75` desenha as zebras planas a `y` 0,035; `:77-95` desenha a barreira como caixas `#e6dfc9` de 0,2 m por segmento (`:10`); a grama é só o `ground` de uma cor, `#68865b` (`src/main.ts:53`) | código | DES-0008 | open |
 
 Satisfeitos hoje, sem divergência, e protegidos pelo projeto: leitura da versão 2 como hoje
 (REQ-FEAT-0002-15: `src/trackData.ts:81-101`, caminho mantido por DES-0001); contrato de passo
@@ -41,4 +42,12 @@ execução além de `three` (REQ-FEAT-0007-11: `package.json:14`); nenhuma rede 
 (REQ-FEAT-0001-03, REQ-FEAT-0007-05: `tests/race-lap-validation-layering.test.ts:43-49`, estendido por DES-0012);
 pista sintética como pista dos ensaios (REQ-FEAT-0007-10: os testes e benches existentes usam `CIRCUIT` e
 `SYNTHETIC_TRACK_FILE`); ordem de entrega (REQ-FEAT-0007-12: nenhum código desta feature existe, e a
-dependência está registrada em `01-architecture.md`).
+dependência está registrada em `01-architecture.md`). Da revisão 2 do seed, satisfeitos hoje e mantidos: a faixa
+de borda cairia dentro do asfalto, que a simulação já trata como `ASPHALT` (REQ-FEAT-0008-03 a -05:
+`classifySurface`, `src/trackGeometry.ts:219`); a zebra não ergue o kart e mantém 0,85 de aderência e o seu
+retorno (REQ-FEAT-0008-08 a -11: `src/physics.ts:13`, `src/curbFeedback.ts`); a grama tem uma superfície só
+(REQ-FEAT-0008-19, -20); a pista sintética não usa `src/trackScene.ts` (REQ-FEAT-0008-21: `src/main.ts:238`);
+nenhuma textura nem rede no desenho (REQ-FEAT-0008-23); nenhuma configuração de desenho (REQ-FEAT-0008-24);
+`lapMs`, setores e estado do kart não dependem do desenho (REQ-FEAT-0008-25 a -27); o arquivo publicado e o
+registro (`tracks/registry.json`, `sha256` `04ce5e51…`, `trackVersion` 1) intactos (REQ-FEAT-0008-28, -29). A
+rodada de código da revisão 2 tem de mantê-los, o que DES-0006, DES-0008 e DES-0011 verificam.

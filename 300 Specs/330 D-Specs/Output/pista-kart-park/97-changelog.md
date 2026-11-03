@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: validated
-version: 1.3.0
+status: draft
+version: 1.4.0
 sources: []
 ---
 
@@ -348,3 +348,78 @@ daquela feature, em rodada). Os requisitos e o escopo do F-Spec desta feature n�
   treino; de `dirigibilidade`, ADR-0006 e as linhas de DES-0001 e DES-0005 sobre a retirada do drift; da árvore,
   `src/main.ts`, `index.html`, `src/style.css`, `src/physics.ts` (linhas da manobra) e os testes nas linhas que o
   FB-01 cita, só para posicionamento.
+
+## 2026-11-03 — rodada de 2026-11-03, Mode A (seed `revision: 2`, acabamento visual)
+
+**O que mudou**
+
+- Upstream: F-Spec revalidado para o seed `revision: 2` (`fspec-validation-20261103-1908`, SUCCESS, commit
+  `cb86210`): FEAT-0008 e RULE-0006 novos, SCR-0003 1.1.0, FEAT-0007 1.1.0 (taxa de quadros com o acabamento),
+  RULE-0005 1.1.0 (arquivo byte a byte igual, `trackVersion` 1). Regenerado sobre o conjunto existente: todo id e
+  todo projeto que a mudança não toca ficam como estavam.
+- `web/DES-0008` 2.0.0: `src/trackScene.ts` ganha os filhos `grass` (400 faixas de 5 m em 2 tons, `grassToneAt`
+  só da posição) e `edge-lines` (faixa de 0,10 m em esquadro por dentro de cada borda); `curbs` vira rampa de 0 m
+  a `CURB_RELIEF_M` 0,04 m; `barriers` passa de caixas a pilhas de 5 pneus de 0,18 m (raio 0,12 m, centros a até
+  0,18 m), pretas; `src/main.ts` oculta o `ground` só com a Kart Park visível. Novas constantes
+  `EDGE_LINE_WIDTH_M`, `CURB_RELIEF_M`, `TYRE_RADIUS_M`, `TYRE_SEGMENTS`, `TYRE_HEIGHT_M`, `TYRES_PER_STACK`,
+  `TYRE_SPACING_M`, `GRASS_STRIPE_M`, `GRASS_TONES` e a função `grassToneAt`; nenhum módulo, dependência,
+  arquivo de imagem ou configuração novo. Ids novos: nenhum `DES`, `DM` ou `ADR`; E2E-09 no roteiro.
+- `core/DES-0006` 1.2.0: a simulação não muda com o acabamento (nenhum módulo de simulação importa
+  `./trackScene`), provado pelo traço `tests/fixtures/kartParkRev1Trace.json` registrado antes do código da
+  revisão 2 (REQ-FEAT-0008-08, -25 a -27).
+- `pipeline/DES-0011` 1.1.0: o arquivo publicado continua o da versão 1, com o SHA-256 registrado e
+  `trackVersion` 1 (REQ-FEAT-0008-28, -29).
+- `test-strategy.md` 1.2.0: linha de FEAT-0008, caminho de AC-US-0007-01 a -21 e dos requisitos sem critério de
+  história (REQ-FEAT-0008-22 a -29), fixture do traço e luminância calculada no teste, E2E-03, E2E-05 e E2E-07
+  com o acabamento, E2E-09 (imagem da pista sintética igual à de antes).
+- `98-divergences.md` 1.2.0: uma linha aberta para o acabamento (DES-0008); os requisitos da revisão 2 já
+  satisfeitos hoje listados com o ponto do código.
+- `01-architecture.md` 1.2.0: escopo FEAT-0001 a FEAT-0008, RULE-0001 a RULE-0006, seed `revision: 2`; linha
+  de `src/trackScene.ts`.
+- Upstream: `300 Specs/320 F-Specs/Output/pista-kart-park/reports/feedback/FEEDBACK-02.md` (alinhamento de texto
+  de RULE-0006 sobre a face de colisão).
+- `00-index.md` e `99-traceability.md` regenerados pelo gate (`lint_artifacts.py --emit`).
+
+**Pontos resolvidos no projeto**
+
+- Face de colisão da barreira (REQ-FEAT-0008-14): medida contra a superfície de contato a
+  `BARRIER_HALF_WIDTH_M` = 0,1 m de cada lado (ADR-0003), onde o kart para; a face desenhada fica entre 0,073 m e
+  0,12 m da poligonal, a no máximo 0,027 m da face de colisão, largura total de 0,146 m a 0,24 m. A constante da
+  simulação não muda (NFR-0013, NFR-0014). Folga da poligonal ao asfalto ≥ 0,51 m e à zebra ≥ 5,04 m (seed
+  `NOTES.md`, 2026-11-03): nenhum pneu sobre asfalto ou zebra.
+- Tons de grama (REQ-FEAT-0008-17): a leitura que vale é a fórmula de RULE-0006,
+  \|L(t) − L(ref)\| / L(ref) em [0,08, 0,20], com L a luminância relativa WCAG 2 e ref `#68865b`; a frase de
+  SCR-0003 apontada no aviso ISSUE-02 de `fspec-validation-20261103-1908` é deslize de redação. Tons `#6e8f60`
+  (0,147) e `#627d56` (0,136).
+
+**Migração de verificações planejadas** (nenhuma removida)
+
+| Verificação | Antes | Agora |
+|---|---|---|
+| CHK-TEST-0010-03 (`tests/pista-kart-park-scene.test.ts:66`) | uma caixa por segmento, centrada, no comprimento dele, 0,2 m de espessura | pilhas de pneus da primeira à última ponta de cada poligonal, centros a até `TYRE_SPACING_M`, 0,9 m de altura, envoltória a até 0,05 m da face de colisão |
+| CHK-TEST-0010-02 (`:33`) | faixas da zebra no lado e no trecho, planas | o mesmo, com os vértices de fora a `CURB_Y + CURB_RELIEF_M` |
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Mudar `BARRIER_HALF_WIDTH_M` para a fileira ficar a no máximo 0,05 m da poligonal, como a frase de RULE-0006
+  deduz: não adotado; mudaria a colisão, o que NFR-0013 proíbe, e o kart pararia antes dos pneus vistos.
+  Devolvido ao F-Spec em FEEDBACK-02.
+- Desenhar a face dos pneus contra a poligonal com a superfície de contato como está: não adotado; o kart
+  pararia 0,05 m a 0,1 m antes dos pneus, contra AC-US-0007-11.
+- Textura de grama, ruído ou sorteio de tons: não adotados; REQ-FEAT-0008-18 e -23 pedem tom só da posição e
+  nada baixado, e uma textura seria arquivo de imagem novo.
+- Estreitar a linha de largada para não cobrir a faixa de borda: desnecessário; no ponto 0 ela fica a 0,315 m de
+  cada borda, e o teste de cena afirma a folga.
+- Novo ADR para as constantes do acabamento: não escrito; são escolhas dentro das medidas que RULE-0006 fixa, sem
+  consequência além da feature, com o motivo de cada uma em DES-0008.
+- Mudar o texto de SCR-0003 (ISSUE-02 do F-Spec): não é escrita deste estágio; o D-Spec segue RULE-0006.
+- REQ-FEAT-0007-12 1.1.0 deixou de exigir o registro da dependência no D-Spec: o registro em `01-architecture.md`
+  ("Ordem de entrega") e em DES-0006 fica, porque continua verdadeiro e não acrescenta exigência.
+- Sem mudança, carregados na versão corrente: `core/DES-0001` a `DES-0005`, `web/DES-0007`, `web/DES-0009`,
+  `pipeline/DES-0010`, `security/DES-0012`, `data/DM-0001`, `data/DM-0002`, `adr/ADR-0001` a `ADR-0007`; as linhas
+  de `98-divergences.md` anteriores a esta rodada não são rejulgadas.
+- Leituras fora do F-Spec, declaradas: `src/trackScene.ts`, `src/main.ts` (chão, cena sintética, `chooseTrack`),
+  `src/trackGeometry.ts` (bordas, normais, `BARRIER_HALF_WIDTH_M`), `src/physics.ts` (exportações),
+  `src/tracks/kart-park-v1.json` e `tracks/registry.json` (medidas e resumo), `tests/pista-kart-park-scene.test.ts`
+  e `tests/pista-kart-park-publication.test.ts` (nomes das verificações), só para posicionamento. As folgas da
+  barreira vêm do seed `NOTES.md` via o pedido desta rodada, não lidas aqui.

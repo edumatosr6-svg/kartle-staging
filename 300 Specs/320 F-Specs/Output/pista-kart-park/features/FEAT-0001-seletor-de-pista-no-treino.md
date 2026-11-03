@@ -4,7 +4,7 @@ title: Seletor de pista no treino
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
+version: 1.0.2
 sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07]
 ---
 
@@ -77,7 +77,7 @@ início, pausa, fim) é de `race-lap-validation`, sem mudança.
 | Jogador escolhe a pista sintética | A sessão da Kart Park é encerrada; a pista sintética é carregada; kart na largada dela; nenhuma volta em andamento |
 | Jogador escolhe a opção que já é a da sessão | Sem efeito: a sessão continua como está ([API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md), idempotência) |
 | Jogador inicia uma volta | Volta de treino (`TRAINING`, sem `challengeNumber`) na pista da sessão; o `trackId` do estado da volta é o da sessão |
-| Escolha de outra pista com volta em andamento | A volta é descartada sem resultado e não continua na pista nova; kart na largada da pista nova (requisito 10). Pelas telas, o seletor só é alcançado sem volta em andamento (ao abrir e depois da tela de resultado); o descarte vale para qualquer outro caminho |
+| Escolha de outra pista com volta em andamento | A volta é descartada sem resultado e não continua na pista nova; kart na largada da pista nova (requisito 10). Pelas telas, o seletor só é alcançado sem volta em andamento (ao abrir e depois de "encerrar treino"); o descarte vale para qualquer outro caminho |
 | Recarregar ou abandonar a página | O jogo abre de novo com a Kart Park selecionada; a volta em andamento não continua e não produz resultado (regra de `race-lap-validation`); nenhum registro de desafio diário |
 | Perder o foco da aba durante o treino | A pista da sessão não muda; a volta é pausada pela regra de `race-lap-validation`; nenhum registro de desafio diário |
 | Dado da pista escolhida ilegível ou de esquema desconhecido | Erro exibido na tela inicial; nenhuma sessão nessa pista; as duas opções continuam selecionáveis; o arquivo não é alterado (I4) |

@@ -4,7 +4,7 @@ title: Sessão de treino e seleção de pista
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [US-0001, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07]
 ---
 
@@ -58,6 +58,6 @@ voltas de uma sessão têm o contador de sequência de `race-lap-validation` (`s
 |---|---|
 | Toda volta pedida numa sessão `READY` vai com `lapKind` `TRAINING`, o `trackId` e o `trackVersion` da sessão e sem `challengeNumber` | AC-US-0001-03, AC-US-0001-04, AC-US-0001-05 |
 | Nenhuma transição grava no navegador: nem a pista escolhida, nem a sessão, nem registro de desafio diário (tentativa ou resultado) | AC-US-0001-02, AC-US-0001-05 |
-| Encerrar uma sessão nunca produz resultado para a volta que estava nela; uma volta já `ENDED` já teve o seu resultado exibido pela tela de resultado, e nada dele é gravado como desafio diário | AC-US-0001-05, AC-US-0001-07 |
+| Encerrar uma sessão nunca produz resultado para a volta que estava nela; uma volta do treino já encerrada no cruzamento da chegada já teve o seu resultado exibido no painel "Resultado da volta do treino" ([SCR-0002](../screens/SCR-0002-credito-na-tela-de-resultado.md)), e nada dele é gravado como desafio diário | AC-US-0001-05, AC-US-0001-07 |
 | Recarregar ou fechar a página encerra a sessão como em `race-lap-validation` (nenhum resultado para volta não encerrada); a reabertura começa em `NO_SESSION` e volta à Kart Park | AC-US-0001-02 |
 | A perda do sensor ou da permissão em `web-mobile` não muda `sessionState` nem `selectedTrackId` | I4 |

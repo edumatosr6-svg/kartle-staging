@@ -4,7 +4,7 @@ title: Kart Park na tela de corrida e retorno da zebra
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [US-0002, US-0003, US-0004, US-0005, US-0007, NFR-0002, AC-US-0002-08, AC-US-0003-06, AC-US-0004-06, AC-US-0005-03, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0007-01, AC-US-0007-02, AC-US-0007-05, AC-US-0007-06, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-16, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20]
 ---
 
@@ -44,7 +44,7 @@ som da zebra em `web-desktop`, com o som ligado, e permitido sem ser exigido em 
 | Faixa de borda (Kart Park) | Faixa branca contínua de 0,10 m por dentro de cada borda do asfalto, em toda a volta, sem interrupção junto à zebra nem na linha de largada | AC-US-0007-01, AC-US-0007-02 |
 | Relevo da zebra (Kart Park) | Cada zebra com altura 0 m na borda do lado do asfalto e maior que 0 m e de no máximo 0,05 m na borda de fora; só desenho | AC-US-0007-05, AC-US-0007-06 |
 | Barreira de pneus (Kart Park) | A barreira desenhada como fileira de pneus pretos empilhados, de 0,9 m de altura, em toda a extensão, com a face dos pneus a no máximo 0,05 m da face de colisão de cada lado e nenhum pneu sobre o asfalto ou a zebra | AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12 |
-| Tons de grama (Kart Park) | Ao menos 2 tons de verde, cada um com luminância relativa a 8 % a 20 % da de `#68865b`; o tom de cada posição do chão é o mesmo em toda abertura e em todo aparelho | AC-US-0007-13, AC-US-0007-14, AC-US-0007-20 |
+| Tons de grama (Kart Park) | Ao menos 2 tons de verde, cada um com luminância relativa que difere da de `#68865b` entre 8 % e 20 % desse valor (\|*L*(*t*) − *L*(`#68865b`)\| / *L*(`#68865b`) entre 0,08 e 0,20, [RULE-0006](../rules/RULE-0006-acabamento-visual-da-kart-park.md)); o tom de cada posição do chão é o mesmo em toda abertura e em todo aparelho | AC-US-0007-13, AC-US-0007-14, AC-US-0007-20 |
 | Vibração da zebra (`web-mobile`) | Pulsos de 20 ms, no máximo um a cada 250 ms de tempo simulado, enquanto `curbWheelCount` é maior que 0 | AC-US-0005-07, AC-US-0005-08 |
 | Som da zebra (`web-desktop`) | Repetições do som próprio da zebra, no intervalo constante, enquanto `curbWheelCount` é maior que 0, com o som ligado | AC-US-0005-09, AC-US-0005-10, AC-US-0005-11; com o relevo desenhado, AC-US-0007-18, AC-US-0007-19 |
 
@@ -80,6 +80,7 @@ Park ([FEAT-0007](../features/FEAT-0007-requisitos-transversais.md), NFR-0002).
 
 ## Navegação
 
-Entrada pela tela inicial; saída para a tela de resultado ([SCR-0002](SCR-0002-credito-na-tela-de-resultado.md))
-ao `ENDED`, como em `race-lap-validation`. Recarregar ou abandonar a página durante a volta não produz
+Entrada pela tela inicial. O resultado de cada volta aparece, sem sair desta tela e sem parar o jogo, no
+painel "Resultado da volta do treino" ([SCR-0002](SCR-0002-credito-na-tela-de-resultado.md)); a saída para a
+tela inicial é pela ação "encerrar treino", como em `race-lap-validation`. Recarregar ou abandonar a página durante a volta não produz
 resultado e reabre o jogo na tela inicial com a Kart Park.

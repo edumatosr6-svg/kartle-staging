@@ -1,7 +1,7 @@
 ---
 stage: fspec
 feature: pista-kart-park
-generated: 2026-11-03T19:11:23Z
+generated: 2026-11-03T19:39:24Z
 rows: 318
 ---
 

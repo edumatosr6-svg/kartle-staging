@@ -3,7 +3,7 @@ title: Glossário — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: []
 ---
 
@@ -25,6 +25,7 @@ glossário dos requisitos; as definições geométricas e as linhas de enum e de
 | Seletor de pista | Controle da tela inicial com duas opções, a Kart Park e a pista sintética; escolher uma opção carrega aquela pista no treino |
 | Catálogo do treino | A lista fixa das pistas que o seletor oferece, com o nome, o comprimento exibido e a indicação de crédito OSM de cada uma ([API-0002](api/API-0002-catalogo-e-selecao-da-pista-do-treino.md)) |
 | Treino | Pilotagem livre na pista escolhida no seletor, só com volta de treino (`lapKind` `TRAINING`); não gera tentativa nem resultado de desafio diário (I1) |
+| Tela de resultado | Nos requisitos, a tela exibida ao fim de uma volta, com o tempo da volta. Para a volta de treino, a única desta feature, é o painel "Resultado da volta do treino" da tela de corrida de `race-lap-validation`, exibido sem parar o jogo ([SCR-0002](screens/SCR-0002-credito-na-tela-de-resultado.md)) |
 | Sessão de treino | O estado da simulação e da volta numa pista escolhida no seletor, do momento em que a pista é carregada até a escolha de outra pista ou o fechamento da página ([RULE-0003](rules/RULE-0003-sessao-de-treino-e-selecao-de-pista.md)) |
 | Desafio diário | Desafio do dia, ligado a um `challengeNumber`; ainda não existe e é de outra feature |
 | Traçado aproximado | Apresentação da Kart Park com a linha central suavizada e 8,3 % mais curta que o traçado oficial de 750 m |
@@ -74,7 +75,7 @@ glossário dos requisitos; as definições geométricas e as linhas de enum e de
 | Faixa de borda | Faixa branca contínua de 0,10 m por dentro do asfalto, junto a cada borda do asfalto, em toda a volta da Kart Park; asfalto para a simulação |
 | Relevo da zebra | Altura desenhada da zebra: 0 m na borda do lado do asfalto, maior que 0 m e no máximo 0,05 m na borda de fora; fora da simulação |
 | Barreira de pneus | A barreira desenhada como fileira de pneus pretos empilhados de 0,9 m de altura, com a face a no máximo 0,05 m da face de colisão de cada lado |
-| Face de colisão | Cada lado da poligonal de uma barreira do arquivo de pista, em que o kart bate e para |
+| Face de colisão | De cada um dos dois lados de uma barreira do arquivo de pista, a superfície em que o kart bate e para; não é a poligonal da barreira, que não tem espessura, e a distância entre as duas é de projeto |
 | Tom de grama | Cada verde em que a grama da Kart Park é desenhada; ao menos 2, todos `GRASS` para a simulação |
 | Luminância relativa | Luminância de uma cor na definição da WCAG 2; a de cada tom de grama difere da de `#68865b`, a cor de grama de antes da revisão 2, entre 8 % e 20 % desse valor |
 | Revisão 2 | A revisão do seed de 2026-11-03, que acrescenta só o acabamento; "o jogo de antes da revisão 2" é a referência de NFR-0013 e de AC-US-0007-07 e AC-US-0007-16 |
