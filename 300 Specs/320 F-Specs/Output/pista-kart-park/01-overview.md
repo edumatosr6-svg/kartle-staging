@@ -3,7 +3,7 @@ title: Visão geral — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: []
 ---
 
@@ -15,10 +15,12 @@ Esta especificação funcional diz o que o Kartle faz para ter a sua primeira pi
 (São José dos Pinhais, PR), jogável no treino ao lado da pista sintética: o seletor de pista da tela
 inicial, o arquivo de pista gerado offline (linha central suavizada, larguras ponto a ponto, chegada,
 setores, marcadores, zebras e barreira), as regras de superfície e de colisão que a simulação aplica
-nele, o retorno da zebra (vibração em `web-mobile`, som em `web-desktop`) e o crédito OpenStreetMap/ODbL
-com o nome "traçado aproximado". A base é o conjunto de requisitos validado em
-`200 Requirements/230 Output/pista-kart-park/` (US-0001 a US-0006, NFR-0001 a NFR-0012, versão 1.0.0),
-que já carrega as decisões do dono do produto de 2026-10-22 (`DOMAIN/DEC-01` a `DOMAIN/DEC-11`, rótulos
+nele, o retorno da zebra (vibração em `web-mobile`, som em `web-desktop`), o crédito OpenStreetMap/ODbL
+com o nome "traçado aproximado" e o acabamento visual de kartódromo da Kart Park (faixa branca de borda,
+zebra com relevo, barreira de pneus e grama em tons de verde), que é só desenho. A base é o conjunto de requisitos validado em
+`200 Requirements/230 Output/pista-kart-park/` (US-0001 a US-0007, NFR-0001 a NFR-0014; changelog 1.2.0;
+seed `revision: 2`, de 2026-11-03; validação `req-validation-20261103-1900`, SUCCESS), que já carrega as
+decisões do dono do produto de 2026-10-22 e de 2026-11-03 (`DOMAIN/DEC-01` a `DOMAIN/DEC-12`, rótulos
 definidos em `01-context.md` daquele conjunto). Todo número usado aqui vem desses requisitos, que o tomaram
 das medições do seed.
 
@@ -30,8 +32,8 @@ em processo dentro do navegador e nos ensaios, únicos para os dois canais, e n�
 
 | Canal | O que esta especificação fixa |
 |---|---|
-| `web-desktop` | Seletor com as duas pistas, Kart Park selecionada ao abrir; pilotagem pelo teclado; zebras e barreira desenhadas; retorno da zebra só pelo som, com o som ligado; crédito no seletor e na tela de resultado |
-| `web-mobile` | O mesmo seletor, a mesma pista e as mesmas regras; pilotagem por inclinação e toque, ou só toque com estado visível sem sensor ou sem permissão (I4); retorno da zebra pela vibração de 20 ms a cada 0,25 s, se o navegador permitir; o som da zebra é permitido e não exigido; o mesmo crédito |
+| `web-desktop` | Seletor com as duas pistas, Kart Park selecionada ao abrir; pilotagem pelo teclado; zebras e barreira desenhadas, com o acabamento na Kart Park; retorno da zebra só pelo som, com o som ligado; crédito no seletor e na tela de resultado |
+| `web-mobile` | O mesmo seletor, a mesma pista, o mesmo acabamento com as mesmas medidas e as mesmas regras; pilotagem por inclinação e toque, ou só toque com estado visível sem sensor ou sem permissão (I4); retorno da zebra pela vibração de 20 ms a cada 0,25 s, se o navegador permitir; o som da zebra é permitido e não exigido; o mesmo crédito |
 | Preparo offline (Curador do catálogo) | Sem canal de jogo: gera o arquivo de pista da Kart Park a partir do arquivo de origem, verifica-o e o publica como `trackVersion` 1, só em staging até a decisão sobre a licença Esri |
 
 Geometria, largura, zebra, barreira, setores, marcadores, aderência e colisão são idênticos nos dois
@@ -42,11 +44,11 @@ controle e no retorno da zebra.
 
 | Parte | Onde |
 |---|---|
-| Funcionalidades | `features/FEAT-0001` (seletor de pista no treino), `FEAT-0002` (forma, largura e versão do arquivo de pista), `FEAT-0003` (setores, chegada, marcadores e validação da volta), `FEAT-0004` (barreira nos trechos quase encostados), `FEAT-0005` (zebra com efeito), `FEAT-0006` (crédito, nome e comprimento), `FEAT-0007` (requisitos transversais) |
+| Funcionalidades | `features/FEAT-0001` (seletor de pista no treino), `FEAT-0002` (forma, largura e versão do arquivo de pista), `FEAT-0003` (setores, chegada, marcadores e validação da volta), `FEAT-0004` (barreira nos trechos quase encostados), `FEAT-0005` (zebra com efeito), `FEAT-0006` (crédito, nome e comprimento), `FEAT-0007` (requisitos transversais), `FEAT-0008` (acabamento visual da Kart Park) |
 | Fluxos | `flows/FLOW-0001` (abertura do jogo, escolha e troca de pista), `FLOW-0002` (passo de simulação na Kart Park e retorno da zebra), `FLOW-0003` (preparo offline, verificação e publicação do arquivo de pista) |
 | Contratos | `api/API-0001` (dado de pista com linha central, larguras, zebras e barreiras), `API-0002` (catálogo e seleção da pista do treino), `API-0003` (contato do kart com a pista: superfície por roda, borda da pista e barreira) |
 | Telas | `screens/SCR-0001` (tela inicial com o seletor de pista), `SCR-0002` (crédito na tela de resultado), `SCR-0003` (Kart Park na tela de corrida e retorno da zebra) |
-| Regras | `rules/RULE-0001` (superfície, borda da pista e obstáculos), `RULE-0002` (geometria e verificações do arquivo de pista gerado), `RULE-0003` (sessão de treino e seleção de pista), `RULE-0004` (retorno da zebra), `RULE-0005` (versão e publicação da pista) |
+| Regras | `rules/RULE-0001` (superfície, borda da pista e obstáculos), `RULE-0002` (geometria e verificações do arquivo de pista gerado), `RULE-0003` (sessão de treino e seleção de pista), `RULE-0004` (retorno da zebra), `RULE-0005` (versão e publicação da pista), `RULE-0006` (acabamento visual da Kart Park) |
 
 O índice (`00-index.md`) e a matriz de rastreabilidade (`99-traceability.md`) são gerados pelo gate e não
 são escritos à mão.
@@ -57,7 +59,10 @@ A forma da pista, a superfície sob cada roda, a aderência na zebra, a colisão
 os marcadores e o corte são decididos na simulação, a partir do arquivo de pista; a apresentação só
 desenha a pista e exibe o estado, e os adaptadores de controle só entregam o `Input` normalizado (D-FS-05,
 NFR-0007). O retorno da zebra (vibração e som) é efeito da apresentação disparado pelo estado da
-simulação, nunca uma regra de pista. O preparo do arquivo é offline e fica fora do cliente (I10): o jogo não
+simulação, nunca uma regra de pista. O acabamento visual (faixa de borda, relevo
+da zebra, barreira de pneus, tons de grama) também é só da apresentação: a simulação não o lê, e a mesma
+sequência de `Input` dá a mesma volta antes e depois dele (NFR-0013,
+[RULE-0006](rules/RULE-0006-acabamento-visual-da-kart-park.md)). O preparo do arquivo é offline e fica fora do cliente (I10): o jogo não
 suaviza, não converte e não edita pista.
 
 ## Contratos existentes nomeados, não redefinidos
@@ -103,6 +108,15 @@ suaviza, não converte e não edita pista.
   não puder ser lido (AC-US-0006-01 a AC-US-0006-03), e nome e comprimento exibidos não estão entre as
   mudanças que exigem versão nova da pista (NFR-0006). O arquivo de pista declara `osmDerived`, a
   proveniência do dado (I6).
+- **Acabamento só na Kart Park, calculado do dado que já existe.** O acabamento é desenhado quando a pista
+  da sessão é `kart-park`, a partir de `centerline`, `curbs` e `barriers`, sem campo novo em nenhum
+  contrato: o arquivo publicado não muda (NFR-0014), e a pista sintética fica com a aparência de antes
+  (AC-US-0007-16).
+- **Face de colisão da barreira.** A barreira do arquivo é uma poligonal sem espessura
+  ([API-0001](api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)), e o kart para nela dos
+  dois lados; a face de colisão de cada lado é essa poligonal. Com a face dos pneus a no máximo 0,05 m
+  dela de cada lado (AC-US-0007-11), a fileira de pneus desenhada ocupa no máximo 0,05 m de cada lado da
+  poligonal. Dar espessura à barreira mudaria o arquivo (NFR-0014) ou a trajetória (NFR-0013).
 - **Retorno da zebra em tempo simulado.** O intervalo de 0,25 s entre pulsos de vibração e o intervalo
   entre repetições do som são contados em passos de `STEP` (I8, I9): com a simulação suspensa (pausa,
   perda de foco, perda do sensor), nenhum pulso ou repetição novo começa.
@@ -127,7 +141,7 @@ os inventa:
 | Se o link do crédito abre na mesma aba ou em outra | Qualquer das duas preserva os critérios: o treino não persiste dado (US-0001) e a perda de foco pausa a volta como hoje |
 | Cerca ou muro no perímetro externo da Kart Park | Nenhum: o cenário além de asfalto, zebra, grama e barreiras é de outra feature (`SEED/FE-05`) |
 | Origem das coordenadas do arquivo gerado | Decisão do preparo offline; só os eixos (leste = +x, norte = −z) e o metro são exigidos |
-| Aparência da zebra e da barreira | Decisão de design; exige-se que a zebra apareça no lado declarado e a barreira em todo o seu comprimento |
+| Detalhes da aparência do acabamento | Os requisitos fixam a largura da faixa, as alturas do relevo e da pilha de pneus, a distância dos pneus à face de colisão e a faixa de luminância dos tons; o perfil do relevo entre as duas bordas da zebra, as cores da zebra, o diâmetro e a contagem dos pneus, quantos tons de grama além de 2 e o padrão que os distribui pelo chão são decisão de design |
 
 ## Fora do escopo
 
@@ -139,6 +153,9 @@ Idêntico ao dos requisitos:
 - Medalhas e cores de setor (`SEED/FE-03`).
 - Recorde da pista real e qualquer comparação com tempos reais (`SEED/FE-04`).
 - O cenário além de asfalto, zebra, grama e barreiras, como árvores, tribuna e boxes (`SEED/FE-05`).
+- Zebra com relevo na física: o kart subir ou trepidar na zebra (`SEED/FE-06`); o relevo é só desenho.
+- Chão com foto de satélite ou textura baixada da rede (`SEED/FE-07`).
+- Aproximar o traçado dos 750 m oficiais (`SEED/FE-08`).
 - O canal `remote-wheel` (pós-MVP, I10) e um editor de pista no jogo (I10).
 
 ## Como a especificação é verificada
@@ -147,11 +164,13 @@ Os critérios observados no arquivo de pista gerado são verificados lendo o arq
 ([RULE-0002](rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md)); os observados no estado da
 simulação, avançando a simulação com `STEP` sem renderização (NFR-0007, I9); os observados na tela, no
 som e na vibração, no estado da tela e com um registro dos pulsos e repetições pedidos por passo; a taxa de
-quadros, por teste registrado nos aparelhos de referência de RNF03 (NFR-0002). A pista sintética continua
+quadros, por teste registrado nos aparelhos de referência de RNF03, com o acabamento na tela (NFR-0002);
+o acabamento sem efeito na volta, avançando com `STEP` as mesmas sequências de `Input` no jogo de antes e
+no de depois da revisão 2 do seed (NFR-0013); o arquivo inalterado, pelo resumo criptográfico registrado
+na publicação da versão 1 (NFR-0014). A pista sintética continua
 sendo a pista dos ensaios automáticos de `dirigibilidade` e de `race-lap-validation` (NFR-0009); os
 ensaios desta feature usam a Kart Park.
 
 **Ordem de entrega.** O código desta feature só começa depois que `dirigibilidade` passar nos testes e for
 commitada (NFR-0011), porque as duas mudam os mesmos arquivos de simulação e de pista e `dirigibilidade`
-congela as regras de volta enquanto está em andamento. Por decisão do autor para esta execução
-(2026-10-22), a dependência é registrada no D-Spec, com a lista exata dos arquivos.
+congela as regras de volta enquanto está em andamento.

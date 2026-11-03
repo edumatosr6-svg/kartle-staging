@@ -4,7 +4,7 @@ title: Requisitos transversais da Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [NFR-0002, NFR-0003, NFR-0004, NFR-0007, NFR-0008, NFR-0009, NFR-0010, NFR-0011, NFR-0012]
 ---
 
@@ -27,11 +27,12 @@ processo, sem canal.
 
 ## Requisitos
 
-- REQ-FEAT-0007-01: O sistema SHALL sustentar 60 fps durante uma volta completa na Kart Park, com zebras e
-  barreira na tela, em notebook entre os aparelhos de referência de RNF03, provado por teste registrado no
+- REQ-FEAT-0007-01: O sistema SHALL sustentar 60 fps durante uma volta completa na Kart Park, com zebras,
+  barreira e o acabamento de US-0007 (faixa de borda, relevo da zebra, barreira de pneus e tons de grama)
+  na tela, em notebook entre os aparelhos de referência de RNF03, provado por teste registrado no
   aparelho nomeado (NFR-0002).
-- REQ-FEAT-0007-02: O sistema SHALL sustentar 30 fps durante uma volta completa na Kart Park, com zebras e
-  barreira na tela, em celular intermediário entre os aparelhos de referência de RNF03, provado por teste
+- REQ-FEAT-0007-02: O sistema SHALL sustentar 30 fps durante uma volta completa na Kart Park, com zebras,
+  barreira e o acabamento de US-0007 na tela, em celular intermediário entre os aparelhos de referência de RNF03, provado por teste
   registrado no aparelho nomeado; uma execução em desktop não vale para celular (NFR-0002).
 - REQ-FEAT-0007-03: O sistema SHALL dar, para a mesma sequência de `Input` a partir do mesmo estado inicial
   na Kart Park, o mesmo `lapMs`, idêntico ao milissegundo em todas as execuções repetidas (NFR-0003).
@@ -57,7 +58,7 @@ processo, sem canal.
   de `dirigibilidade` e de `race-lap-validation`, sem que nenhum deles passe a usar a Kart Park (NFR-0009).
 - REQ-FEAT-0007-11: O sistema SHALL NOT acrescentar dependência de execução ao jogo (NFR-0010).
 - REQ-FEAT-0007-12: O código desta feature SHALL começar só depois do commit em que `dirigibilidade` foi
-  entregue com os testes passando, com a dependência registrada no D-Spec (NFR-0011).
+  entregue com os testes passando (NFR-0011).
 - REQ-FEAT-0007-13: O sistema SHALL NOT ser promovido para produção com a Kart Park antes de a decisão do
   dono do produto sobre a licença Esri estar registrada em `DOMAIN.md`; staging pode usar a pista
   (NFR-0012).
@@ -77,7 +78,7 @@ Passo e retorno: [FLOW-0002](../flows/FLOW-0002-passo-de-simulacao-na-kart-park.
 | Ensaios de `dirigibilidade` e de `race-lap-validation` | Continuam na pista sintética, com os números calibrados nela; os ensaios desta feature usam a Kart Park |
 | `dirigibilidade` ainda sem testes passando | O código desta feature não começa; as especificações seguem (NFR-0011) |
 | Licença Esri sem decisão | Staging com a Kart Park; nenhuma promoção para produção com ela; nenhuma etapa de especificação é bloqueada (NFR-0012) |
-| Taxa de quadros abaixo do limite no aparelho de referência | O requisito falha; não há configuração que reduza o desenho da pista para cumprir o limite |
+| Taxa de quadros abaixo do limite no aparelho de referência | O requisito falha; não há configuração que reduza o desenho da pista nem o acabamento para cumprir o limite ([FEAT-0008](FEAT-0008-acabamento-visual.md), requisito 24) |
 
 ## Estado
 
@@ -92,7 +93,7 @@ forçar uma superfície ou liberar a promoção.
 ## Critérios de aceite
 
 - O teste registrado no notebook de referência mostra pelo menos 60 fps sustentados numa volta completa na
-  Kart Park, e o do celular intermediário, pelo menos 30 fps (cobre os requisitos 01 e 02).
+  Kart Park com o acabamento de US-0007 na tela, e o do celular intermediário, pelo menos 30 fps (cobre os requisitos 01 e 02).
 - A saída de `npm test` avança a simulação na Kart Park pela mesma sequência de `Input` ao menos 2 vezes e
   compara `lapMs` e os 4 `sectorMs`, iguais em todas (cobre os requisitos 03 e 04).
 - O registro de rede do navegador, da escolha da Kart Park ao fim de uma volta, em cada canal, não tem
@@ -108,7 +109,7 @@ forçar uma superfície ou liberar a promoção.
 - A lista de dependências de execução do projeto é a mesma antes e depois da feature (cobre o requisito
   11).
 - O histórico de commits não tem commit de código desta feature anterior ao commit de entrega de
-  `dirigibilidade` com os testes passando, e o D-Spec registra a dependência (cobre o requisito 12).
+  `dirigibilidade` com os testes passando (cobre o requisito 12).
 - O registro de liberação da etapa de deploy não tem promoção para produção com a Kart Park anterior à data
   da decisão em `DOMAIN.md` (cobre o requisito 13).
 

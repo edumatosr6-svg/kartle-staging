@@ -3,7 +3,7 @@ title: Glossário — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: []
 ---
 
@@ -69,6 +69,15 @@ glossário dos requisitos; as definições geométricas e as linhas de enum e de
 | Crédito OSM | Linha com "© colaboradores do OpenStreetMap", a menção "licença ODbL" e um link para `https://openstreetmap.org/copyright` |
 | Staging / produção | Os dois ambientes de publicação; a Kart Park fica só em staging até a decisão sobre a licença Esri |
 | Versão da pista | O `trackVersion` de um arquivo de pista publicado; nunca muda depois de publicado |
+| Acabamento | O desenho de kartódromo da Kart Park: faixa de borda, relevo da zebra, barreira de pneus e tons de grama; só desenho, fora da simulação ([RULE-0006](rules/RULE-0006-acabamento-visual-da-kart-park.md)) |
+| Cena desenhada | O que a tela desenha, com as medidas em metros do mundo do jogo, de onde se leem as larguras, alturas e distâncias do acabamento |
+| Faixa de borda | Faixa branca contínua de 0,10 m por dentro do asfalto, junto a cada borda do asfalto, em toda a volta da Kart Park; asfalto para a simulação |
+| Relevo da zebra | Altura desenhada da zebra: 0 m na borda do lado do asfalto, maior que 0 m e no máximo 0,05 m na borda de fora; fora da simulação |
+| Barreira de pneus | A barreira desenhada como fileira de pneus pretos empilhados de 0,9 m de altura, com a face a no máximo 0,05 m da face de colisão de cada lado |
+| Face de colisão | Cada lado da poligonal de uma barreira do arquivo de pista, em que o kart bate e para |
+| Tom de grama | Cada verde em que a grama da Kart Park é desenhada; ao menos 2, todos `GRASS` para a simulação |
+| Luminância relativa | Luminância de uma cor na definição da WCAG 2; a de cada tom de grama difere da de `#68865b`, a cor de grama de antes da revisão 2, entre 8 % e 20 % desse valor |
+| Revisão 2 | A revisão do seed de 2026-11-03, que acrescenta só o acabamento; "o jogo de antes da revisão 2" é a referência de NFR-0013 e de AC-US-0007-07 e AC-US-0007-16 |
 
 ## Enums e campos
 

@@ -4,8 +4,8 @@ title: Kart Park na tela de corrida e retorno da zebra
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [US-0002, US-0003, US-0004, US-0005, NFR-0002, AC-US-0002-08, AC-US-0003-06, AC-US-0004-06, AC-US-0005-03, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11]
+version: 1.1.0
+sources: [US-0002, US-0003, US-0004, US-0005, US-0007, NFR-0002, AC-US-0002-08, AC-US-0003-06, AC-US-0004-06, AC-US-0005-03, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0007-01, AC-US-0007-02, AC-US-0007-05, AC-US-0007-06, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-16, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20]
 ---
 
 # SCR-0003 — Kart Park na tela de corrida e retorno da zebra
@@ -14,14 +14,17 @@ sources: [US-0002, US-0003, US-0004, US-0005, NFR-0002, AC-US-0002-08, AC-US-000
 
 O que esta feature acrescenta à tela de corrida de `race-lap-validation`: o desenho da Kart Park a partir
 do arquivo de pista (asfalto com a largura de cada ponto, zebras no lado declarado, barreira em todo o
-comprimento) e o retorno da zebra (vibração em `web-mobile`, som em `web-desktop`). O HUD da volta, o
+comprimento), o acabamento visual da Kart Park (faixa de borda, relevo da zebra, barreira de pneus e tons
+de grama, [FEAT-0008](../features/FEAT-0008-acabamento-visual.md)) e o retorno da zebra (vibração em
+`web-mobile`, som em `web-desktop`). O HUD da volta, o
 estado e o motivo ("marcador pulado", "corte"), a pausa e o reposicionamento são de `race-lap-validation`,
 e o HUD de velocidade e aderência é de `dirigibilidade`, nomeados e não redefinidos. A tela só desenha e
 reage ao estado: nenhuma regra de pista é decidida nela (I2).
 
 ## Canal
 
-Ambos para o desenho. O retorno difere: vibração do aparelho em `web-mobile`, se o navegador permitir;
+Ambos para o desenho, com o mesmo acabamento e as mesmas medidas em metros do mundo do jogo nos dois
+canais ([RULE-0006](../rules/RULE-0006-acabamento-visual-da-kart-park.md)). O retorno difere: vibração do aparelho em `web-mobile`, se o navegador permitir;
 som da zebra em `web-desktop`, com o som ligado, e permitido sem ser exigido em `web-mobile`
 ([RULE-0004](../rules/RULE-0004-retorno-da-zebra.md)). A tela usa `readTrackData` pelo dado da sessão
 ([API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)) e `getTrackContact`
@@ -38,10 +41,17 @@ som da zebra em `web-desktop`, com o som ligado, e permitido sem ser exigido em 
 | Asfalto | Entre as duas bordas do asfalto de `centerline`, com a largura de cada ponto | AC-US-0002-08; I2 |
 | Zebras | Cada trecho de `curbs`, no lado `side` e entre `fromLapM` e `toLapM`, como faixa para fora da borda do asfalto | AC-US-0005-03 |
 | Barreira | Cada barreira de `barriers`, em todo o seu comprimento | AC-US-0004-06 |
+| Faixa de borda (Kart Park) | Faixa branca contínua de 0,10 m por dentro de cada borda do asfalto, em toda a volta, sem interrupção junto à zebra nem na linha de largada | AC-US-0007-01, AC-US-0007-02 |
+| Relevo da zebra (Kart Park) | Cada zebra com altura 0 m na borda do lado do asfalto e maior que 0 m e de no máximo 0,05 m na borda de fora; só desenho | AC-US-0007-05, AC-US-0007-06 |
+| Barreira de pneus (Kart Park) | A barreira desenhada como fileira de pneus pretos empilhados, de 0,9 m de altura, em toda a extensão, com a face dos pneus a no máximo 0,05 m da face de colisão de cada lado e nenhum pneu sobre o asfalto ou a zebra | AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12 |
+| Tons de grama (Kart Park) | Ao menos 2 tons de verde, cada um com luminância relativa a 8 % a 20 % da de `#68865b`; o tom de cada posição do chão é o mesmo em toda abertura e em todo aparelho | AC-US-0007-13, AC-US-0007-14, AC-US-0007-20 |
 | Vibração da zebra (`web-mobile`) | Pulsos de 20 ms, no máximo um a cada 250 ms de tempo simulado, enquanto `curbWheelCount` é maior que 0 | AC-US-0005-07, AC-US-0005-08 |
-| Som da zebra (`web-desktop`) | Repetições do som próprio da zebra, no intervalo constante, enquanto `curbWheelCount` é maior que 0, com o som ligado | AC-US-0005-09, AC-US-0005-10, AC-US-0005-11 |
+| Som da zebra (`web-desktop`) | Repetições do som próprio da zebra, no intervalo constante, enquanto `curbWheelCount` é maior que 0, com o som ligado | AC-US-0005-09, AC-US-0005-10, AC-US-0005-11; com o relevo desenhado, AC-US-0007-18, AC-US-0007-19 |
 
-O desenho sustenta 60 fps em notebook e 30 fps em celular intermediário durante uma volta completa na Kart
+Com a pista sintética, nenhum elemento do acabamento é desenhado: para o mesmo estado do kart e da câmera,
+a imagem é a do jogo de antes da revisão 2, com a grama em `#68865b` (AC-US-0007-16).
+
+O desenho, com o acabamento na tela, sustenta 60 fps em notebook e 30 fps em celular intermediário durante uma volta completa na Kart
 Park ([FEAT-0007](../features/FEAT-0007-requisitos-transversais.md), NFR-0002).
 
 ## Estados
@@ -50,10 +60,10 @@ Park ([FEAT-0007](../features/FEAT-0007-requisitos-transversais.md), NFR-0002).
 |---|---|---|---|---|
 | Carregando | A sessão ainda não está `READY` | nenhuma: a tela só é aberta com sessão pronta | A tela não é exibida; a tela inicial mostra o carregamento | API-0002 |
 | Vazio | Nenhum estado de simulação | `getTrackContact` retorna `NO_STATE` | A tela não é exibida; nenhum retorno da zebra | API-0003 |
-| Populado | Volta em andamento ou pausada na pista da sessão | `getTrackContact` a cada passo avançado | Asfalto, zebras e barreira desenhados; HUD de `race-lap-validation` e de `dirigibilidade`; vibração ou som da zebra conforme [RULE-0004](../rules/RULE-0004-retorno-da-zebra.md) | AC-US-0002-08, AC-US-0004-06, AC-US-0005-03, AC-US-0005-07, AC-US-0005-09 |
+| Populado | Volta em andamento ou pausada na pista da sessão | `getTrackContact` a cada passo avançado | Asfalto, zebras e barreira desenhados, com o acabamento na Kart Park e sem ele na pista sintética; HUD de `race-lap-validation` e de `dirigibilidade`; vibração ou som da zebra conforme [RULE-0004](../rules/RULE-0004-retorno-da-zebra.md) | AC-US-0002-08, AC-US-0004-06, AC-US-0005-03, AC-US-0005-07, AC-US-0005-09, AC-US-0007-01, AC-US-0007-16 |
 | Erro | Dado da pista ilegível ou de esquema desconhecido | nenhuma | A tela não é aberta: a sessão fica `FAILED` e o erro é exibido na tela inicial | API-0001; I4 |
-| Offline | Sem rede | nenhuma chamada de rede | Idêntico ao estado online | NFR-0004; D-FS-08 |
-| Permissão negada — sensor (`web-mobile`) | Sem sensor de inclinação ou com permissão negada | nenhuma | O aviso de controle por toque de `race-lap-validation`; a pista, as zebras, a barreira e a vibração não mudam | I4 |
+| Offline | Sem rede | nenhuma chamada de rede | Idêntico ao estado online; o acabamento não usa imagem nem textura da rede | NFR-0004; D-FS-08 |
+| Permissão negada — sensor (`web-mobile`) | Sem sensor de inclinação ou com permissão negada | nenhuma | O aviso de controle por toque de `race-lap-validation`; a pista, as zebras, a barreira, o acabamento e a vibração não mudam | I4 |
 | Permissão negada — vibração (`web-mobile`) | Navegador sem vibração ou que a bloqueia | nenhuma | Nenhuma vibração e nenhum aviso; o resto não muda | US-0005, caso anormal |
 | Permissão negada em `web-desktop` | Não se aplica ao sensor; som desligado não é erro | — | Sem som da zebra com o som desligado; o resto não muda | AC-US-0005-11 |
 
@@ -62,7 +72,9 @@ Park ([FEAT-0007](../features/FEAT-0007-requisitos-transversais.md), NFR-0002).
 | Ação | Canal | Resultado |
 |---|---|---|
 | Pilotar sobre a zebra | ambos | `curbWheelCount` maior que 0: vibração (`web-mobile`) ou som (`web-desktop`, som ligado), pelas regras de [RULE-0004](../rules/RULE-0004-retorno-da-zebra.md) |
-| Bater na barreira | ambos | O kart não passa; mesmo efeito do muro existente ([FEAT-0004](../features/FEAT-0004-barreira-nos-trechos-quase-encostados.md)) |
+| Bater na barreira | ambos | O kart não passa e para na face de colisão, a no máximo 0,05 m dos pneus vistos; mesmo efeito do muro existente ([FEAT-0004](../features/FEAT-0004-barreira-nos-trechos-quase-encostados.md)) |
+| Rodar sobre a faixa de borda | ambos | Asfalto para a simulação: nenhuma saída de pista, nenhum tempo de corte ([RULE-0006](../rules/RULE-0006-acabamento-visual-da-kart-park.md)) |
+| Redimensionar a tela ou girar o aparelho | ambos | Só o enquadramento muda; as medidas do acabamento e o desenho da grama não mudam |
 | Pular um marcador | ambos | Ao cruzar a chegada, volta inválida com "marcador pulado", texto de `race-lap-validation` (AC-US-0003-06) |
 | Pausar, perder o foco, perder o sensor | ambos | Pausa de `race-lap-validation`; nenhum pulso nem repetição novo durante a pausa |
 

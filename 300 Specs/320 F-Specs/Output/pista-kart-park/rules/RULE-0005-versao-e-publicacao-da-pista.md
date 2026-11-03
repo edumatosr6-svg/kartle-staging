@@ -4,8 +4,8 @@ title: Versão e publicação da pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [NFR-0006, NFR-0012, US-0002]
+version: 1.1.0
+sources: [NFR-0006, NFR-0012, NFR-0014, US-0002]
 ---
 
 # RULE-0005 — Versão e publicação da pista Kart Park
@@ -53,6 +53,7 @@ nunca é reusado.
 | Depois de `STAGING`, o arquivo de uma versão nunca muda: o resumo do arquivo entregue é igual ao registrado, com 0 bytes alterados | NFR-0006 |
 | Publicar conteúdo diferente com um `trackVersion` já registrado é recusado | NFR-0006 (I3) |
 | Suavizar de novo ou mudar a linha central, uma largura, uma zebra, a barreira, os setores ou os marcadores produz um arquivo novo com `trackVersion` maior que o da versão anterior, que passa de novo por `PREPARED` | NFR-0006 |
+| O acabamento visual de US-0007 não muda o arquivo e não é versão nova: o arquivo publicado continua byte a byte igual, com o resumo registrado na publicação da versão 1, e com `trackVersion` 1 ([RULE-0006](RULE-0006-acabamento-visual-da-kart-park.md)) | NFR-0014 |
 | A promoção de `STAGING` para `PRODUCTION` com a Kart Park só ocorre com a decisão do dono do produto sobre a licença Esri registrada em `DOMAIN.md`; antes dela, a Kart Park fica só em staging | NFR-0012; `DOMAIN/DEC-08` |
 | A licença Esri não bloqueia nenhuma etapa de especificação nem a publicação em staging | NFR-0012; `DOMAIN/DEC-02` |
 | Se a decisão liberar a licença, a entrega que promover a Kart Park exibe o crédito da Esri junto ao crédito OSM nas duas telas ([FEAT-0006](../features/FEAT-0006-credito-nome-e-comprimento.md)) | NFR-0012; `DOMAIN/DEC-07` |

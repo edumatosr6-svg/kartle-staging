@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: []
 ---
 
@@ -140,3 +140,62 @@ sources: []
 - Sem mudança de conteúdo, carregados na versão corrente: `FLOW-0002`, `FEAT-0004`, `FEAT-0007`,
   `API-0001`, `API-0003`, `SCR-0003`, `RULE-0001` a `RULE-0005`, `01-overview.md`, `02-glossary.md`,
   `98-divergences.md` (nenhum item do relatório os atinge).
+
+## 2026-11-03 — rodada 3, Mode A (requisitos revalidados contra o seed revision 2)
+
+**O que mudou**
+
+- Base: requisitos de `200 Requirements/230 Output/pista-kart-park/` com US-0001 a US-0007 e NFR-0001 a
+  NFR-0014 (changelog 1.2.0; seed `revision: 2`; validação `req-validation-20261103-1900`, SUCCESS; commit
+  `e321b95`). Todo id e toda especificação que a revisão 2 não toca foram mantidos com o mesmo texto.
+- Novo `FEAT-0008` (acabamento visual da Kart Park): REQ-FEAT-0008-01 a REQ-FEAT-0008-24 realizam
+  AC-US-0007-01 a AC-US-0007-21; REQ-FEAT-0008-25 a -27 realizam NFR-0013; REQ-FEAT-0008-28 e -29 realizam
+  NFR-0014.
+- Nova `RULE-0006` (acabamento visual): em que pista o acabamento é desenhado (`kart-park` sim, `synthetic`
+  não), a geometria desenhada (faixa de 0,10 m, relevo de 0 m a no máximo 0,05 m, pilha de pneus de 0,9 m a
+  no máximo 0,05 m da face de colisão, tons de grama por posição e por luminância relativa) e como o
+  acabamento entra nas tabelas de `RULE-0001`, que não mudam (faixa de borda é asfalto; todo tom de grama é
+  `GRASS`).
+- `SCR-0003` (1.1.0): elementos de faixa de borda, relevo da zebra, barreira de pneus e tons de grama; a
+  pista sintética sem acabamento; estados populado, offline e de sensor negado, e ações (faixa de borda,
+  batida na barreira de pneus, redimensionar ou girar) com o acabamento.
+- `FEAT-0007` (1.1.0): REQ-FEAT-0007-01 e -02 medem a taxa de quadros com o acabamento na tela (NFR-0002
+  1.1.0). REQ-FEAT-0007-12 deixa de dizer "com a dependência registrada no D-Spec", porque NFR-0011 (1.0.1)
+  retirou essa frase por não ter fonte no seed nem em `DOMAIN.md`; o mesmo fato saiu de `01-overview.md`.
+  O D-Spec que já registra a dependência não fica em conflito: o requisito só deixa de exigi-lo.
+- `RULE-0005` (1.1.0): o acabamento não muda o arquivo e não é versão nova (NFR-0014).
+- `01-overview.md` (1.1.0): carimbo da base (acima), escopo, canais, mapa, camadas, duas decisões de forma
+  (acabamento só na Kart Park, calculado do dado existente; face de colisão da barreira), lacuna da
+  aparência reescrita com o que os requisitos agora fixam, fora do escopo com `SEED/FE-06` a `SEED/FE-08`,
+  verificação de NFR-0013 e NFR-0014.
+- `02-glossary.md` (1.1.0): acabamento, cena desenhada, faixa de borda, relevo da zebra, barreira de pneus,
+  face de colisão, tom de grama, luminância relativa e revisão 2.
+- Nenhum contrato de `api/` muda: o acabamento é calculado de `centerline`, `curbs`, `barriers` e do
+  `trackId` da sessão, e o arquivo publicado não pode mudar (NFR-0014).
+- As leituras que este conjunto já fazia e que os requisitos agora escrevem (US-0002 1.0.1 ponto
+  correspondente de mesmo índice; US-0004 1.0.1 referencial local e mesmo número de passos; US-0005 1.0.1
+  trecho medido na linha central original; glossário "Borda da pista") não pedem mudança: `RULE-0001`,
+  `RULE-0002`, `FEAT-0002`, `FEAT-0004` e `FEAT-0005` já as especificam assim.
+- Arquivos editados ou novos ficam `draft`. `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` (Mode A por mudança de revisão).
+
+**Itens recusados ou deixados, com motivo**
+
+- `FEEDBACK-01` (FB-01, do D-Spec, 2026-10-30: alinhar ao treino de voltas seguidas de `race-lap-validation`
+  o texto de `SCR-0002`, `RULE-0003`, `FEAT-0003`, `FEAT-0001`, `01-overview.md` e a navegação de
+  `SCR-0003` que ainda falam em volta de treino terminando em `ENDED`): não aplicado nesta rodada. Esta
+  rodada regenera só o que a revisão 2 do seed muda, e o pedido foi manter intacto o que ela não toca; o
+  FB-01 não muda nenhum `REQ-*` e continua em aberto para uma rodada de Mode C. A navegação de `SCR-0003`
+  ficou como estava, para não deixar o conjunto meio alinhado.
+- Espessura da barreira de pneus: a fileira desenhada fica com no máximo 0,05 m de cada lado da poligonal
+  da barreira (AC-US-0007-11 sobre uma barreira sem espessura). Não foi dada espessura à barreira: isso
+  mudaria o arquivo (NFR-0014) ou a trajetória (NFR-0013). Registrado como decisão de forma em
+  `01-overview.md`.
+- Perfil do relevo entre as bordas da zebra, cores da zebra, diâmetro e contagem dos pneus, número de tons
+  além de 2 e o padrão de tons no chão: nenhum critério os fixa; ficam em "Lacunas deliberadas", sem valor
+  inventado.
+- Nenhum fluxo novo: o acabamento não acrescenta interação nem passo; `FLOW-0001` e `FLOW-0002` valem sem
+  mudança.
+- Sem mudança de conteúdo: `FEAT-0001` a `FEAT-0006`, `FLOW-0001` a `FLOW-0003`, `API-0001` a `API-0003`,
+  `SCR-0001`, `SCR-0002`, `RULE-0001` a `RULE-0004`, `98-divergences.md`.
