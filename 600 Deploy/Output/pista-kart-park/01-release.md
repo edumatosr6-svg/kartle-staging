@@ -2,9 +2,9 @@
 title: Release — pista Kart Park (staging; produção bloqueada pela decisão Esri)
 feature: pista-kart-park
 stage: deploy
-status: validated
-version: 1.2.0
-sources: [DM-0001, DM-0002, DES-0001, DES-0002, DES-0003, DES-0004, DES-0005, DES-0006, DES-0007, DES-0008, DES-0009, DES-0010, DES-0011, DES-0012, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008, NFR-0009, NFR-0010, NFR-0011, NFR-0012, TEST-0001, TEST-0007, TEST-0008, TEST-0009, TEST-0012]
+status: draft
+version: 1.3.0
+sources: [DM-0001, DM-0002, DES-0001, DES-0002, DES-0003, DES-0004, DES-0005, DES-0006, DES-0007, DES-0008, DES-0009, DES-0010, DES-0011, DES-0012, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008, NFR-0009, NFR-0010, NFR-0011, NFR-0012, NFR-0013, NFR-0014, US-0007, TEST-0001, TEST-0007, TEST-0008, TEST-0009, TEST-0010, TEST-0012]
 ---
 
 # 01 — Release
@@ -13,82 +13,98 @@ Candidato a release da feature `pista-kart-park`: a **Kart Park** (São José do
 jogável no **treino** ao lado da pista sintética — arquivo de pista em **esquema 3** (`src/tracks/kart-park-v1.json`, 43 013
 bytes, 684 pontos, linha central suavizada com janela de 12 m a até 0,30 m da origem, 682,116 m medidos, rótulo "687 m",
 38 marcadores, 34 zebras de 1,0 m, 1 barreira de 382 vértices, 3 limites de setor); o **seletor de pista** da tela inicial, que
-abre sempre na Kart Park; o **crédito OpenStreetMap/ODbL** com link no seletor e no painel do resultado de cada volta do treino;
-a **zebra como superfície** (aderência 0,85 do asfalto, vibração de 20 ms a cada 0,25 s no celular, ruído grave a 160 Hz no
-teclado com o som ligado); a **barreira** com resposta de muro; o preparo offline e o registro de publicação (`npm run track`).
+abre sempre na Kart Park; o **crédito OpenStreetMap/ODbL** com link no seletor e no painel do resultado de cada volta do treino
+(ADR-0007); a **zebra como superfície** (aderência 0,85 do asfalto, vibração de 20 ms a cada 0,25 s no celular, ruído grave a
+160 Hz no teclado com o som ligado); a **barreira** com resposta de muro; o preparo offline e o registro de publicação
+(`npm run track`); e, desde a revisão 2 do seed, o **acabamento visual** da Kart Park (US-0007).
 
-**O que muda nesta rodada (Modo B, rodada 3, 2026-10-30).** O registro passa do build de `6b314b2` (rodada 2, que abriu
-DIV-DP-16) ao build de **`e70aad9`**, que staging serve hoje. A rodada 4 de código desta feature (`38354bb`, validação
-`400 Code/Output/pista-kart-park/reports/code-validation/code-validation-20261030-1836.md`, `SUCCESS`) realizou **ADR-0007**: o
-crédito do resultado vive em `#lap-training-result-credit`, último filho do painel do resultado da volta do treino
-(`#lap-training-result`), redesenhado a cada resultado sem ser removido (`src/main.ts:461-486`), com o link acionável
-(`#lap-training-result-credit a{pointer-events:auto}`); `#lap-result-credit` saiu de `#lap-result` e de `renderResult`. Os testes
-foram migrados em `e70aad9` (CHK-TEST-0009-04 para o painel; CHK-TEST-0009-11 novo; 444/444). **DIV-DP-16 está fechada.**
+**O que muda nesta rodada (Modo B/revisão, rodada 4, 2026-11-03).** O candidato passa de **`e70aad9`** (validado em staging,
+`deploy-validation-20261103-1744.md`, `SUCCESS`) a **`2aa013e`**, a ponta de `master`. Entre os dois, a árvore construída muda só
+no **desenho** (seed revisão 2, *acabamento visual*; US-0007, FEAT-0008, DES-0008 2.1.0):
 
-O treino é uma **sequência de voltas numa sessão** (`race-lap-validation`): o resultado de cada volta aparece no painel
-`#lap-training-result` sem parar o kart, a volta inválida é marcada e segue, "encerrar treino" volta ao seletor, e `#lap-result`
-fica só para volta oficial e de reconhecimento. O acerto publicado é `arcade-assistido-v6` sem drift nem turbo (`dirigibilidade`)
-e o Kart 01 tem marcas de pneu (`modelo-kart-01`).
+- código **`fbfb073`** (validação `400 Code/Output/pista-kart-park/reports/code-validation/code-validation-20261103-2004.md`,
+  `SUCCESS`): `src/trackScene.ts` (+162/−17) — **grama em faixas** de 2 tons (`GRASS_TONES`, `grassToneAt`, determinística pela
+  posição no mundo), **faixa de borda** branca de 0,10 m por dentro do asfalto nas duas bordas (`edge-lines`), **zebra com
+  relevo** (0 m do lado do asfalto, 0,04 m por fora), **barreira de pneus** pretos (646 pilhas de 0,9 m numa `InstancedMesh`, a
+  face a ≤ 0,05 m da face de colisão); `src/main.ts` (+1: o chão da sintética, `ground`, fica oculto só com a Kart Park pronta);
+- testes **`2aa013e`** (validação `500 Tests/Output/pista-kart-park/reports/test-validation/test-validation-20261103-2043.md`,
+  `SUCCESS`, seed revisão 2 `b80f2635073f`): 23 verificações novas e 2 migradas (126 da feature), com o traço da simulação de
+  `f926815` como fixture (NFR-0013); suíte **467/467**.
 
-O que se entrega é o mesmo tipo de artefato das releases anteriores: um **artefato estático** (`dist/`, HTML + JS + CSS) servido
-pelo **GitHub Pages** com HTTPS (D23); **não há servidor, banco, serviço, migração de dado, armazenamento no navegador nem
-aplicativo nativo** — o arquivo de pista vai **dentro do JS** como literal (ADR-0002).
+Nada mais muda na árvore construída: `index.html`, `src/style.css`, `package.json`, `package-lock.json`, `tsconfig.json`,
+`.github/`, `.nvmrc`, `tracks/` e `src/tracks/` são os de `e70aad9` (`git diff --quiet e70aad9 2aa013e -- …`). O acabamento é **só
+desenho** (I2; SEED/RD-13): a simulação, a pilotagem e a volta são as mesmas (NFR-0013, provado em `npm test`), e o arquivo da
+pista **não muda** — o mesmo blob, o mesmo SHA-256 registrado, `trackVersion` 1 (NFR-0014): **não há republicação de pista**
+nem versão 2.
+
+O treino é uma **sequência de voltas numa sessão** (`race-lap-validation`); o acerto publicado é `arcade-assistido-v6` sem drift
+nem turbo (`dirigibilidade`) e o Kart 01 tem marcas de pneu (`modelo-kart-01`). O que se entrega é o mesmo tipo de artefato das
+releases anteriores: um **artefato estático** (`dist/`, HTML + JS + CSS) servido pelo **GitHub Pages** com HTTPS (D23); **não há
+servidor, banco, serviço, migração de dado, armazenamento no navegador nem aplicativo nativo** — o arquivo de pista vai **dentro
+do JS** como literal (ADR-0002), e o acabamento não acrescenta textura, imagem nem *asset* (SEED/FE-07; NFR-0010).
 
 **O que esta release não faz: ir a produção.** A Kart Park é derivada de um caminho OpenStreetMap e de bordas detectadas em
-imagem **Esri World Imagery** (seed, *Origem*), e a dúvida sobre a licença desse dado derivado **bloqueia só a promoção para
-produção** (`DOMAIN.md`, o ponto Esri de 2026-10-22, ainda sem decisão; NFR-0012; ADR-0005). `tracks/registry.json` tem a entrada
-`kart-park` 1 em `STAGING`; `npm run track -- promote` recusa sem `--esri-decision` (CHK-TEST-0012-04). O `runbook.md` termina,
-por isso, **antes** da pergunta de promoção.
+imagem **Esri World Imagery** (seed, *Origem*). O dono do produto decidiu em **2026-11-03** (`200 Requirements/220 Input/pista-kart-park/DOMAIN.md`):
+**o ponto Esri continua aberto**, a Kart Park **segue só em staging**, sem liberação nem remedição sem Esri por enquanto, e a produção
+**espera a decisão** (opção 1 de *Promoção bloqueada* (b) do `runbook.md`): as quatro features (`race-lap-validation`,
+`dirigibilidade`, `modelo-kart-01`, `pista-kart-park`) chegam a produção **juntas**, e **nenhum commit de `master` é enviado a
+`origin`** até lá (NFR-0012; ADR-0005). `tracks/registry.json` mantém `kart-park` 1 em `STAGING`; `npm run track -- promote`
+recusa sem `--esri-decision` (CHK-TEST-0012-04). O `runbook.md` termina, por isso, **antes** da pergunta de promoção.
 
 ## O que é entregue
 
 | Item | Conteúdo | Fonte |
 |---|---|---|
-| Canais | `web-desktop` e `web-mobile` — a mesma página, com teclado no computador (som da zebra) e inclinação ou toque no celular (vibração da zebra); paisagem e retrato | diretivas do estágio; `REL-0004` |
-| Arquivos de origem desta feature | os da rodada 1 (`src/trackGeometry.ts`, `src/trainingSession.ts`, `src/curbFeedback.ts`, `src/trackScene.ts`, `src/rawImports.d.ts`, `src/tracks/kart-park-v1.json`, `scripts/trackPrep.ts`, `scripts/trackChecks.ts`, `scripts/track-pipeline.ts`, `tracks/sources/kart-park.json`, `tracks/registry.json`; alterados `src/trackData.ts`, `src/physics.ts`, `src/lap.ts`, `src/lapMessages.ts`, `src/audio.ts`, `src/main.ts`, `index.html`, `src/style.css`, `package.json`); `.gitattributes` (`5ed7a5b`, regra byte-exata); **rodada 4** (`38354bb`): `index.html` (`#lap-training-result-credit` dentro de `#lap-training-result`; `#lap-result-credit` retirado), `src/main.ts` (`renderTrainingResult` preserva e redesenha o crédito; `renderResult` sem crédito), `src/style.css` (link do crédito acionável no painel); `tests/pista-kart-park-*.test.ts` (12 suítes; CHK-TEST-0009-04 migrada e CHK-TEST-0009-11 nova em `e70aad9`) | `400 Code/Output/pista-kart-park/01-implementation.md` 1.4.0; `500 Tests/Output/pista-kart-park/` |
-| Contido no mesmo build, de outras features | o treino de voltas seguidas (`race-lap-validation`, `0c83ed9`); `arcade-assistido-v6` sem drift nem turbo (`dirigibilidade`, `cfad3dc`, `f6e2d16`); marcas de pneu e câmera sem turbo (`modelo-kart-01`, `aeaf504`). Cada uma tem o seu registro de release | registros de release dessas features |
-| Inalterados | `.github/workflows/pages.yml`, `.nvmrc`, `package-lock.json`, `tsconfig.json`, `tracks/`, `src/tracks/`; dependências de execução: **nenhuma acrescentada** (`three` continua a única — NFR-0010) | `git diff --stat 6b314b2 e70aad9`: só `index.html`, `src/main.ts`, `src/style.css` e `tests/pista-kart-park-screens.test.ts` |
-| Formato publicado | **o arquivo de pista em esquema 3** com o leitor da versão 2 mantido; `kart-park` **versão 1**, imutável, SHA-256 `04ce5e51…` em `tracks/registry.json` (NFR-0006; D-DP-01) — o mesmo blob desde `d9139a2` | DM-0001, DM-0002, ADR-0001; `REL-0002` |
-| Formato persistido | **nenhum**: a pista escolhida não é gravada nem lida no navegador; nenhuma volta de treino cria registro de desafio (DES-0012; CHK-TEST-0011-02) | DES-0012; `REL-0002` |
+| Canais | `web-desktop` e `web-mobile` — a mesma página, com teclado no computador (som da zebra) e inclinação ou toque no celular (vibração da zebra); paisagem e retrato; o mesmo acabamento nos dois canais (US-0007, *Canais*) | diretivas do estágio; `REL-0004` |
+| Arquivos de origem desta feature | os das rodadas 1 a 4 (`src/trackGeometry.ts`, `src/trainingSession.ts`, `src/curbFeedback.ts`, `src/trackScene.ts`, `src/rawImports.d.ts`, `src/tracks/kart-park-v1.json`, `scripts/trackPrep.ts`, `scripts/trackChecks.ts`, `scripts/track-pipeline.ts`, `tracks/sources/kart-park.json`, `tracks/registry.json`; alterados `src/trackData.ts`, `src/physics.ts`, `src/lap.ts`, `src/lapMessages.ts`, `src/audio.ts`, `src/main.ts`, `index.html`, `src/style.css`, `package.json`; `.gitattributes`); **rodada 5 de código** (`fbfb073`): `src/trackScene.ts` (acabamento) e `src/main.ts` (`ground.visible`); `tests/pista-kart-park-*.test.ts` (12 suítes, 126 verificações; `tests/fixtures/kartParkRev1Trace.json` novo em `2aa013e`) | `400 Code/Output/pista-kart-park/01-implementation.md` 1.5.0; `500 Tests/Output/pista-kart-park/` |
+| Contido no mesmo build, de outras features | o treino de voltas seguidas (`race-lap-validation`); `arcade-assistido-v6` sem drift nem turbo (`dirigibilidade`); marcas de pneu e câmera sem turbo (`modelo-kart-01`). Cada uma tem o seu registro de release, hoje nomeando `e70aad9` (`98-divergences.md`, DIV-DP-12) | registros de release dessas features |
+| Inalterados contra `e70aad9` | `index.html`, `src/style.css` (o CSS servido tem o mesmo nome e os mesmos bytes, `index-q-biCwua.css`), `.github/workflows/pages.yml`, `.nvmrc`, `package.json`, `package-lock.json`, `tsconfig.json`, `tracks/`, `src/tracks/`; dependências de execução: **nenhuma acrescentada** (`three` continua a única — NFR-0010) | `git diff --stat e70aad9 2aa013e`: na árvore construída, só `src/main.ts` e `src/trackScene.ts` |
+| Formato publicado | **o arquivo de pista em esquema 3** com o leitor da versão 2 mantido; `kart-park` **versão 1**, imutável, SHA-256 `04ce5e51…` em `tracks/registry.json` (NFR-0006) — o mesmo blob desde `d9139a2`; **NFR-0014**: 0 bytes diferentes, `trackVersion` 1, nenhuma republicação | DM-0001, DM-0002, ADR-0001; `REL-0002` |
+| Formato persistido | **nenhum**: a pista escolhida não é gravada nem lida no navegador; nenhuma volta de treino cria registro de desafio (DES-0012; CHK-TEST-0011-02); o tom da grama vem da posição, não de armazenamento (AC-US-0007-14) | DES-0012; `REL-0002` |
 | Feature flag | **nenhuma** (ADR-0005). O ponto de aplicação da "chave mestra" de I4 é a **promoção**: humano, registrado em `tracks/registry.json` e bloqueado pela decisão Esri | ADR-0005, DES-0011 |
 | Variáveis de ambiente | nenhuma lida pelo cliente, pelo preparo offline ou pelo workflow | `REL-0001` |
-| O que o jogador vê | ao abrir, o seletor com "Kart Park — São José dos Pinhais (traçado aproximado) · 687 m" marcada e "Pista sintética"; a linha "© colaboradores do OpenStreetMap · licença ODbL · openstreetmap.org/copyright" (link em outra aba); `#track-status` `kart-park`; a Kart Park desenhada com o Kart 01 na largada; a única oferta "volta de treino". No treino, as voltas seguem-se sem parar o kart: o resultado de cada volta (validade, motivo, total, 4 setores, "não oficial") aparece no painel `#lap-training-result` **com o crédito OSM como último item** (ADR-0007), válida ou inválida, e nunca na sintética; "encerrar treino" volta ao seletor; zebra com vibração e som; a barreira bate e não deixa passar; o recorde real de 41,45 s **não** aparece | DES-0005, DES-0007, DES-0008, DES-0009, ADR-0007; `REL-0003` |
+| O que o jogador vê | o mesmo de `e70aad9` (seletor com a Kart Park marcada, crédito OSM com link, treino de voltas seguidas com o crédito no painel do resultado de cada volta, zebra com vibração e som, a barreira que não deixa passar, nenhum recorde) **e, na Kart Park**: uma faixa branca contínua por dentro do asfalto nas duas bordas; zebras com relevo (sobem para fora, sem efeito na física); a barreira desenhada como fileira de pneus pretos empilhados, onde o kart encosta sem entrar; a grama em faixas de 2 tons de verde, iguais em cada abertura e em cada aparelho. **Na sintética, nada muda** (AC-US-0007-16) | DES-0005, DES-0007, DES-0008 2.1.0, DES-0009, ADR-0007; US-0007; `REL-0003` |
 
 ## Proveniência — o commit que a release nomeia
 
-| Fato | Estado em 2026-10-30 |
+| Fato | Estado em 2026-11-03 |
 |---|---|
-| Validação de código | `SUCCESS` — `code-validation-20261030-1836.md` (rodada 4, iteração 2): ADR-0007 realizado em `38354bb` (2026-10-30T15:39:02 −03:00); `tsc` 0; `track verify kart-park 1` `VERIFIED` com o arquivo intacto (`04ce5e51…`); 1 aviso de ponteiros deslocados no manifesto |
-| Veredito de testes | o último `SUCCESS` registrado é `500 Tests/Output/pista-kart-park/reports/test-validation/test-validation-20261030-1714.md` (rodada 3, 102/102, árvore anterior à rodada 4 de código). **A validação de testes de `e70aad9` (CHK-TEST-0009-04 migrada, CHK-TEST-0009-11 nova) está em curso** pelo laço de testes; o `npm test` da execução 41109469203 dá **444/444** sobre `e70aad9`. Precondição em aberto no `runbook.md` |
-| Commit verificado (`<sha>`) | **`e70aad9ddf5cf42da6c5957b4023afdbf6cacd03`** (curto `e70aad9`), 2026-10-30T15:44:24 −03:00, "pista-kart-park: CHK-TEST-0009-04 migrado para o crédito do painel de treino (ADR-0007) e CHK-TEST-0009-11 novo — 444/444": a ponta de `master` e o commit que staging serve. Contra `6b314b2` muda só `index.html`, `src/main.ts`, `src/style.css` (`38354bb`) e `tests/pista-kart-park-screens.test.ts` (`e70aad9`), além de registros. Cadeia (NFR-0011): `b86b200` e `6ea3862` continuam ancestrais |
-| Construído pelo pipeline | **sim, observado** (`gh run view`, só leitura): execução **41109469203** de `edumatosr6-svg/kartle-staging`, evento `push`, `head_sha` `e70aad9…`, criada 2026-10-30T18:44:27Z, tentativa 1, `success`; `build` 18:44:30–18:46:27Z (Node v24.22.1; *Test* `tests 444 / pass 444 / fail 0`; *Build* `dist/assets/index-DmxsQuIL.js 694.17 kB`, `index-q-biCwua.css 10.85 kB`; *Measure dist* `files=3 total_bytes=711620 gzip_bytes=188719 within_limit=True ratio=0.226`); `deploy` 18:46:30–18:46:39Z `success` |
-| Servido em staging | `https://edumatosr6-svg.github.io/kartle-staging/` com `Last-Modified: Fri, 30 Oct 2026 18:46:34 GMT`, `Cache-Control: max-age=600`: `index.html` 6 592 bytes (sha256 `ba4e81a4…`), `assets/index-DmxsQuIL.js` 694 178 bytes (`79e3182c…`; 183 635 gzip), `assets/index-q-biCwua.css` 10 850 bytes (`5e1c964b…`) — total **711 620 bytes**, igual ao *Measure dist* da execução. A prova byte a byte contra um build limpo de `e70aad9` é do validador |
-| Arquivo da Kart Park servido = registro | **sim**: as duas ferramentas extraem o literal (43 012 bytes) e dão SHA-256 + LF = `04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1` = `tracks/registry.json` entrada `kart-park` 1 (`fileBytes` 43 013, `STAGING`, sem `promotedAtUtc`/`esriDecisionRef`); blobs em `e70aad9` iguais aos de `5ed7a5b`: `src/tracks/kart-park-v1.json` `a1f57085…`, `tracks/registry.json` `cfdeec07…`, `tracks/sources/kart-park.json` `d5ee2187…` (CRLF, `prep.originSha256` `52c5adda…`) |
-| Ferramentas sobre o servido | `check_served.py … index-DmxsQuIL.js`: **`checks=79 failed=0`**; `check_bundle.py` sobre o artefato servido (baixado para fora da árvore) e o registro de `e70aad9`: **`checks=88 failed=0`** (1 `warn`: `fetch(` do polyfill de `modulepreload`). As 4 linhas de ADR-0007 que reprovavam em `6b314b2` passam: `#lap-training-result-credit` dentro de `#lap-training-result` no HTML e nomeado no JS; nenhum `lap-result-credit` no HTML nem no JS |
-| Regra byte-exata dos arquivos de pista | os três arquivos cujo resumo o registro guarda vivem no git **sem normalização de fim de linha** (`.gitattributes`, `5ed7a5b`: `tracks/sources/*.json -text`, `src/tracks/*.json -text`, `tracks/registry.json -text`); o resumo registrado é o dos **bytes do blob**, não o da árvore de trabalho. Conferência local antes de qualquer push: `git ls-files --eol tracks/sources/kart-park.json src/tracks/kart-park-v1.json tracks/registry.json` → `attr/-text` nas três e `i/` = `w/` (hoje: `i/crlf w/crlf` na origem, `i/lf w/lf` nas outras duas) — `runbook.md`, *Promote* 1 |
-| Regra de invalidação do `<sha>` | um commit posterior **não invalida** a release quando não muda a árvore construída (`src/`, `index.html`, `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.*`) nem os **bytes** dos três arquivos de pista — por exemplo, registros, testes de outra feature, ou atributos de git que deixem o resumo igual —, **desde que** a execução do workflow desse commit fique verde e `check_served.py` dê o mesmo resultado sobre o mesmo `<hash>`; qualquer outro commit invalida e pede veredito de testes novo e nova rodada deste estágio |
-| Produção | `https://edumatosr6-svg.github.io/kartle/` responde **404**; `origin/master` = **`05c3570`** (2026-10-22); execução 39827702391 `pending` e as anteriores `cancelled`; nada aprovado. **Não promovível** enquanto a decisão Esri não existir (ADR-0005; NFR-0012) — `runbook.md`, *Promoção bloqueada* |
-| Tag de release | não existe; a release é identificada pelo hash acima e pela execução 41109469203 |
-| Sistema de CI | **GitHub Actions**, `.github/workflows/pages.yml` (inalterado): `npm ci` → `npm test` (444) → `npm run build -- --base=/<repo>/` → `measure_dist.py` (RNF02) → `upload-pages-artifact` → `deploy-pages`; etapas em `REL-0003` |
-| Execução anterior e alvo de reversão | em staging, a execução verde **anterior** à 41109469203 é a **41101055606** (commit `6b314b2`, 2026-10-30T17:43:23Z, `success`, tentativa 1; *Test* 443/443; `index-BwruE9Pq.js`): o mesmo jogo **sem o crédito no painel do resultado** (DIV-DP-16, fechada nesta rodada) — por isso é alvo de reversão de emergência, não de qualidade equivalente. Antes dela, 41076989728 (`652bbaa`, treino de volta única com o crédito em `#lap-result`). Em produção não há execução verde (caminho A, nada a despublicar) |
+| Validação de código | `SUCCESS` — `code-validation-20261103-2004.md` (rodada 5, seed revisão 2): o acabamento em `fbfb073` (2026-11-03T17:04:58 −03:00), medido sobre `buildTrackScene(kartParkGeometry())` (faixa de 0,099994 a 0,100006 m; relevo 0,035 → 0,075 m; 646 pilhas de 0,9 m; face a ≤ 0,0220 m da fronteira de contato; luminâncias 0,2380 / 0,1794 contra 0,2075); SHA-256 do arquivo da pista `04ce5e51…` igual ao registro |
+| Veredito de testes | `SUCCESS` — `500 Tests/Output/pista-kart-park/reports/test-validation/test-validation-20261103-2043.md` (rodada 5, seed revisão 2 `b80f2635073f`): **467/467**, 126 desta feature (23 novas, 2 migradas, 0 removidas), execução fresca; AC-US-0007-01..21, NFR-0013 e NFR-0014 decididos em `npm test` na sua metade automática; as metades de tela e de aparelho ficam nas linhas humanas (abaixo) |
+| Commit verificado (`<sha>`) | **`2aa013e67de49fb842f42cda573b3b82df5cf824`** (curto `2aa013e`), 2026-11-03T17:44:39 −03:00, "pista-kart-park: testes da revisão 2 …": a ponta de `master`. Contra `e70aad9` muda, na árvore construída, só `src/main.ts` e `src/trackScene.ts` (`fbfb073`); o resto são testes (`2aa013e`) e registros. Avança `staging` por avanço rápido (`1bb63aa` é ancestral). Cadeia (NFR-0011): `b86b200` e `6ea3862` continuam ancestrais |
+| Construído pelo pipeline | **ainda não**: `2aa013e` não foi enviado a staging (este estágio não envia nada). O envio é o *Promote* 7 do `runbook.md` (`git push staging master:staging`); a execução que ele criar é a que esta release nomeia, e o validador a confirma |
+| Build limpo local (referência para o servido) | `MSYS_NO_PATHCONV=1 npx vite build --base=/kartle-staging/` sobre a árvore limpa de `2aa013e` (2026-11-03): `dist/assets/index-BMmvlQeM.js` 696 559 bytes (sha256 `babb1884645d2c40…`), `dist/assets/index-q-biCwua.css` 10 850 bytes (`5e1c964b3b292f33…`, igual ao servido hoje), `dist/index.html` 6 592 bytes (`3b0dfc3705f80a8f…`); `measure_dist.py`: `files=3 total_bytes=714001 gzip_bytes=189786 within_limit=True ratio=0.227`; `check_bundle.py dist tracks/registry.json`: **`checks=88 failed=0`**, `track_bytes=43012`, `track_sha256=04ce5e51…`; `npm run track -- verify kart-park 1`: `VERIFIED`. O `<hash>` esperado no passo *Build* do workflow é **`BMmvlQeM`** (o build é determinístico: o de `e70aad9` coincidiu byte a byte com o servido) |
+| Servido em staging hoje | **`e70aad9`**, não o candidato: `https://edumatosr6-svg.github.io/kartle-staging/` serve `assets/index-DmxsQuIL.js` (694 178 bytes) pela execução **41156803005** (commit `1bb63aa`, só registros sobre `e70aad9`), validada `SUCCESS` em `deploy-validation-20261103-1744.md`; ramo `staging` = `1bb63aa` (`git ls-remote`, leitura) |
+| Arquivo da Kart Park = registro | **sim, e inalterado** (NFR-0014): blobs em `2aa013e` iguais aos de `5ed7a5b` — `src/tracks/kart-park-v1.json` `a1f57085…`, `tracks/registry.json` `cfdeec07…`, `tracks/sources/kart-park.json` `d5ee2187…`; o literal no JS do build limpo dá SHA-256 + LF `04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1` = `tracks/registry.json` entrada `kart-park` 1 (`fileBytes` 43 013, `STAGING`, sem `promotedAtUtc`/`esriDecisionRef`) |
+| Regra byte-exata dos arquivos de pista | inalterada: `git ls-files --eol` → `attr/-text` nas três, `i/crlf w/crlf` na origem, `i/lf w/lf` nas outras duas (conferido em 2026-11-03) — `runbook.md`, *Promote* 1 |
+| Regra de invalidação do `<sha>` | um commit posterior **não invalida** a release quando não muda a árvore construída (`src/`, `index.html`, `package.json`, `package-lock.json`, `tsconfig.json`, `vite.config.*`) nem os **bytes** dos três arquivos de pista, **desde que** a execução do workflow desse commit fique verde e `check_served.py` dê o mesmo resultado sobre o mesmo `<hash>`; qualquer outro commit invalida e pede veredito de testes novo e nova rodada deste estágio |
+| Produção | `https://edumatosr6-svg.github.io/kartle/` responde **404**; `origin/master` = **`05c3570`** (2026-10-22); nada aprovado. **Não promovível**: decisão de 2026-11-03 (ponto Esri aberto; opção 1) — `runbook.md`, *Promoção bloqueada* |
+| Tag de release | não existe; a release é identificada pelo hash acima e, depois do envio, pelo número da execução |
+| Sistema de CI | **GitHub Actions**, `.github/workflows/pages.yml` (inalterado): `npm ci` → `npm test` (467) → `npm run build -- --base=/<repo>/` → `measure_dist.py` (RNF02) → `upload-pages-artifact` → `deploy-pages`; etapas em `REL-0003` |
+| Alvo de reversão em staging | a execução que serve hoje, **41156803005** (`1bb63aa`, árvore de `e70aad9`, `index-DmxsQuIL.js`, `success`): o mesmo jogo, com o crédito no painel do resultado, **sem o acabamento** — reversão de qualidade equivalente salvo o desenho de US-0007. Antes dela: 41109469203 (`e70aad9`, o mesmo `DmxsQuIL`) e 41101055606 (`6b314b2`, sem o crédito no painel — só emergência). Em produção não há execução verde (caminho A, nada a despublicar) |
 
 ### Precondições humanas que restam, em ordem
 
-1. **Veredito de testes `SUCCESS` sobre `e70aad9`** (laço de testes em curso: CHK-TEST-0009-04 migrada, CHK-TEST-0009-11 nova).
-2. **Validação de staging pelo validador** (`reports/deploy-validation/`) sobre a execução 41109469203.
-3. **Registrar em `docs/kart-park-device-log.md` as execuções nos aparelhos de referência** — o arquivo **não existe** e este
-   estágio não o cria (§14); é o dono do produto quem o cria, no molde de `docs/kart-01/device-log.md`, com as **oito linhas
-   humanas H1–H8 do `runbook.md`** (E2E-01 a E2E-08 de `test-strategy.md`, com E2E-02 e E2E-03 no treino contínuo). As 22
-   linhas de aparelho do veredito de testes dependem desse registro.
-4. **A decisão Esri do dono do produto, registrada em `DOMAIN.md`** (identificador e data). Sem ela não há pergunta de promoção
-   (D-DP-06 fica sem objeto; NFR-0012). Com ela, a promoção é de uma **entrega nova** que acrescenta o crédito da Esri
-   (REQ-FEAT-0006-14; DES-0011) e grava `PRODUCTION` no registro.
-5. **Enquanto 4 não existe**: decidir como as releases contidas chegam a produção (`runbook.md`, *Promoção bloqueada* (b)).
+1. **Publicar `2aa013e` em staging** (`runbook.md`, *Promote* 1–7) e conferir o servido: `check_served … index-BMmvlQeM.js`
+   esperado `checks=79 failed=0`.
+2. **Validação de staging pelo validador** (`reports/deploy-validation/`) sobre essa execução, com a prova byte a byte contra o
+   build limpo acima.
+3. **Registrar em `docs/kart-park-device-log.md`** (existe desde `1bb63aa`, com a execução no celular de 2026-10-30 sobre
+   `e70aad9`, parcial) uma entrada nova sobre o build de `2aa013e`: as **linhas humanas H1–H8** que seguem abertas e as **quatro
+   linhas novas do acabamento, H9–H12** (`runbook.md`): o aspecto da faixa de borda, do relevo da zebra, dos pneus e dos tons de
+   grama no notebook (H9) e no celular (H10), a taxa de quadros com o acabamento na tela (H11, NFR-0002: 60 fps no notebook e
+   30 fps no celular em paisagem e retrato) e a imagem da sintética igual à de antes (H12, E2E-09).
+4. **A decisão Esri**, registrada em `DOMAIN.md` com identificador e data. Em 2026-11-03 o dono do produto registrou
+   que ela **continua aberta** e escolheu a opção 1 (esperar e promover as quatro features juntas). Sem a decisão não há pergunta
+   de promoção (NFR-0012); com ela, a promoção é de uma **entrega nova** que acrescenta o crédito da Esri (REQ-FEAT-0006-14;
+   DES-0011) e grava `PRODUCTION` no registro.
+5. **As releases contidas passam a nomear o mesmo build** quando staging servir `2aa013e` (DIV-DP-12): o envio muda `src/`, o
+   que, pela regra de invalidação de cada uma, as deixa atrás do servido.
 
-Cumpridas: a validação de código `SUCCESS` da rodada 4; o commit servido nomeado e construído pelo pipeline (41109469203, verde,
-444/444); as duas ferramentas sem reprovação sobre o servido (79/79, 88/88); o arquivo da Kart Park servido igual ao registrado;
-a regra byte-exata em vigor e conferível; o registro da pista em `STAGING`; o Node fixado (`.nvmrc` = `24`); os dois
-repositórios configurados (D23); a vigilância manual, mantida.
+Cumpridas: a validação de código `SUCCESS` da rodada 5; o veredito de testes `SUCCESS` sobre `2aa013e` (467/467); o build limpo
+local com `check_bundle` 88/88 e o arquivo da Kart Park igual ao registrado; o arquivo da pista e `trackVersion` 1 inalterados
+(NFR-0014); a regra byte-exata em vigor e conferível; o registro da pista em `STAGING`; o Node fixado (`.nvmrc` = `24`); os dois
+repositórios configurados (D23); a escolha da opção 1 registrada (DIV-DP-15).
 
 ## Reprodução do build
 
@@ -98,39 +114,40 @@ O workflow executa estes passos a cada push; à mão, da raiz do repositório, c
 |---|---|---|
 | 1 | `git ls-files --eol tracks/sources/kart-park.json src/tracks/kart-park-v1.json tracks/registry.json` | `attr/-text` nas três; `i/crlf w/crlf` na origem, `i/lf w/lf` nas outras duas |
 | 2 | `npm ci` | saída 0; `package-lock.json` inalterado |
-| 3 | `npm test` | saída 0; **444** aprovados, 0 reprovados, 0 pulados (103 desta feature, com CHK-TEST-0009-11) |
+| 3 | `npm test` | saída 0; **467** aprovados, 0 reprovados, 0 pulados (126 desta feature) |
 | 4 | `npm run track -- verify kart-park 1` | `VERIFIED`, V01 a V18 `PASS` (leitura; nada escrito) |
-| 5 | `npm run build` (no workflow, `-- --base=/kartle/` ou `/kartle-staging/`) | saída 0; `dist/index.html`, `dist/assets/index-<hash>.js`, `dist/assets/index-<hash>.css`; nenhum outro arquivo em `dist/assets/` |
-| 6 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True`; saída 0 (ferramenta da primeira release, a que o workflow chama) |
-| 7 | `python -I "600 Deploy/Output/pista-kart-park/tools/check_bundle.py" dist tracks/registry.json` | `checks=88 failed=0` (1 `warn`) |
-| 8 | `npm run preview` | `http://127.0.0.1:4173` serve o bundle; abre na Kart Park com o seletor e o crédito; "volta de treino" inicia a contagem sobre o asfalto da Kart Park |
+| 5 | `npm run build` (no workflow, `-- --base=/kartle/` ou `/kartle-staging/`; no Git Bash, à mão, `MSYS_NO_PATHCONV=1 npx vite build --base=/kartle-staging/`) | saída 0; `dist/index.html`, `dist/assets/index-BMmvlQeM.js`, `dist/assets/index-q-biCwua.css`; nenhum outro arquivo em `dist/assets/` |
+| 6 | `python -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `total_bytes=714001 within_limit=True`; saída 0 |
+| 7 | `python -I "600 Deploy/Output/pista-kart-park/tools/check_bundle.py" dist tracks/registry.json` | `checks=88 failed=0` |
+| 8 | `npm run preview` | `http://127.0.0.1:4173` serve o bundle; abre na Kart Park com o seletor e o crédito; "volta de treino" inicia a contagem sobre o asfalto da Kart Park, com faixa de borda, zebras com relevo, pneus e grama em faixas |
 
-### Medida real do artefato (execução 41109469203, base `/kartle-staging/`)
+### Medida do artefato (build limpo local de `2aa013e`, base `/kartle-staging/`)
 
 | Arquivo | bytes | gzip bytes |
 |---|---:|---:|
-| `assets/index-DmxsQuIL.js` | 694 178 | 183 635 |
-| `assets/index-q-biCwua.css` | 10 850 | — |
-| `index.html` | 6 592 | — |
-| **total** (*Measure dist*) | **711 620** | **188 719** |
+| `assets/index-BMmvlQeM.js` | 696 559 | 184 146 |
+| `assets/index-q-biCwua.css` | 10 850 | 3 049 |
+| `index.html` | 6 592 | 2 591 |
+| **total** (`measure_dist.py`) | **714 001** | **189 786** |
 
-- Limite de RNF02 (download inicial abaixo de 3 145 728 bytes): **711 620 bytes brutos (22,6 % do limite)**; 188 719
-  comprimidos (6,0 %). Contra o build de `6b314b2` (711 477 bytes): **+143 bytes** (o contêiner do crédito no painel e o seu
-  desenho; a regra de CSS do link).
+- Limite de RNF02 (download inicial abaixo de 3 145 728 bytes): **714 001 bytes brutos (22,7 % do limite)**; 189 786
+  comprimidos (6,0 %). Contra o build servido de `e70aad9` (711 620 bytes; 188 719 gzip): **+2 381 bytes** brutos (+1 067 gzip),
+  todos no JS — o código do acabamento; o CSS e o `index.html` têm o mesmo tamanho.
 - O arquivo da Kart Park no bundle: **43 012 bytes** (o arquivo tem 43 013 com o `\n` final; o literal `?raw` omite-o) —
-  NFR-0001 pede abaixo de 200 000; `SHA-256(literal + "\n")` = `04ce5e51…` = o registrado (NFR-0006).
-- Os nomes dos *assets* carregam hash de conteúdo: o `index.html` publicado é o que aponta para a versão em vigor (`REL-0003`).
+  NFR-0001 pede abaixo de 200 000; `SHA-256(literal + "\n")` = `04ce5e51…` = o registrado (NFR-0006, NFR-0014).
+- Os números a citar depois do envio são os do *Measure dist* da execução; se divergirem destes, o validador decide.
 
 ## O que o pipeline faz (`.github/workflows/pages.yml`)
 
 Inalterado. Em ordem, com saída observável na execução do Actions: checkout do commit → Node da `.nvmrc` (24) com cache do npm →
-`npm ci` → `npm test` (444 aprovados; inclui V01–V18 sobre o arquivo publicado, os resumos registrados contra os bytes do blob,
-o crédito no painel do resultado e a prova de que `promote` recusa sem `--esri-decision`) → `npm run build -- --base=/kartle/`
-(ou `/kartle-staging/`) → `measure_dist.py dist` (saída 0) → `configure-pages` → `upload-pages-artifact` de `dist/` → trabalho
-`deploy` no ambiente `github-pages`. Em produção o `deploy` **espera a aprovação do revisor obrigatório** (D-DP-06) — e nesta
-release **a aprovação não pode ser dada** antes da decisão Esri; em staging publica de imediato. Permissões mínimas, nenhum
-segredo (I6). As ferramentas desta release (`tools/check_bundle.py`, `tools/check_served.py`) são executadas por quem valida e
-pelo runbook, não pelo workflow (`98-divergences.md`, DIV-DP-05).
+`npm ci` → `npm test` (467 aprovados; inclui V01–V18 sobre o arquivo publicado, os resumos registrados contra os bytes do blob,
+o crédito no painel do resultado, a prova de que `promote` recusa sem `--esri-decision`, as medidas do acabamento na cena
+construída em Node e a trajetória passo a passo igual à de antes da revisão 2) → `npm run build -- --base=/kartle/` (ou
+`/kartle-staging/`) → `measure_dist.py dist` (saída 0) → `configure-pages` → `upload-pages-artifact` de `dist/` → trabalho `deploy`
+no ambiente `github-pages`. Em produção o `deploy` **espera a aprovação do revisor obrigatório** (D-DP-06) — e nesta release **a
+aprovação não pode ser dada** antes da decisão Esri; em staging publica de imediato. Permissões mínimas, nenhum segredo (I6). As
+ferramentas desta release (`tools/check_bundle.py`, `tools/check_served.py`) são executadas por quem valida e pelo runbook, não
+pelo workflow (`98-divergences.md`, DIV-DP-05).
 
 ## Limitações conhecidas — divergências aceitas e herdadas
 
@@ -138,9 +155,14 @@ pelo runbook, não pelo workflow (`98-divergences.md`, DIV-DP-05).
   `fonts.googleapis.com` no carregamento (DIV-DP-09, DIV-DP-10, `waived`).
 - O crédito da **Esri** não está no bundle (0 ocorrências de `esri`), por projeto: entra na entrega que promover, se a decisão o
   liberar (NFR-0012, segunda linha; REQ-FEAT-0006-14).
+- As ferramentas `check_served.py` e `check_bundle.py` não conferem o acabamento (não têm linha para faixa, relevo, pneus ou tons;
+  §16, nenhuma verificação nova numa rodada de revisão): o acabamento é provado em `npm test` (CHK-TEST-0010-06..16 e as demais da
+  rodada 5) e pela tela (H9–H12). As ferramentas continuam a provar o arquivo da pista, o crédito e o resto do empacotamento.
 - A poligonal da barreira alterna de direção a cada 0,1 m: o kart pode ricochetear em ângulos inesperados — observação de
-  qualidade para o D-Spec, não defeito; a "sensação" da barreira é a linha H3 do `runbook.md`.
-- Taxa de quadros, vibração, som e a legibilidade do crédito no painel durante a corrida não foram medidos em nenhum aparelho
-  nomeado. São as linhas H3, H4, H5 e H6 do `runbook.md`.
-- Staging serve, no mesmo bundle, as mudanças de `race-lap-validation`, `dirigibilidade` e `modelo-kart-01` da mesma data,
-  cujas portas humanas são dos registros delas (`98-divergences.md`, DIV-DP-12).
+  qualidade para o D-Spec, não defeito; a "sensação" da barreira é a linha H3 e o encosto nos pneus é H9.
+- Taxa de quadros (agora com o acabamento: 646 pilhas de pneus, duas tiras de faixa de borda, grama em faixas), vibração, som, a
+  legibilidade do crédito no painel e o aspecto do acabamento não foram medidos em nenhum aparelho nomeado sobre este build. São
+  as linhas H3–H12 do `runbook.md`. A execução no celular de 2026-10-30 (`docs/kart-park-device-log.md`) é de `e70aad9`, sem o
+  acabamento, e sem medida de fps.
+- Staging serve, no mesmo bundle, as mudanças de `race-lap-validation`, `dirigibilidade` e `modelo-kart-01`, cujas portas
+  humanas são dos registros delas (`98-divergences.md`, DIV-DP-12).

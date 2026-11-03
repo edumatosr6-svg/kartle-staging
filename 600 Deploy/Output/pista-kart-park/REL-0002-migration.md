@@ -3,9 +3,9 @@ id: REL-0002
 title: Migração — o arquivo de pista ganha o esquema 3 com o leitor do 2 mantido; nada persistido muda; a versão publicada é imutável
 feature: pista-kart-park
 stage: deploy
-status: validated
-version: 1.2.0
-sources: [DM-0001, DM-0002, DES-0001, DES-0010, DES-0011, ADR-0001, ADR-0002, ADR-0005, NFR-0001, NFR-0006, NFR-0008, NFR-0012, TEST-0001, TEST-0002, TEST-0012]
+status: draft
+version: 1.3.0
+sources: [DM-0001, DM-0002, DES-0001, DES-0010, DES-0011, ADR-0001, ADR-0002, ADR-0005, NFR-0001, NFR-0006, NFR-0008, NFR-0012, NFR-0014, TEST-0001, TEST-0002, TEST-0012]
 ---
 
 # REL-0002 — Migração
@@ -31,7 +31,7 @@ volta à Kart Park porque o código seleciona `OPENING_TRACK_ID` na carga), nenh
 
 | # | Revisão | O que faz | Ordem | Duração | Reversão (downgrade) | Como a reversão foi ensaiada |
 |---|---|---|---|---|---|---|
-| 1 | o leitor de pista passa a aceitar o esquema 3 e a Kart Park entra no bundle (DES-0001, DM-0001, ADR-0001, ADR-0002) | o `index.html` novo referencia o JS do build (`index-DmxsQuIL.js` para `e70aad9`), que carrega os dois arquivos de pista; nenhum dado é convertido, gravado ou lido: a versão 2 continua lida pelo mesmo leitor | única; aplicada no mesmo passo em que o bundle é publicado | 0 s de indisponibilidade: não há dado armazenado a converter | republicar o bundle anterior (`runbook.md` R1: caminho B em staging — execução 41101055606 de `6b314b2`, `index-BwruE9Pq.js`, o mesmo treino sem o crédito no painel do resultado; caminho A em produção, onde nada foi publicado). Em código, C1 volta ao build anterior e C2 retira a Kart Park pelo `git revert` da cadeia desta feature (ADR-0005), com conflitos esperados contra os commits posteriores de outras features | o **procedimento** do caminho B foi ensaiado em staging em 2026-10-27 19:29–19:33Z (release `dirigibilidade`, mesmo site, mesma workflow: reexecução de 39631099098 → `index-Cqfgl3da.js` em ≈ 1 min 17 s; reexecução de 40566728590 → `index-BiFxJ0FY.js` em ≈ 2 min 12 s); aceito pela validação de 2026-10-28; para o par desta rodada (41101055606 ↔ 41109469203) não foi repetido (`98-divergences.md`, DIV-DP-03) |
+| 1 | o leitor de pista passa a aceitar o esquema 3 e a Kart Park entra no bundle (DES-0001, DM-0001, ADR-0001, ADR-0002) | o `index.html` novo referencia o JS do build (`index-BMmvlQeM.js` esperado para `2aa013e`; `index-DmxsQuIL.js` para `e70aad9`), que carrega os dois arquivos de pista; nenhum dado é convertido, gravado ou lido: a versão 2 continua lida pelo mesmo leitor | única; aplicada no mesmo passo em que o bundle é publicado | 0 s de indisponibilidade: não há dado armazenado a converter | republicar o bundle anterior (`runbook.md` R1: caminho B em staging — execução 41156803005 de `1bb63aa`, árvore de `e70aad9`, `index-DmxsQuIL.js`, o mesmo jogo sem o acabamento; caminho A em produção, onde nada foi publicado). Em código, C1 volta ao build anterior e C2 retira a Kart Park pelo `git revert` da cadeia desta feature (ADR-0005), com conflitos esperados contra os commits posteriores de outras features | o **procedimento** do caminho B foi ensaiado em staging em 2026-10-27 19:29–19:33Z (release `dirigibilidade`, mesmo site, mesma workflow: reexecução de 39631099098 → `index-Cqfgl3da.js` em ≈ 1 min 17 s; reexecução de 40566728590 → `index-BiFxJ0FY.js` em ≈ 2 min 12 s); aceito pela validação de 2026-10-28; para o par desta rodada (41156803005 ↔ a execução de `2aa013e`) não foi repetido (`98-divergences.md`, DIV-DP-03) |
 | 2 | a Kart Park como versão publicada e imutável no registro (DM-0002, DES-0011; NFR-0006) | `tracks/registry.json` com a entrada `kart-park` 1 em `STAGING`; `publish` de novo → `já registrado`; outro conteúdo com o mesmo par → recusado; `prepare` de novo → recusado (par já registrado) | mesma publicação (vive no commit; não é servido) | 0 s | **não se reverte uma versão publicada**: uma correção é `trackVersion` 2 (I3; REQ-FEAT-0002-18) — a entrada de rodada reprovada da rodada 1 foi retirada antes de qualquer entrega (DM-0002 1.1.0, "Entrada de rodada reprovada"), por isso a 1 é a primeira entregue | CHK-TEST-0012-01..03 (resumos iguais aos registrados, pares únicos, catálogo no maior `trackVersion`); `check_bundle.py` confere que o bundle serve exatamente o conteúdo registrado |
 | 3 | **promoção a `PRODUCTION`** (DES-0011; ADR-0005; NFR-0012) — **não faz parte desta release** | `npm run track -- promote kart-park 1 --esri-decision "<referência>"` grava `PRODUCTION`, `promotedAtUtc` e `esriDecisionRef`; sem a referência: recusa com código 1 e nada escrito (CHK-TEST-0012-04) | **só na entrega que promover**, depois da decisão Esri registrada em `DOMAIN.md`; é um commit próprio (o registro muda) | 1 s | não se aplica a esta release (não executada); naquela entrega, "`PRODUCTION` repetido: nada" e a volta a `STAGING` não existe por projeto — a reversão de produção é a do bundle | — |
 
@@ -53,6 +53,8 @@ catálogo aponta para a maior `trackVersion` registrada (CHK-TEST-0012-03). A si
 acertos publicados são os de `dirigibilidade` (`arcade-assistido-v6`, `realista-aluguel-4t-v4`), que esta feature não altera. Os
 bytes de toda versão publicada são os do blob no git (regra byte-exata), nunca os da árvore de trabalho. Um leitor futuro de esquema 4
 mantém o 3 e o 2 (I3, I5), como o 3 manteve o 2.
+
+**A revisão 2 do seed (acabamento visual, `fbfb073`) não é revisão de dado.** O acabamento é só desenho e lê a geometria já publicada; não acrescenta campo ao esquema 3, não muda o arquivo nem o registro: `src/tracks/kart-park-v1.json` (`a1f57085…`), `tracks/registry.json` (`cfdeec07…`) e `tracks/sources/kart-park.json` (`d5ee2187…`) são os mesmos blobs em `e70aad9` e em `2aa013e`, o SHA-256 registrado continua `04ce5e51…` e `trackVersion` continua 1 (NFR-0014; CHK-TEST-0012-01..07). Por isso **não há `prepare`/`publish` nem `kart-park` 2** nesta rodada, e a reversão do acabamento é só a do bundle (caminho B).
 
 ## Dado persistido do jogador (I5)
 

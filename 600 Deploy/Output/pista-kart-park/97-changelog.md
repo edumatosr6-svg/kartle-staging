@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: []
 ---
 
@@ -218,3 +218,68 @@ validação de staging desta rodada; DIV-DP-01 / DIV-DP-07 (H1–H8 em `docs/kar
   estágio de testes; as 4 linhas de ADR-0007 já existiam desde a rodada 2.
 - Nada foi executado contra produção; nenhum push, reexecução ou escrita no GitHub (só `gh run list`/`view`); nenhum valor de
   segredo escrito.
+
+## 2026-11-03 — rodada 4, Modo B/revisão (candidato `2aa013e`: seed revisão 2, acabamento visual)
+
+**Entradas lidas** (§12): `reports/deploy-validation/deploy-validation-20261103-1744.md` (`SUCCESS` sobre `e70aad9`, ISSUE-01,
+-03..-06); `400 Code/Output/pista-kart-park/reports/code-validation/code-validation-20261103-2004.md` (`SUCCESS`, `fbfb073`);
+`500 Tests/Output/pista-kart-park/reports/test-validation/test-validation-20261103-2043.md` (`SUCCESS`, `2aa013e`, 467/467, 126
+da feature); US-0007, NFR-0002 1.1.0, NFR-0013, NFR-0014 de `200 Requirements/230 Output/pista-kart-park/`; `test-strategy.md`
+(E2E-03, E2E-05, E2E-09); `DOMAIN.md` (decisão de 2026-11-03). Leituras de verificação, só leitura: `git diff e70aad9 2aa013e`
+(na árvore construída só `src/main.ts` +1 e `src/trackScene.ts` +162/−17; `tracks/`, `src/tracks/`, `index.html`, `src/style.css`,
+`package*.json`, `.github/` iguais), `git rev-parse` dos blobs de pista, `git ls-files --eol`, `git ls-remote staging staging`
+(`1bb63aa`), `git merge-base --is-ancestor 1bb63aa 2aa013e`. Executado localmente: `MSYS_NO_PATHCONV=1 npx vite build
+--base=/kartle-staging/` (árvore limpa de `2aa013e`; `dist/` ignorado pelo git), `measure_dist.py` (714 001 / 189 786,
+`within_limit=True`), `check_bundle.py` (88/88), `npm run track -- verify kart-park 1` (`VERIFIED`). Nada enviado, nada contra
+produção, nenhuma escrita no GitHub.
+
+**Mudanças**
+- `01-release.md` 1.3.0: `<sha>` = `2aa013e67de49fb842f42cda573b3b82df5cf824`; o que muda contra `e70aad9` (acabamento: grama em
+  faixas, faixa de borda, zebra com relevo, barreira de pneus; o chão da sintética); vereditos de código e de testes da rodada 5;
+  build limpo local como referência (`index-BMmvlQeM.js`, 714 001 bytes, +2 381 contra o servido); staging serve ainda
+  `e70aad9` (41156803005); NFR-0014 (arquivo e `trackVersion` 1 inalterados, nenhuma republicação); a decisão de 2026-11-03;
+  alvo de reversão 41156803005; precondições reordenadas.
+- `runbook.md` 1.3.0: `<sha>`, `<hash>` esperado `BMmvlQeM`, `<sha-anterior>` 41156803005 / `DmxsQuIL` (o mesmo jogo sem o
+  acabamento — o caminho B deixa de ser só de emergência); C1 = `git revert 2aa013e fbfb073`; C2 com `2aa013e`, `fbfb073` à frente;
+  precondições (veredito de testes `[x]`, NFR-0014 `[x]`, build limpo `[x]`, publicação em staging `[ ]`, H1–H12 `[ ]`, Esri com a
+  decisão de 2026-11-03); *Promote* 3/6/7/8/9 com 467, 714 KB, o envio por fazer e a entrada nova no log; opção 1 registrada em
+  *Promoção bloqueada* (b); *Verify* 13 novo (acabamento e fps); gatilhos do acabamento; **linhas humanas H9–H12 novas** (H9
+  acabamento no notebook, H10 no celular em paisagem e retrato, H11 taxa de quadros com o acabamento — NFR-0002, H12 sintética
+  igual, E2E-09); a taxa de quadros sai de H3/H5 para H11; H4, H5 e H7 com o relevo e sem textura; R1/R2 para `DmxsQuIL`
+  (esperado 79/79).
+- `smoke.md` 1.3.0: preparação com `BMmvlQeM`; **D19–D22 e M13 novas** (aspecto do acabamento, encosto nos pneus e volta com rodas
+  na faixa, mesmo tom em cada abertura, sintética 0 pixel; o mesmo no celular); D14/M9 com o acabamento (H11, NFR-0002 1.1.0);
+  D3, D17, D18, M7 atualizadas; 467/126 nos limites; referências erradas corrigidas (D14 e M9 apontavam H6; M7 apontava H4).
+- `REL-0003` 1.3.0: alvo 41156803005; ordem 2 com as execuções até 41156803005 e o envio de `2aa013e` por fazer; decisão de
+  2026-11-03 nas ordens 3 e 4; estado de 2026-11-03; janela de compatibilidade (só o desenho difere); pipeline com 467 e
+  `BMmvlQeM`; riscos novos: fps com o acabamento, acabamento errado, sintética mudada, simulação mudada (NFR-0013), arquivo mudado
+  (NFR-0014), releases contidas atrás do servido.
+- `REL-0002` 1.3.0 (a revisão 2 não é revisão de dado; nenhuma `kart-park` 2), `REL-0004` 1.3.0 (acabamento nos dois canais; fps
+  com o acabamento em H11; tamanhos; o log existe), `REL-0005` 1.3.0 (linhas de US-0007, NFR-0013, NFR-0014; NFR-0002 com o
+  acabamento; tabela de execuções até 41156803005 e a de `2aa013e` por criar). `REL-0001` sem mudança (1.1.0): nenhuma variável nova.
+- `98-divergences.md` 1.3.0: DIV-DP-01 (o log existe; H1–H12 sobre `2aa013e`), -02, -03, -04, -07 (fps com o acabamento), -12
+  (os registros das releases contidas ficam atrás do servido com o envio), -14 (ponto Esri aberto em 2026-11-03); **DIV-DP-15
+  `resolved`** (opção 1).
+- `tools/`: sem mudança.
+
+**Itens fechados**: ISSUE-06 do relatório de 2026-11-03 17:44 (registro atrás do estado: o veredito de testes, as medidas e as
+execuções passam ao estado de hoje e ao candidato novo); DIV-DP-15 (decisão de 2026-11-03); ISSUE-04 em parte (a opção (b) está
+registrada; a decisão Esri continua aberta).
+
+**Itens que ficam abertos, com o que os fecha**: o envio de `2aa013e` a staging e a validação dele (deploy-loop); ISSUE-01 /
+DIV-DP-01, DIV-DP-07 (dono do produto: H1–H12 no log sobre `2aa013e`); ISSUE-03 / DIV-DP-03 (ensaio do par novo, opcional);
+ISSUE-04 / DIV-DP-14 (decisão Esri); ISSUE-05 / DIV-DP-12 (portas humanas das releases contidas e uma rodada de cada registro para
+`2aa013e`).
+
+**Itens recusados ou não aplicados, com motivo**
+- Linhas novas em `check_served.py`/`check_bundle.py` para o acabamento: não acrescentadas — as medidas do acabamento são de
+  `npm test` (CHK-TEST-0010-06..16), que o workflow executa antes do `deploy`, e o aspecto é da tela (H9–H12); as ferramentas
+  continuam a provar o empacotamento e o arquivo da pista.
+- As linhas novas de smoke e as humanas H9–H12 **não** são superfície destravada numa rodada de correção (§16): são autorizadas
+  pela revisão 2 do seed (US-0007, NFR-0002 1.1.0, E2E-09 de `test-strategy.md`), como o pedido desta rodada nomeia.
+- Editar os registros de `race-lap-validation`, `dirigibilidade` e `modelo-kart-01`: fora da cerca de escrita (§14); o efeito do
+  envio sobre eles fica em DIV-DP-12 e no risco de `REL-0003`.
+- Marcar a publicação em staging: não aplicado — este estágio não envia; o envio é o *Promote* 7 de um humano ou do laço.
+- Republicar a pista ou criar `kart-park` 2: não aplicável (NFR-0014).
+- Nada foi executado contra produção; nenhum push, reexecução ou escrita no GitHub; nenhum valor de segredo escrito; nada fora de
+  `600 Deploy/Output/pista-kart-park/` foi escrito (o `dist/` local é ignorado pelo git).
