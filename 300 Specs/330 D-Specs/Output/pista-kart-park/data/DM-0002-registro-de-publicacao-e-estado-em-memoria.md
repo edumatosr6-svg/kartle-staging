@@ -4,7 +4,7 @@ title: Registro de publicação das pistas e estado em memória da sessão de tr
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.0
+version: 1.2.1
 sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0007-13, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
 ---
 
@@ -55,7 +55,7 @@ Entrada:
 | `originSha256` | texto hexadecimal | — | resumo do arquivo de origem: `52c5adda4ce89bd23a00e04a10d7e12a28900dd4d56414f444e0a4795f2c5302` para a Kart Park |
 | `smoothingWindowM` | número | m | largura total da janela de suavização aplicada pelo preparo, 12 (ADR-0006 1.1.0; substitui `smoothingIterations` da revisão 1.0.1, que registrava uma intensidade escolhida pelo dado) |
 | `maxSmoothingOffsetM` | número | m | maior distância entre um ponto gerado e o ponto correspondente da origem |
-| `lapLengthM` | número | m | comprimento da volta da `centerline` gravada, medido de novo depois da suavização; o mesmo valor do arquivo |
+| `lapLengthM` | número | m | comprimento da volta da `centerline` gravada, medido de novo depois da suavização; o comprimento derivado da `centerline` gravada, que o arquivo não grava em chave própria |
 | `originOffsetM` | `{xM, zM}` | m | deslocamento aplicado às coordenadas da origem (centro da caixa envolvente) |
 | `curbWidthsM` | lista de números | m | largura gravada de cada trecho de `curbs`, na ordem do arquivo |
 | `reducedCurbs` | lista de `{curbIndex, widthM, grassClearanceM}` | —, m, m | trechos cuja largura ficou abaixo de 1,0 m pela folga de grama, com a folga que a limitou |

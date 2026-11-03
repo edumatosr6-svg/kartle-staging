@@ -2,7 +2,7 @@
 title: Divergências — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: draft
+status: validated
 version: 1.2.0
 sources: []
 ---

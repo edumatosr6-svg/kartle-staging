@@ -4,7 +4,7 @@ title: Preparo offline do arquivo de pista da Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [FLOW-0003, RULE-0002, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-12, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09]
 ---
 
@@ -82,7 +82,7 @@ Passos de `prepareTrack`, em ordem:
    **comprimento é medido de novo** sobre as coordenadas já arredondadas (soma dos 684 segmentos, inclusive o
    do último ponto ao ponto 0); se fica fora de `TARGET_LAP_LENGTH_M` ± `LAP_LENGTH_TOLERANCE` (680,625 m a
    694,375 m) o preparo falha nomeando o comprimento medido, sem escrever. Esse comprimento é o
-   `lapLengthM` do arquivo e de `prep`; o rótulo do catálogo continua `displayLengthM` 687
+   derivado da `centerline` gravada e é registrado em `prep.lapLengthM` (o arquivo não tem chave de comprimento); o rótulo do catálogo continua `displayLengthM` 687
    ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md), REQ-FEAT-0006-08). A janela
    fica em `prep.smoothingWindowM` (12) e o maior desvio em `prep.maxSmoothingOffsetM`.
 3. **Larguras**: `widthM_i` igual à largura do ponto `i` da origem, arredondada a 0,001.

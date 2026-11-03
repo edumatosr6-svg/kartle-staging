@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: draft
-version: 1.4.0
+status: validated
+version: 1.5.0
 sources: []
 ---
 
@@ -423,3 +423,46 @@ daquela feature, em rodada). Os requisitos e o escopo do F-Spec desta feature n�
   `src/tracks/kart-park-v1.json` e `tracks/registry.json` (medidas e resumo), `tests/pista-kart-park-scene.test.ts`
   e `tests/pista-kart-park-publication.test.ts` (nomes das verificações), só para posicionamento. As folgas da
   barreira vêm do seed `NOTES.md` via o pedido desta rodada, não lidas aqui.
+
+## 2026-11-03 — rodada de 2026-11-03, Mode B (`dspec-validation-20261103-1924`, FAIL)
+
+**O que mudou**
+
+- Upstream: F-Spec revalidado (`fspec-validation-20261103-1937`, SUCCESS, commit `73feae8`): RULE-0006 1.1.0
+  e FEAT-0008 1.1.0 definem a face de colisão como a superfície em que o kart para de cada lado, não a
+  poligonal, e deixam a distância dela à poligonal ao projeto. `01-architecture.md` 1.2.1 passa a citar essa
+  validação.
+- ISSUE-04 (`web/DES-0008` 2.1.0, "Face de colisão"): fechado citando RULE-0006 1.1.0 ("Face dos pneus") e
+  FEAT-0008 1.1.0; a face de colisão do projeto continua a fronteira da superfície de contato a
+  `BARRIER_HALF_WIDTH_M` = 0,1 m (ADR-0003, sem mudança). A devolução de FEEDBACK-02 deixa de ser citada.
+- ISSUE-05 (`web/DES-0008` 2.1.0, interface, filho `barriers`, medidas, desempenho, observabilidade;
+  `test-strategy.md` 1.3.0, linhas AC-US-0004-06 e AC-US-0007-11): uma pilha centrada em cada vértice da
+  poligonal e, em cada segmento, pilhas a no máximo `TYRE_SPACING_M`, agora 0,12 m (era 0,18 m, espaçado
+  pelo comprimento total); `TYRE_RADIUS_M` 0,1 m (era 0,12 m), a espessura da barreira de ADR-0003;
+  instâncias só transladadas. Recalculado sobre `src/tracks/kart-park-v1.json` por `buildTrackGeometry`
+  (script descartável fora do repositório), com as fronteiras amostradas a 0,001 m: distância da fronteira
+  de contato à face desenhada no máximo 0,019 m, da face à fronteira de contato no máximo 0,023 m, nenhum
+  ponto da fronteira de contato dentro de um pneu; a disposição anterior dá 0,070 m e 0,071 m (perto de
+  29,69 m). 646 pilhas, 3.230 pneus, 85.272 triângulos numa chamada de desenho. O teste de AC-US-0007-11 mede
+  nos dois sentidos entre as fronteiras amostradas a 0,005 m (0,020 m e 0,022 m no projeto; reprova a
+  disposição anterior).
+- ISSUE-01 (`adr/ADR-0006` 1.2.1, `data/DM-0002` 1.2.1, `pipeline/DES-0010` 1.1.1): o comprimento é o
+  derivado da `centerline` gravada, registrado em `prep.lapLengthM`; o texto deixa de sugerir uma chave
+  `lapLengthM` no arquivo publicado.
+- ISSUE-02 (`01-architecture.md` 1.2.1, "Consequências para outras features"; `test-strategy.md` 1.3.0,
+  "Testes de outras features"): a mudança de CHK-TEST-0009-02 e -03 já foi aplicada por `race-lap-validation`
+  (commit `32d0adf`; `src/trackData.ts:11`, `tests/race-lap-validation-track-data.test.ts:18-40`).
+- `00-index.md` e `99-traceability.md` regenerados pelo gate (`lint_artifacts.py --emit`).
+
+**Itens recusados ou não aplicados, com motivo**
+
+- ISSUE-03 (base única em `98-divergences.md`): não aplicado nesta rodada. Passar as 15 linhas presas a
+  `ac84352` para a árvore corrente é rejulgar cada divergência contra o código já entregue (várias deixariam de
+  existir), trabalho que não é barato nem seguro numa rodada de correção; é aviso, não condiciona o veredito, e
+  cada linha continua a nomear a sua base. Fica para a próxima rodada Mode A ou C.
+- Manter `TYRE_RADIUS_M` 0,12 m com pilha em cada vértice: não adotado; os pneus enchem por dentro das viradas
+  o vão que a superfície de contato deixa aberto (0,10 m perto de 40,29 m).
+- Mudar `BARRIER_HALF_WIDTH_M`: não adotado; NFR-0013 congela a colisão, e RULE-0006 1.1.0 deixa a distância ao
+  projeto.
+- Nenhum módulo, tabela, campo, componente ou constante novo (§16): as mudanças são de valor e de disposição
+  dentro do filho `barriers` que o projeto já tinha.

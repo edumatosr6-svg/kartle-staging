@@ -2,8 +2,8 @@
 title: Arquitetura — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: draft
-version: 1.2.0
+status: validated
+version: 1.2.1
 sources: []
 ---
 
@@ -11,7 +11,7 @@ sources: []
 
 Este conjunto projeta como cada `REQ-*` do F-Spec validado de `pista-kart-park` (FEAT-0001 a FEAT-0008,
 API-0001 a API-0003, FLOW-0001 a FLOW-0003, SCR-0001 a SCR-0003, RULE-0001 a RULE-0006; seed `revision: 2`,
-validação `fspec-validation-20261103-1908`, SUCCESS) é realizado sobre o código em execução. Os caminhos são relativos à raiz do repositório (diretriz do estágio: o código vive em
+validação `fspec-validation-20261103-1937`, SUCCESS; commit `73feae8`) é realizado sobre o código em execução. Os caminhos são relativos à raiz do repositório (diretriz do estágio: o código vive em
 `src/`, `tests/`, `scripts/` e `index.html`; `400 Code/Source/` está vazio). O produto é um cliente de
 navegador sem servidor, sem conta e sem banco: não existem as pastas `backend/` e `mobile/` deste estágio
 (`web-mobile` roda o mesmo cliente). Os itens do dado de pista e da simulação ficam em `core/`, os da
@@ -236,20 +236,15 @@ na etapa de testes, `tests/pista-kart-park-*.test.ts`, `tests/helpers/kartParkPi
 
 ## Consequências para outras features
 
-- `race-lap-validation`, etapa de testes: `tests/race-lap-validation-track-data.test.ts:20` (dentro de
-  CHK-TEST-0009-02) afirma `TRACK_SCHEMA_VERSION` igual a 2 e `:21` que o arquivo sintético declara a versão
-  corrente; `:24-30` (CHK-TEST-0009-03) usa `schemaVersion` 3 como "versão posterior" e espera
-  `UNSUPPORTED_SCHEMA`. Com o esquema 3 que o F-Spec exige (REQ-FEAT-0002-02, REQ-FEAT-0002-16 e API-0001),
-  `TRACK_SCHEMA_VERSION` passa a 3, a pista sintética continua em 2 (REQ-FEAT-0002-15) e um arquivo sintético
-  com `schemaVersion` 3 e sem `centerline` é `UNREADABLE`. As duas verificações afirmam literais mais
-  estreitos que o requisito delas (NFR-0012 daquela feature: versão maior que a anterior, versão
-  desconhecida intacta), que continua satisfeito com 3 e com 4. A mudança desses dois testes é de
-  `race-lap-validation` e chega a ela como feedback desta etapa (conventions §14); nenhum arquivo daquela
-  feature é editado por este conjunto nem pelas etapas de código e de testes desta feature. Como `npm test`
-  roda as duas suítes juntas, o commit de código desta feature que sobe `TRACK_SCHEMA_VERSION` só é integrado
-  ao ramo principal junto com a mudança desses dois testes já aplicada pela etapa de testes de
-  `race-lap-validation`; até lá ele fica no ramo da feature, e a reprovação desses dois testes, e só deles,
-  é registrada pela etapa de testes desta feature como devida a `race-lap-validation`.
+- `race-lap-validation`, etapa de testes: mudança já aplicada por aquela feature (commit `32d0adf`). Com o
+  esquema 3 que o F-Spec exige (REQ-FEAT-0002-02, REQ-FEAT-0002-16 e API-0001), `src/trackData.ts:11`
+  declara `TRACK_SCHEMA_VERSION = 3`, a pista sintética continua em 2 (REQ-FEAT-0002-15) e um arquivo
+  sintético com `schemaVersion` 3 e sem `centerline` é `UNREADABLE`. As duas verificações daquela feature que
+  afirmavam o literal 2 e usavam 3 como "versão posterior" já seguem só o requisito delas (NFR-0012 daquela
+  feature: versão maior que a anterior, versão desconhecida intacta): CHK-TEST-0009-02
+  (`tests/race-lap-validation-track-data.test.ts:18-30`) lê a versão anterior da fixture e a do leitor da
+  exportação, e CHK-TEST-0009-03 (`:32-40`) deriva a posterior de `TRACK_SCHEMA_VERSION + 1`. Nenhum
+  arquivo daquela feature é editado por este conjunto nem pelas etapas de código e de testes desta feature.
 - `dirigibilidade`: nenhum campo de API-0001 daquela feature muda; os ensaios dela continuam na pista
   sintética e na pista de teste, cujos cálculos não mudam (ambiente sem `track`); o custo por passo na pista
   sintética não ganha chamada de `surfaceAt` (o bloco de barreira e o cálculo de toque só existem com

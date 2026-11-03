@@ -2,8 +2,8 @@
 title: Estratégia de testes — pista Kart Park
 feature: pista-kart-park
 stage: dspec
-status: draft
-version: 1.2.0
+status: validated
+version: 1.3.0
 sources: []
 ---
 
@@ -105,7 +105,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0004-03 | `track-file`: V15 |
 | AC-US-0004-04 | `barrier`: `seededKart` lançado contra a barreira dos dois lados, a 5, 10, 20, 30, 34,5, 60 e 200 m/s e a 90 e 30 graus, nunca termina um passo do outro lado |
 | AC-US-0004-05 | `barrier`: nos dois ambientes de grama, mesma velocidade, ângulo e `Input`, posição e velocidade no referencial local iguais a cada passo desde o passo com `barrierContact` e com `wallContact`; `barrierContact` verdadeiro só nesse passo |
-| AC-US-0004-06 | `scene`: as pilhas de pneus cobrem cada poligonal de `barriers` do primeiro ao último ponto, com centros seguidos a no máximo `TYRE_SPACING_M` ao longo dela (verificação migrada na rodada de 2026-11-03: antes, uma caixa por segmento); E2E-03 |
+| AC-US-0004-06 | `scene`: as pilhas de pneus cobrem cada poligonal de `barriers` do primeiro ao último ponto, com uma pilha centrada em cada vértice e centros seguidos a no máximo `TYRE_SPACING_M` no mesmo segmento (verificação migrada na rodada de 2026-11-03: antes, uma caixa por segmento); E2E-03 |
 | AC-US-0005-01 | `track-file`: V12 (34 trechos) |
 | AC-US-0005-02 | `track-file`: V12 (lado e trecho por índice fracionário; a zebra da largada dividida) |
 | AC-US-0005-03 | `scene`: cada faixa no lado e no trecho declarados; E2E-03 |
@@ -138,7 +138,7 @@ com o muro são objetos `Environment` montados no teste, como `tests/physics.tes
 | AC-US-0007-08 | `surface`: a verificação de AC-US-0005-06 sem mudança (`wheelGripPc` 0,85 em `CURB`), com o relevo desenhado na mesma árvore |
 | AC-US-0007-09 | `scene`: `barriers` é uma `InstancedMesh` de pilhas de pneus em toda a extensão (ver AC-US-0004-06), com cor de vértice preta (cada canal sRGB de no máximo 0,17); E2E-03 |
 | AC-US-0007-10 | `scene`: a caixa da geometria da pilha vai de `y` 0 a 0,9 m, com `TYRES_PER_STACK` pneus de `TYRE_HEIGHT_M` |
-| AC-US-0007-11 | `scene`: a cada 0,02 m de cada poligonal, de cada lado, ao longo da normal local, o afastamento da envoltória das pilhas (calculado sobre os vértices construídos de cada instância) fica a no máximo 0,05 m de `BARRIER_HALF_WIDTH_M`; `barrier`: as verificações de AC-US-0004-04 e -05 sem mudança mostram o kart parando na superfície de contato; E2E-03 (o kart encosta nos pneus vistos) |
+| AC-US-0007-11 | `scene`, sobre o arquivo publicado por `buildTrackGeometry`: a fronteira de contato é amostrada a cada 0,005 m nas duas paralelas a `BARRIER_HALF_WIDTH_M` de cada segmento e a cada 1° no círculo de raio `BARRIER_HALF_WIDTH_M` em volta de cada vértice, mantidos só os pontos cuja distância à poligonal (`closestOnSegment` sobre `barrierSegments`) é de ao menos `BARRIER_HALF_WIDTH_M` − 1e−9; a face desenhada é amostrada a cada 0,005 m nos lados do polígono de cada pneu, com o centro lido da matriz de cada instância de `barriers` e os vértices da geometria da pilha, mantidos só os pontos fora de todo outro polígono. Afirma, nos dois sentidos, no máximo 0,05 m: de cada ponto da fronteira de contato ao ponto mais próximo da face, e `|D − BARRIER_HALF_WIDTH_M|` de cada ponto da face (medido no projeto: 0,020 m e 0,022 m a esse passo, 0,019 m e 0,023 m a 0,001 m; com a disposição anterior, 0,070 m e 0,071 m); `barrier`: as verificações de AC-US-0004-04 e -05 sem mudança mostram o kart parando na superfície de contato; E2E-03 (o kart encosta nos pneus vistos) |
 | AC-US-0007-12 | `scene`: 24 pontos do círculo externo de cada pneu, por instância, são `grass` por `classifySurface`: nenhum sobre o asfalto ou a zebra |
 | AC-US-0007-13 | `scene`: o atributo de cor de `grass` tem exatamente as 2 cores de `GRASS_TONES`, as duas com o canal verde maior que o vermelho e o azul; E2E-03 |
 | AC-US-0007-14 | `scene`: `buildTrackScene` duas vezes sobre a mesma geometria dá atributos de `grass` iguais número a número; a cor de cada faixa é `GRASS_TONES[grassToneAt(...)]`; 1.000 posições do gerador semeado dão em `grassToneAt` o tom da faixa que as contém; `layering`: `src/trackScene.ts` não usa `Math.random`, `Date`, `performance`, `window`, `navigator`, `innerWidth`, `devicePixelRatio` nem `matchMedia`; E2E-03 e E2E-05 (o mesmo tom no mesmo lugar em duas aberturas, com a janela redimensionada e o aparelho girado) |
@@ -194,10 +194,11 @@ Os critérios transversais de FEAT-0007 e os requisitos sem critério de histór
 ## Testes de outras features
 
 Os testes de `race-lap-validation` e de `dirigibilidade` continuam na pista sintética e na pista de teste e
-passam sem alteração, salvo `tests/race-lap-validation-track-data.test.ts:20` (CHK-TEST-0009-02) e `:24-30`
-(CHK-TEST-0009-03), que afirmam o literal 2 e usam a versão 3 como posterior; a mudança deles é de
-`race-lap-validation` ([01-architecture](01-architecture.md), "Consequências para outras features"). Nenhum
-teste desta feature altera um arquivo de teste de outra feature.
+passam sem alteração. As duas verificações de `race-lap-validation` que afirmavam o literal 2 e usavam a
+versão 3 como posterior já foram mudadas por aquela feature: CHK-TEST-0009-02 e CHK-TEST-0009-03
+(`tests/race-lap-validation-track-data.test.ts:18-40`) seguem `TRACK_SCHEMA_VERSION`, que
+`src/trackData.ts:11` declara 3 ([01-architecture](01-architecture.md), "Consequências para outras
+features"). Nenhum teste desta feature altera um arquivo de teste de outra feature.
 
 O treino de voltas seguidas de `race-lap-validation` (ADR-0006 daquela feature) muda o que uma volta `TRAINING`
 faz na chegada e no corte; as verificações desta feature que esperavam `ENDED` nesses pontos e o laço de `drive`
