@@ -2,7 +2,7 @@
 title: Divergências — pista Kart Park (estágio de código)
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.5.0
 sources: []
 ---

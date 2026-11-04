@@ -2,7 +2,7 @@
 title: Registro de implementação — pista Kart Park
 feature: pista-kart-park
 stage: code
-status: draft
+status: validated
 version: 1.5.0
 sources: []
 ---

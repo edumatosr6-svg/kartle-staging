@@ -3,7 +3,7 @@ id: TEST-0010
 title: Desenho da Kart Park construído em Node — asfalto pelas bordas do arquivo, faixa de borda, zebra no lado declarado com relevo, barreira de pneus em todo o comprimento com a face na superfície de contato, grama em 2 tons, linha de largada e minimapa
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 2.0.0
 sources: [AC-US-0002-08, AC-US-0005-03, AC-US-0004-06, AC-US-0002-03, AC-US-0007-01, AC-US-0007-02, AC-US-0007-05, AC-US-0007-06, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-20]
 ---

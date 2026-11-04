@@ -1,7 +1,7 @@
 ---
 stage: code
 feature: pista-kart-park
-generated: 2026-11-03T19:59:44Z
+generated: 2026-11-04T14:34:22Z
 rows: 292
 ---
 
