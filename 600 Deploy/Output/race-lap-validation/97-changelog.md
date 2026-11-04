@@ -2,8 +2,8 @@
 title: Registro de mudanças — validação de volta de corrida (estágio de deploy)
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.3.0
+status: draft
+version: 1.4.0
 sources: []
 ---
 
@@ -633,3 +633,61 @@ veredito de testes sobre ele; a confirmação é da revalidação.
 
 - Nenhum redeploy (staging já serve `e70aad9`), nenhum comando contra produção, nada aprovado; `gh` e GET só de leitura;
   nenhum valor de segredo escrito; `docs/`, `DOMAIN.md` e os registros das outras features não editados por esta entrada.
+
+## 2026-11-04 — rodada 12, Modo B (registro atrás do staging: ISSUE-05 de `pista-kart-park`, `deploy-validation-20261104-1302.md`)
+
+Staging passou a servir a árvore de `2aa013e` (execução 41832829595 de `1966c4a`, 2026-11-04), que muda `src/`; pela regra de
+invalidação do `<sha>`, o candidato `e70aad9` desta release ficou atrás do servido. Esta rodada move o registro para
+`2aa013e`. Nenhuma superfície nova (§16): nenhuma linha de fumaça, roteiro, ferramenta, chave ou opção acrescentada; a linha
+*Mudança do build `e70aad9` → `2aa013e`* e a entrada 41832829595 registram fatos do build servido.
+
+**Fatos de entrada** (lidos nesta rodada, só leitura): `git ls-remote staging` → `staging` = `1966c4a`; `git ls-remote origin`
+→ `master` = `05c3570`; `gh run list` → 41832829595 (`1966c4a`, push, `success`) e 41156803005 (`1bb63aa`, `success`);
+`git diff --name-only e70aad9 2aa013e -- src index.html tests scripts …`: `src/main.ts` (+1, linha 239), `src/trackScene.ts`,
+7 suítes `tests/pista-kart-park-*` e `tests/fixtures/kartParkRev1Trace.json`; `git diff --quiet e70aad9 2aa013e -- src/lap.ts
+src/lapMessages.ts src/lapTiming.ts src/frameClock.ts src/trackData.ts src/track.ts index.html src/style.css
+tests/race-lap-validation-*` sem diferença; `2aa013e..HEAD` só registros; JUnit `500 Tests/Output/pista-kart-park/reports/junit-latest.xml`
+(execução fresca sobre a árvore de `2aa013e`) reduzido por script: 467 casos, 0 falhas, 0 pulados, 179 em
+`tests/race-lap-validation-*`; GET de staging: 200, `Last-Modified` 2026-11-04 12:53:01 GMT, 6 592 / 696 559 / 10 850 bytes,
+sha256 `3b0dfc37…` / `babb1884…` / `5e1c964b…`; `check_served.py … index-BMmvlQeM.js` 53/53; `measure_dist.py` sobre os
+servidos: 714 001 / 189 786 (Windows); `git grep` em `2aa013e`: 0 variáveis de ambiente, 0 rede ou armazenamento em `src/` e
+`index.html`; a prova byte a byte servido = build limpo e o *Measure dist* 714 001 / 189 539 da execução, do relatório
+`deploy-validation-20261104-1302.md` de `pista-kart-park`; `DOMAIN.md` desta feature, 2026-11-03 (opção 1).
+
+**O que mudou**
+
+- `01-release.md` (1.4.0): veredito de testes aplicado a `2aa013e` por contenção (179/179 na suíte 467/467), sem veredito
+  novo; linha nova *Mudança do build `e70aad9` → `2aa013e` e contenção*; `<sha>` = `2aa013e`, com a regra de invalidação e a
+  declaração de que o veredito novo que ela pede foi substituído pela contenção; execução em vigor 41832829595; servido com
+  os três sha256 e a prova byte a byte; alvo B 41156803005 (41076989728 para tirar esta rodada); medida 714 001 brutos,
+  189 539 gzip no workflow e 189 786 no Windows (só zlib), +2 381 contra `e70aad9`; precondições: validação sobre
+  41832829595, execução 3 sobre `index-BMmvlQeM.js`, opção de produção 1 registrada, resta a decisão Esri.
+- `runbook.md` (1.4.0): `<sha>`, `<hash>` `BMmvlQeM`, execução em vigor e anterior; precondições de commit, veredito, staging,
+  validação (o relatório mais novo é de `e70aad9`) e opção de produção (feita); *Promote* 3, 4, 5, 6, 7; R1 caminho B com
+  41156803005 e o que se observa com cada alvo.
+- `smoke.md` (1.4.0): build `2aa013e`/`BMmvlQeM`, 467 na suíte.
+- `REL-0001` (1.4.0) e `REL-0002` (1.3.0): reconferência em `2aa013e`; alvo B. `REL-0003` (1.4.0): estado de staging em
+  2026-11-04, alvo B, opção 1, 467, 714 001. `REL-0004` (1.3.0): bytes; a execução 3 sobre `2aa013e`. `REL-0005` (1.4.0):
+  bytes, `check_served` com `BMmvlQeM`, entrada 41832829595, 41156803005 como alvo B.
+- `98-divergences.md` (1.4.0): DIV-DP-05, DIV-DP-06 (veredito aplicado por contenção; execução 3 sobre `2aa013e`), DIV-DP-07
+  (bytes novos), DIV-DP-15 (opção 1 escolhida; resta a decisão Esri).
+
+**Itens fechados**: **ISSUE-05** de `pista-kart-park` (`deploy-validation-20261104-1302.md`), na parte desta feature — o
+registro nomeia `2aa013e`/`index-BMmvlQeM.js`, o que staging serve; a confirmação é da validação deste estágio. **ISSUE-02**
+de `deploy-validation-20261103-1805.md` (escolha da opção de produção): a opção 1 está em `DOMAIN.md` desde 2026-11-03; o que
+resta de DIV-DP-15 é a decisão Esri.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **Veredito de testes sobre `2aa013e`**: não existe; a regra de invalidação do `<sha>` pede um, e este registro oferece em seu
+  lugar a contenção (nenhum arquivo desta feature nem dos seus testes muda; 179/179 na execução fresca de `2aa013e`). Se a
+  validação deste estágio não a aceitar, fecha-o uma re-validação de `test-loop` desta feature sobre `2aa013e`.
+- **ISSUE-01** (portas humanas; DIV-DP-06, DIV-DP-07): a execução 3 pelo roteiro H1–H6, sobre `index-BMmvlQeM.js`.
+- **ISSUE-03** (ensaio de reversão reutilizado): o caminho B não foi reexecutado para o alvo novo 41156803005; o ensaio C1 de
+  `pista-kart-park` (2026-11-04) reproduziu o bundle desse alvo byte a byte.
+
+**Itens recusados**: nenhum.
+
+- Nenhum redeploy (staging já serve `2aa013e`), nenhum comando contra produção, nada aprovado; `gh`, `git ls-remote` e GET só
+  de leitura; nenhum valor de segredo escrito; `docs/`, `DOMAIN.md`, os relatórios de validação e os registros das outras
+  features não editados por esta entrada.

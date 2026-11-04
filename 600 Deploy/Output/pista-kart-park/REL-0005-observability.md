@@ -4,7 +4,7 @@ title: Observabilidade — o que a release registra, o que se mede, qual alerta 
 feature: pista-kart-park
 stage: deploy
 status: draft
-version: 1.3.0
+version: 1.4.0
 sources: [ADR-0007, DES-0003, DES-0007, DES-0008, DES-0009, DES-0011, DES-0012, DM-0002, ADR-0005, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008, NFR-0010, NFR-0012, NFR-0013, NFR-0014, US-0007, TEST-0001, TEST-0005, TEST-0006, TEST-0008, TEST-0009, TEST-0010, TEST-0011, TEST-0012]
 ---
 
@@ -42,11 +42,11 @@ externo, nenhum envio de telemetria** (decisão *Monitoramento* de 2026-10-21; R
 | NFR-0004 sem servidor | requisições entre a escolha da pista e o fim da volta | painel de rede com a rede bloqueada (H7; D15, M11) | 1 requisição a outro serviço (a de `fonts.googleapis.com` no carregamento é aceita, DIV-DP-10) |
 | NFR-0003, NFR-0007, NFR-0008 determinismo, regras na simulação, contrato de passo | `DETERMINISM` na Kart Park; regras sem a tela; presets/`STEP`/`Input` intactos; `bench:handling` 46/46 | `npm test` no workflow (467 aprovados) e os benches no manifesto de código — nada a observar na página servida | qualquer registro `FAIL`, que para o workflow antes do `deploy` |
 | NFR-0010 dependências | arquivos em `dist/assets/` além de um JS e um CSS; `dependencies` de `package.json` | `check_bundle.py`; CHK-TEST-0011-* | qualquer *asset* novo (uma textura do acabamento, um JSON servido à parte) ou dependência nova |
-| RNF02 tamanho | bytes de `dist/` no build; bytes comprimidos transferidos na primeira visita | `measure_dist.py` no workflow (build limpo de `2aa013e`: 714 001; 189 786 gzip); lista de transferências (D3, M3) | 3 145 728 bytes ou mais |
+| RNF02 tamanho | bytes de `dist/` no build; bytes comprimidos transferidos na primeira visita | `measure_dist.py` no workflow (execução 41832829595, árvore de `2aa013e`: 714 001; 189 539 gzip); lista de transferências (D3, M3) | 3 145 728 bytes ou mais |
 | RNF01 carregamento | tempo da navegação até o kart responder, cache vazio, 4G | `smoke.md` D2/M2 | 10 s ou mais |
 | RNF06 HTTPS | certificado válido; 0 recursos em HTTP; inclinação ativa no celular | navegador (cadeado); `check_served.py` recusa URL `http://` | qualquer recurso inseguro ou aviso de certificado |
 | Disponibilidade da página | código de resposta do `index.html`, do JS e do CSS em vigor | **verificação manual em HTTPS** (`runbook.md`, *Verify*) ou `check_served.py` (três GET), por decisão do dono do produto (sem monitor externo) | qualquer resposta diferente de 200 |
-| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado | `check_served.py <URL> index-<hash>.js` contra o `<hash>` impresso no passo *Build* da execução (`BMmvlQeM` esperado para `2aa013e`; `DmxsQuIL` para `e70aad9`) | hash divergente |
+| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado | `check_served.py <URL> index-<hash>.js` contra o `<hash>` impresso no passo *Build* da execução (`BMmvlQeM` para `2aa013e`; `DmxsQuIL` para `e70aad9`) | hash divergente |
 | Regressão das releases contidas | o painel do resultado de cada volta na sintética sem crédito; Kart 01; `arcade-assistido-v6` | `smoke.md` D18; `check_served.py` confirma `kart01-decals`, `=1.38,`, `arcade-assistido-v6`, `arcade-assistido-v4`, `realista-aluguel-4t-v4` e `Kartle · `; as listas das features contidas | crédito na sintética; acerto ausente do bundle; kart de caixas |
 | Erros no console | erros ao carregar, ao trocar de pista e durante uma volta | `smoke.md` D5/M5 | 1 ou mais erros (um `warn` com código não é erro) |
 
@@ -54,14 +54,15 @@ externo, nenhum envio de telemetria** (decisão *Monitoramento* de 2026-10-21; R
 
 Como nas releases anteriores, o **histórico de execuções do workflow `pages`**
 (`https://github.com/edumatosr6-svg/kartle/actions`; staging em `https://github.com/edumatosr6-svg/kartle-staging/actions`) é o
-registro de deploy: cada execução guarda o commit, o resultado de `npm test` (444 aprovados em 41156803005; 467 esperados na de `2aa013e`), o log do build com os nomes dos
+registro de deploy: cada execução guarda o commit, o resultado de `npm test` (444 aprovados em 41156803005; 467 em 41832829595, de `2aa013e`), o log do build com os nomes dos
 *assets*, a medida de RNF02 e — no trabalho `deploy` — quem aprovou e quando (D-DP-06) e a URL publicada. Retenção: 90 dias por
 padrão; a execução verde anterior é o alvo do caminho B enquanto estiver retida. **O registro da promoção da pista** é outro:
 `tracks/registry.json`, no repositório, onde `PRODUCTION`, `promotedAtUtc` e `esriDecisionRef` só aparecem na entrega que
 promover (DM-0002) — a ausência deles hoje é a prova verificável de que a Kart Park não foi promovida (CHK-TEST-0012-04).
 
 Estado apurado por leitura (`gh run list`/`gh run view` nos dois repositórios; GET às URLs) em 2026-10-30, completado em 2026-11-03
-com `deploy-validation-20261103-1744.md` e `git ls-remote staging staging` (= `1bb63aa`):
+com `deploy-validation-20261103-1744.md` e em 2026-11-04 com `deploy-validation-20261104-1302.md`, `gh run list` e
+`git ls-remote staging` (= `1966c4a`):
 
 | Repositório | Execução | Commit | `build` | `deploy` | Leitura |
 |---|---|---|---|---|---|
@@ -71,8 +72,8 @@ com `deploy-validation-20261103-1744.md` e `git ls-remote staging staging` (= `1
 | `kartle-staging` | **41076989728** | `652bbaa` | concluído (393/393) | concluído 15:04:27Z | `index-dD_vz2Ev.js`; treino de volta única; retida |
 | `kartle-staging` | **41101055606** | `6b314b2` | concluído 17:47:57Z (443/443; 711 477 bytes) | concluído 17:48:12Z | a última verde **anterior** a esta; `index-BwruE9Pq.js`; `check_served.py` 79 verificações, 4 reprovadas (ADR-0007, DIV-DP-16); alvo do caminho B; retida |
 | `kartle-staging` | **41109469203** | `e70aad9` | concluído 18:46:27Z (444/444; 711 620 bytes) | concluído 18:46:39Z | `index-DmxsQuIL.js`; `check_served.py` 79/79; retida |
-| `kartle-staging` | 41111441877, **41156803005** | `28d40ef`, `1bb63aa` (só registros sobre `e70aad9`) | concluído (444/444; 711 620 bytes) | concluído 01:46:54Z (2026-10-31) | 41156803005 **serve hoje** `index-DmxsQuIL.js` (validada em `deploy-validation-20261103-1744.md`, 79/79); alvo do caminho B depois do envio |
-| `kartle-staging` | (por criar) | `2aa013e` | — | — | **a desta rodada**: o push de *Promote* 7 ainda não foi feito; esperado 467/467, `index-BMmvlQeM.js`, 714 001 bytes |
+| `kartle-staging` | 41111441877, **41156803005** | `28d40ef`, `1bb63aa` (só registros sobre `e70aad9`) | concluído (444/444; 711 620 bytes) | concluído 01:46:54Z (2026-10-31) | 41156803005 serviu `index-DmxsQuIL.js` até 2026-11-04 (validada em `deploy-validation-20261103-1744.md`, 79/79); **alvo do caminho B** |
+| `kartle-staging` | **41832829595** | `1966c4a` (só registros sobre `2aa013e`) | concluído 12:52:18Z (467/467; 714 001 bytes, 189 539 gzip) | concluído 12:53:05Z (2026-11-04) | **serve hoje** `index-BMmvlQeM.js` (`Last-Modified` 12:53:01 GMT); `check_served.py` 79/79; validada em `deploy-validation-20261104-1302.md` |
 | `kartle` (produção) | 39827702391 e as anteriores | `05c3570` e anteriores | concluído | `pending` / `cancelled` | **nada aprovado**; produção responde 404; `origin/master` = `05c3570` |
 
 O validador reconfirma estes números na aba Actions e os cita no relatório; os números em vigor são sempre os da aba Actions.

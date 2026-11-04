@@ -2,8 +2,8 @@
 title: Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de deploy)
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: []
 ---
 
@@ -198,3 +198,62 @@ de JS e CSS, `index.html` igual depois de normalizar o CRLF, `check_bundle.py <d
 
 **Nada foi executado contra produção**; nenhum push, redeploy, reexecução ou aprovação (staging já serve `e70aad9`); `gh` e
 GET só de leitura; nenhum valor de segredo escrito; `docs/` e as pastas de outras features não foram tocados (§14).
+
+## 2026-11-04 — revisão 4, Modo B (registro atrás do staging: ISSUE-05 de `pista-kart-park`, `deploy-validation-20261104-1302.md`)
+
+Staging passou a servir a árvore de `2aa013e` (execução 41832829595 de `1966c4a`, 2026-11-04), que muda `src/`; pela regra de
+invalidação do `<sha>`, o candidato `e70aad9` da versão 1.2.0 ficou atrás do servido. Esta revisão move o registro para
+`2aa013e`. Nenhuma superfície nova (§16): nenhuma linha de fumaça, roteiro, ferramenta, chave ou opção acrescentada; a linha
+*Mudança `e70aad9` → `2aa013e`* e a entrada 41832829595 registram fatos do build servido.
+
+**Fatos de entrada** (lidos nesta revisão, só leitura): `git ls-remote staging` → `staging` = `1966c4a`; `git ls-remote origin`
+→ `master` = `05c3570`; `gh run list` → 41832829595 (`1966c4a`, push, `success`) e 41156803005 (`1bb63aa`, `success`);
+`git diff --name-only e70aad9 2aa013e -- src index.html tests tracks docs/kart-01/kart.js …`: `src/main.ts` (+1, linha 239),
+`src/trackScene.ts` (`ASPHALT_Y` continua 0,03; grama nova em `GRASS_Y` 0), sete suítes `tests/pista-kart-park-*` e
+`tests/fixtures/kartParkRev1Trace.json`; `git diff --quiet 6b314b2 2aa013e -- src/kart01Model.ts src/gameCamera.ts
+src/kartPose.ts src/kart01Decals.ts docs/kart-01/kart.js tests/modelo-kart-01-* tests/helpers` sem diferença; `2aa013e..HEAD`
+só registros; JUnit `500 Tests/Output/pista-kart-park/reports/junit-latest.xml` (execução fresca sobre a árvore de `2aa013e`)
+reduzido por script: 467 casos, 0 falhas, 0 pulados, 66 em `tests/modelo-kart-01-*`; GET de staging: 200, `Last-Modified`
+2026-11-04 12:53:01 GMT, 6 592 / 696 559 / 10 850 bytes, sha256 `3b0dfc37…` / `babb1884…` / `5e1c964b…`; `check_served.py
+… index-BMmvlQeM.js` 40/40; `check_bundle.py` sobre os três arquivos servidos e `docs/kart-01/device-log.md`: 48/48 com o
+`warn` do registro em tela (o log nomeia `DmxsQuIL`); `measure_dist.py`: 714 001 / 189 786 (Windows); a prova byte a byte
+servido = build limpo, o *Measure dist* 714 001 / 189 539 e o ensaio C1, do relatório `deploy-validation-20261104-1302.md` de
+`pista-kart-park`; `DOMAIN.md` desta feature, 2026-11-03 (opção 1).
+
+**O que mudou**
+
+- `01-release.md` (1.3.0): parágrafo de abertura; releases contidas (acabamento `fbfb073`/`2aa013e`); veredito de testes
+  aplicável a `2aa013e` por contenção (66/66 na suíte 467/467), sem veredito novo; commit `2aa013e`; linha nova *Mudança
+  `e70aad9` → `2aa013e` e contenção*; build limpo = servido; staging 41832829595 (`BMmvlQeM`, 40/40, 48/48 com o `warn`);
+  alvo B 41156803005 (41076989728 para tirar o rev 4); opção 1 registrada; medida 714 001 brutos, 189 539 gzip no workflow e
+  189 786 no Windows (só zlib), +2 381 contra `e70aad9`, +64 083 contra `6ea3862`; precondições 1–3.
+- `runbook.md` (1.3.0): `<sha>`, `<hash>` `BMmvlQeM`, `<run-staging>`, `<run-anterior>`; precondições de commit, veredito
+  (contenção), validação, staging, alvo de reversão e log de aparelho (`BMmvlQeM`); *Promote* 1, 3–8; linhas humanas; R1/R2 com
+  41156803005.
+- `smoke.md` (1.3.0): `<hash>` `BMmvlQeM`, árvore promovida `2aa013e`, 467 na suíte.
+- `REL-0002` (1.3.0): `index-BMmvlQeM.js`, alvo B, par não reexecutado. `REL-0003` (1.3.0): commit, alvo B, estado de staging
+  em 2026-11-04, 467, `BMmvlQeM`, 714 001, 189 539. `REL-0004` (1.3.0): bytes; H1–H6 sobre `BMmvlQeM`. `REL-0005` (1.3.0):
+  bytes, 467, `<hash>`, entrada 41832829595, 41156803005 como alvo B.
+- `98-divergences.md` (1.3.0): DIV-DP-01 (o `warn` volta; H1–H6 sobre `BMmvlQeM`), DIV-DP-02 e DIV-DP-04 reescritas para
+  `2aa013e` (a DIV-DP-04 ainda citava `index-BwruE9Pq.js` e `6b314b2`, e a DIV-DP-02 a ponta `483c5fa` e 711 561 bytes — restos
+  das revisões anteriores, corrigidos), DIV-DP-03 (par novo; ensaio C1), DIV-DP-07, DIV-DP-11, DIV-DP-12, DIV-DP-15 (opção 1).
+
+**Itens fechados**: **ISSUE-05** de `pista-kart-park` (`deploy-validation-20261104-1302.md`), na parte desta feature — o
+registro nomeia `2aa013e`/`index-BMmvlQeM.js`; a confirmação é da validação deste estágio.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **Veredito de testes sobre `2aa013e`**: não existe; a regra de invalidação do `<sha>` pede rodada nova, e este registro
+  oferece, como na revisão 3, a contenção (nenhum arquivo desta feature nem dos seus testes muda; 66/66 na execução fresca de
+  `2aa013e`). Se a validação deste estágio não a aceitar, fecha-o uma re-validação de `test-loop` desta feature sobre `2aa013e`.
+- **DIV-DP-01 / DIV-DP-07**: H1–H6 em `docs/kart-01/device-log.md` sobre `index-BMmvlQeM.js` (também apaga o `warn`).
+- **DIV-DP-03**: o par 41156803005 ↔ 41832829595 não foi reexecutado.
+- **DIV-DP-12**, **DIV-DP-14**, **DIV-DP-15**: como na revisão 3; a DIV-DP-15 tem agora a opção 1 escolhida e espera a decisão
+  Esri. A aceitação de AC-US-0003-13 completo como inalcançável (`DOMAIN.md`, 2026-11-03) não é aplicada à DIV-DP-14 nesta
+  revisão: mudar o estado da linha é decisão de registro que fica para a próxima rodada com relatório que a peça.
+
+**Itens recusados**: nenhum.
+
+- Nenhum redeploy (staging já serve `2aa013e`), nenhum comando contra produção, nada aprovado; `gh`, `git ls-remote` e GET só
+  de leitura; nenhum valor de segredo escrito; `docs/`, `DOMAIN.md`, os relatórios de validação e os registros das outras
+  features não editados por esta entrada.

@@ -2,8 +2,8 @@
 title: Verificações de fumaça — por canal e por forma da área de jogo, cada uma observando um limiar
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: [DES-0001, DES-0002, DES-0003, DES-0004, DES-0005, DES-0007, DM-0001, NFR-0001, NFR-0002, NFR-0003, NFR-0006, TEST-0001, TEST-0002, TEST-0003, TEST-0004]
 ---
 
@@ -28,7 +28,7 @@ D11 e M11 abaixo são a regressão mínima que confirma, na tela, que o Kart 01 
 
 Preparação comum: cache vazio (janela anônima), painel de rede e console abertos, idioma do navegador anotado,
 `python -I "600 Deploy/Output/modelo-kart-01/tools/check_served.py" <URL> index-<hash>.js` executado uma vez (três GET de
-leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `DmxsQuIL` em staging, execução 41156803005).
+leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `BMmvlQeM` em staging, execução 41832829595).
 
 ## Canal `web-desktop` (Chrome, Edge, Firefox e Safari nas versões atuais; notebook de referência para D14)
 
@@ -71,7 +71,7 @@ leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `Dmx
 
 Depois da promoção: D1 a D8, D11 e D15 (só `check_served.py`) em `web-desktop`; M1 a M7 e M11 em `web-mobile`. Qualquer
 limiar cruzado é gatilho de reversão (`runbook.md`, *Roll back*). Promover só acontece depois da decisão Esri ou da escolha entre
-as opções de `01-release.md`; se a árvore promovida não for `e70aad9` ou um descendente só de registro (opção 2: `6ea3862`), a verificação é a do `smoke.md`
+as opções de `01-release.md`; se a árvore promovida não for `2aa013e` ou um descendente só de registro (opção 2: `6ea3862`), a verificação é a do `smoke.md`
 validado em 2026-10-27 (versão 1.0.0 deste arquivo, no histórico do repositório) e não esta.
 
 ## Limites desta lista
@@ -79,7 +79,7 @@ validado em 2026-10-27 (versão 1.0.0 deste arquivo, no histórico do repositór
 - `check_served.py` e `check_bundle.py` provam o **servido** e o **empacotado** (hash, elementos, marcadores do modelo, número
   `01`, constantes de câmera, a condição das marcas de pneu no texto do bundle, ausência do kart provisório e dos efeitos de
   turbo, tamanhos), não o comportamento: não executam a página, não medem ritmo nem leem o console. O comportamento é provado por
-  `npm test` (444 verificações, 66 desta feature) nas regras — modelo montado em Node, câmera quadro a quadro em (1280, 720) e
+  `npm test` (467 verificações, 66 desta feature) nas regras — modelo montado em Node, câmera quadro a quadro em (1280, 720) e
   (720, 1280), o bloco das marcas de `src/main.ts` executado sobre 6 000 passos dirigidos, contratos transversais — e por estas
   linhas e por H1–H6 na tela.
 - Nenhuma verificação acima é automatizada de ponta a ponta: o projeto não tem ferramenta de E2E e a feature não acrescenta

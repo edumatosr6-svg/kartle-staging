@@ -2,8 +2,8 @@
 title: Registro de mudanças — dirigibilidade do Arcade assistido (estágio de deploy)
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.1.0
+status: draft
+version: 2.2.0
 sources: []
 ---
 
@@ -175,3 +175,63 @@ veredito de testes aplicável; a confirmação é da revalidação.
 
 **Nada foi executado contra produção**; nenhum push, redeploy, reexecução ou aprovação (staging já serve `e70aad9`); `gh` e
 GET só de leitura; nenhum valor de segredo escrito; `docs/` e as pastas de outras features não foram tocados (§14).
+
+## 2026-11-04 — rodada 4, Modo B (registro atrás do staging: ISSUE-05 de `pista-kart-park`, `deploy-validation-20261104-1302.md`; resto de ISSUE-09)
+
+Staging passou a servir a árvore de `2aa013e` (execução 41832829595 de `1966c4a`, 2026-11-04), que muda `src/`; pela regra de
+invalidação do `<sha>`, o candidato `e70aad9` da versão 2.1.0 ficou atrás do servido. Esta rodada move o registro para
+`2aa013e` e corrige o que restou da ISSUE-09 (o log de aparelho dado como inexistente). Nenhuma superfície nova (§16):
+nenhuma linha de fumaça, roteiro, ferramenta, chave ou opção acrescentada; a linha *Mudança `e70aad9` → `2aa013e`* e a
+entrada 41832829595 registram fatos do build servido.
+
+**Fatos de entrada** (lidos nesta rodada, só leitura): `git ls-remote staging` → `staging` = `1966c4a`; `git ls-remote origin`
+→ `master` = `05c3570`; `gh run list` → 41832829595 (`1966c4a`, push, `success`) e 41156803005 (`1bb63aa`, `success`);
+`git diff --name-only e70aad9 2aa013e -- src index.html tests scripts docs/physics.md …`: `src/main.ts` (+1, linha 239),
+`src/trackScene.ts`, sete suítes `tests/pista-kart-park-*` e `tests/fixtures/kartParkRev1Trace.json`; `git diff --quiet
+e70aad9 2aa013e -- src/physics.ts src/handlingMessages.ts src/setupRecords.ts src/maneuvers.ts scripts docs/physics.md
+index.html src/style.css` sem diferença; `2aa013e..HEAD` só registros; JUnit `500 Tests/Output/pista-kart-park/reports/junit-latest.xml`
+(execução fresca sobre a árvore de `2aa013e`) reduzido por script: 467 casos, 0 falhas, 0 pulados, 65 em `tests/dirigibilidade-*`
+(23 em `tests/physics.test.ts`, 8 em `tests/maneuvers.test.ts`); GET de staging: 200, `Last-Modified` 2026-11-04 12:53:01 GMT,
+6 592 / 696 559 / 10 850 bytes, sha256 `3b0dfc37…` / `babb1884…` / `5e1c964b…`; `check_served.py … index-BMmvlQeM.js`
+22/22; `check_bundle.py` sobre os três arquivos servidos e `docs/physics.md`: 25/25; `measure_dist.py`: 714 001 / 189 786
+(Windows); `git grep` em `2aa013e`: 0 variáveis de ambiente; a prova byte a byte servido = build limpo e o *Measure dist*
+714 001 / 189 539 da execução, do relatório `deploy-validation-20261104-1302.md` de `pista-kart-park`; `docs/handling-device-log.md`
+existe (criado em `1bb63aa`); `DOMAIN.md` desta feature, 2026-11-03 (opção 1).
+
+**O que mudou**
+
+- `01-release.md` (2.2.0): veredito de testes aplicável a `2aa013e` por contenção (65/65 na suíte 467/467), sem veredito novo;
+  commit `2aa013e`; linha nova *Mudança `e70aad9` → `2aa013e` e contenção*; suíte, build limpo, staging (41832829595,
+  `BMmvlQeM`, 22/22, 25/25) e alvo B 41156803005 (41076989728 para tirar a retirada do drift); medida 714 001 brutos,
+  189 539 gzip no workflow e 189 786 no Windows (só zlib), +2 381 contra `e70aad9`; precondição 1 sem "ainda não existe";
+  precondições 2 e 3 e a opção 1 registrada.
+- `runbook.md` (2.2.0): `<sha>`, `<hash>` `BMmvlQeM`, execução desta release, `<sha-anterior>`; precondições de commit,
+  veredito (contenção), validação, staging, ensaio e log de aparelho ("existe"); *Promote* 1, 3–7 e 9 (opção 1 feita); linhas
+  humanas sobre 41832829595; R1/R2 com 41156803005.
+- `smoke.md` (2.2.0): o log de aparelho existe (ISSUE-09); `<hash>` `BMmvlQeM`, 467 na suíte.
+- `REL-0001` (2.2.0): reconferência em `2aa013e`. `REL-0003` (2.2.0): árvore `2aa013e`, alvo B, estado de staging em
+  2026-11-04, opção 1, 467, 714 001, nomes dos *assets*. `REL-0004` (2.2.0): bytes; H1–H5 sobre `BMmvlQeM`. `REL-0005`
+  (2.2.0): bytes, `<hash>`, entrada 41832829595, 41156803005 como alvo B.
+- `98-divergences.md` (2.2.0): DIV-DP-01, DIV-DP-02 e DIV-DP-04 (refeitas na rodada 4), DIV-DP-03 (par novo), DIV-DP-07,
+  DIV-DP-11, DIV-DP-14 (opção 1).
+
+**Itens fechados**: **ISSUE-05** de `pista-kart-park` (`deploy-validation-20261104-1302.md`), na parte desta feature — o
+registro nomeia `2aa013e`/`index-BMmvlQeM.js`; a confirmação é da validação deste estágio. **ISSUE-09** (resto): `smoke.md`
+e `01-release.md` (precondição 1) já não dizem que `docs/handling-device-log.md` falta; o arquivo existe desde `1bb63aa`.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **Veredito de testes sobre `2aa013e`**: não existe; a regra de invalidação do `<sha>` pede rodada nova, e este registro
+  oferece, como nas rodadas 2 e 3, a contenção (nenhum arquivo desta feature nem dos seus testes muda; 65/65 na execução
+  fresca de `2aa013e`). Se a validação deste estágio não a aceitar, fecha-o uma re-validação de `test-loop` desta feature
+  sobre `2aa013e`.
+- **DIV-DP-01 / DIV-DP-07**: H1–H5 em `docs/handling-device-log.md` sobre `index-BMmvlQeM.js`, nos aparelhos nomeados.
+- **DIV-DP-14**: a decisão Esri (opção 1 escolhida).
+- **DIV-DP-03**: o par 41156803005 ↔ 41832829595 não foi reexecutado; o ensaio C1 de `pista-kart-park` (2026-11-04)
+  reproduziu o bundle de 41156803005 byte a byte.
+
+**Itens recusados**: nenhum.
+
+- Nenhum redeploy (staging já serve `2aa013e`), nenhum comando contra produção, nada aprovado; `gh`, `git ls-remote` e GET só
+  de leitura; nenhum valor de segredo escrito; `docs/`, `DOMAIN.md`, os relatórios de validação e os registros das outras
+  features não editados por esta entrada.

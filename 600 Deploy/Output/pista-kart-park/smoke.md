@@ -3,7 +3,7 @@ title: Verificações de fumaça — por canal, cada uma observando um limiar; e
 feature: pista-kart-park
 stage: deploy
 status: draft
-version: 1.3.0
+version: 1.4.0
 sources: [ADR-0007, DES-0003, DES-0004, DES-0005, DES-0007, DES-0008, DES-0009, DES-0011, DES-0012, DM-0001, DM-0002, NFR-0001, NFR-0002, NFR-0004, NFR-0005, NFR-0006, NFR-0008, NFR-0010, NFR-0012, NFR-0013, NFR-0014, US-0007, TEST-0001, TEST-0007, TEST-0008, TEST-0009, TEST-0010, TEST-0012]
 ---
 
@@ -32,8 +32,8 @@ D18 abaixo é a regressão mínima desta feature sobre a sintética (NFR-0008).
 
 Preparação comum: cache vazio (janela anônima), painel de rede e console abertos, idioma do navegador anotado,
 `python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" <URL> index-<hash>.js` executado uma vez (três GET de
-leitura; `<hash>` lido no passo *Build* da execução que publicou — esperado `BMmvlQeM` para `2aa013e`, pelo build limpo local de
-2026-11-03; o build anterior, `DmxsQuIL` de `e70aad9`, deu `checks=79 failed=0` em 2026-11-03). D9, D10, D13, M10 e H3/H5 do
+leitura; `<hash>` lido no passo *Build* da execução que publicou — `BMmvlQeM` para `2aa013e`, execução 41832829595, `checks=79 failed=0`
+em 2026-11-04; o build anterior, `DmxsQuIL` de `e70aad9`, deu `checks=79 failed=0` em 2026-11-03). D9, D10, D13, M10 e H3/H5 do
 `runbook.md` só se executam num build que passe nas linhas de ADR-0007 (o crédito no painel do resultado). **Na Kart Park, desde
 `2aa013e`**, a pista tem o acabamento de US-0007 (faixa de borda branca, zebra com relevo, barreira de pneus pretos, grama em
 faixas de 2 tons); D19–D22 e M13 observam-no, e D14/M9 medem a taxa de quadros com ele na tela.
@@ -63,7 +63,7 @@ faixas de 2 tons); D19–D22 e M13 observam-no, e D14/M9 medem a taxa de quadros
 | D19 | na Kart Park, na largada e ao longo de uma volta: olhar as duas bordas do asfalto, inclusive junto às zebras e na linha de largada; parar junto a uma zebra e olhá-la de lado; olhar a barreira inteira; olhar a grama | uma **faixa branca contínua** por dentro do asfalto nas duas bordas, sem falha junto às zebras nem na largada; a zebra **sem degrau** do lado do asfalto e **mais alta por fora**; a barreira como **fileira de pneus pretos empilhados** em toda a extensão, nenhum pneu sobre o asfalto ou a zebra; a grama com **ao menos 2 tons** de verde, distintos sem contraste gritante; nenhuma foto de satélite nem textura | AC-US-0007-01, -05, -06, -09, -12, -13, -20 (na tela; as medidas — 0,10 m, ≤ 0,05 m, 0,9 m, luminâncias — são de `npm test`, CHK-TEST-0010-06..16); é **H9** | E2E-03 | sim |
 | D20 | na Kart Park, dirigir devagar até encostar nos pneus, de um lado e do outro da barreira; numa volta nova, rodar mais de 1 s com as rodas de um lado sobre a faixa de borda, sem passar da borda, e completar a volta | o kart **encosta nos pneus vistos**, sem entrar neles e sem parar visivelmente antes; a volta com rodas na faixa sai **válida** no painel do resultado, sem corte; a zebra em relevo não faz o kart pular nem desviar | AC-US-0007-11 (≤ 0,05 m: CHK-TEST-0010-12), -17 (CHK-TEST-0005-13), -07 (NFR-0013: trajetória igual em `npm test`); é **H9** | E2E-03 | não |
 | D21 | na Kart Park, anotar o tom da grama num ponto reconhecível (junto à largada); recarregar a página e voltar ao mesmo ponto; redimensionar a janela | o **mesmo tom no mesmo lugar** nas duas aberturas e depois do redimensionamento; só o enquadramento muda | AC-US-0007-14 (CHK-TEST-0010-15; CHK-TEST-0011-08/-09 na árvore); é **H9** | E2E-03 | não |
-| D22 | Chrome, janela de 1280 × 720: o pacote de antes (`index-DmxsQuIL.js`, em staging antes do envio ou num `npm run preview` de `e70aad9`) e o de `2aa013e`, um depois do outro; "Pista sintética", kart na largada antes da contagem, câmera padrão; capturar o nó `canvas` (DevTools → *Capture node screenshot*) e comparar | o número de pixels diferentes entre as duas capturas | AC-US-0007-16: **0 pixel diferente** (`SEED/RE-06`); é **H12** | E2E-09 | não |
+| D22 | Chrome, janela de 1280 × 720: o pacote de antes (`index-DmxsQuIL.js`, num `npm run preview` de `e70aad9` ou em staging depois de reexecutar 41156803005) e o de `2aa013e`, um depois do outro; "Pista sintética", kart na largada antes da contagem, câmera padrão; capturar o nó `canvas` (DevTools → *Capture node screenshot*) e comparar | o número de pixels diferentes entre as duas capturas | AC-US-0007-16: **0 pixel diferente** (`SEED/RE-06`); é **H12** | E2E-09 | não |
 
 ## Canal `web-mobile` (celular intermediário de referência, navegador atual; paisagem **e** retrato; e um navegador sem `navigator.vibrate`)
 

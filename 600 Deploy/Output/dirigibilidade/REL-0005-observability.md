@@ -3,8 +3,8 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.1.0
+status: draft
+version: 2.2.0
 sources: [DES-0005, DES-0006, DES-0008, DES-0009, ADR-0006, NFR-0002, NFR-0004, NFR-0005, NFR-0009, TEST-0010]
 ---
 
@@ -36,10 +36,10 @@ o runbook, nenhum monitor externo, nenhum envio de telemetria** (`200 Requiremen
 | NFR-0003 paridade | o mesmo HUD e a mesma aderência com inclinação e com teclado | `runbook.md` H1 no celular (E2E-03) | traseira forçada com esterço parcial; estado de aderência diferente para a mesma manobra |
 | NFR-0004 documentação | bloco `handling-baseline` com v4, Realista e v6 datada; prosa datada da seção v6 | `check_bundle.py dist docs/physics.md`; leitura da seção em H5 | bloco sem a entrada v6 ou sem data; seção sem ambiente, parâmetros ou resultado |
 | RNF01 carregamento | tempo da navegação até o kart responder, cache vazio, 4G | `smoke.md` D2/M2 | 10 s ou mais |
-| RNF02 tamanho | bytes de `dist/` no build; bytes transferidos na primeira visita | `measure_dist.py` no workflow (711 620 bytes nas execuções 41109469203 e 41156803005); painel de rede | 3 145 728 bytes ou mais |
+| RNF02 tamanho | bytes de `dist/` no build; bytes transferidos na primeira visita | `measure_dist.py` no workflow (714 001 bytes na execução 41832829595); painel de rede | 3 145 728 bytes ou mais |
 | RNF06 HTTPS | certificado válido; 0 recursos em HTTP; inclinação ativa no celular | navegador (cadeado); `check_served.py` recusa URL `http://` | qualquer recurso inseguro ou aviso de certificado |
 | Disponibilidade da página | código de resposta do `index.html` e do JS em vigor | **verificação manual em HTTPS** (`runbook.md`, *Verify* 1 e 8) ou `check_served.py` (sem monitor externo, por decisão) | qualquer resposta diferente de 200 |
-| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado | `check_served.py <URL> index-<hash>.js` contra o `<hash>` impresso no passo *Build* da execução aprovada (hoje `DmxsQuIL` em staging) | hash divergente |
+| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado | `check_served.py <URL> index-<hash>.js` contra o `<hash>` impresso no passo *Build* da execução aprovada (hoje `BMmvlQeM` em staging) | hash divergente |
 | Erros no console | erros ao carregar e durante uma volta | `smoke.md` D5/M5 | 1 ou mais erros (um `warn` de replay com código não é erro) |
 
 ## O registro de implantações — o histórico do Actions
@@ -49,14 +49,15 @@ O **histórico de execuções do workflow `pages`** (`https://github.com/edumato
 de `npm test`, o log do build com os nomes dos *assets*, a medida de RNF02 e — no trabalho `deploy` — quem aprovou e quando
 (D-DP-06). Retenção: 90 dias por padrão; a execução verde anterior é o alvo do caminho B enquanto estiver retida.
 
-Estado em 2026-11-03, lido em staging por `gh run view` (só leitura) e por dois GET; produção não foi consultada:
+Estado em 2026-11-04, lido em staging por `gh run list` (só leitura) e por GET; produção não foi consultada:
 
 | Repositório | Execução | Commit | `build` | `deploy` | Leitura |
 |---|---|---|---|---|---|
-| `kartle-staging` | **41156803005** (em vigor) | `1bb63aa` (só registro sobre `e70aad9`) | `success` (2026-10-31 01:44:44–01:46:42Z; `npm test` 444/444; `total_bytes=711620`) | `success` (01:46:44–01:46:54Z) | serve `index-DmxsQuIL.js` (694 178 bytes) desde 01:46:48 GMT; `check_served.py` 22/22 (2026-11-03) |
-| `kartle-staging` | **41109469203** (esta release) | `e70aad9` | `success` (2026-10-30 18:44:30–18:46:27Z; `npm test` 444/444) | `success` (18:46:30–18:46:39Z) | os mesmos bytes da 41156803005 |
+| `kartle-staging` | **41832829595** (em vigor, esta release) | `1966c4a` (só registro sobre `2aa013e`) | `success` (2026-11-04 12:51:04–12:52:18Z; `npm test` 467/467; `total_bytes=714001`) | `success` (12:52:21–12:53:05Z) | serve `index-BMmvlQeM.js` (696 559 bytes) desde 12:53:01 GMT; `check_served.py` 22/22 (2026-11-04) |
+| `kartle-staging` | 41156803005 | `1bb63aa` (só registro sobre `e70aad9`) | `success` (2026-10-31 01:44:44–01:46:42Z; `npm test` 444/444; `total_bytes=711620`) | `success` (01:46:44–01:46:54Z) | o candidato da versão 2.1.0; serviu `index-DmxsQuIL.js` (694 178 bytes); **alvo do caminho B** em staging; `check_served.py` 22/22 (2026-11-03) |
+| `kartle-staging` | 41109469203 | `e70aad9` | `success` (2026-10-30 18:44:30–18:46:27Z; `npm test` 444/444) | `success` (18:46:30–18:46:39Z) | os mesmos bytes da 41156803005 |
 | `kartle-staging` | 41101055606 | `6b314b2` | `success` (`npm test` 443/443; `total_bytes=711477`) | `success` | o candidato da versão 2.0.0 deste registro (`index-BwruE9Pq.js`): o mesmo acerto C, sem o crédito no painel do treino |
-| `kartle-staging` | 41076989728 | `652bbaa` | `success` (`npm test` 393/393; `index-dD_vz2Ev.js` 691,31 kB) | `success` | a última execução verde **anterior** a `f6e2d16` (drift fora das telas); acerto v6 com o drift ainda nas telas; alvo do caminho B em staging |
+| `kartle-staging` | 41076989728 | `652bbaa` | `success` (`npm test` 393/393; `index-dD_vz2Ev.js` 691,31 kB) | `success` | a última execução verde **anterior** a `f6e2d16` (drift fora das telas); acerto v6 com o drift ainda nas telas; alvo do caminho B para tirar a retirada do drift |
 | `kartle-staging` | 40566728590 | `b86b200` | `success` | `success` | a release validada na rodada anterior deste registro (v5, `index-BiFxJ0FY.js`) |
 | `kartle` (produção) | nenhuma verde; 39827702391 (`05c3570`) estava `pending` em 2026-10-27 | — | — | — | **nada aprovado**; produção nunca serviu um `dist/`; o validador lê o estado em vigor na aba Actions |
 

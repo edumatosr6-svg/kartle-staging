@@ -3,8 +3,8 @@ id: REL-0004
 title: Canal web-mobile — a mesma página nas duas formas, sem loja, sem assinatura, sem versão mínima instalada
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: [DES-0003, DES-0004, DES-0005, DM-0001, NFR-0001, NFR-0002, NFR-0004, TEST-0003]
 ---
 
@@ -34,7 +34,7 @@ primeira cujo comportamento **depende da forma da área de jogo** (paisagem ou r
 | Marcas de pneu pela inclinação: com o kart escorregando de lado acima de 6 m/s numa curva forte, trechos sob os pneus traseiros; nenhum na reta nem na pausa por sensor coberto (AC-US-0005-06, -07) | bloco das marcas de `src/main.ts` (telemetria; não depende do adaptador de entrada) — `CHK-TEST-0004-06`, `-19`, `-20` | **H5** no celular — E2E-05 |
 | Inclinação como entrada: rodas dianteiras e volante giram com o esterço do sensor; cobrir o sensor pausa e congela kart, rodas, câmera e marcas (AC-US-0002-01, -05) | `getKartPose(lap.kart)` lê o estado do passo; `pauseLap` → dois quadros iguais (`CHK-TEST-0002-05`); a inclinação só muda o adaptador de entrada (release anterior) | **H3** no celular — E2E-03 |
 | 30 fps sustentados numa volta completa em celular intermediário, **paisagem e retrato**, com o Kart 01, a sombra (caixa ±60 m, `sun.target` por quadro) e a câmera de corrida (NFR-0001, AC-US-0004-02) | custo limitado por projeto: 27 malhas, 27 chamadas de desenho, 5 128 triângulos (`DRAW_COST`, NFR-0004; limite 30 chamadas) | **H6** no celular: `fpsPerSecond` e `minFps ≥ 30` nas duas orientações; nenhuma execução em desktop vale (I9) — E2E-06 |
-| Download comprimido abaixo de 3 MB numa primeira visita com cache vazio (NFR-0002) | tamanho do bundle: 711 620 bytes brutos, 188 719 gzip (servido em staging, árvore de `e70aad9`; 6,0 % do limite) | **H6** e M3: lista de transferências de rede em 4G real, cache vazio |
+| Download comprimido abaixo de 3 MB numa primeira visita com cache vazio (NFR-0002) | tamanho do bundle: 714 001 bytes brutos, 189 539 gzip (servido em staging, árvore de `2aa013e`; 6,0 % do limite) | **H6** e M3: lista de transferências de rede em 4G real, cache vazio |
 | HTTPS para os sensores (RNF06, I6) | a inclinação só é ativada com `window.isSecureContext` e `DeviceOrientationEvent`; em iOS pede `requestPermission` | M1: a URL abre com cadeado; "Ativar inclinação" pede permissão e passa a dirigir |
 | Carregamento até o kart andar abaixo de 10 s em 4G (RNF01) | bundle único; sem textura nem modelo externo (NFR-0003) | M2, em rede 4G real, cache vazio |
 
@@ -45,5 +45,5 @@ produto e constam de `docs/kart-01/device-log.md` — o arquivo **existe** (DM-0
 execução 1 no navegador embutido, paisagem, sem taxa de quadros) e a seção *Execuções nos aparelhos de referência* diz **"Não
 executadas"**: notebook (60 fps, paisagem) e celular (30 fps, paisagem e retrato), uma entrada cada, com `fpsPerSecond` de uma
 volta completa em corrida, aba em primeiro plano, sem pausa, e `minFps`. Desde `1bb63aa` o arquivo tem também a evidência **qualitativa** do dono do produto no próprio celular, *Execução no celular — 2026-10-30* do mesmo arquivo, sobre `e70aad9`/`index-DmxsQuIL.js`: aparelho sem modelo, navegador nem versão, só paisagem, sem medida; confirma que as marcas de pneu aparecem ("aparece as marcas"); o resto pelo resumo ("tudo deu certo") ou não pedido; "rodou legal" sem `fpsPerSecond` nem `minFps` — **não fecha nenhuma linha H1–H6** e não é uma das três entradas pedidas.
-As linhas humanas H1–H6 do `runbook.md` são as entradas que faltam, sobre `index-DmxsQuIL.js`; cabem na mesma sessão de aparelho que as portas humanas da `dirigibilidade`, da
+As linhas humanas H1–H6 do `runbook.md` são as entradas que faltam, sobre `index-BMmvlQeM.js`; cabem na mesma sessão de aparelho que as portas humanas da `dirigibilidade`, da
 `race-lap-validation` e da `pista-kart-park`, porque o bundle servido em staging é um só (`98-divergences.md`, DIV-DP-12). Esta release não escolhe aparelhos.

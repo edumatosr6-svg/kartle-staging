@@ -3,8 +3,8 @@ id: REL-0003
 title: Rollout — ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.1.0
+status: draft
+version: 2.2.0
 sources: [DM-0001, DES-0007, DES-0009, ADR-0001, ADR-0006, NFR-0002, NFR-0008, NFR-0009, TEST-0010]
 ---
 
@@ -14,16 +14,16 @@ sources: [DM-0001, DES-0007, DES-0009, ADR-0001, ADR-0006, NFR-0002, NFR-0008, N
 
 A ordem típica do estágio (migração aditiva → backend → web → mobile → parte destrutiva) colapsa aqui num único passo: não
 há backend, não há banco, não há aplicativo nativo e a "migração" viaja dentro do próprio bundle (`REL-0002`). O que muda
-contra a release validada anterior deste registro é que a árvore publicada (`e70aad9`) **contém a Kart Park**, cuja promoção a
+contra a release validada anterior deste registro é que a árvore publicada (`2aa013e`) **contém a Kart Park**, cuja promoção a
 produção está bloqueada pela decisão Esri (`pista-kart-park`, ADR-0005): o passo 3 é uma decisão entre opções, não uma
 pergunta de sim ou não.
 
 | Ordem | Passo | Quem | Desfaz-se por |
 |---|---|---|---|
-| 1 | anotar o alvo de reversão: em `edumatosr6-svg/kartle-staging`, a última execução verde **anterior** à desta release é a **41076989728** (commit `652bbaa`, `assets/index-dD_vz2Ev.js`; acerto v6 com o drift ainda nas telas); em `edumatosr6-svg/kartle`, **não há** execução verde (nada promovido) — o alvo de produção é o site não publicado (caminho A) | executor do runbook | não se desfaz: é a rede de segurança |
-| 2 | `git push staging master:staging` → o workflow constrói e publica em **staging**. **Estado em 2026-11-03**: feito; a execução **41109469203** (commit `e70aad9`) e a em vigor **41156803005** (`1bb63aa`, só registro) concluíram `build` (`npm test` 444/444, `Measure dist` `within_limit=True`) e `deploy` (a última às 2026-10-31 01:46:54Z), e `https://edumatosr6-svg.github.io/kartle-staging/` serve `index-DmxsQuIL.js` (200 em HTTPS; `check_served.py` 22/22). Rodar `smoke.md` e as linhas humanas H1–H5 do `runbook.md` | executor do runbook; testador humano | *Re-run all jobs* da execução 41076989728 (caminho B; ensaiado neste site em 2026-10-27 com outro par) ou *Unpublish site* (caminho A) |
-| 3 | **decisão do dono do produto** (D-DP-06) entre as opções de `01-release.md`, *Promoção*: (1) esperar a decisão Esri e promover tudo junto — a única que entrega esta release; (2) publicar `6ea3862` sem Kart Park — que **não** entrega esta release (acerto v5 com drift). Um commit "acerto C sem Kart Park" não existe | dono do produto | não promover |
-| 4 | só com a decisão Esri registrada e a entrega de `pista-kart-park` que a aplica: `git push origin master` → o workflow constrói em `edumatosr6-svg/kartle` e **para à espera do revisor** no ambiente `github-pages`; o dono do produto clica *Approve and deploy*; o cache do Pages renova em até 10 min. Aprovar sempre a execução **mais recente** cujo `build` esteja verde e cujo commit seja `e70aad9` ou um descendente que só acrescente registros ou a entrega Esri; nunca a 39827702391 (`05c3570`), que estava `pending` na leitura de 2026-10-27 (relatório de validação anterior) | dono do produto | R1 do `runbook.md` (caminho A) |
+| 1 | anotar o alvo de reversão: em `edumatosr6-svg/kartle-staging`, a última execução verde **anterior** à desta release é a **41156803005** (commit `1bb63aa`, árvore de `e70aad9`, `assets/index-DmxsQuIL.js`; esta release sem o acabamento da Kart Park), e antes dela a **41076989728** (commit `652bbaa`, `assets/index-dD_vz2Ev.js`; acerto v6 com o drift ainda nas telas); em `edumatosr6-svg/kartle`, **não há** execução verde (nada promovido) — o alvo de produção é o site não publicado (caminho A) | executor do runbook | não se desfaz: é a rede de segurança |
+| 2 | `git push staging master:staging` → o workflow constrói e publica em **staging**. **Estado em 2026-11-04**: feito; a execução em vigor **41832829595** (`1966c4a`, só registro sobre `2aa013e`) concluiu `build` (`npm test` 467/467, `Measure dist` `within_limit=True`) e `deploy` (12:53:05Z), e `https://edumatosr6-svg.github.io/kartle-staging/` serve `index-BMmvlQeM.js` (200 em HTTPS; `check_served.py` 22/22). Rodar `smoke.md` e as linhas humanas H1–H5 do `runbook.md` | executor do runbook; testador humano | *Re-run all jobs* da execução 41156803005 (caminho B; ensaiado neste site em 2026-10-27 com outro par) ou *Unpublish site* (caminho A) |
+| 3 | **decisão do dono do produto** (D-DP-06) entre as opções de `01-release.md`, *Promoção*: (1) esperar a decisão Esri e promover tudo junto — a única que entrega esta release; (2) publicar `6ea3862` sem Kart Park — que **não** entrega esta release (acerto v5 com drift). Um commit "acerto C sem Kart Park" não existe. **Feita em 2026-11-03: opção 1** (`DOMAIN.md`) | dono do produto | não promover |
+| 4 | só com a decisão Esri registrada e a entrega de `pista-kart-park` que a aplica: `git push origin master` → o workflow constrói em `edumatosr6-svg/kartle` e **para à espera do revisor** no ambiente `github-pages`; o dono do produto clica *Approve and deploy*; o cache do Pages renova em até 10 min. Aprovar sempre a execução **mais recente** cujo `build` esteja verde e cujo commit seja `2aa013e` ou um descendente que só acrescente registros ou a entrega Esri; nunca a 39827702391 (`05c3570`), que estava `pending` na leitura de 2026-10-27 (relatório de validação anterior) | dono do produto | R1 do `runbook.md` (caminho A) |
 | 5 | `smoke.md`, seção *Verificação em produção*, e vigilância por 24 h (`REL-0005`) | dono do produto | idem 4 |
 
 Não há parte destrutiva nesta release: nada é removido de nenhum armazenamento; `ARCADE_KART` (v4) permanece como
@@ -43,7 +43,7 @@ completa está em `600 Deploy/Output/race-lap-validation/REL-0003-rollout.md`. O
 | Settings → Pages → *Source* | GitHub Actions — configurado | GitHub Actions — configurado |
 | Ambiente `github-pages` → *Required reviewers* | `edumatosr6-svg` — o clique é a promoção (D-DP-06) | nenhum |
 | Ambiente `github-pages` → *Deployment branches and tags* | restrição padrão (só `master`) — mantida como segunda tranca | **No restriction**; **volta à restrição padrão a cada despublicação/reativação do Pages**: refazer a liberação antes de um *Re-run all jobs* depois do caminho A, senão o `deploy` falha com zero passos |
-| Estado em 2026-11-03 | nenhuma execução verde; nada servido; `origin/master` = `05c3570` | execução 41156803005 (`1bb63aa`, só registro sobre `e70aad9`) verde; serve `index-DmxsQuIL.js` |
+| Estado em 2026-11-04 | nenhuma execução verde; nada servido; `origin/master` = `05c3570` | execução 41832829595 (`1966c4a`, só registro sobre `2aa013e`) verde; serve `index-BMmvlQeM.js` |
 
 ## Feature flag e quem "liga" a feature
 
@@ -67,8 +67,8 @@ não chave de rollout.
 ### Regra de cache — o que o GitHub Pages aplica (não configurável)
 
 Inalterada e medida de novo hoje: `index.html` e *assets* com `Cache-Control: max-age=600`, sem comando de purga; os nomes
-dos *assets* carregam hash de conteúdo (`index-DmxsQuIL.js` e `index-q-biCwua.css` nesta release, `index-dD_vz2Ev.js` e
-`index-CW8t98so.css` no alvo de reversão de staging); o Pages serve apenas a implantação corrente, por isso os *assets* da
+dos *assets* carregam hash de conteúdo (`index-BMmvlQeM.js` e `index-q-biCwua.css` nesta release, `index-DmxsQuIL.js` e o mesmo CSS no alvo de
+reversão de staging, `index-dD_vz2Ev.js` e `index-CW8t98so.css` no alvo mais antigo); o Pages serve apenas a implantação corrente, por isso os *assets* da
 versão anterior deixam de responder quando esta a substitui — mitigado pelos 10 min e por o bundle ser um único módulo
 carregado na abertura.
 
@@ -79,11 +79,11 @@ própria execução do Actions:
 
 | # | Etapa | Comando ou ação no workflow | Saída observável que aprova a etapa |
 |---|---|---|---|
-| 1 | obter o commit | `actions/checkout` do commit do push (`e70aad9` nesta release; `1bb63aa` na execução em vigor) | o cabeçalho da execução mostra o hash |
+| 1 | obter o commit | `actions/checkout` do commit do push (`2aa013e` nesta release; `1966c4a` na execução em vigor) | o cabeçalho da execução mostra o hash |
 | 2 | Node e instalação | `actions/setup-node` com `node-version-file: .nvmrc` (24) e `cache: npm`; `npm ci` | Node 24.x no log; saída 0; lockfile inalterado |
-| 3 | testar | `npm test` | saída 0; **444** aprovados, 0 reprovados, 0 pulados (65 desta feature) |
-| 4 | construir | `npm run build -- --base=/kartle/` em produção, `--base=/kartle-staging/` em staging | saída 0; o log do Vite lista `dist/index.html`, `dist/assets/index-DmxsQuIL.js` (694,17 kB) e `dist/assets/index-q-biCwua.css` para a árvore de `e70aad9` |
-| 5 | medir | `python3 -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True` (RNF02); nas execuções 41109469203 e 41156803005: `total_bytes=711620` |
+| 3 | testar | `npm test` | saída 0; **467** aprovados, 0 reprovados, 0 pulados (65 desta feature) |
+| 4 | construir | `npm run build -- --base=/kartle/` em produção, `--base=/kartle-staging/` em staging | saída 0; o log do Vite lista `dist/index.html`, `dist/assets/index-BMmvlQeM.js` (696,55 kB) e `dist/assets/index-q-biCwua.css` para a árvore de `2aa013e` |
+| 5 | medir | `python3 -I "600 Deploy/Output/race-lap-validation/tools/measure_dist.py" dist` | `within_limit=True` (RNF02); na execução 41832829595: `total_bytes=714001` |
 | 6 | empacotar | `actions/configure-pages`; `actions/upload-pages-artifact` com `path: dist` | artefato `github-pages` anexado à execução |
 | 7 | publicar | trabalho `deploy`, ambiente `github-pages`, `actions/deploy-pages` | **staging**: publica de imediato; **produção**: fica em *Waiting* até o revisor clicar *Approve and deploy* (D-DP-06) |
 | 8 | conferir o servido | `python -I "600 Deploy/Output/dirigibilidade/tools/check_served.py" <URL> index-<hash>.js` (humano ou validador; não está no workflow) | `checks=22 failed=0`: 200 em HTTPS, um JS e um CSS sob a base certa, `<hash>` esperado, elementos do HUD, `#lap-result-setup` ausente, HTML sem drift nem turbo, dica `Dirigir`, toque com 4 controles, v6 corrente com v4 anterior, v5 ausente |

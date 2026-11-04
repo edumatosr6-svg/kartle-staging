@@ -3,8 +3,8 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: modelo-kart-01
 stage: deploy
-status: validated
-version: 1.2.0
+status: draft
+version: 1.3.0
 sources: [DES-0001, DES-0003, DES-0004, DES-0007, DM-0001, NFR-0001, NFR-0002, NFR-0004, NFR-0005, NFR-0006, TEST-0001, TEST-0004]
 ---
 
@@ -33,14 +33,14 @@ conforme o runbook, nenhum monitor externo, nenhum envio de telemetria** (`200 R
 | AC-US-0003-10..14 visão geral, descida, sinal verde, fim da volta, treino contínuo | pista inteira antes da contagem; altura da câmera nunca a subir; pose de corrida no `VERDE`; câmera atrás do kart parado ao encerrar; câmera atrás do piloto em movimento depois do fim de uma volta de treino | tela (H1, H2; D4, D6, D11, M4, M11); `CHK-TEST-0003-10..18` | pista cortada; câmera a subir num quadro; corte no `VERDE`; visão geral ou descida pelo fim de uma volta de treino |
 | AC-US-0005-01, -04..-07 marcas de pneu; nenhum efeito de drift nem de turbo | marcas sob os pneus traseiros exibidos só com a volta em `RUNNING`, > 6 m/s e deriva > 0,055 rad; nenhuma fumaça, chama ou indicação de drift | tela (H5; D12, M8); `check_served.py` confirma a condição `speedMps>6&&….sideslipRad>.055` e a ausência de `exhaustOutlet`/`escapamentoSaida`; `CHK-TEST-0004-06`, `-17`..`-20` | marca fora do pneu; trecho novo na reta, na visão geral, na contagem ou na pausa; nenhuma marca em curva forte escorregando; fumaça, chama ou indicação de drift |
 | NFR-0001 / RNF03 taxa de quadros | `fpsPerSecond` e `minFps` numa volta completa, aba em primeiro plano, por aparelho e orientação | `docs/kart-01/device-log.md` (H6; D14, M9) | `minFps` abaixo de 60 no notebook ou de 30 no celular |
-| NFR-0002 / RNF02 tamanho | bytes de `dist/` no build; bytes comprimidos transferidos na primeira visita | `measure_dist.py` no workflow (execução 41156803005, árvore de `e70aad9`: 711 620 bytes; 188 719 gzip); lista de transferências (H6; D3, M3) | 3 145 728 bytes ou mais |
+| NFR-0002 / RNF02 tamanho | bytes de `dist/` no build; bytes comprimidos transferidos na primeira visita | `measure_dist.py` no workflow (execução 41832829595, árvore de `2aa013e`: 714 001 bytes; 189 539 gzip); lista de transferências (H6; D3, M3) | 3 145 728 bytes ou mais |
 | NFR-0003 dependências | arquivos em `dist/assets/` além de um JS e um CSS; `dependencies` de `package.json` | `check_bundle.py` (nenhum outro arquivo); `CHK-TEST-0004-*` (`['three']`) | qualquer *asset* novo ou dependência nova |
 | NFR-0004 custo de desenho | malhas, chamadas de desenho e triângulos do modelo montado | `DRAW_COST` em `npm test` (27 / 27 / 5 128; limite 30 chamadas); indiretamente, o fps de H6 | acima de 30 chamadas ou forma diferente de 5 128 triângulos |
-| NFR-0005 / NFR-0006 / NFR-0007 camadas, simulação intacta, posições das rodas | `LAYERING`, `RENDER_NEUTRAL`, `SIM_CONTRACT`, `DETERMINISM`, `WHEEL_POSITIONS` | `npm test` no workflow (444 aprovados) — nada a observar na página servida | qualquer registro `FAIL`, que para o workflow antes do `deploy` |
+| NFR-0005 / NFR-0006 / NFR-0007 camadas, simulação intacta, posições das rodas | `LAYERING`, `RENDER_NEUTRAL`, `SIM_CONTRACT`, `DETERMINISM`, `WHEEL_POSITIONS` | `npm test` no workflow (467 aprovados) — nada a observar na página servida | qualquer registro `FAIL`, que para o workflow antes do `deploy` |
 | RNF01 carregamento | tempo da navegação até o kart responder, cache vazio, 4G | `smoke.md` D2/M2 | 10 s ou mais |
 | RNF06 HTTPS | certificado válido; 0 recursos em HTTP; inclinação ativa no celular | navegador (cadeado); `check_served.py` recusa URL `http://` | qualquer recurso inseguro ou aviso de certificado |
 | Disponibilidade da página | código de resposta do `index.html`, do JS e do CSS em vigor | **verificação manual em HTTPS** (`runbook.md`, *Verify* 1 e 8) ou `check_served.py` (três GET), por decisão do dono do produto (sem monitor externo) | qualquer resposta diferente de 200 |
-| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado | `check_served.py <URL> index-<hash>.js` contra o `<hash>` impresso no passo *Build* da execução aprovada (hoje `DmxsQuIL` em staging, execução 41156803005) | hash divergente |
+| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado | `check_served.py <URL> index-<hash>.js` contra o `<hash>` impresso no passo *Build* da execução aprovada (hoje `BMmvlQeM` em staging, execução 41832829595) | hash divergente |
 | Regressão das releases contidas | `arcade-assistido-v6` no bundle; HUD com valor; treino de voltas seguidas | `smoke.md` D4, D11, M11 e os `smoke.md` de cada release contida; `check_served.py` confirma `arcade-assistido-v6`, `arcade-assistido-v4`, `realista-aluguel-4t-v4` e `Kartle · ` | identificador ausente; treino que para o kart ao fim de uma volta |
 | Erros no console | erros ao carregar e durante uma volta | `smoke.md` D5/M5 | 1 ou mais erros (um `warn` com código não é erro; `NO_2D_CONTEXT` é sintoma de ambiente a anotar) |
 
@@ -48,20 +48,20 @@ conforme o runbook, nenhum monitor externo, nenhum envio de telemetria** (`200 R
 
 Como nas releases anteriores, o **histórico de execuções do workflow `pages`**
 (`https://github.com/edumatosr6-svg/kartle/actions`; staging em `https://github.com/edumatosr6-svg/kartle-staging/actions`) é o
-registro de deploy: cada execução guarda o commit, o resultado de `npm test` (444 aprovados), o log do build com os nomes dos
+registro de deploy: cada execução guarda o commit, o resultado de `npm test` (467 aprovados em `2aa013e`), o log do build com os nomes dos
 *assets*, a medida de RNF02 e — no trabalho `deploy` — quem aprovou e quando (D-DP-06) e a URL publicada. Retenção: 90 dias por
 padrão; a execução verde anterior é o alvo do caminho B enquanto estiver retida.
 
-Estado em 2026-10-30, apurado sem executar nada no GitHub (três GET de leitura às URLs; números de execução informados pelo
-orquestrador, a confirmar na aba Actions):
+Estado em 2026-11-04, apurado sem executar nada no GitHub (`gh run list` e GET de leitura; a confirmar na aba Actions):
 
 | Repositório | Execução | Commit | `build` | `deploy` | Leitura |
 |---|---|---|---|---|---|
 | `kartle-staging` | 40579585592 (revisão anterior desta release) | `6ea3862` | concluído | concluído | validada em 2026-10-27 (`reports/deploy-validation/deploy-validation-20261027-2057.md`); `index-D0RarhFV.js`; já não é a servida |
-| `kartle-staging` | **41076989728** | `652bbaa` | concluído | concluído | a última execução verde **anterior** ao rev 4 desta feature; alvo do caminho B em staging |
+| `kartle-staging` | **41076989728** | `652bbaa` | concluído | concluído | a última execução verde **anterior** ao rev 4 desta feature; alvo do caminho B para tirar o rev 4 |
 | `kartle-staging` | 41101055606 | `6b314b2` | concluído | concluído | o `<sha>` da versão 1.1.0 deste registro: serviu `index-BwruE9Pq.js` (`check_served.py` 40/40); substituída por `e70aad9` |
-| `kartle-staging` | **41109469203** | `e70aad9` | concluído | concluído | o `<sha>` desta revisão; `npm test` 444/444; `index-DmxsQuIL.js` |
-| `kartle-staging` | **41156803005** | `1bb63aa` (só registro) | concluído | concluído | a em vigor: `https://edumatosr6-svg.github.io/kartle-staging/` serve `index-DmxsQuIL.js` desde 2026-10-31 01:46:48Z; `check_served.py` 40/40 (2026-11-03) |
+| `kartle-staging` | 41109469203 | `e70aad9` | concluído | concluído | o `<sha>` da versão 1.2.0; `npm test` 444/444; `index-DmxsQuIL.js` |
+| `kartle-staging` | **41156803005** | `1bb63aa` (só registro) | concluído | concluído | serviu `index-DmxsQuIL.js` desde 2026-10-31 01:46:48Z (`check_served.py` 40/40 em 2026-11-03); **alvo do caminho B** em staging |
+| `kartle-staging` | **41832829595** | `1966c4a` (só registro sobre `2aa013e`) | concluído | concluído | a em vigor, o `<sha>` desta revisão: `npm test` 467/467; serve `index-BMmvlQeM.js` desde 2026-11-04 12:53:01Z; `check_served.py` 40/40 (2026-11-04) |
 | `kartle` (produção) | 39827702391 (primeira release) e as que a substituíram pelo grupo `pages` | `05c3570` e posteriores | concluído | *Waiting* ou `cancelled` | **nada aprovado**; a URL de produção responde 404; produção nunca serviu um `dist/` |
 
 O validador confirma o número da execução de staging e o estado da de produção na aba Actions e os cita no relatório; este
@@ -91,5 +91,5 @@ execução antes do `deploy`**. Sobre a página, o "alerta" é a vigilância hum
 | câmera a subir na contagem, corte no `VERDE`, kart cortado em curva ou em retrato, campo de visão a mudar com um comando, visão geral pelo fim de uma volta de treino | observado na tela (H1, H2, H4) | `FAIL CODE` (`src/gameCamera.ts`); `CHK-TEST-0003-*` prova a geometria, a tela confirma a forma real do aparelho |
 | rodas ou volante parados com esterço; kart a deslizar depois de reposicionar; marcas fora dos pneus, fora da situação de derrapagem ou ausentes em curva forte; fumaça, chama ou indicação de drift | tela (H3, H5) | `FAIL CODE` (`src/kartPose.ts`, `src/main.ts` laço de quadro e bloco das marcas) |
 | taxa de quadros abaixo do limiar com o Kart 01 e a sombra | `minFps` < 60 (notebook) ou < 30 (celular) em H6 | `FAIL CODE` (custo de desenho ou sombra), não de empacotamento; ou aparelho fora da referência (I9) |
-| download comprimido acima de 3 MB | lista de transferências (H6) | `FAIL` deste estágio se o workflow deixou passar; hoje 188 719 bytes gzip |
+| download comprimido acima de 3 MB | lista de transferências (H6) | `FAIL` deste estágio se o workflow deixou passar; hoje 189 539 bytes gzip |
 | *assets* em 404, `deploy` com zero passos, execução cancelada pelo grupo `pages`, cache de 10 min | os mesmos das releases anteriores (`600 Deploy/Output/dirigibilidade/REL-0005-observability.md`) | empacotamento ou configuração (`FAIL` deste estágio), com os remédios lá descritos |

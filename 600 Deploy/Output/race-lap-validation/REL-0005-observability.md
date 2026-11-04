@@ -3,8 +3,8 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.3.0
+status: draft
+version: 1.4.0
 sources: [DES-0008, DES-0009, DES-0010, DES-0011, ADR-0006, NFR-0003, NFR-0004, NFR-0005, CHK-TEST-0013-03]
 ---
 
@@ -24,19 +24,19 @@ jogador (I6, DES-0011 *Comportamento em falha*).
 | Requisito | Métrica | Onde se obtém | Limiar que indica falha |
 |---|---|---|---|
 | RNF01 carregamento | tempo da navegação até o kart responder a uma entrada, cache vazio, 4G | medida manual (`smoke.md` D2/M2); futuramente o relatório de performance do navegador | 10 s ou mais |
-| RNF02 tamanho | bytes transferidos na primeira visita; bytes de `dist/` no build | `measure_dist.py` no build (artefato servido em staging nesta rodada: 711 620 bytes); painel de rede no smoke | 3 145 728 bytes ou mais |
+| RNF02 tamanho | bytes transferidos na primeira visita; bytes de `dist/` no build | `measure_dist.py` no build (artefato servido em staging nesta rodada: 714 001 bytes); painel de rede no smoke | 3 145 728 bytes ou mais |
 | NFR-0003 / RNF03 quadros | fps médio e mínimo numa volta completa | `docs/lap-validation-device-log.md` (E2E-10) | abaixo de 60 em notebook ou de 30 em celular |
 | NFR-0004 sem servidor | requisições de rede entre o início da contagem e o resultado | painel de rede no smoke (E2E-08) | 1 ou mais |
 | RNF06 HTTPS | certificado válido; 0 recursos em HTTP | navegador (cadeado) e painel de rede | qualquer recurso inseguro ou aviso de certificado |
 | Disponibilidade da página | código de resposta do `index.html` e dos *assets* em `https://edumatosr6-svg.github.io/kartle/` | **verificação manual em HTTPS** (`runbook.md`, *Verify* 1 e 7), por decisão do dono do produto de 2026-10-21 (`DOMAIN.md`, *Monitoramento*): o GitHub Pages **não fornece registros de acesso nem monitor de disponibilidade** e nenhum monitor externo entra nesta release (RNF12) | qualquer resposta diferente de 200 sobre `index.html` ou sobre um *asset* em vigor |
-| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado e o JS servido carrega os elementos e as 24 mensagens desta release | `tools/check_served.py <URL> index-<hash>.js` (só leitura; `runbook.md` passos 7 e 10): em staging, 2026-11-03, `checks=53 failed=0` com `index-DmxsQuIL.js` | hash divergente ou qualquer `FAIL` |
+| Integridade do deploy | o `index.html` servido aponta para o `assets/index-<hash>.js` do build aprovado e o JS servido carrega os elementos e as 24 mensagens desta release | `tools/check_served.py <URL> index-<hash>.js` (só leitura; `runbook.md` passos 7 e 10): em staging, 2026-11-04, `checks=53 failed=0` com `index-BMmvlQeM.js` | hash divergente ou qualquer `FAIL` |
 | RNF02 no pipeline | bytes de `dist/` a cada execução | passo *Measure dist* do workflow (`measure_dist.py`, saída 1 acima do limite — a execução falha antes de publicar) | 3 145 728 bytes ou mais |
 
 ## O registro de implantações — o histórico do Actions
 
 O **histórico de execuções do workflow `pages`** (`https://github.com/edumatosr6-svg/kartle/actions`; para staging,
 `https://github.com/edumatosr6-svg/kartle-staging/actions`) é o registro de deploy desta release:
-cada execução guarda o commit, o resultado de `npm test` (444 aprovados em `e70aad9`), o log do build com os nomes dos *assets*, a
+cada execução guarda o commit, o resultado de `npm test` (467 aprovados em `2aa013e`), o log do build com os nomes dos *assets*, a
 medida de RNF02, e — no trabalho `deploy` — **quem aprovou e quando** (revisor obrigatório, D-DP-06) e a URL publicada.
 Settings → Pages mostra a implantação em vigor. Retenção: 90 dias por padrão; a execução verde anterior é o alvo do
 caminho B de reversão enquanto estiver retida (`runbook.md`). Nenhum dado de jogador entra nesse registro: ele só
@@ -52,14 +52,15 @@ contém o que o repositório e o workflow produzem (I6).
 | `kartle-staging` | 39629837192 | `c1e488b` | concluído | falhado, zero passos; **reexecutada após a correção: concluído** | primeira execução verde; `https://edumatosr6-svg.github.io/kartle-staging/` responde 200 em HTTPS |
 | `kartle-staging` | 39631099098 | `2bee672` (push só de registro, ramo `staging`, 16:02:11Z; **tentativa 2** por *Re-run all jobs* na republicação após o ensaio de R1/R2) | concluído | concluído | 200 em 16:31:13Z com o mesmo `index-Cqfgl3da.js` (a árvore de `2bee672` é a de `c41c6c3`); prova de que R1/R2 são reversíveis (`runbook.md`) |
 
-**Entradas desta rodada** (2026-10-30, seed rev 3; números do condutor do loop, confirmados pelo validador na aba Actions):
+**Entradas desta rodada** (2026-10-30 a 2026-11-04, seed rev 3; números do condutor do loop, confirmados pelo validador na aba Actions):
 
 | Repositório | Execução | Commit | `build` | `deploy` | Leitura |
 |---|---|---|---|---|---|
-| `kartle-staging` | 41076989728 | `652bbaa` | concluído | concluído | a execução verde anterior: primeira release desta feature (treino de uma volta); **alvo do caminho B** em staging (`runbook.md`, R1) |
+| `kartle-staging` | 41076989728 | `652bbaa` | concluído | concluído | primeira release desta feature (treino de uma volta); alvo do caminho B para tirar esta rodada (`runbook.md`, R1) |
 | `kartle-staging` | 41101055606 | `6b314b2` | concluído | concluído | o candidato da rodada 10: serviu `index-BwruE9Pq.js` (`Last-Modified` 2026-10-30 17:48:06 GMT; `check_served.py` 53/53); substituído por `e70aad9` |
-| `kartle-staging` | 41109469203 | `e70aad9` | concluído | concluído | o `<sha>` desta rodada (ADR-0007 de `pista-kart-park`); `npm test` 444/444; `index-DmxsQuIL.js` |
-| `kartle-staging` | 41156803005 | `1bb63aa` (só registro) | concluído | concluído | a execução em vigor: serve `index-DmxsQuIL.js` (`Last-Modified` 2026-10-31 01:46:48 GMT; os bytes de 41109469203); `check_served.py` 53/53 (2026-11-03) |
+| `kartle-staging` | 41109469203 | `e70aad9` | concluído | concluído | o candidato da versão 1.3.0 (ADR-0007 de `pista-kart-park`); `npm test` 444/444; `index-DmxsQuIL.js` |
+| `kartle-staging` | 41156803005 | `1bb63aa` (só registro) | concluído | concluído | serviu `index-DmxsQuIL.js` (`Last-Modified` 2026-10-31 01:46:48 GMT; os bytes de 41109469203; `check_served.py` 53/53 em 2026-11-03); **alvo do caminho B** em staging (`runbook.md`, R1) |
+| `kartle-staging` | 41832829595 | `1966c4a` (só registro sobre `2aa013e`) | concluído | concluído | a execução em vigor: o `<sha>` `2aa013e` (acabamento da Kart Park); `npm test` 467/467; serve `index-BMmvlQeM.js` (`Last-Modified` 2026-11-04 12:53:01 GMT); `check_served.py` 53/53 (2026-11-04) |
 
 As execuções entre as de 2026-10-21 e estas (releases `dirigibilidade`, `modelo-kart-01`, `pista-kart-park`) estão nos
 registros daquelas features. As execuções seguintes, não copiadas aqui: **a execução em vigor é lida na aba Actions** de cada repositório, e é a que o relatório de validação cita.

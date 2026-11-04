@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
 status: draft
-version: 1.3.0
+version: 1.4.0
 sources: []
 ---
 
@@ -283,3 +283,63 @@ ISSUE-04 / DIV-DP-14 (decisão Esri); ISSUE-05 / DIV-DP-12 (portas humanas das r
 - Republicar a pista ou criar `kart-park` 2: não aplicável (NFR-0014).
 - Nada foi executado contra produção; nenhum push, reexecução ou escrita no GitHub; nenhum valor de segredo escrito; nada fora de
   `600 Deploy/Output/pista-kart-park/` foi escrito (o `dist/` local é ignorado pelo git).
+
+## 2026-11-04 — rodada 5, Modo B (relatório `deploy-validation-20261104-1302.md`, SUCCESS; escopo: ISSUE-07, ISSUE-08, ISSUE-09)
+
+O relatório é `SUCCESS` e deixou três itens sobre este registro: o carimbo de seed copiado errado (ISSUE-07, `warning`), a árvore
+em que o caminho C1 se executa (ISSUE-08, `info`) e o registro escrito antes do envio (ISSUE-09, `info`). Nenhuma superfície nova
+(§16): nenhuma linha de fumaça, roteiro, ferramenta, chave ou opção acrescentada; a nota de C1 diz em que árvore se executa um
+caminho que já existia, e a entrada 41832829595 registra a execução que já serve.
+
+**Fatos de entrada** (lidos nesta rodada, só leitura): `git ls-remote staging` → `staging` = `1966c4a`; `git ls-remote origin` →
+`master` = `05c3570`; `gh run list` → 41832829595 (`1966c4a`, push, `success`, 2026-11-04T12:51:01Z) e 41156803005 (`1bb63aa`,
+`success`); `git diff --stat 2aa013e HEAD -- src tests index.html package.json package-lock.json scripts` vazio; GET de
+staging: 200, `Last-Modified` 2026-11-04 12:53:01 GMT, 6 592 / 696 559 / 10 850 bytes, sha256 `3b0dfc37…` / `babb1884…` /
+`5e1c964b…`; `measure_dist.py` sobre os servidos: 714 001 / 189 786 (Windows); do relatório: *Measure dist* da execução
+714 001 / 189 539, servido = build limpo byte a byte, `check_served` 79/79, `check_bundle` 88/88, ensaio C1 (clone LF 444/444;
+com `core.autocrlf=true`, 2 reprovações por fim de linha); `pipeline_progress.py --seed-line pista-kart-park` →
+`seed: {revision: 2, digest: 49d733298158}`; a função `body_digest` do script: SHA-1 do corpo do `SEED.md` sem a front matter,
+fins de linha normalizados para LF, `strip()`, 12 primeiros hex; o mesmo cálculo sobre o `SEED.md` de `a5bb426` e de `2aa013e`
+dá `49d733298158`, e sobre o de antes de `a5bb426` `b5aa5be4734a`; `b80f2635073f` é o SHA-1 do arquivo inteiro (com a front
+matter) em CRLF, como a árvore de trabalho o tem — um `sha1sum SEED.md`, não o carimbo.
+
+**O que mudou**
+
+- `01-release.md` (1.4.0): parágrafo da rodada 4 com o envio e a validação; o digest da seed passa a `49d733298158` (linhas 31
+  e da *Proveniência*) com a explicação do valor errado do relatório de testes; *Commit verificado* com `1966c4a`/`c06afdd`;
+  *Construído pelo pipeline* = execução 41832829595 com os números do log; build limpo = servido; *Servido em staging hoje* =
+  o candidato; alvo B 41156803005 e o ensaio C1; medida com 189 539 (workflow) e 189 786 (Windows, só zlib); precondições 1 e
+  2 feitas, 5 com os três registros contidos passados a `2aa013e`; *Tag de release* com a execução.
+- `runbook.md` (1.4.0): `<sha>` publicado; `<hash>` confirmado; `<sha-anterior>` como a anterior à em vigor; caminho B com o
+  par 41156803005 ↔ 41832829595; caminho C1 com **em que árvore se executa** (checkout LF: a árvore de trabalho ou
+  `core.autocrlf=false`; com `core.autocrlf=true`, `fail 2` de 444 em checks de `dirigibilidade` e `race-lap-validation` só pelo
+  CRLF) e o ensaio de 2026-11-04; precondições de validação, envio, reversão e releases contidas; *Promote* 7 feito; H12 sem
+  "antes do envio"; R1 caminho C num checkout LF.
+- `smoke.md` (1.4.0): `<hash>` `BMmvlQeM` servido, 79/79; D22 sem "antes do envio".
+- `REL-0002` (1.4.0): `index-BMmvlQeM.js` servido. `REL-0003` (1.4.0): passos 1 e 2 com o envio feito; estado de 2026-11-04;
+  etapas 1, 2, 4, 5 e 8 com a execução 41832829595 (o *Measure dist* dela, 189 539, e a nota da zlib); a linha das releases
+  contidas como ocorrida. `REL-0004` (1.4.0): bytes servidos. `REL-0005` (1.4.0): bytes, 467, entrada 41832829595 no lugar de
+  "(por criar)", 41156803005 como alvo B.
+- `98-divergences.md` (1.4.0): DIV-DP-02, DIV-DP-03 (par novo e ensaio C1), DIV-DP-04 (rodada 4 com a execução), DIV-DP-07,
+  DIV-DP-12 (`docs/handling-device-log.md` existe; os três registros contidos passaram a `2aa013e`).
+
+**Itens fechados**: **ISSUE-07** na parte deste registro — o digest citado é `49d733298158`; **o relatório
+`500 Tests/Output/pista-kart-park/reports/test-validation/test-validation-20261103-2043.md` continua com
+`seed: {revision: 2, digest: b80f2635073f}`** na front matter: este estágio não edita o relatório de outro estágio (§14 e §19), e
+enquanto ele não for corrigido pelo estágio de testes (re-validação, ou correção do carimbo pelo dono) `pipeline_progress` segue a
+mostrar `test drift` e `deploy seed!` para esta feature. **ISSUE-08** — o caminho C1 diz em que árvore se executa. **ISSUE-09** — o
+registro nomeia a execução 41832829595 (`1966c4a`), marca as precondições 1 e 2 e cita o *Measure dist* da execução.
+
+**Itens que continuam abertos, com o que os fecha**
+
+- **ISSUE-01** (DIV-DP-01, DIV-DP-07): uma entrada em `docs/kart-park-device-log.md` sobre `index-BMmvlQeM.js` com H1–H12.
+- **ISSUE-03** (DIV-DP-03): o caminho B não repetido para 41156803005 ↔ 41832829595; o ensaio C1 fica como prova do caminho C.
+- **ISSUE-04** (DIV-DP-14): a decisão Esri.
+- **ISSUE-05** (DIV-DP-12): os registros contidos passaram a `2aa013e` em 2026-11-04, nos seus próprios registros, por
+  contenção e sem veredito de testes novo; fecha com a validação de deploy de cada um.
+
+**Itens recusados**: nenhum.
+
+- Nenhum redeploy, nenhum comando contra produção, nada aprovado; `gh`, `git ls-remote` e GET só de leitura; nenhum valor de
+  segredo escrito; `docs/`, `DOMAIN.md`, os relatórios de validação (inclusive o de testes com o carimbo errado) e os registros
+  das outras features não editados por esta entrada.

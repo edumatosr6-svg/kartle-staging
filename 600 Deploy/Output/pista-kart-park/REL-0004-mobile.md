@@ -4,7 +4,7 @@ title: Canal web-mobile — a mesma página; vibração da zebra, inclinação n
 feature: pista-kart-park
 stage: deploy
 status: draft
-version: 1.3.0
+version: 1.4.0
 sources: [ADR-0007, DES-0007, DES-0008, DES-0009, DES-0012, DM-0002, NFR-0002, NFR-0004, NFR-0005, US-0007, TEST-0008, TEST-0009, TEST-0010, TEST-0011]
 ---
 
@@ -36,7 +36,7 @@ navegador (`navigator.vibrate`), por isso o celular tem linhas próprias:
 | Asfalto de larguras variáveis, zebras no lado declarado e barreira em todo o comprimento, desenhados sobre a cena do Kart 01 (AC-US-0002-08, AC-US-0005-03, AC-US-0004-06) | `src/trackScene.ts` (uma malha de asfalto, uma de zebras, a barreira de pneus em 646 pilhas instanciadas, linha de largada; desde `fbfb073` também a faixa de borda e a grama em faixas); custo de desenho limitado por CHK-TEST-0010-01/-03 | M12 e **H3** no celular — E2E-05 |
 | Acabamento da Kart Park igual nos dois canais, em paisagem e em retrato, com o mesmo tom de grama no mesmo lugar depois de girar o aparelho (US-0007, *Canais*; AC-US-0007-14) | `src/trackScene.ts` (`fbfb073`): o tom vem de `grassToneAt` sobre a posição no mundo, sem canal, tela, `devicePixelRatio` nem `matchMedia` (CHK-TEST-0011-08/-09) | **H10** (M13): o roteiro de H9 em paisagem, girar para retrato, recarregar — E2E-05 |
 | 30 fps sustentados numa volta completa na Kart Park, **paisagem e retrato**, com zebras, barreira e o **acabamento de US-0007** na tela (NFR-0002 1.1.0) | custo de desenho (`code-validation-20261103-2004.md`): asfalto (684 × 2 vértices), zebras em relevo, duas tiras de faixa de borda (2 740 vértices, 2 736 triângulos), grama em faixas (1 600 vértices), **646 pilhas de pneus** de 132 triângulos numa `InstancedMesh`, o Kart 01 (27 chamadas) | **H11** no celular (M9): `fpsPerSecond` e `minFps ≥ 30` nas duas orientações; nenhuma execução em desktop vale (I9); o acabamento não é retirado para cumprir — E2E-05 |
-| Download comprimido abaixo de 3 MB numa primeira visita com cache vazio (RNF02) | tamanho do bundle: 714 001 bytes brutos, 189 786 gzip (build limpo local de `2aa013e`; o arquivo de pista são 43 012 bytes brutos dentro do JS); o acabamento não acrescenta *asset* | M3: lista de transferências de rede em 4G real, cache vazio |
+| Download comprimido abaixo de 3 MB numa primeira visita com cache vazio (RNF02) | tamanho do bundle: 714 001 bytes brutos, 189 539 gzip (servido em staging, execução 41832829595, árvore de `2aa013e`; o arquivo de pista são 43 012 bytes brutos dentro do JS); o acabamento não acrescenta *asset* | M3: lista de transferências de rede em 4G real, cache vazio |
 | 0 requisições a outro serviço entre a escolha da Kart Park e o fim da volta (NFR-0004) | arquivo de pista empacotado (`?raw`); catálogo e crédito literais; CHK-TEST-0011-02 | **H7** (M11): rede bloqueada depois do carregamento; a escolha, a volta, a zebra, a barreira e o crédito funcionam — E2E-07 |
 | HTTPS para os sensores (RNF06, I6) | a inclinação só é ativada com `window.isSecureContext` e `DeviceOrientationEvent`; em iOS pede `requestPermission` | M1: a URL abre com cadeado; "Ativar inclinação" pede permissão e passa a dirigir |
 | Carregamento até o kart andar abaixo de 10 s em 4G (RNF01) | bundle único; sem textura nem modelo externo | M2, em rede 4G real, cache vazio |

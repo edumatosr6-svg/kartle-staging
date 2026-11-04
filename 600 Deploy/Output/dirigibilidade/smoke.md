@@ -2,8 +2,8 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar
 feature: dirigibilidade
 stage: deploy
-status: validated
-version: 2.1.0
+status: draft
+version: 2.2.0
 sources: [DES-0001, DES-0005, DES-0006, DES-0007, DES-0008, DES-0009, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0007, NFR-0009, TEST-0007, TEST-0008, TEST-0010]
 ---
 
@@ -13,7 +13,8 @@ Executadas por um humano na URL de **staging** antes da decisão de promoção e
 de **produção** na entrega que promover. Cada linha nomeia o limiar que observa; uma linha que só confirma que a página
 abriu não prova nada. Os roteiros `E2E-nn` são os de `300 Specs/330 D-Specs/Output/dirigibilidade/test-strategy.md`
 (E2E-01 a E2E-04) e o resultado é registrado em `docs/handling-device-log.md` com aparelho, navegador, versão e medida
-(arquivo ainda por criar — `98-divergences.md`, DIV-DP-01). As linhas que exigem aparelho, sensor, gravação de tela,
+(o arquivo existe desde `1bb63aa`, com uma execução qualitativa no celular de 2026-10-30 que não fecha linha — `98-divergences.md`,
+DIV-DP-01). As linhas que exigem aparelho, sensor, gravação de tela,
 julgamento do dono do produto ou relógio de parede são as **linhas humanas H1–H5 do `runbook.md`**; as linhas abaixo
 referem-nas onde a observação rápida de fumaça e a observação humana completa se tocam.
 
@@ -26,7 +27,7 @@ assistido** (opção `arcade` de `#handling-preset`, selecionada por padrão), q
 
 Preparação comum: cache vazio (janela anônima), painel de rede e console abertos, idioma do navegador anotado,
 `python -I "600 Deploy/Output/dirigibilidade/tools/check_served.py" <URL> index-<hash>.js` executado uma vez (dois GET de
-leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `DmxsQuIL` em staging, execução 41156803005).
+leitura; `<hash>` lido no passo *Build* da execução que publicou — hoje `BMmvlQeM` em staging, execução 41832829595).
 
 ## Canal `web-desktop` (Chrome, Edge, Firefox e Safari nas versões atuais)
 
@@ -72,7 +73,7 @@ Na entrega que promover (hoje bloqueada pela decisão Esri — `01-release.md`, 
 - `check_served.py` e `check_bundle.py` provam o **servido** e o **empacotado** (hash, elementos, ausência de drift e turbo no
   HTML, controles de toque, acerto corrente e anterior, bloco de linha de base), não o comportamento: não executam a página,
   não medem ritmo nem leem o console. O JS servido ainda lê o campo `drift` de `Input` (contrato de passo, I8), por isso o
-  padrão de drift é verificado só no HTML e no CSS. O comportamento é provado por `npm test` (444 verificações, 65 desta
+  padrão de drift é verificado só no HTML e no CSS. O comportamento é provado por `npm test` (467 verificações, 65 desta
   feature) e pelo `bench:handling` (56 registros `PASS`), e por estas linhas e por H1–H5 na tela.
 - D14 e M10 (compartilhar) ficam na lista mas não são executáveis neste bundle: o botão só aparece no resultado de uma volta
   oficial ou de reconhecimento, que esta página não oferece; o texto compartilhado é provado por `CHK-TEST-0007-02` e

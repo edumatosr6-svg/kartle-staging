@@ -3,8 +3,8 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores
 feature: race-lap-validation
 stage: deploy
-status: validated
-version: 1.3.0
+status: draft
+version: 1.4.0
 sources: [DES-0011, NFR-0004, NFR-0005]
 ---
 
@@ -16,8 +16,8 @@ A página não lê variável de ambiente, chave, credencial nem arquivo de confi
 
 | Evidência | Resultado |
 |---|---|
-| `import.meta.env` ou `process.env` em `src/` e `index.html` | 0 ocorrências (reconferido em `e70aad9`, o commit verificado e servido em staging, com `git grep`) |
-| `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `localStorage`, `sessionStorage`, `indexedDB` nos módulos da feature e em `src/main.ts` | 0 ocorrências em `e70aad9` (`git grep`), garantido por `CHK-TEST-0013-03` (NFR-0004, NFR-0005); a sessão de treino de voltas seguidas (ADR-0006) também vive só em memória (`REL-0002`) |
+| `import.meta.env` ou `process.env` em `src/` e `index.html` | 0 ocorrências (reconferido em `2aa013e`, o commit verificado e servido em staging, com `git grep`, 2026-11-04) |
+| `fetch`, `XMLHttpRequest`, `WebSocket`, `sendBeacon`, `localStorage`, `sessionStorage`, `indexedDB` nos módulos da feature e em `src/main.ts` | 0 ocorrências em `2aa013e` (`git grep`), garantido por `CHK-TEST-0013-03` (NFR-0004, NFR-0005); a sessão de treino de voltas seguidas (ADR-0006) também vive só em memória (`REL-0002`) |
 | Projeto validado | DES-0011: "a feature não lê variável de ambiente, chave nem credencial" |
 | Diretivas do estágio | "Configuração e secrets: none in the MVP client" |
 
