@@ -3,7 +3,7 @@ id: REL-0003
 title: Rollout — ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.2.0
 sources: [DM-0001, DES-0007, DES-0009, ADR-0001, ADR-0006, NFR-0002, NFR-0008, NFR-0009, TEST-0010]
 ---

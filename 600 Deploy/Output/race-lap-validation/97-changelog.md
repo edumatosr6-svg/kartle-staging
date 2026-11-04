@@ -2,7 +2,7 @@
 title: Registro de mudanças — validação de volta de corrida (estágio de deploy)
 feature: race-lap-validation
 stage: deploy
-status: draft
+status: validated
 version: 1.4.0
 sources: []
 ---

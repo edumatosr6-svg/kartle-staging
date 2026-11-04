@@ -3,7 +3,7 @@ id: REL-0004
 title: Canal web-mobile — a mesma página nas duas formas, sem loja, sem assinatura, sem versão mínima instalada
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DES-0003, DES-0004, DES-0005, DM-0001, NFR-0001, NFR-0002, NFR-0004, TEST-0003]
 ---

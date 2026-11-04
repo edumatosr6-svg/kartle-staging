@@ -3,7 +3,7 @@ id: REL-0002
 title: Migração — nenhum formato publicado ou persistido muda; a linha de base fica no repositório
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DM-0001, ADR-0003, ADR-0004, DES-0007, NFR-0006, NFR-0007, TEST-0004]
 ---

@@ -2,7 +2,7 @@
 title: Registro de mudanças — modelo Kart 01 e câmera de jogo (estágio de deploy)
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: []
 ---

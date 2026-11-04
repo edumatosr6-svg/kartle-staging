@@ -2,7 +2,7 @@
 title: Registro de mudanças — pista Kart Park (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 1.4.0
 sources: []
 ---

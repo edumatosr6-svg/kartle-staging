@@ -2,7 +2,7 @@
 title: Release — pista Kart Park (staging; produção bloqueada pela decisão Esri)
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 1.4.0
 sources: [DM-0001, DM-0002, DES-0001, DES-0002, DES-0003, DES-0004, DES-0005, DES-0006, DES-0007, DES-0008, DES-0009, DES-0010, DES-0011, DES-0012, ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005, ADR-0006, ADR-0007, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, NFR-0008, NFR-0009, NFR-0010, NFR-0011, NFR-0012, NFR-0013, NFR-0014, US-0007, TEST-0001, TEST-0007, TEST-0008, TEST-0009, TEST-0010, TEST-0012]
 ---

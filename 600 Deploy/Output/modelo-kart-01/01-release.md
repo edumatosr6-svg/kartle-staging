@@ -2,7 +2,7 @@
 title: Release — modelo Kart 01 e câmera de jogo
 feature: modelo-kart-01
 stage: deploy
-status: draft
+status: validated
 version: 1.3.0
 sources: [DM-0001, DES-0001, DES-0002, DES-0003, DES-0004, DES-0005, DES-0006, DES-0007, ADR-0001, ADR-0002, ADR-0003, ADR-0004, NFR-0001, NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0006, NFR-0007, TEST-0001, TEST-0002, TEST-0003, TEST-0004]
 ---

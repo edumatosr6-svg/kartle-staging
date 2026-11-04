@@ -3,7 +3,7 @@ id: REL-0005
 title: Observabilidade — o que a release registra, o que se mede e o que faria soar um alerta
 feature: dirigibilidade
 stage: deploy
-status: draft
+status: validated
 version: 2.2.0
 sources: [DES-0005, DES-0006, DES-0008, DES-0009, ADR-0006, NFR-0002, NFR-0004, NFR-0005, NFR-0009, TEST-0010]
 ---

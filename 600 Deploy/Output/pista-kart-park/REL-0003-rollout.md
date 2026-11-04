@@ -3,7 +3,7 @@ id: REL-0003
 title: Rollout — staging agora, produção bloqueada pela decisão Esri; ordem de operações, janela de compatibilidade e o pipeline do GitHub Pages
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 1.4.0
 sources: [DES-0004, DES-0005, DES-0007, DES-0008, DES-0011, DES-0012, DM-0002, ADR-0005, ADR-0007, NFR-0002, NFR-0004, NFR-0005, NFR-0006, NFR-0010, NFR-0011, NFR-0012, NFR-0013, NFR-0014, US-0007, TEST-0009, TEST-0010, TEST-0012]
 ---
