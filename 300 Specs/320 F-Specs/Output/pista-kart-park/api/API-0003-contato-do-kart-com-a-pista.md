@@ -4,7 +4,7 @@ title: Contrato do contato do kart com a pista — superfície por roda, borda d
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [US-0003, US-0004, US-0005, NFR-0007, NFR-0008, AC-US-0003-07, AC-US-0003-08, AC-US-0004-04, AC-US-0004-05, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10]
 ---
 

@@ -4,8 +4,8 @@ title: Acabamento visual da Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [US-0007, NFR-0002, NFR-0004, NFR-0013, NFR-0014, AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21]
+version: 2.0.1
+sources: [US-0007, NFR-0002, NFR-0004, NFR-0013, AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20, AC-US-0007-21]
 ---
 
 # FEAT-0008 — Acabamento visual da Kart Park
@@ -14,9 +14,11 @@ sources: [US-0007, NFR-0002, NFR-0004, NFR-0013, NFR-0014, AC-US-0007-01, AC-US-
 
 Dá à Kart Park, para o Jogador, o acabamento de um kartódromo: uma faixa branca de 0,10 m por dentro de
 cada borda do asfalto, a zebra com relevo desenhado, a barreira de US-0004 como uma fileira de pneus pretos
-empilhados de 0,9 m e a grama em ao menos 2 tons de verde. Todo o acabamento é desenho (I2, `SEED/RD-13`):
-a simulação, a pilotagem, a volta, os setores e o arquivo de pista publicado não mudam (NFR-0013,
-NFR-0014). A pista sintética continua com a aparência de antes.
+empilhados de 0,9 m e a grama em ao menos 2 tons de verde. O acabamento é o aprovado na revisão 2 do seed
+e acompanha o traçado da versão 2, a réplica não oficial: "em toda a volta" e "em toda a extensão" se leem
+sobre ela (US-0007, Pré-condições, `SEED/RE-08`). Todo o acabamento é desenho (I2, `SEED/RD-13`): na
+versão 2, a simulação, a pilotagem, a volta e os setores são os mesmos com e sem ele desenhado (NFR-0013),
+e ele não acrescenta nada ao arquivo de pista. A pista sintética continua com a aparência de antes.
 
 ## Canais
 
@@ -47,10 +49,10 @@ A taxa de quadros com o acabamento na tela é a de [FEAT-0007](FEAT-0007-requisi
   borda do lado do asfalto (AC-US-0007-05).
 - REQ-FEAT-0008-07: O sistema SHALL desenhar cada trecho de zebra da Kart Park com altura maior que 0 m e
   de no máximo 0,05 m na sua borda de fora (AC-US-0007-06).
-- REQ-FEAT-0008-08: O sistema SHALL dar, a cada passo de `STEP`, a um kart que roda sobre a zebra a mesma
-  posição, o mesmo rumo e a mesma velocidade que o jogo de antes da revisão 2 dá com a mesma sequência de
-  `Input`: o relevo da zebra não entra na simulação, e o kart não sobe, não pula e não é desviado pela
-  zebra (AC-US-0007-07).
+- REQ-FEAT-0008-08: O sistema SHALL dar, na Kart Park versão 2, a cada passo de `STEP`, a um kart que roda
+  sobre a zebra a mesma posição, o mesmo rumo e a mesma velocidade com o relevo da zebra desenhado e sem
+  ele, para a mesma sequência de `Input`: o relevo da zebra não entra na simulação, e o kart não sobe, não
+  pula e não é desviado pela zebra (AC-US-0007-07).
 - REQ-FEAT-0008-09: O sistema SHALL manter, com o relevo da zebra desenhado, a aderência de cada pneu sobre
   a zebra de AC-US-0005-06 (0,85 da do mesmo pneu no asfalto) (AC-US-0007-08).
 - REQ-FEAT-0008-10: O sistema SHALL manter em `web-mobile`, com o relevo da zebra desenhado, a vibração da
@@ -92,18 +94,21 @@ A taxa de quadros com o acabamento na tela é a de [FEAT-0007](FEAT-0007-requisi
   aparelho de referência que não a sustente com o acabamento é falha de NFR-0002 (NFR-0002; US-0007, caso
   anormal).
 - REQ-FEAT-0008-25: O sistema SHALL dar, para a mesma sequência de `Input` a partir do mesmo estado inicial
-  na Kart Park, o mesmo `lapMs` antes e depois da revisão 2, idêntico ao milissegundo em 100 % das
-  sequências comparadas (NFR-0013).
-- REQ-FEAT-0008-26: O sistema SHALL dar, nas mesmas execuções, os mesmos 4 valores de `sectorMs` antes e
-  depois da revisão 2, idênticos ao milissegundo e um a um (NFR-0013).
+  na Kart Park versão 2, o mesmo `lapMs` com e sem o acabamento de US-0007 desenhado, idêntico ao
+  milissegundo em 100 % das sequências comparadas (NFR-0013).
+- REQ-FEAT-0008-26: O sistema SHALL dar, nas mesmas execuções, os mesmos 4 valores de `sectorMs` com e sem
+  o acabamento desenhado, idênticos ao milissegundo e um a um (NFR-0013).
 - REQ-FEAT-0008-27: O sistema SHALL dar, nas mesmas execuções, a mesma posição, o mesmo rumo e a mesma
-  velocidade do kart em 100 % dos passos de `STEP` antes e depois da revisão 2, com ao menos uma sequência
-  comparada que passa sobre a faixa de borda, sobre a zebra e contra a barreira (NFR-0013).
-- REQ-FEAT-0008-28: O arquivo de pista publicado da Kart Park SHALL continuar byte a byte igual ao de antes
-  da revisão 2, com 0 bytes diferentes e o mesmo resumo criptográfico registrado na publicação da versão 1
-  (NFR-0014).
-- REQ-FEAT-0008-29: O arquivo de pista publicado da Kart Park SHALL continuar com `trackVersion` 1 depois
-  da revisão 2 (NFR-0014).
+  velocidade do kart em 100 % dos passos de `STEP` com e sem o acabamento desenhado, com ao menos uma
+  sequência comparada que passa sobre a faixa de borda, sobre a zebra e contra a barreira (NFR-0013).
+- REQ-FEAT-0008-28: Retirado na rodada 5, com a forma antiga de NFR-0014 (o arquivo publicado da Kart Park
+  continuava byte a byte igual ao de antes da revisão 2). NFR-0014 passou a exigir só o arquivo da versão 1
+  inalterado, o que agora é o requisito 21 de
+  [FEAT-0002](FEAT-0002-forma-largura-e-versao-do-arquivo-de-pista.md). O id não é reaproveitado.
+- REQ-FEAT-0008-29: Retirado na rodada 5, com a forma antiga de NFR-0014 (o arquivo publicado continuava
+  com `trackVersion` 1). A versão publicada no seletor agora é a 2 (requisito 01 de
+  [FEAT-0002](FEAT-0002-forma-largura-e-versao-do-arquivo-de-pista.md), NFR-0006), e a presença da versão 1
+  no repositório é o requisito 20 de FEAT-0002. O id não é reaproveitado.
 
 ## Comportamento
 
@@ -113,14 +118,14 @@ pista ele é desenhado e como entra na simulação), [RULE-0001](../rules/RULE-0
 (vibração e som, sem mudança), [RULE-0005](../rules/RULE-0005-versao-e-publicacao-da-pista.md) (o arquivo
 e a versão não mudam). Contratos lidos, sem campo novo: [API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)
 (`centerline`, `curbs`, `barriers`), [API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md)
-(`trackId` da sessão), [API-0003](../api/API-0003-contato-do-kart-com-a-pista.md) (`wheelSurfaces`,
+(`trackId` e `trackVersion` da sessão), [API-0003](../api/API-0003-contato-do-kart-com-a-pista.md) (`wheelSurfaces`,
 `wheelGripPc`, `beyondTrackEdgeM`). Tela: [SCR-0003](../screens/SCR-0003-kart-park-na-tela-de-corrida.md).
 Abertura e troca de pista: [FLOW-0001](../flows/FLOW-0001-abertura-escolha-e-troca-de-pista.md). Passo:
 [FLOW-0002](../flows/FLOW-0002-passo-de-simulacao-na-kart-park.md), que o acabamento não muda.
 
 | Situação | Comportamento |
 |---|---|
-| Kart Park escolhida e treino iniciado | Faixa de borda, relevo da zebra, barreira de pneus e tons de grama desenhados ([RULE-0006](../rules/RULE-0006-acabamento-visual-da-kart-park.md)) |
+| Kart Park escolhida e treino iniciado | Faixa de borda, relevo da zebra, barreira de pneus e tons de grama desenhados sobre o traçado da versão 2 ([RULE-0006](../rules/RULE-0006-acabamento-visual-da-kart-park.md)) |
 | Kart contra a barreira de pneus, em qualquer velocidade e de qualquer lado | Para na face de colisão (AC-US-0004-04, AC-US-0004-05), a no máximo 0,05 m dos pneus vistos; não entra nos pneus nem para antes deles mais que 0,05 m |
 | Rodas sobre a faixa de borda | Asfalto para a simulação: aderência de asfalto, nenhuma saída de pista, nenhum tempo de corte |
 | Troca de pista no seletor, da Kart Park para a sintética e de volta | A sintética aparece sem nenhum elemento do acabamento; a Kart Park volta com o mesmo desenho da grama |
@@ -128,7 +133,7 @@ Abertura e troca de pista: [FLOW-0001](../flows/FLOW-0001-abertura-escolha-e-tro
 | Rede indisponível depois de o jogo abrir | O acabamento é desenhado igual: não depende de nada da rede (NFR-0004) |
 | Aparelho de referência abaixo da taxa de quadros | Falha de NFR-0002; o acabamento não é retirado e a simulação não muda |
 | Sem sensor de inclinação ou com permissão negada (`web-mobile`) | Toque com estado visível (I4); o acabamento e a simulação não mudam |
-| Mesma sequência de `Input` no jogo de antes e no de depois da revisão 2 | Mesmo `lapMs`, mesmos `sectorMs` e mesmo estado do kart a cada passo |
+| Mesma sequência de `Input` na versão 2, com e sem o acabamento desenhado | Mesmo `lapMs`, mesmos `sectorMs` e mesmo estado do kart a cada passo |
 
 ## Estado
 
@@ -151,14 +156,14 @@ relevo e da pilha de pneus ou os tons de grama: são medidas fixadas pelos requi
   e 05).
 - Na cena desenhada, cada zebra tem altura 0 m na borda do lado do asfalto e altura maior que 0 m e de no
   máximo 0,05 m na borda de fora (satisfaz AC-US-0007-05, AC-US-0007-06; cobre os requisitos 06 e 07).
-- A saída de `npm test` compara, passo a passo, o estado do kart numa sequência que passa sobre a zebra com
-  o registrado no jogo de antes da revisão 2 e os acha iguais; `wheelGripPc` na zebra continua 0,85
+- A saída de `npm test` compara, passo a passo, na versão 2, o estado do kart numa sequência que passa
+  sobre a zebra com o relevo desenhado e sem ele e os acha iguais; `wheelGripPc` na zebra continua 0,85
   (satisfaz AC-US-0007-07, AC-US-0007-08; cobre os requisitos 08 e 09).
 - Com o relevo desenhado, o registro dos pulsos pedidos em `web-mobile` e o das repetições do som em
   `web-desktop` satisfazem os critérios de aceite de [FEAT-0005](FEAT-0005-zebra-com-efeito.md) para
   AC-US-0005-07 a AC-US-0005-12 (satisfaz AC-US-0007-18, AC-US-0007-19; cobre os requisitos 10 e 11).
 - Na tela, a barreira aparece como pneus pretos empilhados em toda a extensão; na cena desenhada, a pilha
-  tem 0,9 m de altura, a face dos pneus fica, de cada um dos dois lados, a no máximo 0,05 m da superfície de contato da barreira, onde o kart para desse lado, e
+  tem 0,9 m de altura, a face dos pneus fica, de cada um dos dois lados, a no máximo 0,05 m da face de colisão da barreira desse lado, e
   nenhum pneu está sobre o asfalto ou a zebra (satisfaz AC-US-0007-09 a AC-US-0007-12; cobre os requisitos
   12 a 15).
 - Na tela, a grama da Kart Park mostra ao menos 2 tons de verde, cada um com luminância relativa a uma
@@ -174,12 +179,10 @@ relevo e da pilha de pneus ou os tons de grama: são medidas fixadas pelos requi
 - Nenhuma configuração ou caminho do jogo retira o acabamento nem nenhum dos seus quatro elementos; o
   teste de taxa de quadros de
   [FEAT-0007](FEAT-0007-requisitos-transversais.md) é feito com ele na tela (cobre o requisito 24).
-- A saída de `npm test` avança a simulação na Kart Park com `STEP` pelas mesmas sequências de `Input` no
-  jogo de antes e no de depois da revisão 2, com ao menos uma sequência sobre a faixa de borda, a zebra e
-  a barreira, e acha iguais `lapMs`, os 4 `sectorMs` e o estado do kart em todos os passos (cobre os
+- A saída de `npm test` avança a simulação na Kart Park versão 2 com `STEP` pelas mesmas sequências de
+  `Input` com o acabamento desenhado e sem ele, com ao menos uma sequência sobre a faixa de borda, a zebra
+  e a barreira, e acha iguais `lapMs`, os 4 `sectorMs` e o estado do kart em todos os passos (cobre os
   requisitos 25, 26 e 27).
-- O resumo criptográfico do arquivo de pista publicado da Kart Park depois da revisão 2 é o registrado na
-  publicação da versão 1, e o seu `trackVersion` é 1 (cobre os requisitos 28 e 29).
 
 ## Pontos em aberto
 

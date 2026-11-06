@@ -4,20 +4,20 @@ title: Setores, chegada, marcadores e validação da volta na Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.2
-sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-09, AC-US-0003-10, AC-US-0003-11]
+version: 2.0.0
+sources: [US-0003, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-10, AC-US-0003-11, AC-US-0003-12]
 ---
 
 # FEAT-0003 — Setores, chegada, marcadores e validação da volta na Kart Park
 
 ## Resumo
 
-O arquivo de pista gerado dá à Kart Park o que o arquivo de origem não traz: a chegada na linha de largada,
-três limites de setor (quatro setores, RF09) e marcadores de percurso a no máximo 25 m um do outro. Com
-eles, a volta na Kart Park é validada pelas regras de `race-lap-validation`, sem nenhuma mudança: volta que
-pula marcador é inválida com o motivo "marcador pulado" (RF10), o corte usa os limites padrão de 3 m e
-1000 ms, e o atalho pela grama de 12 a 26 m, como o da curva 4, é invalidado pelos marcadores, sem barreira
-(`DOMAIN/DEC-10`).
+O arquivo de pista gerado dá à Kart Park o que o arquivo da réplica não traz: a chegada na linha de
+largada, três limites de setor em retas da réplica, perto de 204,9 m, 354,9 m e 534,7 m (quatro setores,
+RF09), e marcadores de percurso a no máximo 25 m um do outro. Com eles, a volta na Kart Park é validada
+pelas regras de `race-lap-validation`, sem nenhuma mudança: volta que pula marcador é inválida com o motivo
+"marcador pulado" (RF10), o corte usa os limites padrão de 3 m e 1000 ms, e o atalho pela grama com mais de
+6 m de grama entre as bordas é invalidado pelos marcadores, sem barreira (`DOMAIN/DEC-10`).
 
 ## Canais
 
@@ -30,8 +30,8 @@ permissão negada, o controle recai para toque com estado visível; as regras da
 - REQ-FEAT-0003-01: O arquivo de pista gerado SHALL declarar exatamente 3 `sectorLimits`, que com a
   chegada definem 4 setores (AC-US-0003-01).
 - REQ-FEAT-0003-02: O arquivo de pista gerado SHALL declarar, em ordem, cada limite de setor como a linha
-  transversal no ponto gerado de mesmo índice que o ponto da origem cuja distância de volta na linha
-  original é a mais próxima de 201,6 m, de 350,3 m e de 529,9 m (AC-US-0003-02).
+  transversal no ponto da `centerline` cuja distância de volta, medida a partir do ponto 0, é a mais
+  próxima de 204,9 m, de 354,9 m e de 534,7 m (AC-US-0003-02).
 - REQ-FEAT-0003-03: O arquivo de pista gerado SHALL declarar a `finishLine` como a linha transversal no
   ponto 0, a mesma da largada (AC-US-0003-03).
 - REQ-FEAT-0003-04: O arquivo de pista gerado SHALL declarar cada marcador de percurso como a linha
@@ -43,7 +43,8 @@ permissão negada, o controle recai para toque com estado visível; as regras da
   (AC-US-0003-04).
 - REQ-FEAT-0003-06: O arquivo de pista gerado SHALL estender cada linha transversal ao longo da normal do
   seu ponto, de uma borda da pista à outra e mais `cutDistanceM` além de cada borda, parando antes de uma
-  barreira ou da pista de outra parte da volta (AC-US-0003-05, AC-US-0003-09, AC-US-0003-10;
+  barreira ou da pista de outra parte da volta, de modo que um atalho pela grama mais largo que essa
+  extensão pula ao menos um marcador (AC-US-0003-05, AC-US-0003-10; `DOMAIN/DEC-10`;
   [RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md)).
 - REQ-FEAT-0003-07: O arquivo de pista gerado SHALL NOT declarar `cutDistanceM` nem `cutDurationMs`, de
   modo que valem os limites padrão de 3 m e 1000 ms (AC-US-0003-07, AC-US-0003-08).
@@ -57,9 +58,9 @@ permissão negada, o controle recai para toque com estado visível; as regras da
   contínuo (AC-US-0003-07).
 - REQ-FEAT-0003-11: O sistema SHALL NOT, na Kart Park, invalidar por corte a volta em que o kart fica mais
   de 3 m além da borda da pista por 1000 ms ou menos de tempo simulado contínuo (AC-US-0003-08).
-- REQ-FEAT-0003-12: O sistema SHALL, na Kart Park, ter no estado da simulação `lapValidity` `INVALID` para
-  uma volta que deixa a pista perto de 147 m de volta na linha original, atravessa a grama por dentro da
-  curva 4 e volta à pista perto de 200 m (AC-US-0003-09).
+- REQ-FEAT-0003-12: Retirado na rodada 5, com o critério que realizava (AC-US-0003-09, atalho pela grama
+  por dentro da curva 4, retirado dos requisitos na revisão 3). O atalho pela grama com mais de 6 m de grama
+  continua coberto pelos requisitos 05, 06 e 08. O id não é reaproveitado.
 - REQ-FEAT-0003-13: O sistema SHALL, na Kart Park, terminar com `lapValidity` `VALID` a volta que passa por
   todos os marcadores de percurso em ordem, no sentido da pista, e cruza a chegada sem corte
   (AC-US-0003-10).
@@ -71,6 +72,10 @@ permissão negada, o controle recai para toque com estado visível; as regras da
   volta (AC-US-0003-10, AC-US-0003-11: a volta na Kart Park termina e é apresentada como na pista
   sintética; US-0003, caso anormal "Cruzar a chegada de novo...", que liga esses casos às mesmas regras;
   `SEED/US-3`: "validada como na pista sintética").
+- REQ-FEAT-0003-16: O arquivo de pista gerado SHALL ter cada um dos três limites internos de setor num ponto
+  cuja distância de volta fica dentro de um elemento do tipo reta do arquivo da réplica: entre o início
+  (`de_m`) e o fim (`de_m` + `comprimento_m`) desse elemento, inclusive, lidos na `centerline` a partir do
+  ponto 0 (AC-US-0003-12; [RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md)).
 
 ## Comportamento
 
@@ -85,8 +90,8 @@ para a volta de treino, a única desta feature, o painel "Resultado da volta do 
 | Situação | Comportamento |
 |---|---|
 | Volta completa sobre a pista, passando por todos os marcadores em ordem | `VALID`; tempo total e 4 tempos de setor no painel do resultado da volta do treino |
-| Atalho pela grama de 12 a 26 m (curva 4, de ≈ 147 m a ≈ 200 m) | Sem barreira; o kart, a mais de `cutDistanceM` da borda da pista, não cruza ao menos um marcador; a volta é `INVALID` com `MISSED_MARKER` ao cruzar a chegada |
-| Atalho pelos trechos quase encostados (≈ 371–414 m contra ≈ 580–615 m) | Impedido pela barreira ([FEAT-0004](FEAT-0004-barreira-nos-trechos-quase-encostados.md)) |
+| Atalho pela grama com mais de 6 m de grama entre as bordas | Sem barreira; o kart, a mais de `cutDistanceM` da borda da pista, não cruza ao menos um marcador; a volta é `INVALID` com `MISSED_MARKER` ao cruzar a chegada |
+| Atalho pelos trechos quase encostados (≈ 369–406 m contra ≈ 595–624 m) | Impedido pela barreira ([FEAT-0004](FEAT-0004-barreira-nos-trechos-quase-encostados.md)) |
 | Kart a mais de 3 m da borda da pista por mais de 1000 ms | Corte: `INVALID` com `CUT` no passo; no treino a volta é invalidada sem ser encerrada e o kart segue, pelas regras de treino de `race-lap-validation` |
 | Kart a mais de 3 m da borda por 1000 ms ou menos e de volta | Sem corte; se nesse intervalo ele não cruzou um marcador, a volta é invalidada por marcador pulado ao cruzar a chegada |
 | Rodas sobre a zebra | Pista: não acumulam tempo para o corte ([FEAT-0005](FEAT-0005-zebra-com-efeito.md)) |
@@ -110,22 +115,23 @@ declara; nenhuma configuração do jogo os altera.
 
 ## Critérios de aceite
 
-- O arquivo gerado tem 3 `sectorLimits`; cada um é a linha transversal no ponto de índice igual ao do ponto
-  da origem mais próximo, em distância de volta na linha original, de 201,6 m, 350,3 m e 529,9 m (satisfaz
-  AC-US-0003-01, AC-US-0003-02; cobre os requisitos 01 e 02).
+- O arquivo gerado tem 3 `sectorLimits`; cada um é a linha transversal no ponto da `centerline` mais
+  próximo, em distância de volta, de 204,9 m, 354,9 m e 534,7 m (satisfaz AC-US-0003-01, AC-US-0003-02;
+  cobre os requisitos 01 e 02).
+- A distância de volta do ponto de cada limite interno de setor fica entre o início e o fim de um elemento
+  do tipo reta do arquivo da réplica (satisfaz AC-US-0003-12; cobre o requisito 16).
 - A `finishLine` é a linha transversal no ponto 0 (satisfaz AC-US-0003-03; cobre o requisito 03).
 - Nenhum par de marcadores consecutivos, inclusive o último e o primeiro, está a mais de 25 m de distância
   de volta; nenhum marcador está no ponto 0 nem num limite de setor; cada linha cobre a pista e
   `cutDistanceM` além de cada borda, salvo onde para antes de barreira ou de outra parte da pista (satisfaz
   AC-US-0003-04; cobre os requisitos 04, 05 e 06).
-- Uma sequência de `Input` que leva o kart a pular um marcador termina `INVALID` com `MISSED_MARKER`, e a
-  tela exibe "marcador pulado" (satisfaz AC-US-0003-05, AC-US-0003-06; cobre os requisitos 08 e 09).
+- Uma sequência de `Input` que leva o kart a pular um marcador, inclusive por um atalho pela grama com
+  mais de 6 m de grama entre as bordas, termina `INVALID` com `MISSED_MARKER`, e a tela exibe "marcador
+  pulado" (satisfaz AC-US-0003-05, AC-US-0003-06; cobre os requisitos 06, 08 e 09).
 - Com o kart mantido a mais de 3 m da borda da pista: por mais de 1000 ms de tempo simulado contínuo,
   `INVALID` com `CUT` no passo em que a duração passa de 1000 ms; por 1000 ms ou menos e de volta à
   distância de 3 m ou menos, sem corte (satisfaz AC-US-0003-07, AC-US-0003-08; cobre os requisitos 07, 10
   e 11).
-- Uma sequência de `Input` que sai da pista perto de 147 m, cruza a grama por dentro da curva 4 e volta
-  perto de 200 m termina `INVALID` (satisfaz AC-US-0003-09; cobre os requisitos 06 e 12).
 - Uma volta pela pista, sem corte, passa por todos os marcadores e termina `VALID`, e o painel do resultado da
   volta do treino exibe o tempo total e os 4 tempos de setor em `m:ss.mmm`, como na pista sintética (satisfaz
   AC-US-0003-10, AC-US-0003-11; cobre os requisitos 13 e 14).

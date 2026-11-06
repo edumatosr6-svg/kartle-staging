@@ -3,7 +3,7 @@ title: Divergências — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: []
 ---
 
@@ -20,5 +20,6 @@ Nenhuma divergência registrada: esta etapa não lê a raiz de código para deri
 §12); só os nomes de contratos existentes (`readTrackData`, `trackId` `synthetic`, `startLap`,
 `getHandlingTelemetry`, `STEP`, `Input`) foram consultados para não colidir com eles. A feature é nova: a
 Kart Park, o seletor, a zebra e a barreira não existem no jogo, e esse é o motivo da feature, não uma
-divergência a julgar aqui. As linhas serão registradas quando a etapa de implementação citar
-`arquivo:linha`.
+divergência a julgar aqui. O mesmo vale para a revisão 3 do seed (réplica publicada como `trackVersion` 2,
+nome "réplica não oficial", 691 m, catálogo que confere a versão): é a mudança que esta rodada especifica,
+não uma divergência. As linhas serão registradas quando a etapa de implementação citar `arquivo:linha`.

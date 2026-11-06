@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.2.0
+version: 2.0.0
 sources: []
 ---
 
@@ -254,3 +254,136 @@ aos requisitos validados (US-0007 e glossário: "Face de colisão", "Tela de res
 - `SCR-0002` mantém id, título e nome de arquivo: renomear quebraria as referências de outros estágios sem
   ganho de significado.
 - Arquivos editados ficam `draft`. `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+## 2026-11-06 — rodada 5, Mode A (requisitos revalidados contra o seed revision 3)
+
+**O que mudou**
+
+- Base: requisitos de `200 Requirements/230 Output/pista-kart-park/` com US-0001 a US-0007, NFR-0001 a
+  NFR-0010 e NFR-0012 a NFR-0014 (changelog da rodada 4; seed `revision: 3`, de 2026-11-06; validação
+  `req-validation-20261106-1741`, SUCCESS; commit `8c96912`). A revisão 3 troca o traçado pela réplica não
+  oficial (`replica/kart-park-replica.json`), publicada como `kart-park` `trackVersion` 2; a versão 1 sai do
+  seletor e o seu arquivo fica byte a byte igual (`DOMAIN/DEC-13`). Ids mantidos onde o comportamento
+  sobrevive; todo arquivo do conjunto voltou a `draft`.
+- `FEAT-0001` (2.0.0): novos REQ-FEAT-0001-15 (a Kart Park carrega o `trackVersion` 2 que a entrada do
+  catálogo declara, AC-US-0001-08) e REQ-FEAT-0001-16 (nenhuma opção abre sessão com o `trackVersion` 1;
+  arquivo de outra versão termina em `TRACK_VERSION_MISMATCH`, AC-US-0001-09); linha da versão 1 no
+  repositório e da versão errada no comportamento.
+- `FEAT-0002` (2.0.0): 01 passa a `trackVersion` 2; 05 a 683,793–697,607 m; 07 fixa a mesma origem do
+  arquivo da réplica (`xM` = *x*, `zM` = −*y*); 09 a `widthM` 7,0 em todo ponto; 10 a no máximo 0,10 m da
+  linha central da réplica; 11 à curva de raio 8,8 m perto de 216 m; 18 cita a versão 2 como versão nova.
+  03 retirado (correspondência por índice com o traçado da versão 1). Novos 19 (ponto 0 a no máximo 0,10 m
+  do ponto 0 da réplica, régua das distâncias do arquivo da réplica), 20 e 21 (arquivo da versão 1 no
+  repositório, byte a byte igual, NFR-0014 2.0.0).
+- `FEAT-0003` (2.0.0): 02 com os limites perto de 204,9 / 354,9 / 534,7 m, medidos na `centerline`; 06 sem
+  AC-US-0003-09, ligado a AC-US-0003-05 e `DOMAIN/DEC-10`; 12 retirado com AC-US-0003-09; novo 16 (cada
+  limite interno dentro de um elemento reta da réplica, AC-US-0003-12); comportamento com os trechos
+  ≈ 369–406 m e ≈ 595–624 m e o atalho com mais de 6 m de grama.
+- `FEAT-0004` (2.0.0): 01 com os trechos ≈ 369–406 m e ≈ 595–624 m, lidos como em `RULE-0002`; resumo e
+  comportamento com a grama mínima de 1,28 m e sem os atalhos de 12 a 26 m.
+- `FEAT-0005` (2.0.0): 01 com 22 trechos, um a um os da réplica; 02 com o lado e `de_m`/`ate_m` da réplica
+  lidos na `centerline`; 03 com o asfalto de 7,0 m; novo 20 (nenhum trecho cruza a largada,
+  AC-US-0005-13); linha da zebra dividida trocada pela de "zebra perto da largada".
+- `FEAT-0006` (2.0.0): nome "Kart Park — São José dos Pinhais (réplica não oficial)" e "691 m" (07, 08);
+  comportamento com o comprimento de 690,7 m ± 1 %, a diferença para os 750 m oficiais e a licença Esri em
+  qualquer versão.
+- `FEAT-0007` (2.0.0): 12 retirado com NFR-0011; 13 vale para qualquer versão (NFR-0012 1.1.0); resumo,
+  comportamento e critérios sem a ordem de entrega.
+- `FEAT-0008` (2.0.0): 08 compara a versão 2 com e sem o relevo desenhado (AC-US-0007-07 1.2.0); 25 a 27
+  comparam a versão 2 com e sem o acabamento desenhado (NFR-0013 2.0.0); 28 e 29 retirados com a forma
+  antiga de NFR-0014 (o que sobrevive dela está em FEAT-0002, requisitos 20 e 21); resumo com o acabamento
+  sobre o traçado da versão 2 (`SEED/RE-08`).
+- `API-0001` (2.0.0): `trackVersion` 2 para a réplica e 1 mantida; `centerline` e `curbs` da Kart Park
+  versão 2 (réplica nos eixos do jogo, 0,10 m, 7,0 m, 22 zebras); linha de compatibilidade da versão 2, sem
+  campo novo, renomeado ou retirado.
+- `API-0002` (2.0.0): campo opcional `trackVersion` na entrada do catálogo (padrão ausente, neutro para a
+  pista sintética; 2 na Kart Park); novo código `TRACK_VERSION_MISMATCH`; valores de `displayName` e
+  `displayLengthM` da Kart Park trocados ("réplica não oficial", 691), com a linha de compatibilidade que
+  diz que os campos mantêm nome, unidade e significado.
+- `RULE-0002` (2.0.0): medidas e verificações refeitas sobre a réplica. V01 passa de "correspondência" a
+  "ponto 0 da réplica"; V03, V06, V07, V08, V09, V12, V13, V14 e V16 com os números da revisão 3; novos V19
+  (limites em retas) e V20 (zebra sem cruzar a largada); "trecho aproximado" lido com meio metro de cada
+  lado dos extremos arredondados ao metro.
+- `RULE-0003` (1.1.0): `LOADING` → `READY` exige o `trackId` e o `trackVersion` da entrada; `LOADING` →
+  `FAILED` também com `TRACK_VERSION_MISMATCH`; regra da sessão sempre na versão 2.
+- `RULE-0005` (2.0.0): duas versões publicadas; a versão 2 passa pelo mesmo ciclo; a versão 1 não é
+  editada, renomeada nem apagada; o catálogo oferece só a versão 2; licença Esri em qualquer versão; o
+  acabamento é desenhado sobre a versão 2. Sai "suavizar de novo".
+- `RULE-0006` (2.0.0): o acabamento acompanha a versão 2; AC-US-0007-07 e NFR-0013 comparam com e sem o
+  desenho; a seção "Dado de pista" deixa de citar NFR-0014.
+- `RULE-0001` (1.0.1): "linha central suavizada" passa a "`centerline` do arquivo de pista gerado".
+- `FLOW-0001` (1.1.0): leitura e conferência do `trackVersion` 2; "691 m"; linha de `TRACK_VERSION_MISMATCH`.
+- `FLOW-0003` (2.0.0): preparo a partir do arquivo da réplica, sem nova suavização, com 7,0 m, as 22 zebras,
+  `trackVersion` 2 e publicação ao lado do arquivo da versão 1, que não é tocado.
+- `SCR-0001` (1.1.0): nome e "691 m"; nenhuma opção para a versão 1; estado de erro com
+  `TRACK_VERSION_MISMATCH`. `SCR-0003` (1.3.0): desenho da versão 2, asfalto de 7,0 m.
+- `01-overview.md` (2.0.0): base, escopo, canais e verificação da revisão 3; decisões de forma "duas versões
+  publicadas, uma no seletor" e "a régua da réplica" no lugar de "correspondência por índice"; lacunas sem
+  a suavização, com a amostragem dos pontos e a entrega do arquivo da versão 1 ao navegador; fora do escopo
+  com `SEED/FE-09`; sai o parágrafo da ordem de entrega (NFR-0011).
+- `02-glossary.md` (2.0.0): réplica não oficial, traçado da versão 1, arquivo da réplica, elemento, linha
+  central da réplica, trecho aproximado, curva mais fechada, zebras por regra, Esri World Imagery, revisão 3,
+  `trackVersion` e `TRACK_VERSION_MISMATCH`; saem traçado aproximado, arquivo de origem, linha central
+  original e suavizada, ponto correspondente, distância na linha original e índice fracionário.
+- `API-0003`, `RULE-0004`, `FLOW-0002`, `SCR-0002`: só voltaram a `draft`, sem mudança de texto; nada neles
+  depende do traçado. `98-divergences.md` (1.1.0): nota de que a revisão 3 é a mudança especificada, não
+  divergência. `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Tabela de migração** (conventions §17)
+
+| Item | Antes | Agora | Motivo |
+|---|---|---|---|
+| REQ-FEAT-0002-03 | Ponto *i* gerado = ponto *i* da origem (684 pontos) | Retirado; o que tornava decidível passa a REQ-FEAT-0002-19 | A revisão 3 não deriva a pista do traçado da versão 1 |
+| REQ-FEAT-0003-12 | Volta pelo atalho da curva 4 é inválida | Retirado | AC-US-0003-09 retirado dos requisitos (rodada 4 de req); a regra continua coberta por REQ-FEAT-0003-05, -06 e -08 |
+| REQ-FEAT-0007-12 | Código só depois de `dirigibilidade` | Retirado | NFR-0011 retirado: a restrição saiu do seed na revisão 3 |
+| REQ-FEAT-0008-28 | Arquivo publicado igual ao de antes da revisão 2 | Retirado; a parte que sobrevive é REQ-FEAT-0002-21 | NFR-0014 2.0.0 exige só o arquivo da versão 1 igual |
+| REQ-FEAT-0008-29 | Arquivo publicado com `trackVersion` 1 | Retirado; REQ-FEAT-0002-01 (versão 2) e REQ-FEAT-0002-20 (versão 1 no repositório) | NFR-0006 2.0.0 e NFR-0014 2.0.0 |
+| RULE-0002 V01 | Correspondência por índice | Ponto 0 da réplica | Mesmo motivo de REQ-FEAT-0002-03 |
+| Demais REQ e verificações citados acima | Números da revisão 2 | Números da revisão 3, mesmo id | O comportamento sobrevive; só o fato medido mudou |
+
+As retiradas seguem itens que os requisitos validados já retiraram (AC-US-0003-09, NFR-0011, a forma antiga
+de NFR-0014) ou que a revisão 3 do seed, escrita pelo dono do produto, tornou sem objeto. O §17 pede
+aprovação humana explícita para retirar uma verificação: a base dessas retiradas é a revisão 3 do seed e a
+rodada 4 validada dos requisitos, e a confirmação do dono do produto fica pedida no relatório desta rodada.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` (Mode A por mudança de revisão).
+
+**Itens recusados ou deixados, com motivo**
+
+- Fixar que a `centerline` tem exatamente os 691 pontos da réplica: recusado. AC-US-0002-06 aceita até
+  0,10 m de distância, e exigir os mesmos pontos seria pedir mais que o critério; a régua comum fica garantida
+  pelo ponto 0 (REQ-FEAT-0002-19) e pela distância de 0,10 m.
+- Verificação da cobertura da barreira sobre a volta inteira, sem os trechos ≈ 369–406 m e ≈ 595–624 m:
+  recusada. AC-US-0004-01 fala desses dois trechos, e AC-US-0004-02 já proíbe barreira entre partes com mais
+  de 6 m de grama; a leitura de meio metro de cada lado dos extremos arredondados cobre o "≈" sem número novo.
+- Critério próprio para a regra das zebras (`SEED/RD-14`) ou para as transições de 5 m: não acrescentado,
+  pelo mesmo motivo dos requisitos (rodada 4 de req): o arquivo da réplica as carrega, e V12 copia as 22
+  zebras declaradas.
+- Um código de erro novo para a versão errada foi preferido a reaproveitar `TRACK_DATA_UNREADABLE`: o arquivo
+  da versão 1 é legível, e chamá-lo de ilegível mudaria o significado de um código existente (política de
+  contrato estrito, regra 5).
+- Leitura de entrada: além da pasta de requisitos e de `320 F-Specs/Input/`, esta rodada leu
+  `200 Requirements/220 Input/pista-kart-park/DOMAIN.md` por instrução do chamador. `SEED.md` e o arquivo da
+  réplica foram abertos só para conferir que os trechos ≈ 369–406 m e ≈ 595–624 m e as distâncias dos
+  limites de setor dos requisitos batem com a réplica; nenhum número deles entrou no conjunto além dos que
+  os requisitos já trazem.
+
+## 2026-11-06 — rodada 6, Mode B (fspec-validation-20261106-1803: 1 erro, 3 avisos)
+
+Só os quatro itens do relatório; nenhum requisito, contrato, campo ou elemento de tela acrescentado (§16).
+
+- `FLOW-0003` (2.0.1): a mensagem "publica em staging, STAGING; o arquivo da versao 1 fica como esta" perde o
+  ";" (passa a vírgula), que o analisador de `sequenceDiagram` lia como fim de instrução. Fecha ISSUE-01.
+- `FEAT-0008` (2.0.1): o critério de aceite dos requisitos 12 a 15 diz "a no máximo 0,05 m da face de colisão
+  da barreira desse lado", com o termo de `02-glossary.md`, no lugar de "superfície de contato da barreira,
+  onde o kart para desse lado". Nenhum outro artefato usava o termo antigo. Fecha ISSUE-02.
+- `SCR-0002` (1.1.2): navegação diz "com a sessão de treino e a pista selecionada inalteradas", termo de
+  `02-glossary.md`. Fecha ISSUE-03.
+- `FLOW-0001` (1.1.1): o participante R do diagrama passa a ser "Tela de corrida", e a mensagem dele ao
+  Jogador nomeia o painel "Resultado da volta do treino"; o resultado (passo 9) e "encerrar treino" (passo 10,
+  SCR-0001, SCR-0003) saem do mesmo participante que os passos e as telas nomeiam. Fecha ISSUE-04.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate.
+
+**Itens fechados**: ISSUE-01, ISSUE-02, ISSUE-03, ISSUE-04 de fspec-validation-20261106-1803.
+
+**Itens recusados ou deixados, com motivo**: nenhum.

@@ -4,7 +4,7 @@ title: Retorno da zebra — vibração e som
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [US-0005, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12]
 ---
 

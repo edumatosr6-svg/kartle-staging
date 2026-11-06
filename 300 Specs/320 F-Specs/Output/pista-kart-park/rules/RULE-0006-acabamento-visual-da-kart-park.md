@@ -4,8 +4,8 @@ title: Acabamento visual da Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [US-0007, NFR-0013, NFR-0014, AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-20, AC-US-0007-21]
+version: 2.0.0
+sources: [US-0007, NFR-0013, AC-US-0007-01, AC-US-0007-02, AC-US-0007-03, AC-US-0007-04, AC-US-0007-05, AC-US-0007-06, AC-US-0007-07, AC-US-0007-08, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-15, AC-US-0007-16, AC-US-0007-17, AC-US-0007-20, AC-US-0007-21]
 ---
 
 # RULE-0006 — Acabamento visual da Kart Park
@@ -16,14 +16,15 @@ O acabamento — faixa de borda, relevo da zebra, barreira de pneus e tons de gr
 ([API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md)); a simulação não o lê, e nenhuma
 regra de [RULE-0001](RULE-0001-superficie-borda-da-pista-e-obstaculos.md) muda. Todas as medidas abaixo são
 da cena desenhada, em metros do mundo do jogo, e por isso as mesmas em `web-desktop` e `web-mobile`, em
-qualquer aparelho, tamanho de tela e orientação; só o enquadramento muda. Fontes: US-0007, NFR-0013,
-NFR-0014.
+qualquer aparelho, tamanho de tela e orientação; só o enquadramento muda. O acabamento é o aprovado na
+revisão 2 do seed e acompanha o traçado da versão 2, a réplica não oficial: "em toda a volta" e "em toda a
+extensão" se leem sobre ela (US-0007, Pré-condições). Fontes: US-0007, NFR-0013.
 
 ## Em que pista o acabamento é desenhado
 
 | Pista da sessão (`trackId`) | Acabamento | Fonte |
 |---|---|---|
-| `kart-park` | Faixa de borda, relevo da zebra, barreira de pneus e tons de grama, como nas tabelas abaixo | AC-US-0007-01, AC-US-0007-05, AC-US-0007-09, AC-US-0007-13 |
+| `kart-park` (`trackVersion` 2, a única que o treino carrega) | Faixa de borda, relevo da zebra, barreira de pneus e tons de grama, como nas tabelas abaixo | AC-US-0007-01, AC-US-0007-05, AC-US-0007-09, AC-US-0007-13 |
 | `synthetic` | Nenhum elemento do acabamento: para o mesmo estado do kart e da câmera, a imagem é a do jogo de antes da revisão 2, com a grama em `#68865b` | AC-US-0007-16 |
 
 Trocar de pista no seletor troca o desenho com a sessão: a sintética aparece sem acabamento, e a Kart Park
@@ -60,20 +61,20 @@ assim:
 |---|---|---|---|---|
 | Roda sobre a faixa de borda | `ASPHALT` (a faixa fica dentro do asfalto) | 1, a mesma do mesmo pneu no asfalto | Nenhuma saída de pista com nenhuma roda além da borda do asfalto (`beyondTrackEdgeM` 0); nenhum corte, por mais de 1000 ms que dure | AC-US-0007-03, AC-US-0007-04, AC-US-0007-17 |
 | Roda sobre a zebra desenhada com relevo | `CURB` | 0,85, como em AC-US-0005-06 | As da zebra, sem mudança | AC-US-0007-08 |
-| Kart sobre a zebra | — | — | Posição, rumo e velocidade a cada passo de `STEP` são os mesmos que no jogo de antes da revisão 2, com a mesma sequência de `Input`: o kart não sobe, não pula e não é desviado pela zebra | AC-US-0007-07 |
+| Kart sobre a zebra | — | — | Na versão 2, posição, rumo e velocidade a cada passo de `STEP` são os mesmos com o relevo da zebra desenhado e sem ele, com a mesma sequência de `Input`: o kart não sobe, não pula e não é desviado pela zebra | AC-US-0007-07 |
 | Roda sobre qualquer tom de grama | `GRASS`, o mesmo para todos os tons | A da grama, a mesma para todos os tons | As da grama, sem mudança | AC-US-0007-15, AC-US-0007-21 |
 | Kart contra a barreira de pneus | — | — | O kart para na face de colisão (AC-US-0004-04, AC-US-0004-05), a no máximo 0,05 m dos pneus vistos | AC-US-0007-11; US-0007, caso anormal |
 
-Consequência verificável: a mesma sequência de `Input`, a partir do mesmo estado inicial na Kart Park, dá
-o mesmo `lapMs`, os mesmos 4 `sectorMs` e o mesmo estado do kart a cada passo antes e depois da revisão 2
-(NFR-0013).
+Consequência verificável: na Kart Park versão 2, a mesma sequência de `Input`, a partir do mesmo estado
+inicial, dá o mesmo `lapMs`, os mesmos 4 `sectorMs` e o mesmo estado do kart a cada passo com e sem o
+acabamento desenhado (NFR-0013).
 
 ## Dado de pista
 
 | Regra | Fonte |
 |---|---|
-| O acabamento não acrescenta, não muda e não retira nenhum campo nem valor do arquivo de pista: o arquivo publicado da Kart Park continua byte a byte igual, com o mesmo resumo criptográfico registrado na publicação da versão 1 | NFR-0014 |
-| O acabamento não é versão nova da pista: o arquivo publicado continua com `trackVersion` 1 ([RULE-0005](RULE-0005-versao-e-publicacao-da-pista.md)) | NFR-0014 |
+| O acabamento é calculado de `centerline`, `curbs` e `barriers` do arquivo da versão 2 e não acrescenta, não muda e não retira nenhum campo nem valor do arquivo de pista: a simulação, que lê só o arquivo, é a mesma com e sem ele | NFR-0013; I2 |
+| O acabamento não é versão nova da pista: a versão desenhada é a 2, publicada pelas regras de [RULE-0005](RULE-0005-versao-e-publicacao-da-pista.md) | US-0007, Pré-condições |
 
 ## Idempotência e ordem
 

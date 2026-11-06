@@ -4,8 +4,8 @@ title: Contrato do catálogo e da seleção da pista do treino
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
-sources: [US-0001, US-0006, NFR-0004, NFR-0005, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0006-01, AC-US-0006-07, AC-US-0006-08]
+version: 2.0.0
+sources: [US-0001, US-0006, NFR-0004, NFR-0005, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0006-01, AC-US-0006-07, AC-US-0006-08]
 ---
 
 # API-0002 — Contrato do catálogo e da seleção da pista do treino
@@ -37,16 +37,22 @@ Dado fixo do jogo, entregue com os seus arquivos; duas entradas.
 | Campo | Tipo | Unidade | Obrigatório | Kart Park | Pista sintética |
 |---|---|---|---|---|---|
 | `trackId` | texto | — | sim | `kart-park` | `synthetic` |
-| `displayName` | texto | — | sim | "Kart Park — São José dos Pinhais (traçado aproximado)" | "Pista sintética" |
-| `displayLengthM` | inteiro | m | não | 687 | ausente: a opção não exibe comprimento |
+| `trackVersion` | inteiro | — | não | 2 | ausente: lê o único arquivo de pista que o jogo tem para `synthetic`, como antes desta feature |
+| `displayName` | texto | — | sim | "Kart Park — São José dos Pinhais (réplica não oficial)" | "Pista sintética" |
+| `displayLengthM` | inteiro | m | não | 691 | ausente: a opção não exibe comprimento |
 | `osmCredit` | booleano | — | sim | `true` | `false` |
 
-`displayLengthM` é o comprimento medido decidido pelo dono do produto (`DOMAIN/DEC-04`), exibido como está,
-e não o comprimento calculado da linha central suavizada. É opcional; padrão: ausente, e a opção não exibe
-comprimento. Neutro: a pista sintética continua sem comprimento exibido, como antes desta feature. Os
-demais campos são obrigatórios e não têm padrão; o catálogo é novo e não altera nenhum comportamento
-existente. Os textos são exibidos iguais nos dois idiomas do
-jogo. O catálogo não tem campo de recorde. A pista da abertura é a entrada `kart-park`, sempre.
+`trackVersion` é a versão publicada que a opção carrega (AC-US-0001-08, AC-US-0001-09). É opcional;
+padrão: ausente, e a seleção lê o único arquivo de pista daquele `trackId`, sem conferir versão. Neutro: a
+pista sintética continua carregada como antes desta feature. A entrada `kart-park` declara 2, e nenhuma
+entrada declara o `trackVersion` 1 da Kart Park, que continua publicado só no repositório (NFR-0014).
+
+`displayLengthM` é o comprimento exibido fixado pelo seed (`SEED/US-6`, AC-US-0006-08), exibido como está,
+e não o comprimento calculado da linha central do arquivo gerado. É opcional; padrão: ausente, e a opção
+não exibe comprimento. Neutro: a pista sintética continua sem comprimento exibido, como antes desta
+feature. Os demais campos são obrigatórios e não têm padrão; o catálogo é desta feature e não altera nenhum
+comportamento existente. Os textos são exibidos iguais nos dois idiomas do jogo. O catálogo não tem campo
+de recorde. A pista da abertura é a entrada `kart-park`, sempre.
 
 ## Pedido e resposta de `getTrainingTrackOptions`
 
@@ -68,8 +74,13 @@ Forma vazia: não existe; o catálogo tem sempre as duas entradas. Antes da aber
 | `trackId` | pedido | texto | sim | um `trackId` do catálogo |
 | `sessionState` | resposta | enum | sim | `READY` ou `FAILED` ao terminar a leitura |
 | `trackId` | resposta | texto | sim | o pedido |
-| `trackVersion` | resposta | valor do dado da pista | só com `READY` | copiado do dado lido |
-| `trackDataStatus` | resposta | enum de API-0001 | sim | `COMPLETE` ou `INCOMPLETE` com `READY`; `UNREADABLE` ou `UNSUPPORTED_SCHEMA` com `FAILED` |
+| `trackVersion` | resposta | valor do dado da pista | só com `READY` | copiado do dado lido; com `kart-park`, sempre 2, o da entrada do catálogo |
+| `trackDataStatus` | resposta | enum de API-0001 | sim | `COMPLETE` ou `INCOMPLETE` com `READY`; com `FAILED`, `UNREADABLE`, `UNSUPPORTED_SCHEMA` ou o status do arquivo lido quando a falha é `TRACK_VERSION_MISMATCH` |
+
+A leitura confere o arquivo com a entrada do catálogo: o arquivo lido precisa declarar o `trackId` pedido e,
+quando a entrada declara `trackVersion`, esse mesmo `trackVersion`. Sem isso, a sessão não fica pronta
+(`TRACK_VERSION_MISMATCH`), de modo que nenhuma opção inicia treino com o `trackVersion` 1 da Kart Park
+(AC-US-0001-09).
 
 Efeito com `READY`: a sessão anterior é encerrada (uma volta em `COUNTDOWN`, `RUNNING` ou `PAUSED` nela é
 descartada sem resultado); o estado da simulação passa a ser o da pista pedida, com o kart na
@@ -89,6 +100,7 @@ Não há status HTTP. A operação devolve um destes códigos, sem lançar:
 | `UNKNOWN_TRACK` | `selectTrainingTrack` | `trackId` fora do catálogo | apenas o código; a sessão corrente não muda |
 | `TRACK_DATA_UNREADABLE` | `selectTrainingTrack` | o dado da pista é `UNREADABLE` | `sessionState` `FAILED`, `trackId`, `trackDataStatus` |
 | `TRACK_SCHEMA_UNSUPPORTED` | `selectTrainingTrack` | o dado da pista é `UNSUPPORTED_SCHEMA` | `sessionState` `FAILED`, `trackId`, `trackDataStatus`; o arquivo é mantido intacto e reportado |
+| `TRACK_VERSION_MISMATCH` | `selectTrainingTrack` | o arquivo lido é utilizável, mas o seu `trackId` difere do pedido ou o seu `trackVersion` difere do declarado pela entrada do catálogo | `sessionState` `FAILED`, `trackId` (o pedido), `trackDataStatus`; nenhuma sessão e nenhuma volta; o arquivo é mantido intacto |
 
 `getTrainingTrackOptions` não tem erro: é leitura do catálogo fixo e do estado corrente.
 
@@ -111,5 +123,7 @@ sondagem.
 | Mudança | Tratamento |
 |---|---|
 | Contrato novo | Nenhum campo, operação ou código publicado é renomeado ou removido. `TRACK_DATA_UNREADABLE` e `TRACK_SCHEMA_UNSUPPORTED` têm o mesmo nome e o mesmo significado que nas rejeições de `startLap` de `race-lap-validation` |
+| Revisão 3 do seed: `trackVersion` no catálogo e `TRACK_VERSION_MISMATCH` | Acréscimos: o campo é opcional, com padrão neutro, e o código só ocorre quando o arquivo lido não é o que a entrada declara. Nenhum campo ou código existente muda de nome, de unidade ou de significado |
+| Revisão 3 do seed: valores de `displayName` e `displayLengthM` da Kart Park | Os valores passam a "Kart Park — São José dos Pinhais (réplica não oficial)" e 691; os campos mantêm o nome, a unidade e o significado (nome exibido e comprimento exibido, em metros) |
 | `startLap` e o estado da volta | Inalterados; esta feature só fixa, numa sessão de treino, `lapKind` `TRAINING` sem `challengeNumber` |
 | Dado persistido do jogador | Nenhum campo novo; nenhuma leitura ou gravação nova (I5) |

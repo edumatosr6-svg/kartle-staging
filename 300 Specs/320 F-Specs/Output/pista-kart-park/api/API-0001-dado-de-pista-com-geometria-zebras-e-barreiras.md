@@ -4,8 +4,8 @@ title: Contrato do dado de pista com linha central, larguras, zebras e barreiras
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
-sources: [US-0002, US-0003, US-0004, US-0005, NFR-0001, NFR-0006, NFR-0008, NFR-0009, AC-US-0002-01, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-08, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0004-01, AC-US-0005-01, AC-US-0005-02]
+version: 2.0.0
+sources: [US-0002, US-0003, US-0004, US-0005, NFR-0001, NFR-0006, NFR-0008, NFR-0009, NFR-0014, AC-US-0001-08, AC-US-0002-01, AC-US-0002-03, AC-US-0002-04, AC-US-0002-05, AC-US-0002-06, AC-US-0002-08, AC-US-0003-01, AC-US-0003-02, AC-US-0003-03, AC-US-0003-04, AC-US-0004-01, AC-US-0005-01, AC-US-0005-02, AC-US-0005-13]
 ---
 
 # API-0001 — Contrato do dado de pista com linha central, larguras, zebras e barreiras (esquema 3)
@@ -44,15 +44,15 @@ a Kart Park declara neles.
 |---|---|---|---|---|
 | `schemaVersion` | inteiro | — | sim | 3 para um arquivo com `centerline`; a pista sintética continua em 2 |
 | `trackId` | texto | — | sim | `kart-park` para a Kart Park |
-| `trackVersion` | inteiro | — | sim | 1 para a primeira versão publicada da Kart Park; nunca editada no lugar ([RULE-0005](../rules/RULE-0005-versao-e-publicacao-da-pista.md)) |
+| `trackVersion` | inteiro | — | sim | 2 para a Kart Park da réplica não oficial, a versão que o catálogo do treino oferece ([API-0002](API-0002-catalogo-e-selecao-da-pista-do-treino.md)); 1 é a versão anterior, publicada e mantida byte a byte igual; nenhuma versão é editada no lugar ([RULE-0005](../rules/RULE-0005-versao-e-publicacao-da-pista.md)) |
 | `direction` | enum de `race-lap-validation` | — | sim | `COUNTER_CLOCKWISE` na Kart Park; consistente com a ordem dos pontos de `centerline` |
 | `startPosition` | `{xM, zM, headingDeg}` de `race-lap-validation` | m e graus | sim | sobre o segmento do ponto 0 ao ponto 1, depois da linha de largada, com o rumo desse segmento |
 | `finishLine` | linha | m | sim | linha transversal no ponto 0 ([RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md)) |
 | `sectorLimits` | lista de 3 linhas | m | sim | linhas transversais nos pontos de [RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md), em ordem de volta |
 | `markers` | lista de linhas | m | sim | linhas transversais em pontos da linha central, em ordem de volta, a no máximo 25 m de distância de volta uma da outra, inclusive da última à primeira |
 | `cutDistanceM`, `cutDurationMs` | como em `race-lap-validation` | m, ms | não | ausentes na Kart Park: valem os padrões de 3 m e 1000 ms |
-| `centerline` | lista de pontos `{xM, zM, widthM}` | m | sim, em `schemaVersion` 3 | linha central fechada: o último ponto liga ao ponto 0, que não é repetido; ao menos 3 pontos; na Kart Park, 684 pontos na ordem da origem. `xM` leste, `zM` com norte = −z. `widthM` maior que 0: a largura do asfalto naquele ponto, centrada na linha ao longo da normal |
-| `curbs` | lista de `{side, fromLapM, toLapM, widthM}` | m | não | padrão: lista vazia, sem zebra. Neutro: um arquivo sem o campo não tem superfície nova, e a pista se comporta como antes desta feature (I4). `side` enum `LEFT`, `RIGHT`, no sentido de corrida. `fromLapM` menor que `toLapM`, ambos de 0 ao comprimento da volta da `centerline`; nenhum trecho cruza o ponto 0. `widthM` maior que 0: largura da faixa da zebra, para fora a partir da borda do asfalto |
+| `centerline` | lista de pontos `{xM, zM, widthM}` | m | sim, em `schemaVersion` 3 | linha central fechada: o último ponto liga ao ponto 0, que não é repetido; ao menos 3 pontos. `xM` leste, `zM` com norte = −z. `widthM` maior que 0: a largura do asfalto naquele ponto, centrada na linha ao longo da normal. Na Kart Park versão 2: a linha da réplica nos eixos do jogo, com a origem do arquivo da réplica, a no máximo 0,10 m dela em todo ponto e com o ponto 0 a no máximo 0,10 m do ponto 0 dela; `widthM` 7,0 em todo ponto ([RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md)) |
+| `curbs` | lista de `{side, fromLapM, toLapM, widthM}` | m | não | padrão: lista vazia, sem zebra. Neutro: um arquivo sem o campo não tem superfície nova, e a pista se comporta como antes desta feature (I4). `side` enum `LEFT`, `RIGHT`, no sentido de corrida. `fromLapM` menor que `toLapM`, ambos de 0 ao comprimento da volta da `centerline`; nenhum trecho cruza o ponto 0. `widthM` maior que 0: largura da faixa da zebra, para fora a partir da borda do asfalto. Na Kart Park versão 2: os 22 trechos do arquivo da réplica, com o lado e as distâncias de volta declarados nele |
 | `barriers` | lista de `{points}`, com `points` lista de 2 ou mais pontos `{xM, zM}` | m | não | padrão: lista vazia, sem barreira. Neutro pelo mesmo motivo. Cada barreira é a poligonal aberta dos seus pontos, um obstáculo de colisão ([RULE-0001](../rules/RULE-0001-superficie-borda-da-pista-e-obstaculos.md)) |
 | `osmDerived` | booleano | — | não | padrão: `false`. Neutro: um arquivo sem o campo não declara dado OpenStreetMap. `true` na Kart Park, derivada do caminho OSM `way/128739206` |
 
@@ -100,6 +100,7 @@ Não se aplica: o arquivo é lido uma vez por sessão de treino, sem sondagem.
 | Mudança | Tratamento |
 |---|---|
 | `schemaVersion` 3 com `centerline`, `curbs`, `barriers` e `osmDerived` | Mudança versionada de esquema (I3, I5): o leitor passa a aceitar 2 e 3. Nenhum arquivo existente é reescrito; não há dado de jogador afetado, então não há migração de dado. A reversão é retirar o arquivo da Kart Park e o seletor: o arquivo da pista sintética não muda |
+| Kart Park `trackVersion` 2 (revisão 3 do seed) | Arquivo novo, no mesmo esquema 3 e com o mesmo `trackId`; nenhum campo é acrescentado, renomeado ou retirado do contrato. O arquivo da versão 1 continua publicado, byte a byte igual (NFR-0014), e não é oferecido pelo catálogo do treino. Reverter a revisão 3 não edita nenhum arquivo de pista: só a entrada do catálogo do treino volta ao estado anterior |
 | Arquivo em `schemaVersion` 2 (pista sintética) | Lido sem erro em 100 % dos casos, como antes desta feature, com a geometria existente; os campos novos não são exigidos (NFR-0009). Um ensaio de `npm test` lê o arquivo na forma 2 e um na forma 3 (I5) |
 | `curbs`, `barriers`, `osmDerived` | Opcionais, com padrão neutro: ausentes, o comportamento é o de antes desta feature |
 | Leitor anterior a esta feature diante de um arquivo em `schemaVersion` 3 | Rejeita com `UNSUPPORTED_SCHEMA`, de forma visível, em vez de usar a geometria errada |

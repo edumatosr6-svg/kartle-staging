@@ -4,15 +4,16 @@ title: Versão e publicação da pista Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
-sources: [NFR-0006, NFR-0012, NFR-0014, US-0002]
+version: 2.0.0
+sources: [NFR-0006, NFR-0012, NFR-0014, US-0001, US-0002, AC-US-0001-09]
 ---
 
 # RULE-0005 — Versão e publicação da pista Kart Park
 
 Estados de uma versão do arquivo de pista da Kart Park, do preparo à produção, e a regra de imutabilidade
 (I3, I5). Decidido no preparo offline e na etapa de deploy, fora do cliente (I10). Fontes: NFR-0006,
-NFR-0012, `DOMAIN/DEC-02`, `DOMAIN/DEC-08`.
+NFR-0012, NFR-0014, `DOMAIN/DEC-02`, `DOMAIN/DEC-08`, `DOMAIN/DEC-13`. A Kart Park tem duas versões
+publicadas: a 1, do traçado da versão 1, e a 2, da réplica não oficial; cada uma tem o seu próprio estado.
 
 ## Enums
 
@@ -49,12 +50,15 @@ nunca é reusado.
 
 | Regra | Fonte |
 |---|---|
-| A primeira versão publicada da Kart Park é `trackVersion` 1 | NFR-0006 |
+| A primeira versão publicada da Kart Park foi `trackVersion` 1, do traçado da versão 1 | NFR-0014 |
+| A revisão 3 publica a réplica não oficial como `trackVersion` 2, com o mesmo `trackId` `kart-park`: um arquivo novo, que passa por `PREPARED`, `VERIFIED` e `STAGING` como qualquer versão | NFR-0006; `DOMAIN/DEC-13` |
 | Depois de `STAGING`, o arquivo de uma versão nunca muda: o resumo do arquivo entregue é igual ao registrado, com 0 bytes alterados | NFR-0006 |
 | Publicar conteúdo diferente com um `trackVersion` já registrado é recusado | NFR-0006 (I3) |
-| Suavizar de novo ou mudar a linha central, uma largura, uma zebra, a barreira, os setores ou os marcadores produz um arquivo novo com `trackVersion` maior que o da versão anterior, que passa de novo por `PREPARED` | NFR-0006 |
-| O acabamento visual de US-0007 não muda o arquivo e não é versão nova: o arquivo publicado continua byte a byte igual, com o resumo registrado na publicação da versão 1, e com `trackVersion` 1 ([RULE-0006](RULE-0006-acabamento-visual-da-kart-park.md)) | NFR-0014 |
-| A promoção de `STAGING` para `PRODUCTION` com a Kart Park só ocorre com a decisão do dono do produto sobre a licença Esri registrada em `DOMAIN.md`; antes dela, a Kart Park fica só em staging | NFR-0012; `DOMAIN/DEC-08` |
+| Mudar a linha central, uma largura, uma zebra, a barreira, os setores ou os marcadores produz um arquivo novo com `trackVersion` maior que o da versão anterior, que passa de novo por `PREPARED` | NFR-0006 |
+| A publicação da versão 2 não edita, não renomeia e não apaga o arquivo da versão 1: ele continua no repositório, com `trackVersion` 1 e o resumo registrado na publicação da versão 1, byte a byte igual | NFR-0014 |
+| O catálogo do treino oferece só a versão 2; a versão 1 fica publicada, mas fora do seletor ([API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md)) | AC-US-0001-09; `SEED/FE-09` via US-0001 |
+| O acabamento visual de US-0007 não muda o arquivo e não é versão nova: ele é desenhado sobre a versão 2 a partir dos campos que ela já tem ([RULE-0006](RULE-0006-acabamento-visual-da-kart-park.md)) | NFR-0013; US-0007, Pré-condições |
+| A promoção de `STAGING` para `PRODUCTION` com a Kart Park, em qualquer versão, só ocorre com a decisão do dono do produto sobre a licença Esri registrada em `DOMAIN.md`; antes dela, a Kart Park fica só em staging. A dúvida vale também para a versão 2, ajustada sobre o traçado da versão 1 | NFR-0012; `DOMAIN/DEC-08`; `DOMAIN/DEC-13` |
 | A licença Esri não bloqueia nenhuma etapa de especificação nem a publicação em staging | NFR-0012; `DOMAIN/DEC-02` |
 | Se a decisão liberar a licença, a entrega que promover a Kart Park exibe o crédito da Esri junto ao crédito OSM nas duas telas ([FEAT-0006](../features/FEAT-0006-credito-nome-e-comprimento.md)) | NFR-0012; `DOMAIN/DEC-07` |
 | Uma versão anterior publicada nunca é apagada nem editada para dar lugar a uma nova | I3, I5 |

@@ -4,7 +4,7 @@ title: Superfície, borda da pista e obstáculos na Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [US-0003, US-0004, US-0005, NFR-0007, AC-US-0003-07, AC-US-0003-08, AC-US-0004-02, AC-US-0004-04, AC-US-0004-05, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06]
 ---
 
@@ -23,7 +23,7 @@ resultado ([API-0003](../api/API-0003-contato-do-kart-com-a-pista.md)) (I2, NFR-
 | Normal no ponto *i* | Vetor unitário perpendicular à direção do ponto *i* − 1 ao ponto *i* + 1 (índices em volta fechada), apontando para a esquerda do sentido de corrida | AC-US-0002-07 via [RULE-0002](RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md) |
 | Borda esquerda e borda direita do asfalto | Os pontos *P*ᵢ + *n*ᵢ · `widthM`ᵢ / 2 e *P*ᵢ − *n*ᵢ · `widthM`ᵢ / 2, ligados em volta fechada | AC-US-0002-05 |
 | Asfalto | União dos quadriláteros entre as duas bordas de cada segmento, do ponto *i* ao ponto *i* + 1 | AC-US-0002-08 |
-| Posição de uma distância de volta | O ponto da linha central suavizada àquela distância do ponto 0, no sentido de corrida; entre dois pontos, borda e normal são interpoladas linearmente | AC-US-0005-02 |
+| Posição de uma distância de volta | O ponto da `centerline` do arquivo de pista gerado àquela distância do ponto 0, no sentido de corrida; entre dois pontos, borda e normal são interpoladas linearmente | AC-US-0005-02 |
 | Zebra | Para cada trecho de `curbs`: a faixa entre a borda do asfalto do lado `side` e a poligonal deslocada `widthM` para fora ao longo da normal, entre as posições de `fromLapM` e `toLapM` | AC-US-0005-03, AC-US-0005-04 |
 | Pista | Asfalto mais zebras | AC-US-0005-04 |
 | Borda da pista | O limite externo da pista: em cada lado e em cada posição, a borda externa da zebra se houver zebra ali, senão a borda do asfalto | AC-US-0005-04, AC-US-0005-05 |

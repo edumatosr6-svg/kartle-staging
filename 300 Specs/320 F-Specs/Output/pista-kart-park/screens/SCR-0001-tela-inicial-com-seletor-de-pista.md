@@ -4,8 +4,8 @@ title: Tela inicial com o seletor de pista
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.2
-sources: [US-0001, US-0006, NFR-0004, NFR-0005, AC-US-0001-01, AC-US-0001-02, AC-US-0001-05, AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09]
+version: 1.1.0
+sources: [US-0001, US-0006, NFR-0004, NFR-0005, AC-US-0001-01, AC-US-0001-02, AC-US-0001-05, AC-US-0001-09, AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09]
 ---
 
 # SCR-0001 — Tela inicial com o seletor de pista
@@ -35,7 +35,7 @@ Abertura do jogo (e reabertura depois de recarregar a página); saída da tela d
 
 | Elemento | Conteúdo | Fonte |
 |---|---|---|
-| Seletor de pista | Duas opções: "Kart Park — São José dos Pinhais (traçado aproximado)" com "687 m" junto, e "Pista sintética"; uma delas marcada como selecionada (`selectedTrackId`) | AC-US-0001-01, AC-US-0006-07, AC-US-0006-08 |
+| Seletor de pista | Duas opções: "Kart Park — São José dos Pinhais (réplica não oficial)" com "691 m" junto, que carrega a versão 2, e "Pista sintética"; uma delas marcada como selecionada (`selectedTrackId`). Nenhuma opção para a versão 1 da Kart Park | AC-US-0001-01, AC-US-0001-09, AC-US-0006-07, AC-US-0006-08 |
 | Linha de crédito OSM | Só quando a opção selecionada tem `osmCredit`: "© colaboradores do OpenStreetMap", a menção "licença ODbL" e um link para `https://openstreetmap.org/copyright`, na mesma linha | AC-US-0006-01, AC-US-0006-02, AC-US-0006-03 |
 | Oferta de volta | A de `race-lap-validation` para a pista da sessão; só volta de treino | AC-US-0001-05 |
 
@@ -50,7 +50,7 @@ são exibidos iguais nos dois idiomas; os demais textos seguem o idioma do naveg
 | Carregando | `sessionState` `NO_SESSION` ou `LOADING` | `getTrainingTrackOptions`; `selectTrainingTrack` em curso | O seletor com as duas opções e a selecionada; a linha de crédito, se a selecionada tem `osmCredit`; o texto de carregamento da pista de `race-lap-validation`; nenhuma oferta de volta | AC-US-0001-01, AC-US-0001-02, AC-US-0006-01 |
 | Vazio | Não se aplica ao seletor: o catálogo tem sempre as duas opções. Sem sessão pronta (antes da abertura terminar), é o estado Carregando | `getTrainingTrackOptions` | — | API-0002 |
 | Populado | `sessionState` `READY` | `getTrainingTrackOptions` | O seletor, a selecionada, a linha de crédito se a selecionada tem `osmCredit`, e a oferta de volta de treino | AC-US-0001-01, AC-US-0001-02, AC-US-0006-01 a AC-US-0006-03 |
-| Erro | `sessionState` `FAILED` (`UNREADABLE` ou `UNSUPPORTED_SCHEMA`) | `selectTrainingTrack` retornou `TRACK_DATA_UNREADABLE` ou `TRACK_SCHEMA_UNSUPPORTED` | O seletor com as duas opções selecionáveis; a linha de crédito se a selecionada tem `osmCredit`; a mensagem de erro do dado da pista de `race-lap-validation`; nenhuma oferta de volta | I4; AC-US-0006-01 |
+| Erro | `sessionState` `FAILED` (`UNREADABLE`, `UNSUPPORTED_SCHEMA` ou versão diferente da entrada do catálogo) | `selectTrainingTrack` retornou `TRACK_DATA_UNREADABLE`, `TRACK_SCHEMA_UNSUPPORTED` ou `TRACK_VERSION_MISMATCH` | O seletor com as duas opções selecionáveis; a linha de crédito se a selecionada tem `osmCredit`; a mensagem de erro do dado da pista de `race-lap-validation`, a mesma para os três códigos; nenhuma oferta de volta | I4; AC-US-0001-09; AC-US-0006-01 |
 | Offline | Sem rede | nenhuma chamada de rede | Idêntico ao estado online; o link continua exibido, e o destino pode não abrir | NFR-0004; US-0006, caso anormal "Sem rede" |
 | Permissão negada | `web-mobile` sem sensor de inclinação ou com permissão negada | nenhuma | O aviso de controle por toque de `race-lap-validation`; o seletor, a selecionada e a oferta de volta não mudam | I4; US-0001, Canais |
 | Permissão negada em `web-desktop` | Não se aplica | — | O canal usa teclado e não pede sensor | US-0001, Canais |

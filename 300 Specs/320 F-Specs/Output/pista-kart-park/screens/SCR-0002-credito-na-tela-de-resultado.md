@@ -4,7 +4,7 @@ title: Crédito na tela de resultado da volta
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.1.0
+version: 1.1.2
 sources: [US-0006, US-0003, NFR-0005, AC-US-0003-11, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-09]
 ---
 
@@ -65,4 +65,4 @@ O painel não exibe recorde da pista real nem comparação com tempos reais (AC-
 
 O painel fica na tela de corrida e não é uma navegação: aparece ao fim de cada volta do treino. A saída da
 tela de corrida para a tela inicial ([SCR-0001](SCR-0001-tela-inicial-com-seletor-de-pista.md)) é pela ação
-"encerrar treino", com a sessão de pista e a pista selecionada inalteradas.
+"encerrar treino", com a sessão de treino e a pista selecionada inalteradas.

@@ -4,7 +4,7 @@ title: Barreira nos trechos quase encostados
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.0
+version: 2.0.0
 sources: [US-0004, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, AC-US-0004-05, AC-US-0004-06]
 ---
 
@@ -12,11 +12,11 @@ sources: [US-0004, AC-US-0004-01, AC-US-0004-02, AC-US-0004-03, AC-US-0004-04, A
 
 ## Resumo
 
-Entre os dois trechos da Kart Park que quase se encostam (≈ 371–414 m e ≈ 580–615 m de volta, com 0,9 m a
-6 m de grama entre as bordas do asfalto), o arquivo de pista gerado declara uma barreira física. O kart
+Entre os dois trechos da réplica que quase se encostam (≈ 369–406 m e ≈ 595–624 m de volta, com no mínimo
+1,28 m de grama entre as bordas do asfalto), o arquivo de pista gerado declara uma barreira física. O kart
 bate nela e não passa, em qualquer velocidade e dos dois lados, com o mesmo efeito de bater no muro
 existente (`DOMAIN/DEC-03`). A barreira fica na grama, não invade o asfalto, e só existe onde a grama mede
-6 m ou menos; os atalhos de 12 a 26 m ficam sem barreira e são invalidados pelos marcadores
+6 m ou menos; os atalhos com mais de 6 m de grama ficam sem barreira e são invalidados pelos marcadores
 (`DOMAIN/DEC-10`). A barreira é dado lido pela simulação; a tela só a desenha (I2).
 
 ## Canais
@@ -28,7 +28,8 @@ barreira não muda (I4).
 ## Requisitos
 
 - REQ-FEAT-0004-01: O arquivo de pista gerado SHALL declarar em `barriers` a barreira entre o trecho de
-  371 m a 414 m e o trecho de 580 m a 615 m de distância de volta na linha original, de modo que todo
+  ≈ 369 m a ≈ 406 m e o trecho de ≈ 595 m a ≈ 624 m de distância de volta, lidos como em
+  [RULE-0002](../rules/RULE-0002-geometria-e-verificacoes-do-arquivo-de-pista.md), de modo que todo
   segmento reto de 6 m ou menos entre um ponto da borda do asfalto de um trecho e o ponto mais próximo da
   borda do asfalto do outro cruza a barreira (AC-US-0004-01).
 - REQ-FEAT-0004-02: O arquivo de pista gerado SHALL ter todo ponto de toda barreira a uma soma de
@@ -64,9 +65,10 @@ asfalto livre). Passo: [FLOW-0002](../flows/FLOW-0002-passo-de-simulacao-na-kart
 |---|---|
 | Impacto em qualquer velocidade, até a máxima | O kart não atravessa; efeito igual ao do muro existente |
 | Kart raspando ao longo da barreira ou parado encostado nela | Mesmo efeito que no muro existente; nunca do outro lado |
-| Tentativa no sentido contrário (do trecho de ≈ 580–615 m para o de ≈ 371–414 m) | Bloqueada do mesmo modo |
+| Tentativa no sentido contrário (do trecho de ≈ 595–624 m para o de ≈ 369–406 m) | Bloqueada do mesmo modo |
+| Grama de 1,28 m entre as bordas, a menor dos dois trechos | A barreira fica nessa grama, sem invadir o asfalto de nenhum dos dois trechos |
 | Kart rápido, que num passo percorre mais que a distância até a barreira | Nenhum passo termina com o kart do outro lado: o contato é decidido no trajeto do passo, não só na posição final |
-| Atalhos pela grama de 12 a 26 m | Sem barreira e sem muro; invalidados pelos marcadores ([FEAT-0003](FEAT-0003-setores-chegada-marcadores-e-validacao.md)) |
+| Atalhos pela grama com mais de 6 m de grama entre as bordas | Sem barreira e sem muro; invalidados pelos marcadores ([FEAT-0003](FEAT-0003-setores-chegada-marcadores-e-validacao.md)) |
 | Kart que bate na barreira | Está na grama, além da borda da pista; o corte segue os limites de [FEAT-0003](FEAT-0003-setores-chegada-marcadores-e-validacao.md); a colisão em si não muda a validade da volta |
 | Mudança da barreira depois de publicada | Versão nova da pista ([FEAT-0002](FEAT-0002-forma-largura-e-versao-do-arquivo-de-pista.md)) |
 | Sensor ausente ou permissão negada (`web-mobile`) | Toque com estado visível; barreira inalterada |

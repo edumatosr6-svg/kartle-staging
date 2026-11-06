@@ -4,8 +4,8 @@ title: Seletor de pista no treino
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.2
-sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07]
+version: 2.0.0
+sources: [US-0001, NFR-0014, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09]
 ---
 
 # FEAT-0001 — Seletor de pista no treino
@@ -13,7 +13,9 @@ sources: [US-0001, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, A
 ## Resumo
 
 O Jogador escolhe, na tela inicial, a pista do treino entre a Kart Park e a pista sintética
-(`DOMAIN/DEC-01`). O jogo sempre abre com a Kart Park selecionada e carregada (`DOMAIN/DEC-06`). Escolher a
+(`DOMAIN/DEC-01`). A Kart Park do seletor é a versão 2, a réplica não oficial; a versão 1 continua publicada
+e inalterada no repositório, mas nenhuma opção a carrega (`DOMAIN/DEC-13`, `SEED/FE-09`). O jogo sempre abre
+com a Kart Park selecionada e carregada (`DOMAIN/DEC-06`). Escolher a
 outra opção carrega aquela pista: o kart vai para a largada dela, sem volta em andamento. O seletor é só
 de treino: nenhuma volta iniciada a partir dele é do desafio diário, e nada dela entra no dado persistido
 como tentativa ou resultado (I1, `SEED/RD-09`).
@@ -62,6 +64,15 @@ visível; o seletor e a pista escolhida não mudam (I4).
 - REQ-FEAT-0001-14: O sistema SHALL, quando o dado da pista escolhida é ilegível ou de versão de esquema
   desconhecida, não abrir sessão pronta nessa pista, exibir o erro na tela inicial e manter as duas opções
   selecionáveis [DOMAIN] (I4; [API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md), erros).
+- REQ-FEAT-0001-15: O sistema SHALL carregar, quando a Kart Park é escolhida no seletor (ou na abertura), o
+  arquivo de pista publicado com `trackId` `kart-park` e `trackVersion` 2, o `trackVersion` que a entrada
+  `kart-park` do catálogo do treino declara, e ter `trackVersion` 2 no estado da simulação e no estado da
+  volta da sessão aberta (AC-US-0001-08).
+- REQ-FEAT-0001-16: O sistema SHALL NOT abrir, a partir de nenhuma opção do seletor nem da abertura, sessão
+  de treino com o `trackVersion` 1 da Kart Park: um arquivo lido cujo `trackId` ou `trackVersion` difere do
+  declarado pela entrada do catálogo não abre sessão (`TRACK_VERSION_MISMATCH`,
+  [API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md)), e o erro é exibido como no
+  requisito 14 (AC-US-0001-09).
 
 ## Comportamento
 
@@ -73,7 +84,9 @@ início, pausa, fim) é de `race-lap-validation`, sem mudança.
 
 | Situação | Comportamento |
 |---|---|
-| Jogo aberto | Kart Park selecionada e carregada; kart na largada dela; nenhuma volta em andamento |
+| Jogo aberto | Kart Park selecionada e carregada, no `trackVersion` 2; kart na largada dela; nenhuma volta em andamento |
+| Arquivo da Kart Park versão 1 no repositório | Continua publicado e inalterado (NFR-0014, [RULE-0005](../rules/RULE-0005-versao-e-publicacao-da-pista.md)); não é oferecido no seletor nem carregado pelo treino |
+| Arquivo lido para a Kart Park com `trackVersion` diferente de 2 (ou com outro `trackId`) | Nenhuma sessão nessa pista; erro exibido na tela inicial (`TRACK_VERSION_MISMATCH`); as duas opções continuam selecionáveis; o arquivo não é alterado |
 | Jogador escolhe a pista sintética | A sessão da Kart Park é encerrada; a pista sintética é carregada; kart na largada dela; nenhuma volta em andamento |
 | Jogador escolhe a opção que já é a da sessão | Sem efeito: a sessão continua como está ([API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md), idempotência) |
 | Jogador inicia uma volta | Volta de treino (`TRAINING`, sem `challengeNumber`) na pista da sessão; o `trackId` do estado da volta é o da sessão |
@@ -92,13 +105,15 @@ Lê e muda o estado da sessão de treino `sessionState` (`NO_SESSION`, `LOADING`
 [RULE-0003](../rules/RULE-0003-sessao-de-treino-e-selecao-de-pista.md)): `selectTrainingTrack` leva de
 `NO_SESSION`, de `FAILED` ou de `READY` com outra pista a `LOADING`, e de `LOADING` a `READY` quando o dado
 é utilizável ou a `FAILED` quando não é; com a pista da sessão `READY`, não muda nada. Lê o estado da volta de `race-lap-validation` (`lapPhase`, `lapKind`, `trackId`),
-sem mudar o seu modelo; o descarte de uma volta em andamento é o fim da sessão que a continha.
+sem mudar o seu modelo; o descarte de uma volta em andamento é o fim da sessão que a continha. A sessão
+`READY` na Kart Park tem sempre `trackVersion` 2: a passagem de `LOADING` a `READY` exige que o arquivo
+lido declare o `trackId` e o `trackVersion` da entrada do catálogo.
 
 ## Configuração
 
-Nenhuma. A pista da abertura (Kart Park) e as duas opções são fixas no catálogo do treino, não
-configuráveis; nenhuma configuração existe para escolher outra pista de abertura, forçar uma volta oficial
-ou injetar uma sessão.
+Nenhuma. A pista da abertura (Kart Park), as duas opções e a versão oferecida da Kart Park (2) são fixas no
+catálogo do treino, não configuráveis; nenhuma configuração existe para escolher outra pista de abertura,
+escolher a versão 1, forçar uma volta oficial ou injetar uma sessão.
 
 ## Critérios de aceite
 
@@ -120,6 +135,12 @@ ou injetar uma sessão.
   a pista e a largada são os mesmos (cobre o requisito 13).
 - Com o arquivo da pista escolhida ilegível, a tela inicial exibe o erro, não oferece volta nessa pista e
   as duas opções continuam selecionáveis (cobre o requisito 14).
+- Com a Kart Park escolhida no seletor e na abertura, o estado da simulação e o da volta iniciada têm
+  `trackId` `kart-park` e `trackVersion` 2 (satisfaz AC-US-0001-08; cobre o requisito 15).
+- Escolhendo cada uma das duas opções, e na abertura, nenhuma sessão nem volta tem `trackVersion` 1 da
+  Kart Park; com a entrada do catálogo apontando para um arquivo que declara `trackVersion` 1, a seleção
+  termina `FAILED` com `TRACK_VERSION_MISMATCH` e nenhuma volta pode começar (satisfaz AC-US-0001-09; cobre
+  o requisito 16).
 
 ## Pontos em aberto
 

@@ -4,16 +4,17 @@ title: Zebra com efeito
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
-sources: [US-0005, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12]
+version: 2.0.0
+sources: [US-0005, AC-US-0005-01, AC-US-0005-02, AC-US-0005-03, AC-US-0005-04, AC-US-0005-05, AC-US-0005-06, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0005-12, AC-US-0005-13]
 ---
 
 # FEAT-0005 — Zebra com efeito
 
 ## Resumo
 
-As 33 zebras do arquivo de origem entram no arquivo de pista gerado no lado e no trecho declarados, com a
-que cruza a linha de largada dividida nela (34 trechos). A zebra conta como pista: rodar sobre ela não é
+As 22 zebras do arquivo da réplica, postas por regra (`SEED/RD-14`, `DOMAIN/DEC-13`), entram no arquivo de
+pista gerado no lado e no trecho declarados, uma a uma; nenhuma cruza a linha de largada, e nenhuma é
+dividida. A zebra conta como pista: rodar sobre ela não é
 saída de pista nem conta para o corte. Cada pneu sobre a zebra tem 85 % da aderência que teria no asfalto
 (`DOMAIN/DEC-05`). Enquanto houver ao menos uma roda na zebra, o celular vibra 20 ms a cada 0,25 s, se o
 navegador permitir; no teclado, o jogo toca o som próprio da zebra, repetido, com o som ligado
@@ -30,17 +31,16 @@ disparado pelo estado da simulação (I2, I8).
 
 ## Requisitos
 
-- REQ-FEAT-0005-01: O arquivo de pista gerado SHALL declarar em `curbs` 34 trechos de zebra: os 33 do
-  arquivo de origem, com o trecho que cruza a linha de largada dividido em dois no ponto 0
+- REQ-FEAT-0005-01: O arquivo de pista gerado SHALL declarar em `curbs` 22 trechos de zebra, um para cada
+  um dos 22 trechos do arquivo da réplica, sem trecho acrescentado, retirado, dividido ou juntado
   (AC-US-0005-01).
-- REQ-FEAT-0005-02: O arquivo de pista gerado SHALL dar a cada trecho de zebra o lado (`LEFT` ou `RIGHT`,
-  no sentido de corrida) do trecho de origem e as distâncias de volta `fromLapM` e `toLapM` das posições,
-  na linha suavizada, de mesmo índice fracionário que o início e o fim declarados na linha original; os
-  dois pedaços da zebra dividida vão do início declarado até o fim da volta e do ponto 0 até o fim
-  declarado (AC-US-0005-02).
+- REQ-FEAT-0005-02: O arquivo de pista gerado SHALL dar a cada trecho de zebra o lado do trecho da réplica
+  correspondente (`LEFT` para "esquerda", `RIGHT` para "direita", no sentido de corrida) e as distâncias de
+  volta `fromLapM` e `toLapM` iguais ao início (`de_m`) e ao fim (`ate_m`) declarados para ele no arquivo
+  da réplica, medidas na `centerline` a partir do ponto 0 (AC-US-0005-02).
 - REQ-FEAT-0005-03: O arquivo de pista gerado SHALL declarar cada trecho de zebra como faixa encostada na
   borda do asfalto do seu lado, para fora, com largura `widthM` maior que 0, sem reduzir a largura do
-  asfalto (AC-US-0005-04, AC-US-0005-06; AC-US-0002-05: a largura do asfalto é a da origem em todo ponto).
+  asfalto (AC-US-0005-04, AC-US-0005-06; AC-US-0002-05: o asfalto tem 7,0 m em todo ponto).
 - REQ-FEAT-0005-04: O sistema SHALL desenhar, na tela de corrida, cada trecho de zebra no lado da pista e
   no trecho de volta declarados para ele (AC-US-0005-03).
 - REQ-FEAT-0005-05: O sistema SHALL classificar, a cada passo de `STEP`, a superfície sob cada roda como
@@ -81,6 +81,8 @@ disparado pelo estado da simulação (I2, I8).
 - REQ-FEAT-0005-19: O sistema SHALL manter a zebra, a aderência e a volta inalteradas, sem erro nem aviso,
   quando o navegador não oferece vibração ou a bloqueia (AC-US-0005-04, AC-US-0005-05, AC-US-0005-06;
   US-0005, caso anormal "Navegador sem vibração, ou que a bloqueia", que nomeia os critérios 04 a 06).
+- REQ-FEAT-0005-20: O arquivo de pista gerado SHALL NOT ter trecho de zebra que cruze a linha de largada:
+  todo trecho tem 0 ≤ `fromLapM` < `toLapM` ≤ comprimento da volta da `centerline` (AC-US-0005-13).
 
 ## Comportamento
 
@@ -96,7 +98,7 @@ retorno: [SCR-0003](../screens/SCR-0003-kart-park-na-tela-de-corrida.md).
 |---|---|
 | Rodas sobre a zebra, nenhuma na grama | Na pista: `beyondTrackEdgeM` 0; sem tempo de corte; aderência de 85 % nos pneus sobre a zebra |
 | Kart com rodas na zebra e na grama ao mesmo tempo | A roda na zebra tem 85 %; a roda na grama segue a regra da grama, sem mudança; o corte segue [FEAT-0003](FEAT-0003-setores-chegada-marcadores-e-validacao.md), medido da borda externa da zebra |
-| Zebra que cruza a linha de largada | Dois trechos, um de cada lado da linha; a divisão não acrescenta nem retira zebra |
+| Zebra perto da linha de largada | Nenhum trecho cruza a linha e nenhum é dividido nela; o arquivo gerado tem os mesmos 22 trechos da réplica |
 | Roda entrando na zebra (`web-mobile`, vibração permitida) | Pulso de 20 ms no passo, se nenhum começou nos 250 ms anteriores; depois, um a cada 250 ms enquanto houver roda na zebra |
 | Rodas entrando e saindo em sequência rápida | Nunca dois pulsos com menos de 250 ms entre os inícios; nenhum pulso ou repetição começa sem roda na zebra; um pulso já começado termina os seus 20 ms |
 | Roda entrando na zebra (`web-desktop`, som ligado) | O som da zebra começa; repete no intervalo constante enquanto houver roda na zebra |
@@ -122,10 +124,12 @@ ligado" é o estado de áudio que o jogo já tem; esta feature não cria control
 
 ## Critérios de aceite
 
-- O arquivo gerado tem 34 trechos de zebra; 32 têm o lado de um trecho da origem e o trecho de volta
-  correspondente a ele por índice fracionário, e os outros dois, do mesmo lado, juntos cobrem o trecho de
-  origem que cruza a largada, divididos no ponto 0; todo trecho tem `widthM` maior que 0 (satisfaz
-  AC-US-0005-01, AC-US-0005-02; cobre os requisitos 01, 02 e 03).
+- O arquivo gerado tem 22 trechos de zebra, em correspondência um a um com os 22 do arquivo da réplica:
+  cada um com o lado do trecho da réplica e com `fromLapM` e `toLapM` iguais ao `de_m` e ao `ate_m` dele;
+  todo trecho tem `widthM` maior que 0 (satisfaz AC-US-0005-01, AC-US-0005-02; cobre os requisitos 01, 02
+  e 03).
+- Todo trecho de zebra tem 0 ≤ `fromLapM` < `toLapM` ≤ comprimento da volta: nenhum cruza a linha de
+  largada (satisfaz AC-US-0005-13; cobre o requisito 20).
 - Na tela de corrida, cada trecho de zebra aparece no lado e no trecho declarados (satisfaz AC-US-0005-03;
   cobre o requisito 04).
 - Com o kart posto com rodas na zebra e nenhuma na grama, `wheelSurfaces` tem `CURB` nessas rodas e

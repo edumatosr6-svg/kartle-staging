@@ -4,7 +4,7 @@ title: Crédito, nome e comprimento da Kart Park
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.1
+version: 2.0.0
 sources: [US-0006, NFR-0005, NFR-0012, AC-US-0006-01, AC-US-0006-02, AC-US-0006-03, AC-US-0006-04, AC-US-0006-05, AC-US-0006-06, AC-US-0006-07, AC-US-0006-08, AC-US-0006-09]
 ---
 
@@ -15,9 +15,11 @@ sources: [US-0006, NFR-0005, NFR-0012, AC-US-0006-01, AC-US-0006-02, AC-US-0006-
 Onde o Jogador vê a Kart Park, o dado é creditado: o seletor de pista, com a Kart Park selecionada, e a
 tela de resultado de uma volta na Kart Park exibem a linha de crédito OSM — "© colaboradores do
 OpenStreetMap", a menção à licença ODbL e o link para `https://openstreetmap.org/copyright`
-(`DOMAIN/DEC-07`, RNF09). A Kart Park é apresentada como "Kart Park — São José dos Pinhais (traçado
-aproximado)", com o comprimento de 687 m, e o recorde real de 41,45 s não aparece em nenhuma tela
-(`DOMAIN/DEC-04`). O crédito da Esri só entra se a licença for liberada (`DOMAIN/DEC-07`, NFR-0012).
+(`DOMAIN/DEC-07`, RNF09). A Kart Park é apresentada como "Kart Park — São José dos Pinhais (réplica não
+oficial)", com o comprimento de 691 m (`SEED/US-6`, `DOMAIN/DEC-13`), e o recorde real de 41,45 s não
+aparece em nenhuma tela (`DOMAIN/DEC-04`). O crédito da Esri só entra se a licença for liberada
+(`DOMAIN/DEC-07`, NFR-0012); a dúvida vale também para a réplica, derivada do traçado da versão 1
+(`DOMAIN/DEC-13`).
 
 ## Canais
 
@@ -41,9 +43,9 @@ mudam (I4).
 - REQ-FEAT-0006-06: O sistema SHALL exibir na tela de resultado de uma volta na Kart Park um link cujo
   destino é `https://openstreetmap.org/copyright` (AC-US-0006-06).
 - REQ-FEAT-0006-07: O sistema SHALL exibir o nome da Kart Park, em toda tela que o exibe, como
-  "Kart Park — São José dos Pinhais (traçado aproximado)" (AC-US-0006-07).
-- REQ-FEAT-0006-08: O sistema SHALL exibir, junto a todo nome exibido da Kart Park, o comprimento "687 m",
-  qualquer que seja o comprimento medido da linha central suavizada (AC-US-0006-08).
+  "Kart Park — São José dos Pinhais (réplica não oficial)" (AC-US-0006-07).
+- REQ-FEAT-0006-08: O sistema SHALL exibir, junto a todo nome exibido da Kart Park, o comprimento "691 m",
+  qualquer que seja o comprimento medido da linha central do arquivo de pista gerado (AC-US-0006-08).
 - REQ-FEAT-0006-09: O sistema SHALL NOT exibir em nenhuma tela o recorde de 41,45 s da pista real, nem
   carregar recorde da pista real no catálogo do treino ou no arquivo de pista gerado (AC-US-0006-09).
 - REQ-FEAT-0006-10: O sistema SHALL exibir o crédito OSM somente para pista cuja entrada do catálogo do
@@ -73,16 +75,17 @@ a publicação condicionada à licença é [RULE-0005](../rules/RULE-0005-versao
 
 | Situação | Comportamento |
 |---|---|
-| Kart Park selecionada no seletor | Linha de crédito OSM no seletor; a opção da Kart Park exibe o nome e "687 m" |
-| Pista sintética selecionada | Sem linha de crédito: ela não tem dado OSM; a opção da Kart Park continua exibindo o nome e "687 m" |
+| Kart Park selecionada no seletor | Linha de crédito OSM no seletor; a opção da Kart Park exibe o nome e "691 m" |
+| Pista sintética selecionada | Sem linha de crédito: ela não tem dado OSM; a opção da Kart Park continua exibindo o nome e "691 m" |
 | Tela de resultado de uma volta na Kart Park, válida ou inválida | Linha de crédito OSM, além do conteúdo de `race-lap-validation`, sem mudança |
 | Tela de resultado de uma volta na pista sintética | Sem linha de crédito; conteúdo de `race-lap-validation`, sem mudança |
 | Arquivo da Kart Park ilegível, com a Kart Park selecionada | O crédito continua exibido no seletor: vem do catálogo, não do arquivo |
 | Jogador aciona o link | O navegador abre `https://openstreetmap.org/copyright`; é a única navegação a outro serviço, e só por ação do Jogador (NFR-0004). Se em outra aba, a perda de foco pausa a volta como hoje |
 | Sem rede | O crédito continua exibido; o destino do link pode não abrir |
-| Comprimento suavizado diferente de 687,5 m (dentro de ± 1 %) | O comprimento exibido continua "687 m" |
+| Comprimento do arquivo gerado diferente de 690,7 m (dentro de ± 1 %) | O comprimento exibido continua "691 m" |
+| Diferença para o traçado oficial de 750 m | O nome diz "réplica não oficial"; nenhuma tela compara a réplica com tempos ou medidas do traçado oficial (requisito 09) |
 | Idioma do navegador inglês ou outro | Nome e crédito em português, iguais; os demais textos seguem `race-lap-validation` |
-| Licença Esri ainda sem decisão | Só o crédito OSM; a Kart Park fica só em staging ([RULE-0005](../rules/RULE-0005-versao-e-publicacao-da-pista.md)) |
+| Licença Esri ainda sem decisão | Só o crédito OSM; a Kart Park, em qualquer versão, fica só em staging ([RULE-0005](../rules/RULE-0005-versao-e-publicacao-da-pista.md)) |
 | Sensor ausente ou permissão negada (`web-mobile`) | Crédito e nome inalterados |
 
 ## Estado
@@ -104,9 +107,9 @@ da Esri não tem chave de configuração: ele entra numa entrega nova, depois da
 - A tela de resultado de uma volta válida e a de uma volta inválida na Kart Park exibem os mesmos três
   elementos, nos dois canais; a de uma volta na pista sintética não exibe crédito (satisfaz AC-US-0006-04,
   AC-US-0006-05, AC-US-0006-06; cobre os requisitos 04, 05, 06, 10, 12 e 13).
-- Toda tela que exibe o nome da Kart Park o exibe como "Kart Park — São José dos Pinhais (traçado
-  aproximado)", com "687 m" junto, nos dois idiomas (satisfaz AC-US-0006-07, AC-US-0006-08; cobre os
-  requisitos 07, 08 e 11).
+- Toda tela que exibe o nome da Kart Park o exibe como "Kart Park — São José dos Pinhais (réplica não
+  oficial)", com "691 m" junto, nos dois idiomas, e nenhuma exibe "traçado aproximado" nem "687 m"
+  (satisfaz AC-US-0006-07, AC-US-0006-08; cobre os requisitos 07, 08 e 11).
 - Nenhuma tela exibe "41,45" nem outro recorde da pista real, e nem o catálogo nem o arquivo gerado têm
   campo de recorde (satisfaz AC-US-0006-09; cobre o requisito 09).
 - Na entrega que promover a Kart Park a produção depois de uma decisão que libere a licença Esri, as duas

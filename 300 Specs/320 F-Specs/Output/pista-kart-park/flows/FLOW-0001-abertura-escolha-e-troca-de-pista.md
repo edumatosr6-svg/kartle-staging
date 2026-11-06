@@ -4,8 +4,8 @@ title: Abertura do jogo, escolha e troca de pista no treino
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.0.2
-sources: [US-0001, US-0006, NFR-0004, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0006-01, AC-US-0006-04]
+version: 1.1.1
+sources: [US-0001, US-0006, NFR-0004, AC-US-0001-01, AC-US-0001-02, AC-US-0001-03, AC-US-0001-04, AC-US-0001-05, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08, AC-US-0001-09, AC-US-0006-01, AC-US-0006-04, AC-US-0006-08]
 ---
 
 # FLOW-0001 — Abertura do jogo, escolha e troca de pista no treino
@@ -24,13 +24,13 @@ sequenceDiagram
     participant J as Jogador
     participant T as Tela inicial
     participant S as Simulacao
-    participant R as Tela de resultado
+    participant R as Tela de corrida
     T->>S: selectTrainingTrack kart-park (abertura)
-    S->>S: readTrackData, sessao nova, kart na largada, sem volta
-    S-->>T: READY, COMPLETE
+    S->>S: readTrackData do trackVersion 2, confere com a entrada, sessao nova, kart na largada, sem volta
+    S-->>T: READY, COMPLETE, trackVersion 2
     T->>S: getTrainingTrackOptions
     S-->>T: options, selectedTrackId kart-park
-    T-->>J: seletor com a Kart Park selecionada, nome, 687 m e credito OSM
+    T-->>J: seletor com a Kart Park selecionada, nome, 691 m e credito OSM
     opt troca de pista
         J->>T: escolhe a pista sintetica
         T->>S: selectTrainingTrack synthetic
@@ -44,7 +44,7 @@ sequenceDiagram
     Note over S: volta pelas regras de race-lap-validation
     loop cada volta do treino, sem parar o jogo
         S-->>R: getLapResult ao cruzar a chegada
-        R-->>J: painel do resultado da volta do treino, credito OSM se a pista for a Kart Park
+        R-->>J: painel Resultado da volta do treino, credito OSM se a pista for a Kart Park
     end
     J->>R: encerrar treino
     R->>T: volta para a tela inicial
@@ -55,8 +55,8 @@ sequenceDiagram
 | Passo | Ator | Ação | Estado | Fonte |
 |---|---|---|---|---|
 | 1 | Tela inicial | Na abertura do jogo, pede `selectTrainingTrack` com `kart-park`, sem ação do Jogador e sem ler escolha anterior | `sessionState` `LOADING` | AC-US-0001-02 |
-| 2 | Simulação | Lê o dado da pista com `readTrackData` ([API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)); com dado utilizável, abre a sessão nova: kart na `startPosition`, nenhuma volta | `READY`; `getLapState` `NO_ACTIVE_LAP` | AC-US-0001-03, AC-US-0001-06, AC-US-0001-07 |
-| 3 | Tela inicial | Lê `getTrainingTrackOptions` e exibe as duas opções, a selecionada, o nome e "687 m" na opção da Kart Park e, se a selecionada tem `osmCredit`, a linha de crédito ([SCR-0001](../screens/SCR-0001-tela-inicial-com-seletor-de-pista.md)) | | AC-US-0001-01, AC-US-0006-01 |
+| 2 | Simulação | Lê com `readTrackData` ([API-0001](../api/API-0001-dado-de-pista-com-geometria-zebras-e-barreiras.md)) o arquivo do `trackVersion` que a entrada do catálogo declara (2 na Kart Park) e confere `trackId` e `trackVersion`; com dado utilizável e conferido, abre a sessão nova: kart na `startPosition`, nenhuma volta | `READY` com `trackVersion` 2; `getLapState` `NO_ACTIVE_LAP` | AC-US-0001-03, AC-US-0001-06, AC-US-0001-07, AC-US-0001-08 |
+| 3 | Tela inicial | Lê `getTrainingTrackOptions` e exibe as duas opções, a selecionada, o nome e "691 m" na opção da Kart Park e, se a selecionada tem `osmCredit`, a linha de crédito ([SCR-0001](../screens/SCR-0001-tela-inicial-com-seletor-de-pista.md)) | | AC-US-0001-01, AC-US-0006-01, AC-US-0006-08 |
 | 4 | Jogador | Escolhe a outra opção no seletor | | AC-US-0001-04 |
 | 5 | Simulação | `selectTrainingTrack` com a pista escolhida: encerra a sessão corrente, descarta sem resultado uma volta não encerrada, abre a sessão nova na largada da pista escolhida | `LOADING`, depois `READY` | AC-US-0001-06, AC-US-0001-07 |
 | 6 | Jogador | Escolhe volta de treino, a única oferecida | | AC-US-0001-05 |
@@ -70,6 +70,7 @@ sequenceDiagram
 | Situação | Tratamento |
 |---|---|
 | Dado da pista escolhida `UNREADABLE` ou `UNSUPPORTED_SCHEMA` | `sessionState` `FAILED`; a tela inicial exibe o erro e não oferece volta; as duas opções continuam selecionáveis; o arquivo fica intacto (I4) |
+| Arquivo lido para a Kart Park com `trackVersion` diferente de 2 | `TRACK_VERSION_MISMATCH`: `sessionState` `FAILED`, erro exibido, nenhuma volta; nenhuma sessão com a versão 1 (AC-US-0001-09) |
 | Jogador escolhe a opção que já é a da sessão `READY` | Sem efeito ([API-0002](../api/API-0002-catalogo-e-selecao-da-pista-do-treino.md), idempotência) |
 | Duas escolhas em sequência rápida | Atendidas na ordem; vale a última; cada uma abre sessão nova na largada |
 | Escolha de outra pista com volta não encerrada | A volta é descartada sem resultado e não continua; a sessão nova não tem volta em andamento |

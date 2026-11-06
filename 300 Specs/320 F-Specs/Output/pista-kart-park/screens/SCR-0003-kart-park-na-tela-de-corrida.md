@@ -4,7 +4,7 @@ title: Kart Park na tela de corrida e retorno da zebra
 feature: pista-kart-park
 stage: fspec
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: [US-0002, US-0003, US-0004, US-0005, US-0007, NFR-0002, AC-US-0002-08, AC-US-0003-06, AC-US-0004-06, AC-US-0005-03, AC-US-0005-07, AC-US-0005-08, AC-US-0005-09, AC-US-0005-10, AC-US-0005-11, AC-US-0007-01, AC-US-0007-02, AC-US-0007-05, AC-US-0007-06, AC-US-0007-09, AC-US-0007-10, AC-US-0007-11, AC-US-0007-12, AC-US-0007-13, AC-US-0007-14, AC-US-0007-16, AC-US-0007-18, AC-US-0007-19, AC-US-0007-20]
 ---
 
@@ -12,8 +12,8 @@ sources: [US-0002, US-0003, US-0004, US-0005, US-0007, NFR-0002, AC-US-0002-08, 
 
 ## Propósito
 
-O que esta feature acrescenta à tela de corrida de `race-lap-validation`: o desenho da Kart Park a partir
-do arquivo de pista (asfalto com a largura de cada ponto, zebras no lado declarado, barreira em todo o
+O que esta feature acrescenta à tela de corrida de `race-lap-validation`: o desenho da Kart Park versão 2,
+a réplica não oficial, a partir do arquivo de pista (asfalto com a largura de cada ponto, 7,0 m, zebras no lado declarado, barreira em todo o
 comprimento), o acabamento visual da Kart Park (faixa de borda, relevo da zebra, barreira de pneus e tons
 de grama, [FEAT-0008](../features/FEAT-0008-acabamento-visual.md)) e o retorno da zebra (vibração em
 `web-mobile`, som em `web-desktop`). O HUD da volta, o
@@ -38,7 +38,7 @@ som da zebra em `web-desktop`, com o som ligado, e permitido sem ser exigido em 
 
 | Elemento | Conteúdo | Fonte |
 |---|---|---|
-| Asfalto | Entre as duas bordas do asfalto de `centerline`, com a largura de cada ponto | AC-US-0002-08; I2 |
+| Asfalto | Entre as duas bordas do asfalto de `centerline` da versão 2, com a largura de cada ponto (7,0 m) | AC-US-0002-08; I2 |
 | Zebras | Cada trecho de `curbs`, no lado `side` e entre `fromLapM` e `toLapM`, como faixa para fora da borda do asfalto | AC-US-0005-03 |
 | Barreira | Cada barreira de `barriers`, em todo o seu comprimento | AC-US-0004-06 |
 | Faixa de borda (Kart Park) | Faixa branca contínua de 0,10 m por dentro de cada borda do asfalto, em toda a volta, sem interrupção junto à zebra nem na linha de largada | AC-US-0007-01, AC-US-0007-02 |
