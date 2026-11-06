@@ -61,9 +61,9 @@ test('CHK-TEST-0011-02 no module of the feature, the application included, uses 
     const text = code(file);
     for (const symbol of NETWORK_OR_STORAGE) assert.ok(!uses(text, symbol), `NFR-0004: ${file} must not use ${symbol}`);
   }
-  assert.match(code('src/main.ts'), /from '\.\/tracks\/kart-park-v1\.json\?raw'/, 'NFR-0004: the track file is imported as bundled text');
+  assert.match(code('src/main.ts'), /from '\.\/tracks\/kart-park-v2\.json\?raw'/, 'NFR-0004: the track file of the version 2 is imported as bundled text');
   assert.ok(!/import\(/.test(code('src/main.ts')), 'NFR-0004: no dynamic import at run time');
-  assert.ok(readdirSync(join(src, 'tracks')).includes('kart-park-v1.json'), 'NFR-0004: the published file lives in the bundle tree');
+  assert.ok(readdirSync(join(src, 'tracks')).includes('kart-park-v2.json'), 'NFR-0004: the published file lives in the bundle tree');
 });
 
 test('CHK-TEST-0011-03 the session knows no credit text, no licence and no label separator: the screen rule lives in src/lapMessages.ts', () => {
@@ -98,7 +98,7 @@ test('CHK-TEST-0011-05 the synthetic track stays the track of the other features
   for (const file of files) {
     // Comments may cite the feature by name (e.g. "ADR-0001 of pista-kart-park"); the code must not use the track.
     const text = code(file);
-    for (const needle of ["'kart-park'", 'kartPark', 'trainingSession', 'trackEnvironment', 'kart-park-v1', 'tracks/kart-park']) assert.ok(!text.includes(needle), `NFR-0009: ${file} must not use the Kart Park (${needle})`);
+    for (const needle of ["'kart-park'", 'kartPark', 'trainingSession', 'trackEnvironment', 'kart-park-v1', 'kart-park-v2', 'kart-park-replica', 'tracks/kart-park']) assert.ok(!text.includes(needle), `NFR-0009: ${file} must not use the Kart Park (${needle})`);
   }
   const lap = testPilotLapWith(options('BINARY'), testPilot(ARCADE_CONFIG));
   assert.equal(lap.benchEnvironment, 'SYNTHETIC_TRACK', 'NFR-0009: the test-pilot lap runs on the synthetic track');

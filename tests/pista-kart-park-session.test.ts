@@ -10,7 +10,7 @@ import {
   getTrainingTrackOptions, initialTrainingSession, OPENING_TRACK_ID, selectTrainingTrack, startTrainingLap, TRAINING_TRACKS, trainingIdleKart,
   type TrainingSession, type TrainingTrackSources,
 } from '../src/trainingSession';
-import { corruptedText, kartParkFile, kartParkGeometry, kartParkText, withSchema4 } from './fixtures/kartParkFiles';
+import { corruptedText, kartParkFile, kartParkGeometry, kartParkText, kartParkV1Text, withSchema4 } from './fixtures/kartParkFiles';
 import { drive, IDLE, kartAtLapM, kartParkPilot, KART_PARK_CONFIG, runCountdown, seedLap, constant } from './helpers/kartParkPilot';
 
 const sources: TrainingTrackSources = { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE };
@@ -31,22 +31,23 @@ test('CHK-TEST-0007-01 the catalogue offers exactly two options, the Kart Park a
   // AC-US-0001-01
   const view = getTrainingTrackOptions(initialTrainingSession());
   assert.deepEqual(view.options.map(o => o.trackId), ['kart-park', 'synthetic'], 'AC-US-0001-01: two options, Kart Park first');
-  assert.deepEqual(Object.keys(view.options[0]).sort(), ['displayLengthM', 'displayName', 'osmCredit', 'trackId'], 'AC-US-0001-01: the Kart Park entry has the four contract fields');
-  assert.deepEqual(Object.keys(view.options[1]).sort(), ['displayName', 'osmCredit', 'trackId'], 'AC-US-0001-01: the synthetic entry has no display length');
+  assert.deepEqual(Object.keys(view.options[0]).sort(), ['displayLengthM', 'displayName', 'osmCredit', 'trackId', 'trackVersion'], 'AC-US-0001-01: the Kart Park entry has the five contract fields of API-0002 2.0.0');
+  assert.equal(view.options[0].trackVersion, 2, 'AC-US-0001-01: the Kart Park entry declares the version it opens');
+  assert.deepEqual(Object.keys(view.options[1]).sort(), ['displayName', 'osmCredit', 'trackId'], 'AC-US-0001-01: the synthetic entry has no display length and no version');
   assert.deepEqual(Object.keys(view).sort(), ['options', 'selectedTrackId', 'sessionState'], 'AC-US-0001-01: no data status before a session');
   assert.equal(view.sessionState, 'NO_SESSION', 'AC-US-0001-01: no session at the start');
   assert.ok(Object.isFrozen(TRAINING_TRACKS) && TRAINING_TRACKS.every(o => Object.isFrozen(o)), 'AC-US-0001-01: the catalogue is fixed');
   assert.ok(!JSON.stringify(TRAINING_TRACKS).match(/record|recorde|41[.,]45/i), 'AC-US-0006-09: no record in the catalogue');
 });
 
-test('CHK-TEST-0007-02 at the opening the selected track is the Kart Park, and selecting it loads the published file: READY, COMPLETE, version 1, kart on its start', () => {
+test('CHK-TEST-0007-02 at the opening the selected track is the Kart Park, and selecting it loads the published file: READY, COMPLETE, version 2, kart on its start', () => {
   // AC-US-0001-02
   assert.equal(initialTrainingSession().selectedTrackId, 'kart-park', 'AC-US-0001-02: the opening selection is the Kart Park');
   assert.equal(OPENING_TRACK_ID, 'kart-park', 'AC-US-0001-02: OPENING_TRACK_ID');
   const r = selectTrainingTrack(initialTrainingSession(), undefined, OPENING_TRACK_ID, sources);
   assert.ok(r.ok, 'AC-US-0001-02: the opening selection succeeds');
   if (!r.ok) return;
-  assert.deepEqual(r.response, { sessionState: 'READY', trackId: 'kart-park', trackVersion: 1, trackDataStatus: 'COMPLETE' }, 'AC-US-0001-02: the response of API-0002');
+  assert.deepEqual(r.response, { sessionState: 'READY', trackId: 'kart-park', trackVersion: 2, trackDataStatus: 'COMPLETE' }, 'AC-US-0001-02: the response of API-0002');
   assert.equal(r.lap, undefined, 'AC-US-0001-02: no lap after a selection');
   assert.equal(getTrainingTrackOptions(r.session).selectedTrackId, 'kart-park', 'AC-US-0001-02: the catalogue shows the Kart Park selected');
   assert.equal(getTrainingTrackOptions(r.session).trackDataStatus, 'COMPLETE', 'AC-US-0001-02: the data status with READY');
@@ -66,7 +67,7 @@ test('CHK-TEST-0007-03 a training lap started on the Kart Park session has the t
   assert.ok(!('code' in view), 'AC-US-0001-03: the lap exists');
   if ('code' in view) return;
   assert.equal(view.trackId, 'kart-park', 'AC-US-0001-03: trackId of the Kart Park');
-  assert.equal(view.trackVersion, 1, 'AC-US-0001-03: trackVersion 1');
+  assert.equal(view.trackVersion, 2, 'AC-US-0001-03: trackVersion 2');
   assert.equal(view.lapKind, 'TRAINING', 'AC-US-0001-03: TRAINING');
   assert.equal(lap.environment, session.environment, 'AC-US-0001-03: the lap runs on the session environment');
   assert.ok(lap.environment.track !== undefined && lap.environment.walls === false, 'AC-US-0001-03: the file geometry, no wall');
@@ -187,7 +188,7 @@ test('CHK-TEST-0007-08 selecting the READY track again changes nothing and keeps
   if (!same.ok) return;
   assert.equal(same.session, session, 'API-0002: the session object is kept');
   assert.equal(same.lap, lap, 'API-0002: the lap is kept');
-  assert.deepEqual(same.response, { sessionState: 'READY', trackId: 'kart-park', trackVersion: 1, trackDataStatus: 'COMPLETE' }, 'API-0002: the READY response');
+  assert.deepEqual(same.response, { sessionState: 'READY', trackId: 'kart-park', trackVersion: 2, trackDataStatus: 'COMPLETE' }, 'API-0002: the READY response');
   const unknown = selectTrainingTrack(session, lap, 'moon', sources);
   assert.deepEqual(unknown, { ok: false, code: 'UNKNOWN_TRACK', session, lap }, 'API-0002: UNKNOWN_TRACK keeps session and lap');
 });
@@ -198,16 +199,18 @@ test('CHK-TEST-0007-09 an unreadable or unsupported Kart Park source gives a FAI
   assert.ok(!broken.ok, 'REQ-FEAT-0001-14: a corrupted source fails');
   if (broken.ok) return;
   assert.equal(broken.code, 'TRACK_DATA_UNREADABLE', 'REQ-FEAT-0001-14: TRACK_DATA_UNREADABLE');
-  assert.deepEqual(broken.response, { sessionState: 'FAILED', trackId: 'kart-park', trackDataStatus: 'UNREADABLE' }, 'REQ-FEAT-0001-14: the FAILED response');
+  assert.deepEqual('response' in broken ? broken.response : undefined, { sessionState: 'FAILED', trackId: 'kart-park', trackDataStatus: 'UNREADABLE' }, 'REQ-FEAT-0001-14: the FAILED response');
   assert.equal(broken.lap, undefined, 'REQ-FEAT-0001-14: no lap');
   assert.equal(getTrainingTrackOptions(broken.session).trackDataStatus, 'UNREADABLE', 'REQ-FEAT-0001-14: the catalogue reports the status with FAILED');
   assert.deepEqual(startTrainingLap(broken.session, undefined, KART_PARK_CONFIG), { ok: false, code: 'TRACK_DATA_UNREADABLE' }, 'REQ-FEAT-0001-14: no training lap on a FAILED session');
   const unsupported = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': withSchema4(), synthetic: SYNTHETIC_TRACK_FILE });
   assert.ok(!unsupported.ok && unsupported.code === 'TRACK_SCHEMA_UNSUPPORTED', 'REQ-FEAT-0001-14: schema 4 is TRACK_SCHEMA_UNSUPPORTED');
   if (unsupported.ok) return;
-  assert.deepEqual(unsupported.response, { sessionState: 'FAILED', trackId: 'kart-park', trackDataStatus: 'UNSUPPORTED_SCHEMA' }, 'REQ-FEAT-0001-14: the FAILED response for the schema');
+  assert.deepEqual('response' in unsupported ? unsupported.response : undefined, { sessionState: 'FAILED', trackId: 'kart-park', trackDataStatus: 'UNSUPPORTED_SCHEMA' }, 'REQ-FEAT-0001-14: the FAILED response for the schema');
   const otherId = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': { ...file, trackId: 'other' }, synthetic: SYNTHETIC_TRACK_FILE });
-  assert.ok(!otherId.ok && otherId.code === 'TRACK_DATA_UNREADABLE', 'REQ-FEAT-0001-14: a file of another trackId is unreadable for the Kart Park');
+  assert.ok(!otherId.ok && otherId.code === 'TRACK_VERSION_MISMATCH', 'API-0002 2.0.0: a readable file of another trackId gives TRACK_VERSION_MISMATCH');
+  if (otherId.ok) return;
+  assert.deepEqual('response' in otherId ? otherId.response : undefined, { sessionState: 'FAILED', trackId: 'kart-park', trackDataStatus: 'COMPLETE' }, 'API-0002 2.0.0: the FAILED response of another track');
   assert.deepEqual(startTrainingLap(initialTrainingSession(), undefined, KART_PARK_CONFIG), { ok: false, code: 'TRACK_DATA_UNREADABLE' }, 'REQ-FEAT-0001-14: no lap without a session');
 });
 
@@ -222,14 +225,73 @@ test('CHK-TEST-0007-10 a training session offers the training lap only, and a se
   assert.ok(lap.setupId === undefined && lap.setupVersion === undefined, 'AC-US-0001-05: no setup fields without a setup');
 });
 
-test('CHK-TEST-0007-11 the catalogue names the Kart Park as the real track, with 687 m fixed by the product and not derived from the smoothed length', () => {
+test('CHK-TEST-0007-11 the catalogue names the Kart Park as the unofficial replica, with 691 m fixed by the product and not derived from the measured length', () => {
   // AC-US-0006-07, AC-US-0006-08
   const option = TRAINING_TRACKS.find(o => o.trackId === 'kart-park')!;
-  assert.equal(option.displayName, 'Kart Park — São José dos Pinhais (traçado aproximado)', 'AC-US-0006-07: the display name');
-  assert.equal(option.displayLengthM, 687, 'AC-US-0006-08: 687 m');
-  assert.notEqual(Math.round(kartParkGeometry().lapLengthM), 687, `AC-US-0006-08: the smoothed lap (${kartParkGeometry().lapLengthM.toFixed(3)} m) is not what the label shows`);
+  assert.equal(option.displayName, 'Kart Park — São José dos Pinhais (réplica não oficial)', 'AC-US-0006-07: the display name');
+  assert.equal(option.displayLengthM, 691, 'AC-US-0006-08: 691 m');
+  assert.ok(Number.isInteger(option.displayLengthM), 'AC-US-0006-08: a fixed whole number of metres');
+  assert.notEqual(option.displayLengthM, kartParkGeometry().lapLengthM, `AC-US-0006-08: the label length is the product figure, not the measured ${kartParkGeometry().lapLengthM.toFixed(3)} m`);
+  // Loading another file into the session leaves the catalogue length as it is: it is not read from the track.
+  selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': kartParkV1Text(), synthetic: SYNTHETIC_TRACK_FILE });
+  assert.equal(TRAINING_TRACKS.find(o => o.trackId === 'kart-park')!.displayLengthM, 691, 'AC-US-0006-08: the catalogue length does not follow the loaded file');
   assert.equal(option.osmCredit, true, 'AC-US-0006-07: the Kart Park declares the OSM credit');
   const synthetic = TRAINING_TRACKS.find(o => o.trackId === 'synthetic')!;
   assert.equal(synthetic.displayName, 'Pista sintética', 'AC-US-0006-07: the synthetic name');
   assert.equal(synthetic.osmCredit, false, 'AC-US-0006-07: no credit for the synthetic track');
+});
+
+test('CHK-TEST-0007-12 the Kart Park chosen at the opening or in the selector is the version 2, in the session and in every lap and lap result it gives', () => {
+  // AC-US-0001-08
+  const opening = selectTrainingTrack(initialTrainingSession(), undefined, OPENING_TRACK_ID, sources);
+  const fromSelector = selectTrainingTrack(ready('synthetic'), undefined, 'kart-park', sources);
+  for (const [label, r] of [['opening', opening], ['selector', fromSelector]] as const) {
+    assert.ok(r.ok && r.response.sessionState === 'READY', `AC-US-0001-08: ${label}: the Kart Park opens READY`);
+    if (!r.ok || r.response.sessionState !== 'READY') return;
+    assert.equal(r.response.trackVersion, 2, `AC-US-0001-08: ${label}: the response carries trackVersion 2`);
+    const reading = r.session.reading;
+    assert.equal(reading?.trackDataStatus === 'COMPLETE' ? reading.trackVersion : undefined, 2, `AC-US-0001-08: ${label}: the session reads trackVersion 2`);
+    let lap = runCountdown(lapOf(r.session));
+    const view = getLapState(lap);
+    assert.ok(!('code' in view) && view.trackVersion === 2, `AC-US-0001-08: ${label}: the lap state carries trackVersion 2`);
+    // Two lap results: one without markers (seeded before the finish), then one cut (seeded far from the track).
+    const k = kartAtLapM(kartParkGeometry().lapLengthM - 6);
+    const rolling: State = { ...k, vx: Math.sin(k.heading) * 8, vz: Math.cos(k.heading) * 8, speed: 8 };
+    lap = drive(seedLap(lap, { kart: rolling }), constant(IDLE), 600).lap;
+    lap = drive(seedLap(lap, { kart: kartAtLapM(105, 8) }), constant(IDLE), 200).lap;
+    lap = drive(seedLap(lap, { kart: rolling }), constant(IDLE), 600).lap;
+    const items = listLapResults(lap).lapResults;
+    assert.equal(items.length, 2, `AC-US-0001-08: ${label}: two lap results (${items.length})`);
+    for (const item of items) {
+      assert.equal(item.trackId, 'kart-park', `AC-US-0001-08: ${label}: the result is of the Kart Park`);
+      assert.equal(item.trackVersion, 2, `AC-US-0001-08: ${label}: every lap result carries trackVersion 2 (${item.trackVersion})`);
+    }
+  }
+});
+
+test('CHK-TEST-0007-13 no option starts a training on the Kart Park version 1: its file gives FAILED with TRACK_VERSION_MISMATCH, no lap, and the synthetic track still opens', () => {
+  // AC-US-0001-09
+  assert.ok(!TRAINING_TRACKS.some(o => o.trackVersion === 1), 'AC-US-0001-09: no catalogue entry declares trackVersion 1');
+  assert.equal(TRAINING_TRACKS.length, 2, 'AC-US-0001-09: the two options only');
+  const v1Sources: TrainingTrackSources = { 'kart-park': kartParkV1Text(), synthetic: SYNTHETIC_TRACK_FILE };
+  const synthetic = ready('synthetic');
+  const opening = selectTrainingTrack(initialTrainingSession(), undefined, OPENING_TRACK_ID, v1Sources);
+  const fromSelector = selectTrainingTrack(synthetic, lapOf(synthetic), 'kart-park', v1Sources);
+  for (const [label, r] of [['opening', opening], ['selector', fromSelector]] as const) {
+    assert.ok(!r.ok, `AC-US-0001-09: ${label}: the version-1 file must not open a session`);
+    if (r.ok) return;
+    assert.equal(r.code, 'TRACK_VERSION_MISMATCH', `AC-US-0001-09: ${label}: the code is TRACK_VERSION_MISMATCH (${r.code})`);
+    assert.deepEqual('response' in r ? r.response : undefined, { sessionState: 'FAILED', trackId: 'kart-park', trackDataStatus: 'COMPLETE' }, `AC-US-0001-09: ${label}: FAILED, the file itself COMPLETE`);
+    assert.equal(r.session.sessionState, 'FAILED', `AC-US-0001-09: ${label}: the session is FAILED`);
+    assert.equal(getTrainingTrackOptions(r.session).trackDataStatus, 'COMPLETE', `AC-US-0001-09: ${label}: the catalogue reports COMPLETE with FAILED`);
+    assert.equal(r.lap, undefined, `AC-US-0001-09: ${label}: no lap`);
+    assert.deepEqual(getLapState(r.lap), { code: 'NO_ACTIVE_LAP' }, `AC-US-0001-09: ${label}: NO_ACTIVE_LAP`);
+    assert.equal(trainingIdleKart(r.session), undefined, `AC-US-0001-09: ${label}: no kart on a FAILED session`);
+    assert.deepEqual(startTrainingLap(r.session, undefined, KART_PARK_CONFIG), { ok: false, code: 'TRACK_DATA_UNREADABLE' }, `AC-US-0001-09: ${label}: startTrainingLap refuses the FAILED session`);
+    const back = selectTrainingTrack(r.session, r.lap, 'synthetic', v1Sources);
+    assert.ok(back.ok && back.response.sessionState === 'READY', `AC-US-0001-09: ${label}: the synthetic track opens READY after the refusal`);
+  }
+  // Another track's file in the Kart Park entry is the same refusal (API-0002 2.0.0).
+  const other = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': SYNTHETIC_TRACK_FILE, synthetic: SYNTHETIC_TRACK_FILE });
+  assert.ok(!other.ok && other.code === 'TRACK_VERSION_MISMATCH', 'AC-US-0001-09: the synthetic file in the Kart Park entry gives TRACK_VERSION_MISMATCH');
 });

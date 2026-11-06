@@ -3,12 +3,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { SYNTHETIC_TRACK_FILE } from '../src/track';
+import { initialTrainingSession, OPENING_TRACK_ID, selectTrainingTrack } from '../src/trainingSession';
 import { checkConsistencyV3, readTrackData, TRACK_SCHEMA_VERSION, type TrackReading } from '../src/trackData';
 import {
   beyondTrackEdgeM, buildTrackGeometry, classifySurface, lapMAtIndex, nearestOnCenterline, positionAtLapM, windingSumOf,
 } from '../src/trackGeometry';
 import {
-  corruptedText, kartParkFile, kartParkGeometry, kartParkText, withInvalidCurbSide, withOnePointBarrier, withReversedCenterline, withScaledCoordinates,
+  corruptedText, kartParkFile, kartParkGeometry, kartParkText, replicaJson, withInvalidCurbSide, withOnePointBarrier, withReversedCenterline, withScaledCoordinates,
   withSchema4, withTextOsmDerived, withTwoPointCenterline, withZeroWidth, withoutBarriers, withoutCenterline, withoutCurbs,
 } from './fixtures/kartParkFiles';
 
@@ -27,7 +28,7 @@ test('CHK-TEST-0002-01 the reading of the published file carries the centerline,
   // AC-US-0002-08
   const r = complete(kartParkText());
   assert.equal(r.trackId, 'kart-park', 'AC-US-0002-08: trackId');
-  assert.equal(r.trackVersion, 1, 'AC-US-0002-08: trackVersion');
+  assert.equal(r.trackVersion, 2, 'AC-US-0002-08: trackVersion 2, the replica');
   assert.deepEqual(r.centerline, file.centerline, 'AC-US-0002-08: the centerline must be the one of the file, point by point, no smoothing and no conversion');
   assert.deepEqual(r.curbs, file.curbs, 'AC-US-0002-08: the curbs must be the ones of the file');
   assert.deepEqual(r.barriers, file.barriers, 'AC-US-0002-08: the barriers must be the ones of the file');
@@ -146,4 +147,27 @@ test('CHK-TEST-0002-08 lap distance and position are inverse of each other along
     assert.ok(near(back, lapM, 1e-6) || near(Math.abs(back - lapM), g.lapLengthM, 1e-6), `AC-US-0002-08: lap distance ${lapM.toFixed(3)} m round-trips to ${back.toFixed(3)} m`);
     assert.ok(nearest.distanceM <= 1e-9, 'AC-US-0002-08: the position lies on the line');
   }
+});
+
+test('CHK-TEST-0002-09 with the Kart Park loaded in the simulation, every point of the centerline it runs on is within 0.10 m of the replica centerline', () => {
+  // AC-US-0002-06
+  const r = selectTrainingTrack(initialTrainingSession(), undefined, OPENING_TRACK_ID, { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE });
+  assert.ok(r.ok && r.session.sessionState === 'READY', 'AC-US-0002-06: the Kart Park session must be READY');
+  const track = r.session.environment?.track;
+  assert.ok(track, 'AC-US-0002-06: the session environment carries the Kart Park geometry');
+  // The replica in the game axes (x, -y) with its own origin, a closed polyline (RULE-0002 2.0.0).
+  const replica = replicaJson().pontos.map(p => ({ x: p[0], z: -p[1] }));
+  const toReplica = (x: number, z: number) => {
+    let best = Infinity;
+    for (let k = 0; k < replica.length; k++) {
+      const a = replica[k], b = replica[(k + 1) % replica.length], dx = b.x - a.x, dz = b.z - a.z;
+      const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / (dx * dx + dz * dz)));
+      best = Math.min(best, Math.hypot(x - a.x - t * dx, z - a.z - t * dz));
+    }
+    return best;
+  };
+  let worst = 0;
+  for (const p of track!.centerline) worst = Math.max(worst, toReplica(p.xM, p.zM));
+  assert.equal(track!.centerline.length, replica.length, 'AC-US-0002-06: the simulation runs on the 691 points of the published line');
+  assert.ok(worst <= 0.10, `AC-US-0002-06: a centerline point of the simulation is ${worst.toFixed(4)} m from the replica centerline, above 0.10 m`);
 });

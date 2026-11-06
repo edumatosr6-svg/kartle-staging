@@ -143,7 +143,7 @@ test('CHK-TEST-0010-03 the barrier is drawn in its whole length: a tyre stack ce
   const centres = stackCentres();
   assert.ok(centres.length > 0, 'AC-US-0004-06: the barrier has stacks');
   const declared = g.barrierSegments.reduce((sum, s) => sum + Math.hypot(s.b.x - s.a.x, s.b.z - s.a.z), 0);
-  assert.ok(declared > 50, 'AC-US-0004-06: the Kart Park barrier is tens of metres long');
+  assert.ok(declared > 40, `AC-US-0004-06: the Kart Park barrier of the version 2 is tens of metres long (${declared.toFixed(3)} m)`);
   const problems: string[] = [];
   g.barriers.forEach((line, l) => {
     line.points.forEach((p, i) => {
@@ -196,10 +196,10 @@ const edgeStrips = () => {
   return { lines, position, n, at };
 };
 
-test('CHK-TEST-0010-06 each asphalt edge carries one closed edge-line strip of 684 segments on the asphalt, from the edge itself, unbroken at the curbs and at the start line', () => {
+test('CHK-TEST-0010-06 each asphalt edge carries one closed edge-line strip of 691 segments on the asphalt, from the edge itself, unbroken at the curbs and at the start line', () => {
   // AC-US-0007-01
   const { lines, position, n, at } = edgeStrips();
-  assert.equal(n, 684, 'AC-US-0007-01: the published centerline has 684 points');
+  assert.equal(n, 691, 'AC-US-0007-01: the published centerline of the version 2 has 691 points');
   assert.equal(position.count, 2 * 2 * (n + 1), `AC-US-0007-01: two strips of n + 1 rows of two vertices (${position.count})`);
   const problems: string[] = [];
   [g.leftEdge, g.rightEdge].forEach((edge, strip) => {

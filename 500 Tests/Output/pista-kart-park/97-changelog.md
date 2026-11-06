@@ -2,8 +2,8 @@
 title: Changelog do estágio de testes
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.3.0
+status: draft
+version: 1.4.0
 ---
 
 # 97 — Changelog
@@ -430,3 +430,137 @@ não via D16; passou a procurar `Loader` em qualquer posição).
 ### Itens declinados
 
 Nenhum relatório de validação de testes pendente para esta rodada; nada declinado.
+
+## 2026-11-06 — rodada 6, Modo A sobre a revisão 3 do seed (réplica não oficial publicada como `kart-park` `trackVersion` 2)
+
+### Entrada
+
+- Critérios validados da revisão 3 (`req-validation-20261106-1741`): AC-US-0001-08 e -09 novos; AC-US-0002-01 a -07 com os
+  números da réplica (691 pontos, 690,7 m ± 1 %, 7,0 m, 0,10 m, raio 8,8 m perto de 216 m); AC-US-0003-02 (204,9 / 354,9 /
+  534,7 m), AC-US-0003-12 e AC-US-0005-13 novos; AC-US-0005-01/-02 (22 trechos); AC-US-0006-07/-08 ("réplica não oficial",
+  691 m); NFR-0013 2.0.0 e NFR-0014 2.0.0; **AC-US-0003-09 retirado** (com REQ-FEAT-0003-12 no F-Spec). F-Spec
+  `fspec-validation-20261106-1805` (RULE-0002 2.0.0, V01 a V20; API-0002 2.0.0, `TRACK_VERSION_MISMATCH`). Estratégia
+  `test-strategy.md` 2.0.0 e o changelog do D-Spec (rodadas Mode A, B e C de 2026-11-06; `dspec-validation-20261106-1853`,
+  `8b00b74`). Código `06582f8` (`code-validation-20261106-1912` SUCCESS): linhas 7 e 8 de
+  `400 Code/Output/pista-kart-park/98-divergences.md` devidas a esta etapa, e a ISSUE-02 (info) do relatório, registrada para
+  esta etapa provar o `FAILED` por `TRACK_VERSION_MISMATCH` com `#best` em "—".
+- Antes da rodada: 126 verificações nas 12 suítes, 104 aprovadas e as 22 presas à versão 1 que o manifesto do código lista
+  reprovadas. Com a fixture trocada para a versão 2, mais 8 reprovaram por fatos da versão 1 escritos nelas (CHK-TEST-0002-01,
+  -0005-13, -0006-05 a -07, -0010-03, -06, -0012-01, -03) e a suíte `track-file` deixou de carregar (`withTrackVersion2`).
+
+### Atrito de verificações
+
+Antes: 126 ids nas 12 suítes. Depois: 136. Retirada 1 (CHK-TEST-0005-06); modificadas 41; adicionadas 11; as demais 84
+carregadas sem mudança de texto, agora sobre a versão 2 pela fixture. As de `barrier` (TEST-0004) lançam o kart contra o segmento 217 da
+barreira publicada, que passa a ser o da versão 2 (291 segmentos); as de `surface`, `feedback` e `scene` escolhem os seus pontos pela
+geometria lida, sem número da versão 1.
+
+### Fixture `tests/fixtures/kartParkFiles.ts`
+
+`PUBLISHED_PATH` e `kartParkText()` passam a `src/tracks/kart-park-v2.json` (a estratégia 2.0.0, "Fixtures"); entram
+`PUBLISHED_V1_PATH` e `kartParkV1Text()` (a versão 1 lida no lugar, sem cópia), `REPLICA_PATH` e `replicaJson()` (objeto novo a
+cada chamada, para que uma cópia da réplica não contamine a seguinte); `originJson()` continua, só para a reprodução da versão 1.
+Cópias derivadas: `withTrackVersion2` → `withTrackVersion1`; `withPointOffset` passa a 0,2 m (o limite é 0,10 m); novas
+`withWidth` (um `widthM` 6,9), `withSectorLimitAt` (um limite trocado por outra linha) e `withCurbPastLap` (um trecho além da
+volta). Todas continuam objetos novos; nenhum arquivo publicado é alterado (I3).
+
+### Migração
+
+| Id | O que mudou | Por que o critério continua coberto |
+|---|---|---|
+| CHK-TEST-0001-01 a -07, -09, -11 a -16, -18, -19 | cada fato rederivado contra a réplica de RULE-0002 2.0.0 (eixos (*x*, −*y*) com a origem da réplica, sem caixa envolvente nem correspondência por índice) em vez da origem da versão 1: 691 pontos e fechamento < 2 m; 683,793–697,607 m; ponto 0 a ≤ 0,10 m de *R*₀ (V01, REQ-FEAT-0002-19) junto da linha de chegada; área igual à da réplica a 1 %; largura 7,0 em todo ponto; ≤ 0,10 m da poligonal da réplica e `maxReplicaOffsetM` do registro; raio 8,8 m no arco de 216–229,1 m; limites pelo *d* mais próximo de 204,9 / 354,9 / 534,7 m; *T*₁ 368,5–406,5 m e *T*₂ 594,5–624,5 m por *d*, cada borda amostrada sozinha (DES-0010 2.1.0 passo 5); soma ≤ 6 m nas amostras de 0,25 m; folga ≥ 0,2 m da pista (a guarda do preparo); 22 trechos um a um com a réplica; `trackVersion` 2; V01 a V20; as cópias da lista acima | os critérios são os mesmos ids, com os números que a revisão 3 lhes deu; as provas específicas da versão 1 (suavização, correspondência por índice, 34 trechos, zebra da largada dividida) deixam de julgar o arquivo da versão 1, que passa a ser julgado pelo resumo (CHK-TEST-0012-07, -09), como o changelog do D-Spec planejou |
+| CHK-TEST-0001-09 | a parte "o limite fica num trecho de raio > 15 m" sai desta verificação | passa a AC-US-0003-12, decidido por CHK-TEST-0001-21 (dentro de um elemento `reta` da réplica e raio > 50 m) |
+| CHK-TEST-0001-12 | a afirmação "nenhuma barreira junto ao atalho de 12–26 m da curva 4" sai | segue REQ-FEAT-0003-12 e AC-US-0003-09, retirados; AC-US-0004-02 continua decidido pela soma ≤ 6 m em toda a barreira |
+| CHK-TEST-0002-01 | `trackVersion` 2 | AC-US-0002-08: a leitura carrega o arquivo empacotado, agora a versão 2 |
+| CHK-TEST-0005-13 | a janela da faixa de borda passa de 15–55 m (curva na versão 2: maior sequência 87 passos) a 425–470 m, a reta de 419,8–478 m da réplica sem zebra à esquerda, e o ganho de esterço de 1 a 2 (com 1, o kart ficava fora da faixa; medido no rascunho: 57 passos com 1, 1.318 com 2) | AC-US-0007-17 é sobre andar na faixa de borda mais de 120 passos sem corte; a recalibração do piloto na versão 2 é o que a estratégia 2.0.0 pede ("parâmetros recalibrados pela etapa de testes") |
+| CHK-TEST-0006-05 a -07 | o traço `kartParkRev1Trace.json` (sem mudança) passa a ser reproduzido sobre a leitura, a geometria e o ambiente de `kartParkV1Text()` | DES-0006 2.0.0: o traço continua sobre a versão 1, como prova de que a simulação não mudou desde a revisão 1; NFR-0013 2.0.0 passa a CHK-TEST-0006-08 a -10 |
+| CHK-TEST-0007-01, -02, -03, -08 | entrada `kart-park` com os cinco campos de API-0002 2.0.0 (`trackVersion` 2); respostas e volta com `trackVersion` 2 | AC-US-0001-01 a -03, -07 sobre o catálogo e a sessão da revisão 3 |
+| CHK-TEST-0007-09 | o arquivo legível de outro `trackId` dá `TRACK_VERSION_MISMATCH` com `{FAILED, kart-park, COMPLETE}` (antes `TRACK_DATA_UNREADABLE`) | API-0002 2.0.0 põe "outro `trackId`" e "outra versão" no mesmo código (changelog do D-Spec, itens recusados); as asserções do texto corrompido e do esquema 4 ficam |
+| CHK-TEST-0007-11 | "réplica não oficial", 691 m; "não derivado do comprimento medido" passa de "o comprimento suavizado não arredonda a 687" a "691 é inteiro, diferente dos 690,674 m medidos e não muda quando a sessão lê outro arquivo" | 690,674 m arredonda para 691: a contraprova antiga deixou de poder falhar; a nova falha se o catálogo derivar o comprimento do arquivo |
+| CHK-TEST-0009-05, -06, -08 | rótulo "… (réplica não oficial) · 691 m"; nenhum "traçado aproximado" nem "687 m" nos quatro arquivos da estratégia; `kartParkV2Text` e `./tracks/kart-park-v2.json?raw` | AC-US-0006-07, -08, AC-US-0001-08 pelas linhas da estratégia 2.0.0 |
+| CHK-TEST-0010-03, -06 | barreira declarada > 40 m (a da versão 2 tem 47,649 m); 691 segmentos por borda | AC-US-0004-06 e AC-US-0007-01 com as medidas da versão 2 (DES-0008 3.0.1) |
+| CHK-TEST-0011-02 | `./tracks/kart-park-v2.json?raw` e o arquivo da versão 2 em `src/tracks/` | NFR-0004 sobre o arquivo empacotado |
+| CHK-TEST-0011-05 | a lista de nomes proibidos nos ensaios das outras features ganha `kart-park-v2` e `kart-park-replica` | NFR-0009 cobre também os arquivos novos |
+| CHK-TEST-0012-01 a -07 | a entrada `kart-park` 2 (`REPLICA`, réplica, `maxReplicaOffsetM`) em vez da 1; versões [1, 2] e a do catálogo; reprodução da versão 2 por `prepareReplicaTrack` e da versão 1 pelo preparo congelado; promoção na versão 2 sem tocar a entrada 1; `verify`, `prepare` e `publish` da versão 2 (20 `PASS`), `synthetic 2` recusado como `trackVersion` (DES-0010 2.1.0: `trackId` é qualquer entrada do catálogo e o par tem de estar em `TRACK_ORIGINS`), `moon` e `Kart-Park` como `trackId`, e o preparo de novo só sem a entrada 2; a entrada 1 comparada campo a campo com o literal da publicação e "a única entrada" passa a "a entrada 1 intacta e a 2 acrescentada" | NFR-0006, NFR-0012, NFR-0014 pelas linhas da estratégia 2.0.0 (REQ-FEAT-0002-14, -17, -18, -20, -21) e pela tabela de migração do changelog do D-Spec (CHK-TEST-0012-03, -07) |
+
+### Retirada (critério retirado a montante)
+
+| Id | Critério | Base | Aprovação |
+|---|---|---|---|
+| CHK-TEST-0005-06 (a volta pelo atalho da curva 4) | AC-US-0003-09 | retirado nos requisitos da revisão 3 (com REQ-FEAT-0003-12 no F-Spec); a estratégia 2.0.0 marca a linha como retirada e diz que a prova sai; o atalho pela grama sem barreira segue decidido pela excursão de AC-US-0003-05 (CHK-TEST-0005-04, `MISSED_MARKER`) e pelas linhas de V10 e V11 (CHK-TEST-0001-10, -18) | revisão 3 do seed escrita pelo dono do produto (Eduardo Matos, 2026-11-06); retirada instruída pelo chamador desta rodada (test-loop, "retire checks only for retired requirements"); a confirmação explícita do dono do produto continua pedida, como no changelog do D-Spec. Nenhum critério vigente fica sem verificação: não há linha de divergência |
+
+### Adicionadas
+
+| Arquivo | Ids | Critérios |
+|---|---|---|
+| `track-file` (TEST-0001) | CHK-TEST-0001-21, -22 | AC-US-0003-12 (V19), AC-US-0005-13 (V20) |
+| `track-data` (TEST-0002) | CHK-TEST-0002-09 | AC-US-0002-06 no estado da simulação (a linha central da sessão a ≤ 0,10 m da réplica) |
+| `determinism` (TEST-0006) | CHK-TEST-0006-08 a -10 | NFR-0013 2.0.0 (REQ-FEAT-0008-25, -26, -27), AC-US-0007-07: as três sequências na versão 2 com e sem o acabamento; fecha a linha 7 de `400 Code/Output/pista-kart-park/98-divergences.md` |
+| `session` (TEST-0007) | CHK-TEST-0007-12, -13 | AC-US-0001-08, AC-US-0001-09 (`TRACK_VERSION_MISMATCH` pela abertura e pelo seletor) |
+| `screens` (TEST-0009) | CHK-TEST-0009-13 | AC-US-0001-09 na aplicação: nenhum `kart-park-v1` em `src/main.ts`, `FAILED` com o erro de dados e sem oferta, e `#best` em "—" (ISSUE-02 de `code-validation-20261106-1912`) |
+| `publication` (TEST-0012) | CHK-TEST-0012-08, -09 | NFR-0014 (REQ-FEAT-0002-20, -21: `prepare`, `verify`, `publish kart-park 1` recusados; regras `-text`); NFR-0006, NFR-0014: a verificação de imutabilidade do "Teste da reversão" de DM-0001 e DM-0002 2.0.1 |
+
+As verificações de AC-US-0007-08, -11 (metade da simulação), -18 e -19 ("sem mudança") continuam as de antes, agora sobre a
+versão 2. A linha 8 do manifesto do código fica atendida pelas migrações e adições acima.
+
+### Execução
+
+Execução fresca, sem cache e sem a contagem de `reduce_run.py`, na árvore de `06582f8` com as suítes desta rodada:
+
+```
+npx tsx --test --test-reporter=junit --test-reporter-destination="500 Tests/Output/pista-kart-park/runs/test-run-20261106-1640.junit.xml" --test-reporter=spec --test-reporter-destination=stdout tests/*.test.ts
+```
+
+Totais do próprio runner (linhas `ℹ` de `runs/test-run-20261106-1640.spec.log`): **477 testes, 477 aprovados, 0 reprovados**, 0
+cancelados, 0 pulados, 0 todo, ~48 s (467 de antes − 126 + 136 desta feature). `runs/test-run-20261106-1640.junit.xml` traz os
+mesmos 477 `testcase`, nenhum com `failure` ou `skipped`; 136 deles de `tests/pista-kart-park-*.test.ts`. `npx tsc --noEmit`:
+saída 0. Antes desta execução, as 12 suítes da feature rodaram sozinhas: 136/136.
+
+### Prova de que as verificações novas e mudadas podem falhar
+
+Cópia de `src/`, `scripts/`, `tests/`, `tracks/`, `docs/`, `index.html`, `package.json`, `tsconfig.json` e `.gitattributes` no
+diretório de rascunho da sessão (`node_modules` por junção), as 12 suítes da feature, uma mutação de cada vez, cada arquivo
+restaurado byte a byte depois; a cópia foi descartada. Linha de base na cópia: 136 verificações, 0 reprovadas.
+
+| Mutação | Verificações que reprovaram (136 executadas) |
+|---|---|
+| M1 — `src/trainingSession.ts`: a entrada `kart-park` do catálogo declara `trackVersion` 1 (o catálogo da reversão) | 16: CHK-TEST-0002-09, CHK-TEST-0006-03, CHK-TEST-0007-01, CHK-TEST-0007-02, CHK-TEST-0007-03, CHK-TEST-0007-05, CHK-TEST-0007-06, CHK-TEST-0007-07, CHK-TEST-0007-08, CHK-TEST-0007-10, CHK-TEST-0007-12, CHK-TEST-0007-13, CHK-TEST-0009-11, CHK-TEST-0009-12, CHK-TEST-0009-13, CHK-TEST-0012-02 |
+| M2 — `selectTrainingTrack` sem a conferência de versão (o arquivo da versão 1 abre sessão) | 2: CHK-TEST-0007-13, CHK-TEST-0009-13 |
+| M3 — `displayName` "(traçado aproximado)" (o nome da revisão 1) | 3: CHK-TEST-0007-11, CHK-TEST-0009-05, CHK-TEST-0009-06 |
+| M4 — `displayLengthM` 687 | 3: CHK-TEST-0007-11, CHK-TEST-0009-05, CHK-TEST-0009-06 |
+| M5 — `src/main.ts` importa `./tracks/kart-park-v1.json?raw` (a importação da reversão) | 4: CHK-TEST-0009-08, CHK-TEST-0009-13, CHK-TEST-0011-02, CHK-TEST-0012-02 |
+| M6 — `renderBest` escreve o melhor tempo sem conferir `COMPARABLE` | 1: CHK-TEST-0009-13 |
+| M7 — `TRACK_VERSION_MISMATCH` devolvido como `TRACK_DATA_UNREADABLE` | 3: CHK-TEST-0007-09, CHK-TEST-0007-13, CHK-TEST-0009-13 |
+| M8 — `buildTrackScene` desloca 0,3 m a ponta de cada segmento de barreira que desenha (o acabamento com efeito na simulação) | 4: CHK-TEST-0006-08, CHK-TEST-0006-10, CHK-TEST-0010-03, CHK-TEST-0010-12 |
+| M9 — `scripts/track-pipeline.ts` sem a recusa da versão congelada | 1: CHK-TEST-0012-08 |
+| M10 — `scripts/trackChecks.ts`: V19 sempre aprovada | 1: CHK-TEST-0001-19 |
+| M11 — `scripts/trackChecks.ts`: V20 sempre aprovada | 1: CHK-TEST-0001-19 |
+| M12 — `src/tracks/kart-park-v1.json` com um byte a mais | 4: CHK-TEST-0012-03, CHK-TEST-0012-05, CHK-TEST-0012-07, CHK-TEST-0012-09 |
+| M13 — `tracks/registry.json`: `stagedAtUtc` da entrada 1 trocado em 1 ms | 2: CHK-TEST-0012-07, CHK-TEST-0012-09 |
+| M14 — `tracks/registry.json`: `maxReplicaOffsetM` da entrada 2 0,05 | 3: CHK-TEST-0001-06, CHK-TEST-0012-03, CHK-TEST-0012-09 |
+| M15 — `tracks/sources/kart-park-replica.json`: ponto 0 da réplica movido 0,2 m em *x* | 8: CHK-TEST-0001-03, CHK-TEST-0001-06, CHK-TEST-0001-18, CHK-TEST-0001-19, CHK-TEST-0012-01, CHK-TEST-0012-03, CHK-TEST-0012-05, CHK-TEST-0012-09 |
+| M16 — `src/tracks/kart-park-v2.json`: uma largura 6,9 m | 7: CHK-TEST-0001-05, CHK-TEST-0001-18, CHK-TEST-0001-19, CHK-TEST-0012-01, CHK-TEST-0012-03, CHK-TEST-0012-05, CHK-TEST-0012-09 |
+| M17 — ponto 0 da réplica movido 0,6 m em *x* (só as suítes `track-data` e `track-file`) | 5: CHK-TEST-0001-03, CHK-TEST-0001-06, CHK-TEST-0001-18, CHK-TEST-0001-19, CHK-TEST-0002-09 |
+| M18 — `buildTrackScene` desloca 0,4 m os vértices das zebras que desenha (só a suíte `determinism`) | 3: CHK-TEST-0006-08, CHK-TEST-0006-09, CHK-TEST-0006-10 |
+
+Cada verificação nova ou mudada reprova em pelo menos uma mutação ou numa cópia derivada da própria verificação. Com M15 a verificação CHK-TEST-0002-09 passa: o ponto 0 publicado fica a menos de 0,10 m da poligonal da réplica movida (o segmento de fechamento passa perto dele); M17 a reprova. CHK-TEST-0006-09 passa em M8 (a volta válida não toca a barreira) e reprova em M18.
+
+Além delas, cada cópia derivada de CHK-TEST-0001-19 é uma mutação do arquivo publicado julgada por `verifyTrackFile`, e
+CHK-TEST-0007-11, -0009-13 e -0012-05 trazem a sua contraprova no próprio teste (o mesmo registro `COMPARABLE` na versão 2; outra
+versão serializando outro texto). Durante a escrita, duas cópias foram corrigidas na própria fixture, não no código: a zebra além
+da volta ficou a 0,0008 m (a leitura recusa mais de 0,001 m, e então todo V reprova) e o limite no arco usa um marcador retirado
+da lista (a mesma linha declarada duas vezes lê `INCOMPLETE`).
+
+### Itens declinados e observações
+
+- A `npx tsc --noEmit` do projeto cobre só `src/` (`tsconfig.json`, `include`); as suítes da feature foram conferidas também
+  com `tsc --strict` isolado: nenhum erro além da falta dos tipos de `node` no projeto (`@types/node` não é dependência, e esta
+  etapa não acrescenta dependência, REQ-FEAT-0007-11). Dois estreitamentos de tipo já existentes em CHK-TEST-0007-09 foram
+  corrigidos no mesmo passo.
+- "Teste da reversão" de DM-0001/DM-0002 2.0.1 ("a árvore revertida passa no `npm test`"): CHK-TEST-0012-09 é a verificação de
+  imutabilidade e não lê o catálogo nem `src/main.ts`, então passa nas duas árvores. As verificações desta rodada que decidem
+  AC-US-0001-08/-09, AC-US-0006-07/-08 e NFR-0006 sobre a versão 2 (CHK-TEST-0007-01 a -03, -12, -13, CHK-TEST-0009-05, -06,
+  -08, -13, CHK-TEST-0011-02, CHK-TEST-0012-02, CHK-TEST-0002-09) reprovam por construção numa árvore cujo catálogo e cuja
+  importação voltaram à versão 1 (M1, M5). Fica registrado em `98-divergences.md` para a etapa de deploy e o D-Spec: a árvore
+  revertida precisa da suíte da revisão 2 nessas verificações, ou o critério de reversão precisa dizer qual suíte roda.
+- Nenhum relatório de validação de testes pendente para esta rodada; nada mais declinado.

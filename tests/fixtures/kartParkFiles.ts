@@ -1,6 +1,7 @@
-// Kart Park fixtures (test strategy of pista-kart-park, "Fixtures"): the published file and the origin are read in
-// place, never copied; every derived copy is a new object with one deviation, named after what it breaks. The
-// published file is never mutated (I3). Synthetic data only: nothing here comes from a player (D-TS-06).
+// Kart Park fixtures (test strategy of pista-kart-park 2.0.0, "Fixtures"): the two published files, the replica and the
+// version-1 origin are read in place, never copied; every derived copy is a new object with one deviation, named after
+// what it breaks. kartParkText() is the version 2 (seed revision 3); kartParkV1Text() is the frozen version 1. No
+// published file is ever mutated (I3). Synthetic data only: nothing here comes from a player (D-TS-06).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -26,16 +27,30 @@ export type OriginJson = {
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const ROOT = join(here, '..', '..');
-export const PUBLISHED_PATH = join(ROOT, 'src', 'tracks', 'kart-park-v1.json');
+export const PUBLISHED_PATH = join(ROOT, 'src', 'tracks', 'kart-park-v2.json');
+export const PUBLISHED_V1_PATH = join(ROOT, 'src', 'tracks', 'kart-park-v1.json');
+export const REPLICA_PATH = join(ROOT, 'tracks', 'sources', 'kart-park-replica.json');
 export const ORIGIN_PATH = join(ROOT, 'tracks', 'sources', 'kart-park.json');
 export const REGISTRY_PATH = join(ROOT, 'tracks', 'registry.json');
 
+export type ReplicaJson = {
+  formato: string; versao: number; id: string; sentido: string; comprimento_m: number;
+  pontos: [number, number, number][]; zebras: { lado: string; de_m: number; ate_m: number }[];
+  elementos: { tipo: string; de_m: number; comprimento_m: number; [extra: string]: unknown }[];
+  [extra: string]: unknown;
+};
+
 let publishedText: string | undefined;
+let publishedV1Text: string | undefined;
+let replicaText: string | undefined;
 let originText: string | undefined;
 export function kartParkText(): string { return publishedText ??= readFileSync(PUBLISHED_PATH, 'utf8'); }
+export function kartParkV1Text(): string { return publishedV1Text ??= readFileSync(PUBLISHED_V1_PATH, 'utf8'); }
 export function originText_(): string { return originText ??= readFileSync(ORIGIN_PATH, 'utf8'); }
 export function kartParkFile(): KartParkFile { return JSON.parse(kartParkText()) as KartParkFile; }
 export function originJson(): OriginJson { return JSON.parse(originText_()) as OriginJson; }
+// A new object every call: a test may derive a copy of the replica without touching the next test's.
+export function replicaJson(): ReplicaJson { return JSON.parse(replicaText ??= readFileSync(REPLICA_PATH, 'utf8')) as ReplicaJson; }
 export function registryJson(): { registryVersion: number; entries: Record<string, unknown>[] } {
   return JSON.parse(readFileSync(REGISTRY_PATH, 'utf8')) as { registryVersion: number; entries: Record<string, unknown>[] };
 }
@@ -66,8 +81,8 @@ export function withoutCurbs(): KartParkFile { const f = kartParkFile(); f.curbs
 export function withTextOsmDerived(): KartParkFile { const f = kartParkFile(); f.osmDerived = 'sim' as unknown as boolean; return f; }
 export function withSchema4(): KartParkFile { return { ...kartParkFile(), schemaVersion: 4 }; }
 export function corruptedText(): string { return kartParkText().slice(0, 500); }
-// One point moved 0.4 m along its normal, away from its origin point (V01 and V07 bound of 0.30 m); still readable.
-export function withPointOffset(index = 400, metres = 0.4): KartParkFile {
+// One point moved along its normal, away from the replica line (V07 bound of 0.10 m; V01 too when it is point 0).
+export function withPointOffset(index = 400, metres = 0.2): KartParkFile {
   const f = kartParkFile();
   const normal = kartParkGeometry().normals[index];
   f.centerline[index] = {
@@ -76,7 +91,7 @@ export function withPointOffset(index = 400, metres = 0.4): KartParkFile {
   };
   return f;
 }
-// The whole centerline translated 0.4 m east: every point leaves its origin point by 0.4 m, the lap length is kept.
+// The whole centerline translated east: every point leaves the replica line, the lap length is kept.
 export function withShiftedCenterline(metres = 0.4): KartParkFile {
   const f = kartParkFile();
   f.centerline = f.centerline.map(p => ({ ...p, xM: Number((p.xM + metres).toFixed(3)) }));
@@ -108,5 +123,16 @@ export function withBarrierVertexOnAsphalt(): KartParkFile {
   return f;
 }
 export function withRecordField(): KartParkFile { return { ...kartParkFile(), recordeMs: 41450 }; }
-export function withTrackVersion2(): KartParkFile { return { ...kartParkFile(), trackVersion: 2 }; }
+export function withTrackVersion1(): KartParkFile { return { ...kartParkFile(), trackVersion: 1 }; }
+export function withWidth(index = 10, widthM = 6.9): KartParkFile { const f = kartParkFile(); f.centerline[index] = { ...f.centerline[index], widthM }; return f; }
+// The first sector limit moved to the transversal line of another centerline point (an arc, chosen by the test).
+export function withSectorLimitAt(limit: number, line: Line): KartParkFile { const f = kartParkFile(); f.sectorLimits[limit] = line; return f; }
+// One curb span carried past the lap length, across the start line. The reader refuses a span ending more than 0.001 m past
+// the lap (the file then reads UNREADABLE); 0.0008 m past it is still readable and is beyond the half unit V20 allows.
+export function withCurbPastLap(index = 21, extraM = 0.0008): KartParkFile {
+  const f = kartParkFile();
+  const L = kartParkGeometry().lapLengthM;
+  f.curbs[index] = { ...f.curbs[index], toLapM: L + extraM };
+  return f;
+}
 export function withOtherTrackId(): KartParkFile { return { ...kartParkFile(), trackId: 'other-park' }; }

@@ -3,9 +3,9 @@ id: TEST-0002
 title: Leitura do esquema 3 e geometria do arquivo usada como declarada — API-0001, cópias ilegíveis, padrões neutros e regra de superfície
 feature: pista-kart-park
 stage: test
-status: validated
-version: 1.0.0
-sources: [AC-US-0002-08, AC-US-0002-04, AC-US-0005-04, AC-US-0005-02, NFR-0006]
+status: draft
+version: 1.1.0
+sources: [AC-US-0002-08, AC-US-0002-04, AC-US-0002-06, AC-US-0005-04, AC-US-0005-02, NFR-0006]
 ---
 
 # TEST-0002 — Leitura do esquema 3 e geometria do arquivo usada como declarada
@@ -15,7 +15,7 @@ sources: [AC-US-0002-08, AC-US-0002-04, AC-US-0005-04, AC-US-0005-02, NFR-0006]
 | Arquivo | `tests/pista-kart-park-track-data.test.ts` (estratégia: `track-data` e `geometry`) |
 | Nível | unitário e contrato (API-0001 campo a campo sobre o arquivo publicado; `readTrackData` sobre cópias com um desvio; `buildTrackGeometry`, `classifySurface`, `beyondTrackEdgeM`, `positionAtLapM`, `nearestOnCenterline`, `windingSumOf`, `checkConsistencyV3`) |
 | Interface exercitada | `readTrackData`, `checkConsistencyV3`, `TRACK_SCHEMA_VERSION` (`src/trackData.ts`); `buildTrackGeometry`, `classifySurface`, `beyondTrackEdgeM`, `positionAtLapM`, `nearestOnCenterline`, `lapMAtIndex`, `windingSumOf` (`src/trackGeometry.ts`); `SYNTHETIC_TRACK_FILE` (`src/track.ts`) |
-| Fixtures | `kartParkText()`, `kartParkFile()`, `kartParkGeometry()`; cópias `withoutCenterline`, `withTwoPointCenterline`, `withZeroWidth`, `withInvalidCurbSide`, `withOnePointBarrier`, `withTextOsmDerived`, `corruptedText`, `withSchema4`, `withoutCurbs`, `withoutBarriers`, `withReversedCenterline`, `withScaledCoordinates`; pontos da borda ± deslocamentos pela normal sobre um trecho de zebra longo e sobre um trecho sem zebra |
+| Fixtures | `kartParkText()` (versão 2), `kartParkFile()`, `kartParkGeometry()`, `replicaJson()`; a sessão de treino aberta na Kart Park por `selectTrainingTrack` com as fontes empacotadas; cópias `withoutCenterline`, `withTwoPointCenterline`, `withZeroWidth`, `withInvalidCurbSide`, `withOnePointBarrier`, `withTextOsmDerived`, `corruptedText`, `withSchema4`, `withoutCurbs`, `withoutBarriers`, `withReversedCenterline`, `withScaledCoordinates`; pontos da borda ± deslocamentos pela normal sobre um trecho de zebra longo e sobre um trecho sem zebra |
 
 ## Verificações
 
@@ -29,3 +29,4 @@ sources: [AC-US-0002-08, AC-US-0002-04, AC-US-0005-04, AC-US-0005-02, NFR-0006]
 | CHK-TEST-0002-06 | AC-US-0002-04, AC-US-0002-08 | a reversed or rescaled centerline under the same lines reads INCOMPLETE, naming the consistency check that fails | linha central invertida lida como `COMPLETE`, C1 ausente da lista, soma de enrolamento sem troca de sinal, coordenadas escaladas lidas como `COMPLETE` |
 | CHK-TEST-0002-07 | AC-US-0005-04, AC-US-0005-02 | the surface rule of the file geometry: asphalt inside the edges, curb on the declared strip, grass beyond, with the edge distance 0 on asphalt and curb | ponto 0,2 m dentro da borda não asfalto, 0,5 m fora da borda num trecho de zebra não zebra (mutação I), além da faixa não grama, `beyondTrackEdgeM` ≠ 0 sobre zebra ou asfalto, 1 m além da zebra a mais de 0,05 m de 1 m, grama a 1 m da borda sem zebra com outra classificação |
 | CHK-TEST-0002-08 | AC-US-0002-08 | lap distance and position are inverse of each other along the declared line | `positionAtLapM` → `nearestOnCenterline` → `lapMAtIndex` fora de 1e-6 m da distância pedida em 40 pontos, posição fora da linha |
+| CHK-TEST-0002-09 | AC-US-0002-06 | with the Kart Park loaded in the simulation, every point of the centerline it runs on is within 0.10 m of the replica centerline | sessão da Kart Park não `READY` ou sem geometria no ambiente; a linha central da simulação com outro número de pontos que a réplica; um ponto dela a mais de 0,10 m da poligonal fechada da réplica nos eixos (*x*, −*y*) (M17; o catálogo apontando para a versão 1, M1) |

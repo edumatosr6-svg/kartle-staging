@@ -8,9 +8,10 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { creditFor, MESSAGE_KEYS, message, optionLabel, OSM_CREDIT } from '../src/lapMessages';
 import { getTrainingTrackOptions, initialTrainingSession, selectTrainingTrack, startTrainingLap, TRAINING_TRACKS } from '../src/trainingSession';
-import { initialState } from '../src/physics';
+import { initialState, type SetupRef } from '../src/physics';
 import { SYNTHETIC_TRACK_FILE } from '../src/track';
-import { kartParkGeometry, kartParkText } from './fixtures/kartParkFiles';
+import { buildLapRecord, compareLapRecords } from '../src/setupRecords';
+import { kartParkGeometry, kartParkText, kartParkV1Text } from './fixtures/kartParkFiles';
 import { constant, drive, IDLE, kartAtLapM, KART_PARK_CONFIG, lapResults, runCountdown, seedLap } from './helpers/kartParkPilot';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -63,10 +64,10 @@ test('CHK-TEST-0009-04 the training lap result panel of a Kart Park lap shows th
   assert.equal(creditFor(undefined), undefined, 'AC-US-0006-04: an unknown entry has no credit');
 });
 
-test('CHK-TEST-0009-05 every screen names the Kart Park as "Kart Park — São José dos Pinhais (traçado aproximado)" through optionLabel, outside the message table', () => {
+test('CHK-TEST-0009-05 every screen names the Kart Park as "Kart Park — São José dos Pinhais (réplica não oficial)" through optionLabel, outside the message table', () => {
   // AC-US-0006-07
-  assert.equal(optionLabel(kartPark), 'Kart Park — São José dos Pinhais (traçado aproximado) · 687 m', 'AC-US-0006-07: the label');
-  assert.ok(optionLabel(kartPark).startsWith('Kart Park — São José dos Pinhais (traçado aproximado)'), 'AC-US-0006-07: the name');
+  assert.equal(optionLabel(kartPark), 'Kart Park — São José dos Pinhais (réplica não oficial) · 691 m', 'AC-US-0006-07: the label');
+  assert.ok(optionLabel(kartPark).startsWith('Kart Park — São José dos Pinhais (réplica não oficial)'), 'AC-US-0006-07: the name');
   assert.match(main, /\$\('track-name'\)\.textContent = option \? optionLabel\(option\) : '';/, 'AC-US-0006-07: the track name element shows the label');
   assert.match(main, /button\.textContent = optionLabel\(option\);/, 'AC-US-0006-07: each selector button shows the label');
   assert.ok(!html.includes('Circuito Aurora'), 'AC-US-0006-07: the old fixed track name is gone from index.html');
@@ -74,9 +75,13 @@ test('CHK-TEST-0009-05 every screen names the Kart Park as "Kart Park — São J
   assert.equal(optionLabel({ displayName: 'Pista sintética' }), 'Pista sintética', 'AC-US-0006-07: the synthetic label is the name alone');
 });
 
-test('CHK-TEST-0009-06 the label of the Kart Park ends with the 687 m length next to the name', () => {
+test('CHK-TEST-0009-06 the label of the Kart Park ends with the 691 m length next to the name, and no screen text keeps the approximate trace or 687 m', () => {
   // AC-US-0006-08
-  assert.ok(optionLabel(kartPark).endsWith(' · 687 m'), `AC-US-0006-08: the label ends with 687 m (${optionLabel(kartPark)})`);
+  assert.ok(optionLabel(kartPark).endsWith(' · 691 m'), `AC-US-0006-08: the label ends with 691 m (${optionLabel(kartPark)})`);
+  for (const f of ['index.html', 'src/main.ts', 'src/lapMessages.ts', 'src/trainingSession.ts']) {
+    const text = readFileSync(join(root, f), 'utf8');
+    for (const needle of ['traçado aproximado', '687 m', '687m']) assert.ok(!text.includes(needle), `AC-US-0006-08: ${f} must not carry "${needle}"`);
+  }
   assert.equal(optionLabel({ displayName: 'X', displayLengthM: 1234 }), 'X · 1234 m', 'AC-US-0006-08: the length comes from the entry');
   assert.ok(!optionLabel(synthetic).includes(' · '), 'AC-US-0006-08: no length for an entry without one');
 });
@@ -103,8 +108,8 @@ test('CHK-TEST-0009-08 the opening screen builds one selector button per catalog
   assert.equal(main.split('chooseTrack(OPENING_TRACK_ID)').length - 1, 1, 'AC-US-0001-02: the opening choice is made once');
   assert.match(main, /for \(const kind of offeredLapKinds\(reading, \[\]\)\)/, 'AC-US-0001-05: the offer takes no challenge kinds: training only');
   assert.match(main, /const r = startTrainingLap\(training, lap, config, \{ setupId: setup\.setupId, setupVersion: setup\.setupVersion \}\);/, 'AC-US-0001-03: the lap starts through the training session');
-  assert.match(main, /const TRACK_SOURCES: TrainingTrackSources = \{ 'kart-park': kartParkV1Text, synthetic: SYNTHETIC_TRACK_FILE \};/, 'AC-US-0001-01: both sources come bundled');
-  assert.match(main, /import kartParkV1Text from '\.\/tracks\/kart-park-v1\.json\?raw';/, 'NFR-0004: the Kart Park file is bundled as text, not fetched');
+  assert.match(main, /const TRACK_SOURCES: TrainingTrackSources = \{ 'kart-park': kartParkV2Text, synthetic: SYNTHETIC_TRACK_FILE \};/, 'AC-US-0001-01: both sources come bundled');
+  assert.match(main, /import kartParkV2Text from '\.\/tracks\/kart-park-v2\.json\?raw';/, 'AC-US-0001-08: the Kart Park version 2 is bundled as text, not fetched (NFR-0004)');
 });
 
 test('CHK-TEST-0009-09 an invalid lap shows its reason in the result title, and the missed-marker reason reads "marcador pulado"', () => {
@@ -156,4 +161,36 @@ test('CHK-TEST-0009-12 the synthetic track keeps the image of before revision 2:
   const park = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', sources);
   assert.ok(synth.ok && synth.session.sessionState === 'READY' && synth.session.environment?.track === undefined, 'AC-US-0007-16: the synthetic session has no file geometry to draw a finish from');
   assert.ok(park.ok && park.session.environment?.track !== undefined, 'AC-US-0007-16: the Kart Park session has one (the comparison can fail)');
+});
+
+test('CHK-TEST-0009-13 the application bundles no version-1 file, and a session refused by TRACK_VERSION_MISMATCH shows the data error, offers no lap and shows no best time', () => {
+  // AC-US-0001-09
+  assert.ok(!main.includes('kart-park-v1'), 'AC-US-0001-09: src/main.ts must not cite the version-1 file');
+  assert.equal([...main.matchAll(/\.\/tracks\/[a-z0-9-]+\.json\?raw/g)].length, 1, 'AC-US-0001-09: one bundled Kart Park file, the version 2');
+  // The FAILED session by TRACK_VERSION_MISMATCH: the offer shows the data error and returns before any lap button (CHK-TEST-0009-10).
+  const refused = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': kartParkV1Text(), synthetic: SYNTHETIC_TRACK_FILE });
+  assert.ok(!refused.ok && refused.code === 'TRACK_VERSION_MISMATCH' && refused.session.sessionState === 'FAILED', 'AC-US-0001-09: the version-1 file gives a FAILED session by TRACK_VERSION_MISMATCH');
+  assert.match(functionBody('renderOffer'), /if \(view\.sessionState === 'FAILED'[^)]*\) \{\s*status\.textContent = message\('trackDataError', lang\);\s*return;/, 'AC-US-0001-09: FAILED shows trackDataError and returns before the offer');
+  // #best (code-validation-20261106-1912 ISSUE-02): chooseTrack re-renders it with the reading the refused session carries, and
+  // renderBest writes a time only when the best record is COMPARABLE with that reading; otherwise "—".
+  const choose = functionBody('chooseTrack');
+  assert.ok(/reading = training\.reading \?\? \{ trackDataStatus: 'UNREADABLE' \};/.test(choose) && /renderBest\(\);/.test(choose), 'AC-US-0001-09: chooseTrack takes the session reading and re-renders #best');
+  const best = functionBody('renderBest');
+  assert.match(best, /el\.textContent = compared\.comparability === 'COMPARABLE' \? formatLapTime\(bestRecord\.lapMs\) : '—';/, 'AC-US-0001-09: #best shows a time only for a COMPARABLE record');
+  // A best record of a version-2 lap against the reading of the refused session: not COMPARABLE, so #best reads "—".
+  const v2 = selectTrainingTrack(initialTrainingSession(), undefined, 'kart-park', { 'kart-park': kartParkText(), synthetic: SYNTHETIC_TRACK_FILE });
+  if (!v2.ok) throw new Error('fixture: version 2 not selected');
+  const started = startTrainingLap(v2.session, undefined, KART_PARK_CONFIG);
+  if (!started.ok) throw new Error('fixture: lap rejected');
+  const k = kartAtLapM(kartParkGeometry().lapLengthM - 6);
+  const items = lapResults(drive(seedLap(runCountdown(started.lap), { kart: { ...k, vx: Math.sin(k.heading) * 8, vz: Math.cos(k.heading) * 8, speed: 8 } }), constant(IDLE), 600).lap);
+  assert.equal(items.length, 1, 'fixture: one version-2 result');
+  const setupRef: SetupRef = { setupId: 'ARCADE_ASSISTIDO', setupVersion: 'arcade-assistido-v6' };
+  const record = buildLapRecord(items[0], setupRef);
+  const reading = refused.session.reading;
+  assert.ok(reading && reading.trackDataStatus === 'COMPLETE', 'AC-US-0001-09: the refused session carries the COMPLETE reading of the version-1 file');
+  if (!reading || reading.trackDataStatus !== 'COMPLETE') return;
+  const compared = compareLapRecords(record, { trackId: reading.trackId, trackVersion: reading.trackVersion, ...setupRef });
+  assert.deepEqual(compared, { comparability: 'TRACK_DIFFERS' }, 'AC-US-0001-09: a version-2 best is not COMPARABLE with the refused version 1, so #best reads "—"');
+  assert.deepEqual(compareLapRecords(record, { trackId: 'kart-park', trackVersion: 2, ...setupRef }), { comparability: 'COMPARABLE' }, 'fixture: the same record is COMPARABLE on the version 2 (the check can fail)');
 });

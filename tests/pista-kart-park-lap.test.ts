@@ -1,5 +1,5 @@
 // TEST-0005 — the training lap of src/lap.ts on the Kart Park, each lap read from the growth of listLapResults: a valid lap with the Kart Park pilot, the missed marker, the cut rule over the
-// file edge, the shortcut of curve 4, the curb as track, and the finish, reverse and pause cases as on the synthetic track
+// file edge, the curb as track, and the finish, reverse and pause cases as on the synthetic track, on the version 2
 // (strategy: lap, integration level, DES-0004, RULE-0001, RULE-0003 of race-lap-validation).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -166,26 +166,9 @@ test('CHK-TEST-0005-05 up to 1000 ms beyond 3 m followed by a return to 3 m or l
   assert.equal(view(lap).invalidReason, 'CUT', 'AC-US-0003-08: only the 121st consecutive step is the cut');
 });
 
-test('CHK-TEST-0005-06 a lap that crosses the grass inside curve 4, leaving near 147 m and returning near 200 m, gets an INVALID item at the next finish crossing', () => {
-  // AC-US-0003-09
-  let grassInside = 0;
-  let closing: LapSession | undefined;
-  const { lap } = completeKartParkLap(kartParkPilot(g, { shortcut: { fromLapM: 147, toLapM: 200 } }), (b, a) => {
-    const c = contactOf(a);
-    if (c.wheelSurfaces.includes('GRASS')) {
-      const m = lapDistanceOf(g, a.kart);
-      if (m > 140 && m < 205) grassInside++;
-    }
-    if (lapResults(a).length > lapResults(b).length) closing = b;
-  });
-  assert.ok(grassInside > 20, `AC-US-0003-09: the kart must cross the grass inside curve 4 (${grassInside} steps with a wheel on the grass between 140 and 205 m)`);
-  const items = lapResults(lap);
-  assert.equal(items.length, 1, `AC-US-0003-09: the next finish crossing adds one item to listLapResults (${items.length})`);
-  assert.equal(lap.phase, 'RUNNING', 'AC-US-0003-09: the training keeps running');
-  assert.equal(items[0].lapValidity, 'INVALID', 'AC-US-0003-09: the shortcut lap must be INVALID');
-  assert.ok(['CUT', 'MISSED_MARKER'].includes(items[0].invalidReason ?? ''), `AC-US-0003-09: invalid by the cut or by a missed marker (${items[0].invalidReason})`);
-  assert.ok(closing !== undefined && closing.markersPassedCount < file.markers.length, 'AC-US-0003-09: the shortcut skipped markers');
-});
+// CHK-TEST-0005-06 (the shortcut of curve 4, AC-US-0003-09) retired with AC-US-0003-09 and REQ-FEAT-0003-12 by seed revision 3:
+// see the changelog of 500 Tests/Output/pista-kart-park, round of 2026-11-06. A shortcut across grass with no barrier stays
+// decided by the excursion of AC-US-0003-05 (MISSED_MARKER) and by the lines of V10 and V11.
 
 test('CHK-TEST-0005-07 riding a curb for more than 1000 ms with no wheel beyond it is not a cut: the curb counts as track', () => {
   // AC-US-0005-05
@@ -308,9 +291,10 @@ test('CHK-TEST-0005-13 riding with wheels on the edge line for more than 1000 ms
     for (const e of [g.leftEdge, g.rightEdge]) for (let i = 0; i < e.length; i++) best = Math.min(best, closestOnSegment(e[i], e[(i + 1) % e.length], p).distanceM);
     return best;
   };
-  // Between 15 and 55 m the pilot holds the left wheels 0.05 m inside the left edge, at walking pace; elsewhere it drives the lap.
-  const FROM = 15, TO = 55;
-  const onLine = kartParkPilot(g, { offsetM: m => m > FROM && m < TO ? widthAt(m) / 2 - half - EDGE_LINE_WIDTH_M / 2 : 0, maxSpeedMps: 2, steerGain: 1 });
+  // Between 425 and 470 m, on the 419.8-478 m straight of the replica with no curb on the left, the pilot holds the left wheels
+  // 0.05 m inside the left edge, at walking pace with a steer gain of 2; elsewhere it drives the lap (recalibrated on the version 2).
+  const FROM = 425, TO = 470;
+  const onLine = kartParkPilot(g, { offsetM: m => m > FROM && m < TO ? widthAt(m) / 2 - half - EDGE_LINE_WIDTH_M / 2 : 0, maxSpeedMps: 2, steerGain: 2 });
   const lapPilot = kartParkPilot(g);
   let run = 0, longest = 0, maxOffTrackSteps = 0;
   const { lap } = drive(runCountdown(startKartParkLap()), l => { const m = lapDistanceOf(g, l.kart); return m > FROM - 10 && m < TO + 5 ? onLine(l) : lapPilot(l); }, 12000, (_b, a) => {

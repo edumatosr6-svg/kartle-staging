@@ -1,6 +1,7 @@
-// TEST-0006 — determinism on the Kart Park: the same inputs from the same state give the same lap time, sectors and state; and
-// the same as the simulation of before seed revision 2, recorded in tests/fixtures/kartParkRev1Trace.json (strategy:
-// determinism, integration level, DES-0006, NFR-0003, NFR-0013, I8).
+// TEST-0006 — determinism on the Kart Park: the same inputs from the same state give the same lap time, sectors and state; on
+// the version 2, the same with and without the visual finish built (NFR-0013 2.0.0); and on the version 1, the same as the
+// simulation of before seed revision 2, recorded in tests/fixtures/kartParkRev1Trace.json, which shows the simulation has not
+// changed since (strategy 2.0.0: determinism, integration level, DES-0006, NFR-0003, NFR-0013, I8).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -8,12 +9,14 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { getTrackContact, step, STEP, wheelPositions, type Input, type State } from '../src/physics';
 import { getLapResult, getLapState, stepLap, type LapResult, type LapSession } from '../src/lap';
-import { classifySurface, closestOnSegment } from '../src/trackGeometry';
-import { EDGE_LINE_WIDTH_M } from '../src/trackScene';
+import { buildTrackGeometry, classifySurface, closestOnSegment, type TrackGeometry } from '../src/trackGeometry';
+import { readTrackData } from '../src/trackData';
+import { trackEnvironment } from '../src/physics';
+import { buildTrackScene, EDGE_LINE_WIDTH_M } from '../src/trackScene';
 import { startTrainingLap, selectTrainingTrack, initialTrainingSession } from '../src/trainingSession';
 import { SYNTHETIC_TRACK_FILE } from '../src/track';
-import { kartParkEnvironment, kartParkGeometry, kartParkText } from './fixtures/kartParkFiles';
-import { completeKartParkLap, drive, kartAtLapM, kartParkPilot, KART_PARK_CONFIG, lapResults, replay, runCountdown, startKartParkLap } from './helpers/kartParkPilot';
+import { kartParkEnvironment, kartParkGeometry, kartParkText, kartParkV1Text } from './fixtures/kartParkFiles';
+import { completeKartParkLap, drive, kartAtLapM, kartParkPilot, KART_PARK_CONFIG, lapDistanceOf, lapResults, replay, runCountdown, startKartParkLap } from './helpers/kartParkPilot';
 import { Seeded } from './helpers/seeded';
 
 const g = kartParkGeometry();
@@ -67,21 +70,26 @@ test('CHK-TEST-0006-04 a seeded 2000-step input sequence from the Kart Park star
 });
 
 // The revision-1 trace (data only): recorded once with the simulation of f926815, the commit before the seed-revision-2 code,
-// never regenerated from newer code. Each sequence is replayed here with the current code from the same start.
+// over the Kart Park version 1, never regenerated from newer code. Each sequence is replayed here with the current code from
+// the same start on the same file, the frozen version 1 (kartParkV1Text, strategy 2.0.0).
+const v1Reading = readTrackData(kartParkV1Text());
+if (v1Reading.trackDataStatus !== 'COMPLETE' || !v1Reading.centerline) throw new Error('fixture: the version-1 file must read COMPLETE');
+const gV1: TrackGeometry = buildTrackGeometry(v1Reading.centerline, v1Reading.curbs ?? [], v1Reading.barriers ?? []);
+const envV1 = trackEnvironment(gV1);
 type TraceSequence = { name: string; inputs: [number, number, number][]; states: [number, number, number, number][]; laps: { lapMs: number; sectorMs: number[] }[] };
 const trace = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'fixtures', 'kartParkRev1Trace.json'), 'utf8')) as { recordedFromCommit: string; sequences: TraceSequence[] };
 const sequence = (name: string) => { const q = trace.sequences.find(s => s.name === name); if (!q) throw new Error(`fixture: no sequence ${name}`); return q; };
 const asInput = ([throttle, brake, steer]: [number, number, number]): Input => ({ throttle, brake, steer });
 // Replays a lap sequence from runCountdown(startKartParkLap()) with its recorded inputs, step by step.
 function replayLap(q: TraceSequence): { lap: LapSession; kart: State[]; laps: LapSession[] } {
-  let lap = runCountdown(startKartParkLap());
+  let lap = runCountdown(startKartParkLap(v1Reading, KART_PARK_CONFIG, envV1));
   const kart: State[] = [], laps: LapSession[] = [];
   for (const input of q.inputs) { lap = stepLap(lap, asInput(input)); kart.push(lap.kart); laps.push(lap); }
   return { lap, kart, laps };
 }
 function replaySeeded(q: TraceSequence): State[] {
-  let s = kartAtLapM(0);
-  return q.inputs.map(input => (s = step(s, asInput(input), STEP, KART_PARK_CONFIG, kartParkEnvironment())));
+  let s = kartAtLapM(0, 0, false, gV1);
+  return q.inputs.map(input => (s = step(s, asInput(input), STEP, KART_PARK_CONFIG, envV1)));
 }
 // The first step where the replayed kart differs from the recorded one in x, z, heading or speed (exact: JSON keeps every double).
 const firstDifference = (q: TraceSequence, kart: State[]) => {
@@ -97,7 +105,7 @@ const replayed = {
   seeded: replaySeeded(sequence('seeded-2000')),
 };
 
-test('CHK-TEST-0006-05 every sequence of the revision-1 trace gives, step by step, the same kart position, heading and speed as before revision 2', () => {
+test('CHK-TEST-0006-05 every sequence of the revision-1 trace, replayed on the version 1, gives step by step the same kart position, heading and speed as before revision 2', () => {
   // AC-US-0007-07, NFR-0013
   assert.equal(trace.recordedFromCommit, 'f926815c2177ebf5b315a5e17cfb9e2f044acf5a', 'NFR-0013: the trace was recorded with the simulation of the commit before the revision-2 code');
   assert.deepEqual(trace.sequences.map(q => q.name), ['pilot-valid-lap', 'pilot-edge-curb-barrier', 'seeded-2000'], 'NFR-0013: the three sequences of DES-0006');
@@ -124,14 +132,14 @@ test('CHK-TEST-0006-07 the offset sequence of the trace crosses the edge line, r
   // NFR-0013, AC-US-0007-07
   const edgeDistance = (p: { x: number; z: number }) => {
     let best = Infinity;
-    for (const e of [g.leftEdge, g.rightEdge]) for (let i = 0; i < e.length; i++) best = Math.min(best, closestOnSegment(e[i], e[(i + 1) % e.length], p).distanceM);
+    for (const e of [gV1.leftEdge, gV1.rightEdge]) for (let i = 0; i < e.length; i++) best = Math.min(best, closestOnSegment(e[i], e[(i + 1) % e.length], p).distanceM);
     return best;
   };
   let edgeLine = 0, curb = 0, barrier = 0;
   for (const lap of replayed.offset.laps) {
     const k = lap.kart, sin = Math.sin(k.heading), cos = Math.cos(k.heading);
     const wheels = wheelPositions(KART_PARK_CONFIG).map(p => ({ x: k.x + p.forward * sin + p.left * cos, z: k.z + p.forward * cos - p.left * sin }));
-    if (wheels.some(w => classifySurface(g, w) === 'asphalt' && edgeDistance(w) <= EDGE_LINE_WIDTH_M)) edgeLine++;
+    if (wheels.some(w => classifySurface(gV1, w) === 'asphalt' && edgeDistance(w) <= EDGE_LINE_WIDTH_M)) edgeLine++;
     const c = getTrackContact(k, lap.environment, lap.config);
     if ('code' in c) continue;
     if (c.curbWheelCount > 0) curb++;
@@ -140,4 +148,123 @@ test('CHK-TEST-0006-07 the offset sequence of the trace crosses the edge line, r
   assert.ok(edgeLine > 0, `NFR-0013: the sequence has a step with a wheel on the edge line, inside the asphalt edge (${edgeLine})`);
   assert.ok(curb > 0, `AC-US-0007-07: the sequence has a step with a wheel on a curb (${curb})`);
   assert.ok(barrier > 0, `NFR-0013: the sequence has a step with barrier contact (${barrier})`);
+});
+
+// NFR-0013 2.0.0 on the version 2 (strategy, "execuções com e sem o acabamento"): each sequence is advanced twice in the same
+// process, first with no scene built, then with buildTrackScene(geometry) built before the first step and again every 120 steps;
+// the trace per step and per lap is kept here. The second run replays the inputs recorded in the first, never the pilot.
+type Run = { states: [number, number, number, number][]; laps: { lapMs?: number; sectorMs?: number[]; lapValidity: string }[]; contacts: { edgeLine: number; curb: number; barrier: number } };
+const v2EdgeDistance = (p: { x: number; z: number }) => {
+  let best = Infinity;
+  for (const e of [g.leftEdge, g.rightEdge]) for (let i = 0; i < e.length; i++) best = Math.min(best, closestOnSegment(e[i], e[(i + 1) % e.length], p).distanceM);
+  return best;
+};
+function contactsOf(lap: LapSession, counts: Run['contacts']) {
+  const k = lap.kart, sin = Math.sin(k.heading), cos = Math.cos(k.heading);
+  const wheels = wheelPositions(KART_PARK_CONFIG).map(p => ({ x: k.x + p.forward * sin + p.left * cos, z: k.z + p.forward * cos - p.left * sin }));
+  if (wheels.some(w => classifySurface(g, w) === 'asphalt' && v2EdgeDistance(w) <= EDGE_LINE_WIDTH_M)) counts.edgeLine++;
+  const c = getTrackContact(k, lap.environment, lap.config);
+  if ('code' in c) return;
+  if (c.curbWheelCount > 0) counts.curb++;
+  if (c.barrierContact) counts.barrier++;
+}
+// One lap sequence on the version 2 from runCountdown(startKartParkLap()), with the finish built or not; a recorded input list
+// replays it, a controller drives it (and its inputs are returned for the second run).
+function runLapSequence(source: { inputs: Input[] } | { controller: (lap: LapSession) => Input; maxSteps: number; stopAfterBarrierSteps?: number }, withFinish: boolean, measure = false): Run & { inputs: Input[] } {
+  if (withFinish) buildTrackScene(g);
+  let lap = runCountdown(startKartParkLap());
+  const states: Run['states'] = [], inputs: Input[] = [];
+  const contacts = { edgeLine: 0, curb: 0, barrier: 0 };
+  let sinceBarrier = -1;
+  const total = 'inputs' in source ? source.inputs.length : source.maxSteps;
+  for (let i = 0; i < total; i++) {
+    if (withFinish && i > 0 && i % 120 === 0) buildTrackScene(g);
+    const input = 'inputs' in source ? source.inputs[i] : source.controller(lap);
+    lap = stepLap(lap, input);
+    inputs.push(input);
+    states.push([lap.kart.x, lap.kart.z, lap.kart.heading, lap.kart.speed]);
+    if (measure) contactsOf(lap, contacts);
+    if (!('inputs' in source)) {
+      if (sinceBarrier < 0 && measure && contacts.barrier > 0) sinceBarrier = 0;
+      if (sinceBarrier >= 0 && ++sinceBarrier > (source.stopAfterBarrierSteps ?? Infinity)) break;
+      if (source.stopAfterBarrierSteps === undefined && lapResults(lap).length > 0) break;
+    }
+  }
+  const laps = lapResults(lap).map(r => ({ lapMs: r.lapMs, sectorMs: r.sectorMs, lapValidity: r.lapValidity }));
+  return { states, laps, contacts, inputs };
+}
+function runSeeded(withFinish: boolean): Run {
+  if (withFinish) buildTrackScene(g);
+  const seeded = new Seeded(20261106);
+  let s = kartAtLapM(0);
+  const states: Run['states'] = [];
+  for (let i = 0; i < 2000; i++) {
+    if (withFinish && i > 0 && i % 120 === 0) buildTrackScene(g);
+    s = step(s, seeded.input(), STEP, KART_PARK_CONFIG, kartParkEnvironment());
+    states.push([s.x, s.z, s.heading, s.speed]);
+  }
+  return { states, laps: [], contacts: { edgeLine: 0, curb: 0, barrier: 0 } };
+}
+// The offset pilot (recalibrated on the version 2): the kart centre over the first curb longer than 15 m after 60 m, the left
+// wheels on the edge line along the 314.3-369.2 m straight of the replica (320-360 m), then a cut across the grass from 385 m
+// towards 605 m into the barrier between the two near stretches; the sequence stops 360 steps after the first barrier contact.
+const firstLongCurb = g.curbs.find(c => c.fromLapM > 60 && c.toLapM - c.fromLapM > 15)!;
+const halfWidth = g.centerline[0].widthM / 2;
+const offsetPilot = kartParkPilot(g, {
+  offsetM: m => m > firstLongCurb.fromLapM + 1 && m < firstLongCurb.toLapM - 1 ? (firstLongCurb.side === 'LEFT' ? 1 : -1) * (halfWidth + 0.15)
+    : m > 320 && m < 360 ? halfWidth - KART_PARK_CONFIG.trackWidth / 2 - EDGE_LINE_WIDTH_M / 2 : 0,
+  shortcut: { fromLapM: 385, toLapM: 605 },
+  maxSpeedMps: 14,
+});
+const withoutFinish = {
+  valid: runLapSequence({ controller: kartParkPilot(g), maxSteps: 9000 }, false),
+  offset: runLapSequence({ controller: offsetPilot, maxSteps: 9000, stopAfterBarrierSteps: 360 }, false, true),
+  seeded: runSeeded(false),
+};
+const withFinishBuilt = {
+  valid: runLapSequence({ inputs: withoutFinish.valid.inputs }, true),
+  offset: runLapSequence({ inputs: withoutFinish.offset.inputs }, true, true),
+  seeded: runSeeded(true),
+};
+const firstStepDifference = (a: Run['states'], b: Run['states']) => {
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const x = a[i], y = b[i];
+    if (!x || !y || x[0] !== y[0] || x[1] !== y[1] || x[2] !== y[2] || x[3] !== y[3]) return `step ${i}: without ${JSON.stringify(x)}, with ${JSON.stringify(y)}`;
+  }
+  return undefined;
+};
+
+test('CHK-TEST-0006-08 on the version 2, each of the three sequences gives in every step the same kart position, heading and speed with and without the visual finish built', () => {
+  // AC-US-0007-07, NFR-0013
+  for (const name of ['valid', 'offset', 'seeded'] as const) {
+    const a = withoutFinish[name].states, b = withFinishBuilt[name].states;
+    assert.ok(a.length >= 2000, `fixture: ${name} runs at least 2000 steps (${a.length})`);
+    assert.equal(b.length, a.length, `NFR-0013: ${name}: the two runs have the same number of steps`);
+    assert.equal(firstStepDifference(a, b), undefined, `NFR-0013: ${name}: the kart must follow the same trajectory with the finish built`);
+  }
+  assert.ok(new Set(withoutFinish.offset.states.map(s => s.join())).size > 1000, 'fixture: the offset sequence moves');
+});
+
+test('CHK-TEST-0006-09 on the version 2, the valid lap gives the same total time to the millisecond and the same 4 sector times with and without the visual finish built', () => {
+  // NFR-0013
+  const a = withoutFinish.valid.laps, b = withFinishBuilt.valid.laps;
+  assert.equal(a.length, 1, `fixture: the pilot completes the lap on the version 2 (${a.length})`);
+  assert.equal(a[0].lapValidity, 'VALID', 'fixture: the compared lap is VALID');
+  assert.equal(b.length, 1, 'NFR-0013: the lap is completed at the same step with the finish built');
+  assert.equal(b[0].lapMs, a[0].lapMs, `NFR-0013: lapMs must be identical with and without the finish (${b[0].lapMs} vs ${a[0].lapMs})`);
+  assert.equal(a[0].sectorMs?.length, 4, 'NFR-0013: four sectors compared');
+  assert.deepEqual(b[0].sectorMs, a[0].sectorMs, 'NFR-0013: the 4 sector times must be identical one by one');
+  assert.deepEqual(withFinishBuilt.offset.laps, withoutFinish.offset.laps, 'NFR-0013: the offset sequence lists the same results');
+});
+
+test('CHK-TEST-0006-10 on the version 2, the offset sequence compared with and without the finish crosses the edge line, rides a curb and hits the barrier', () => {
+  // NFR-0013, AC-US-0007-07
+  for (const [label, run] of [['without', withoutFinish.offset], ['with', withFinishBuilt.offset]] as const) {
+    assert.ok(run.contacts.edgeLine > 0, `NFR-0013: ${label} the finish: a step with a wheel on the edge line, inside the asphalt edge (${run.contacts.edgeLine})`);
+    assert.ok(run.contacts.curb > 0, `AC-US-0007-07: ${label} the finish: a step with a wheel on a curb (${run.contacts.curb})`);
+    assert.ok(run.contacts.barrier > 0, `NFR-0013: ${label} the finish: a step with barrier contact (${run.contacts.barrier})`);
+  }
+  assert.deepEqual(withFinishBuilt.offset.contacts, withoutFinish.offset.contacts, 'NFR-0013: the same contacts in the same number of steps');
+  const lastLapM = lapDistanceOf(g, { x: withoutFinish.offset.states.at(-1)![0], z: withoutFinish.offset.states.at(-1)![1] });
+  assert.ok(lastLapM > 360 && lastLapM < 640, `fixture: the offset sequence ends between the two near stretches (${lastLapM.toFixed(1)} m)`);
 });
