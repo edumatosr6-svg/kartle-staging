@@ -4,8 +4,8 @@ title: Tela inicial com seletor e crédito, crédito no painel do resultado da v
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.3.0
-sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
+version: 1.4.0
+sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
 ---
 
 # DES-0007 — Tela inicial com seletor e crédito, crédito no resultado e nome da pista — implementação
@@ -35,3 +35,11 @@ chamado por `src/main.ts` (só `startTrainingLap`); "Circuito Aurora", "41,45" e
 
 Visto em tela (`vite preview`): abertura na Kart Park com seletor, crédito, nome e oferta; troca para a sintética sem crédito;
 volta de treino iniciada (rodada 1; o crédito no painel da rodada 4 não foi visto em tela por esta etapa). A prova por texto (`tests/pista-kart-park-screens.test.ts`) e os roteiros E2E são do estágio de testes.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DES-0007 2.0.1:
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0001-15 | `src/main.ts:13` (`kartParkV2Text` de `./tracks/kart-park-v2.json?raw`), `:156` (`TRACK_SOURCES`): o pacote leva só a versão 2 |
+| REQ-FEAT-0001-16 | `chooseTrack` (`src/main.ts:225-252`): `TRACK_VERSION_MISMATCH` registrado em `console.warn` só com identificadores (`:230`); a sessão `FAILED` segue o caminho das falhas de leitura que já existia (sem volta, seletor ativo) |
+| REQ-FEAT-0006-07, -08 | o rótulo vem de `optionLabel` sobre a entrada do catálogo (`src/trainingSession.ts:14`); nenhum texto novo em `src/main.ts` |

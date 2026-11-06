@@ -4,8 +4,8 @@ title: Arquivo de pista, versão de esquema 3 — implementação
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
-sources: [API-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, RULE-0002, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-07, REQ-FEAT-0002-09, REQ-FEAT-0002-12, REQ-FEAT-0002-14, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0005-01, REQ-FEAT-0005-03, REQ-FEAT-0006-09]
+version: 1.2.0
+sources: [API-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, RULE-0002, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-04, REQ-FEAT-0002-07, REQ-FEAT-0002-09, REQ-FEAT-0002-12, REQ-FEAT-0002-14, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0002-19, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0005-01, REQ-FEAT-0005-03, REQ-FEAT-0005-20, REQ-FEAT-0006-09]
 ---
 
 # DM-0001 — Arquivo de pista, versão de esquema 3 — implementação
@@ -40,3 +40,11 @@ geometria derivada (`src/trackGeometry.ts`) e o arquivo publicado `src/tracks/ka
 Preenchimento retroativo: nenhum. Janela de compatibilidade: arquivo e leitor no mesmo artefato; um cliente só da versão 2 diante
 do arquivo da Kart Park dá `UNSUPPORTED_SCHEMA` (CHK-TEST-0009-03 na árvore anterior). Retenção e privacidade: geometria,
 identificadores e `osmDerived`; nada pessoal, nenhum recorde.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DM-0001 2.0.1:
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0002-19; REQ-FEAT-0005-20 | `src/tracks/kart-park-v2.json` (novo; `trackVersion` 2, `osmDerived` `true`, `COUNTER_CLOCKWISE`; 691 pontos de largura 7,0; 22 zebras com `0 <= fromLapM < toLapM <= 690,674`; 3 limites; 39 marcadores; 1 barreira de 292 vértices), escrito por `serializeTrackFile` (`scripts/trackPrep.ts:406-417`, sem mudança): 36 585 bytes, SHA-256 `c79f14cb…c4d20a`, uma linha terminada em LF, coberto por `.gitattributes:6` (`-text`) |
+| REQ-FEAT-0002-20, -21 | `src/tracks/kart-park-v1.json` sem mudança (SHA-256 `04ce5e51…f057b1`, `trackVersion` 1); fora do pacote: nada em `src/` o importa |
+| REQ-FEAT-0002-03 (retirado) | fora de `sources`: retirado pelo F-Spec na revisão 3 |

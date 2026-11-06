@@ -7,10 +7,11 @@ import { readTrackData, type TrackDataSource, type TrackDataStatus, type TrackRe
 import { buildTrackGeometry } from './trackGeometry';
 
 export type TrainingTrackId = 'kart-park' | 'synthetic';
-export type TrainingTrackOption = { trackId: TrainingTrackId; displayName: string; displayLengthM?: number; osmCredit: boolean };
+export type TrainingTrackOption = { trackId: TrainingTrackId; trackVersion?: number; displayName: string; displayLengthM?: number; osmCredit: boolean };
 // The fixed catalogue (REQ-FEAT-0001-01): no record field, no configuration to change the opening track (ADR-0005).
+// An entry with trackVersion opens only a file declaring that version (ADR-0008); without it, the version is not checked.
 export const TRAINING_TRACKS: readonly TrainingTrackOption[] = Object.freeze([
-  Object.freeze({ trackId: 'kart-park' as const, displayName: 'Kart Park — São José dos Pinhais (traçado aproximado)', displayLengthM: 687, osmCredit: true }),
+  Object.freeze({ trackId: 'kart-park' as const, trackVersion: 2, displayName: 'Kart Park — São José dos Pinhais (réplica não oficial)', displayLengthM: 691, osmCredit: true }),
   Object.freeze({ trackId: 'synthetic' as const, displayName: 'Pista sintética', osmCredit: false }),
 ]);
 export const OPENING_TRACK_ID: TrainingTrackId = 'kart-park';
@@ -29,11 +30,11 @@ export type TrainingTrackOptions = {
 };
 export type SelectTrainingTrackResponse =
   | { sessionState: 'READY'; trackId: string; trackVersion: TrackVersion; trackDataStatus: 'COMPLETE' | 'INCOMPLETE' }
-  | { sessionState: 'FAILED'; trackId: string; trackDataStatus: 'UNREADABLE' | 'UNSUPPORTED_SCHEMA' };
+  | { sessionState: 'FAILED'; trackId: string; trackDataStatus: TrackDataStatus };
 export type SelectTrainingTrackResult =
   | { ok: true; session: TrainingSession; lap: LapSession | undefined; response: SelectTrainingTrackResponse }
   | { ok: false; code: 'UNKNOWN_TRACK'; session: TrainingSession; lap: LapSession | undefined }
-  | { ok: false; code: 'TRACK_DATA_UNREADABLE' | 'TRACK_SCHEMA_UNSUPPORTED'; session: TrainingSession; lap: undefined; response: SelectTrainingTrackResponse };
+  | { ok: false; code: 'TRACK_DATA_UNREADABLE' | 'TRACK_SCHEMA_UNSUPPORTED' | 'TRACK_VERSION_MISMATCH'; session: TrainingSession; lap: undefined; response: SelectTrainingTrackResponse };
 
 const isTrainingTrackId = (v: string): v is TrainingTrackId => TRAINING_TRACKS.some(o => o.trackId === v);
 
@@ -64,9 +65,15 @@ export function selectTrainingTrack(session: TrainingSession, lap: LapSession | 
     const failed: TrainingSession = { sessionState: 'FAILED', selectedTrackId: trackId, reading };
     return { ok: false, code: 'TRACK_SCHEMA_UNSUPPORTED', session: failed, lap: undefined, response: { sessionState: 'FAILED', trackId, trackDataStatus: 'UNSUPPORTED_SCHEMA' } };
   }
-  if (reading.trackDataStatus === 'UNREADABLE' || reading.trackId !== trackId) {
-    const failed: TrainingSession = { sessionState: 'FAILED', selectedTrackId: trackId, reading: { trackDataStatus: 'UNREADABLE' } };
+  if (reading.trackDataStatus === 'UNREADABLE') {
+    const failed: TrainingSession = { sessionState: 'FAILED', selectedTrackId: trackId, reading };
     return { ok: false, code: 'TRACK_DATA_UNREADABLE', session: failed, lap: undefined, response: { sessionState: 'FAILED', trackId, trackDataStatus: 'UNREADABLE' } };
+  }
+  // A readable file of another track, or of another version than the catalogue entry declares, never opens a session.
+  const expectedVersion = TRAINING_TRACKS.find(o => o.trackId === trackId)?.trackVersion;
+  if (reading.trackId !== trackId || (expectedVersion !== undefined && reading.trackVersion !== expectedVersion)) {
+    const failed: TrainingSession = { sessionState: 'FAILED', selectedTrackId: trackId, reading };
+    return { ok: false, code: 'TRACK_VERSION_MISMATCH', session: failed, lap: undefined, response: { sessionState: 'FAILED', trackId, trackDataStatus: reading.trackDataStatus } };
   }
   // A schema-3 reading carries its geometry; a schema-2 reading is the synthetic circuit.
   const environment = reading.centerline

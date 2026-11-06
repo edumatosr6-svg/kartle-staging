@@ -4,8 +4,8 @@ title: Volta na Kart Park — corte pela borda da pista, reposicionamento e larg
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
-sources: [FEAT-0003, FEAT-0005, FLOW-0002, RULE-0001, REQ-FEAT-0001-08, REQ-FEAT-0002-12, REQ-FEAT-0003-08, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-15, REQ-FEAT-0005-07]
+version: 1.2.0
+sources: [FEAT-0003, FEAT-0005, FLOW-0002, RULE-0001, REQ-FEAT-0001-08, REQ-FEAT-0002-12, REQ-FEAT-0003-08, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-13, REQ-FEAT-0003-15, REQ-FEAT-0005-07]
 ---
 
 # DES-0004 — Volta na Kart Park — implementação
@@ -26,3 +26,7 @@ rejeição não mudaram; `edgeDistanceM` continua exportado (`:235-237`).
 
 As provas com o piloto de teste da Kart Park (`VALID` com 4 setores, `MISSED_MARKER` sem `CUT`, `CUT` no passo 121, atalho da
 curva 4, zebra sem corte, reposicionamento na linha central do arquivo, determinismo) são do estágio de testes.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`): sem mudança de código. `src/lap.ts`, `src/physics.ts` e `src/trackGeometry.ts` não citam versão de pista e servem a
+versão 2 pelas linhas transversais e pela linha central do arquivo carregado (`src/main.ts:13`, `:156`). REQ-FEAT-0003-12 (atalho
+da curva 4) saiu de `sources`, retirado pelo F-Spec na revisão 3.

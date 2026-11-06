@@ -4,7 +4,7 @@ title: Desenho da Kart Park na tela de corrida — grama, asfalto, faixa de bord
 feature: pista-kart-park
 stage: code
 status: validated
-version: 2.0.0
+version: 2.1.0
 sources: [SCR-0003, FLOW-0002, RULE-0006, FEAT-0002, FEAT-0004, FEAT-0005, FEAT-0007, FEAT-0008, REQ-FEAT-0002-13, REQ-FEAT-0004-08, REQ-FEAT-0005-04, REQ-FEAT-0007-01, REQ-FEAT-0007-02, REQ-FEAT-0008-01, REQ-FEAT-0008-02, REQ-FEAT-0008-03, REQ-FEAT-0008-04, REQ-FEAT-0008-05, REQ-FEAT-0008-06, REQ-FEAT-0008-07, REQ-FEAT-0008-08, REQ-FEAT-0008-09, REQ-FEAT-0008-10, REQ-FEAT-0008-11, REQ-FEAT-0008-12, REQ-FEAT-0008-13, REQ-FEAT-0008-14, REQ-FEAT-0008-15, REQ-FEAT-0008-16, REQ-FEAT-0008-17, REQ-FEAT-0008-18, REQ-FEAT-0008-19, REQ-FEAT-0008-20, REQ-FEAT-0008-21, REQ-FEAT-0008-22, REQ-FEAT-0008-23, REQ-FEAT-0008-24]
 ---
 
@@ -34,3 +34,13 @@ citadas são as da árvore desta rodada (`src/trackScene.ts` 262 linhas, `src/ma
 
 Constantes e cores retiradas pela troca de caixas por pneus: `BARRIER_COLOR` (`#e6dfc9`) e `BARRIER_HEIGHT_M`; não eram exportadas.
 A prova em Node (`tests/pista-kart-park-scene.test.ts`) é do estágio de testes.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DES-0008 3.0.1: sem mudança de código; `src/trackScene.ts` desenha a versão 2 pelo mesmo caminho. Medido sobre
+`src/tracks/kart-park-v2.json` publicado (script descartável fora do repositório, `buildTrackGeometry` + `buildTrackScene`, fronteiras
+amostradas a cada 0,001 m e o círculo de contato de cada vértice a cada 0,1°):
+
+| Requisito | Medida |
+|---|---|
+| REQ-FEAT-0008-12, -13 | 1 poligonal, 292 vértices, 291 segmentos, 47,649 m; 539 pilhas (`vértices + Σ(⌈l / 0,12⌉ − 1)`), 2 695 pneus, 132 triângulos por pilha, 71 148 triângulos numa chamada de desenho (versão 1: 646 pilhas, 85 272 triângulos) |
+| REQ-FEAT-0008-14 | distância entre a fronteira de contato (0,1 m da poligonal) e a face desenhada: 0,0191 m de contato a face e 0,0230 m de face a contato (limite 0,05 m nos dois sentidos); face desenhada entre 0,077 m e 0,100 m da poligonal; os pontos da fronteira de contato que o teste de inclusão marca dentro de um pneu estão sobre a face (profundidade 0,0000 m) |
+| REQ-FEAT-0008-15 | 24 pontos do círculo de cada pneu, nas 539 pilhas: todos na grama; o preparo garantiu `BARRIER_TRACK_CLEARANCE_M` 0,2 m (`scripts/trackPrep.ts:510-525`) |

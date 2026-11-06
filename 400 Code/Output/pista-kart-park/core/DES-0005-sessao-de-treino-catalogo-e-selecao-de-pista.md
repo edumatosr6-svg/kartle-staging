@@ -4,8 +4,8 @@ title: Sessão de treino, catálogo do treino e seleção de pista — implement
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.2.0
-sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-14, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11]
+version: 1.3.0
+sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11]
 ---
 
 # DES-0005 — Sessão de treino, catálogo e seleção de pista — implementação
@@ -28,3 +28,11 @@ sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01
 | RULE-0003; FLOW-0001 | `SessionState` (`:18`), `TrainingSession` imutável (`:19-25`); `LOADING` dura a chamada (leitura síncrona do dado empacotado); ambiente `trackEnvironment(buildTrackGeometry(...))` numa leitura com `centerline`, `CIRCUIT` numa de versão 2 (`:72-74`) |
 | REQ-FEAT-0006-07, -08, -10, -11; FEAT-0006 | entrada `kart-park`: `displayName` `Kart Park — São José dos Pinhais (traçado aproximado)`, `displayLengthM` 687, `osmCredit` `true`; entrada `synthetic`: `Pista sintética`, sem comprimento, `osmCredit` `false` (`:13-14`); literais iguais nos dois idiomas |
 | REQ-FEAT-0006-09; FEAT-0001 | nenhum campo de recorde em `TrainingTrackOption` (`:10`); nenhuma chave de configuração |
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DES-0005 2.0.0, ADR-0008:
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0001-15; API-0002 (`trackVersion`) | `TrainingTrackOption.trackVersion?` (`src/trainingSession.ts:10`); entrada `kart-park` com `trackVersion: 2` (`:14`); `src/main.ts:13` importa `./tracks/kart-park-v2.json?raw` e `:156` o entrega à sessão: a abertura e o seletor carregam a versão 2, `READY` com `trackVersion` 2 |
+| REQ-FEAT-0001-16; API-0002 (`TRACK_VERSION_MISMATCH`) | `selectTrainingTrack` (`:56-84`): depois de `UNSUPPORTED_SCHEMA` (`:64-67`) e `UNREADABLE` (`:68-71`), um arquivo legível de outro `trackId`, ou com `trackVersion` diferente da entrada que declara versão, termina `FAILED` com `TRACK_VERSION_MISMATCH` e `lap` `undefined` (`:72-77`); o código entra na união de `SelectTrainingTrackResult` (`:37`); `startTrainingLap` continua rejeitando sem sessão `READY`. A entrada `synthetic` não declara versão e não é conferida |
+| REQ-FEAT-0006-07, -08 | `displayName` `Kart Park — São José dos Pinhais (réplica não oficial)` e `displayLengthM` 691 (`:14`), fixados pelo F-Spec e independentes do comprimento medido (690,674 m) |

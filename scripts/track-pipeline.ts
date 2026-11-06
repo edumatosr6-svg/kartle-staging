@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { TRAINING_TRACKS } from '../src/trainingSession';
-import { prepareTrack, readOriginTrack, serializeTrackFile, type PrepRecord } from './trackPrep';
+import { prepareReplicaTrack, readReplicaTrack, serializeTrackFile, type PrepRecord, type ReplicaPrepRecord, type Schema3File } from './trackPrep';
 import { MAX_FILE_BYTES, verifyTrackFile } from './trackChecks';
 
 const COMMANDS = ['prepare', 'verify', 'publish', 'promote'] as const;
@@ -20,18 +20,23 @@ const REGISTRY_VERSION = 1;
 // Run from the repository root (`npm run track -- ...`): every path below is relative to it.
 const ROOT = process.cwd();
 const REGISTRY_FILE = 'tracks/registry.json';
-// SHA-256 of the origin file each track is prepared from; another digest is refused without touching the origin.
-const ORIGIN_SHA256: Readonly<Record<string, string>> = Object.freeze({
-  'kart-park': '52c5adda4ce89bd23a00e04a10d7e12a28900dd4d56414f444e0a4795f2c5302',
+// The origin of each published (trackId, trackVersion) and the SHA-256 it must have; another digest is refused without
+// touching the origin. A frozen pair is published and is never prepared, verified or published again (ADR-0008).
+type TrackOrigin = { file: string; sha256: string; method: 'SMOOTHED_ORIGIN' | 'REPLICA'; frozen?: true };
+const TRACK_ORIGINS: Readonly<Record<string, Readonly<Record<number, TrackOrigin>>>> = Object.freeze({
+  'kart-park': Object.freeze({
+    1: Object.freeze({ file: 'tracks/sources/kart-park.json', sha256: '52c5adda4ce89bd23a00e04a10d7e12a28900dd4d56414f444e0a4795f2c5302', method: 'SMOOTHED_ORIGIN', frozen: true } as const),
+    2: Object.freeze({ file: 'tracks/sources/kart-park-replica.json', sha256: 'eba665b6c700fe7a05cd89862ef74d93ce307e613393e34cf78b9c69b2caa24e', method: 'REPLICA' } as const),
+  }),
 });
 
 type RegistryEntry = {
   trackId: string; trackVersion: number; file: string; sha256: string; fileBytes: number;
   publicationState: 'STAGING' | 'PRODUCTION'; stagedAtUtc: string; promotedAtUtc?: string; esriDecisionRef?: string;
-  prep: { originFile: string; originSha256: string } & PrepRecord;
+  prep: ({ originFile: string; originSha256: string } & PrepRecord) | ({ originFile: string; originSha256: string } & ReplicaPrepRecord);
 };
 type Registry = { registryVersion: number; entries: RegistryEntry[] };
-type Args = { command: Command; trackId: string; trackVersion: number; esriDecision?: string };
+type Args = { command: Command; trackId: string; trackVersion: number; origin: TrackOrigin; esriDecision?: string };
 
 const invalid = (name: string): never => { console.error(`argumento inválido: ${name}`); process.exit(1); };
 const fail = (message: string): never => { console.error(message); process.exit(1); };
@@ -41,8 +46,12 @@ function parseArgs(argv: string[]): Args {
   const [command, trackId, trackVersion, ...rest] = argv;
   if (!command || !(COMMANDS as readonly string[]).includes(command)) return invalid('comando');
   if (!trackId || !TRACK_ID_RE.test(trackId)) return invalid('trackId');
-  if (!TRAINING_TRACKS.some(o => o.trackId === trackId) || !existsSync(join(ROOT, 'tracks', 'sources', `${trackId}.json`))) return invalid('trackId');
+  if (!TRAINING_TRACKS.some(o => o.trackId === trackId)) return invalid('trackId');
   if (!trackVersion || !TRACK_VERSION_RE.test(trackVersion)) return invalid('trackVersion');
+  const origin = Object.hasOwn(TRACK_ORIGINS, trackId) ? TRACK_ORIGINS[trackId][Number(trackVersion)] : undefined;
+  if (!origin) return invalid('trackVersion');
+  if (command !== 'promote' && origin.frozen) return fail(`recusado: ${trackId} ${trackVersion} é versão publicada e congelada`);
+  if (!existsSync(join(ROOT, origin.file))) return invalid('trackVersion');
   let esriDecision: string | undefined;
   for (let i = 0; i < rest.length; i++) {
     if (rest[i] === ESRI_OPTION) {
@@ -54,11 +63,10 @@ function parseArgs(argv: string[]): Args {
     } else return invalid(rest[i]);
   }
   if (command === 'promote' && esriDecision === undefined) return invalid(ESRI_OPTION);
-  return { command: command as Command, trackId, trackVersion: Number(trackVersion), esriDecision };
+  return { command: command as Command, trackId, trackVersion: Number(trackVersion), origin, esriDecision };
 }
 
 const sha256 = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex');
-const originPath = (trackId: string) => `tracks/sources/${trackId}.json`;
 const publishedPath = (trackId: string, trackVersion: number) => `src/tracks/${trackId}-v${trackVersion}.json`;
 
 // Temporary file in the same folder, then rename: a failure in the middle leaves the previous file intact.
@@ -83,36 +91,41 @@ function readRegistry(): Registry {
 const writeRegistry = (registry: Registry) => writeAtomic(REGISTRY_FILE, JSON.stringify(registry, null, 2) + '\n');
 const findEntry = (registry: Registry, trackId: string, trackVersion: number) => registry.entries.find(e => e.trackId === trackId && e.trackVersion === trackVersion);
 
-function readOrigin(trackId: string): { json: unknown; bytes: Buffer } {
-  const bytes = readFileSync(join(ROOT, originPath(trackId)));
-  const expected = ORIGIN_SHA256[trackId];
-  const digest = sha256(bytes);
-  if (expected === undefined || digest !== expected) return fail(`recusado: origem ${originPath(trackId)} com resumo diferente do esperado`);
+function readOrigin(origin: TrackOrigin): { json: unknown; bytes: Buffer } {
+  const bytes = readFileSync(join(ROOT, origin.file));
+  if (sha256(bytes) !== origin.sha256) return fail(`recusado: origem ${origin.file} com resumo diferente do esperado`);
   let json: unknown;
-  try { json = JSON.parse(bytes.toString('utf8')); } catch { return fail(`recusado: origem ${originPath(trackId)} não é JSON`); }
+  try { json = JSON.parse(bytes.toString('utf8')); } catch { return fail(`recusado: origem ${origin.file} não é JSON`); }
   return { json, bytes };
+}
+
+// Only the replica method is ever run: the version-1 (smoothed origin) preparation is frozen and refused by parseArgs.
+function runPreparation(args: Args, json: unknown): { file: Schema3File; prep: ReplicaPrepRecord } {
+  if (args.origin.method !== 'REPLICA') return fail(`recusado: ${args.trackId} ${args.trackVersion} é versão publicada e congelada`);
+  const replica = readReplicaTrack(json);
+  if ('error' in replica) return fail(`recusado: ${replica.error}`);
+  const result = prepareReplicaTrack(replica, { trackId: args.trackId, trackVersion: args.trackVersion });
+  if ('error' in result) return fail(`recusado: ${result.error}`);
+  return result;
 }
 
 function prepare(args: Args): void {
   const registry = readRegistry();
   if (findEntry(registry, args.trackId, args.trackVersion)) return fail(`recusado: ${args.trackId} ${args.trackVersion} já está no registro; uma versão publicada nunca é regenerada`);
-  const { json } = readOrigin(args.trackId);
-  const origin = readOriginTrack(json);
-  if ('error' in origin) return fail(`recusado: ${origin.error}`);
-  const result = prepareTrack(origin, { trackId: args.trackId, trackVersion: args.trackVersion });
-  if ('error' in result) return fail(`recusado: ${result.error}`);
+  const { json } = readOrigin(args.origin);
+  const result = runPreparation(args, json);
   const text = serializeTrackFile(result.file);
   const path = publishedPath(args.trackId, args.trackVersion);
   writeAtomic(path, text);
   const reduced = result.prep.reducedCurbs.map(r => `${r.curbIndex}:${r.widthM}`).join(' ') || 'nenhuma';
-  console.log(`PREPARED ${path} smoothingWindowM=${result.prep.smoothingWindowM} lapLengthM=${result.prep.lapLengthM} maxSmoothingOffsetM=${result.prep.maxSmoothingOffsetM} reducedCurbs=${reduced} bytes=${Buffer.byteLength(text)}`);
+  console.log(`PREPARED ${path} lapLengthM=${result.prep.lapLengthM} maxReplicaOffsetM=${result.prep.maxReplicaOffsetM} reducedCurbs=${reduced} bytes=${Buffer.byteLength(text)}`);
 }
 
 function verify(args: Args, quiet = false): { text: string; verified: boolean } {
   const path = join(ROOT, publishedPath(args.trackId, args.trackVersion));
   if (!existsSync(path)) return fail(`recusado: ${publishedPath(args.trackId, args.trackVersion)} não existe; execute prepare`);
   const text = readFileSync(path, 'utf8');
-  const { json } = readOrigin(args.trackId);
+  const { json } = readOrigin(args.origin);
   const results = verifyTrackFile(text, json);
   const failed = results.filter(r => !r.pass);
   if (!quiet) for (const r of results) console.log(`${r.id} ${r.pass ? 'PASS' : 'FAIL'} ${r.detail}`);
@@ -131,18 +144,18 @@ function publish(args: Args): void {
     if (existing.sha256 === digest) { console.log(`já registrado ${args.trackId} ${args.trackVersion} ${existing.publicationState}`); return; }
     return fail('recusado: trackVersion já publicado com outro conteúdo');
   }
-  const { json, bytes } = readOrigin(args.trackId);
-  const origin = readOriginTrack(json);
-  if ('error' in origin) return fail(`recusado: ${origin.error}`);
-  const result = prepareTrack(origin, { trackId: args.trackId, trackVersion: args.trackVersion });
-  if ('error' in result) return fail(`recusado: ${result.error}`);
+  const { json, bytes } = readOrigin(args.origin);
+  const result = runPreparation(args, json);
   if (serializeTrackFile(result.file) !== text) return fail('recusado: o arquivo publicado não é reproduzível pelo preparo');
   const fileBytes = Buffer.byteLength(text);
   if (fileBytes >= MAX_FILE_BYTES) return fail(`recusado: ${fileBytes} bytes`);
   registry.entries.push({
     trackId: args.trackId, trackVersion: args.trackVersion, file: publishedPath(args.trackId, args.trackVersion),
     sha256: digest, fileBytes, publicationState: 'STAGING', stagedAtUtc: new Date().toISOString(),
-    prep: { originFile: originPath(args.trackId), originSha256: sha256(bytes), ...result.prep },
+    prep: {
+      method: result.prep.method, originFile: args.origin.file, originSha256: sha256(bytes), maxReplicaOffsetM: result.prep.maxReplicaOffsetM,
+      lapLengthM: result.prep.lapLengthM, originOffsetM: result.prep.originOffsetM, curbWidthsM: result.prep.curbWidthsM, reducedCurbs: result.prep.reducedCurbs,
+    },
   });
   writeRegistry(registry);
   console.log(`STAGING registrado ${args.trackId} ${args.trackVersion} sha256=${digest} bytes=${fileBytes}`);

@@ -4,8 +4,8 @@ title: Registro de publicação das pistas e estado em memória da sessão de tr
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.2.0
-sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0007-13, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
+version: 1.3.0
+sources: [RULE-0005, RULE-0003, RULE-0004, API-0002, FLOW-0003, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0007-13, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0005-18, REQ-FEAT-0006-14]
 ---
 
 # DM-0002 — Registro de publicação e estado em memória — implementação
@@ -36,3 +36,10 @@ acrescido.
 
 Preenchimento retroativo: nenhum (a pista sintética não é registrada). Retenção e privacidade: identificadores de pista, resumos,
 tamanhos, instantes UTC, parâmetros do preparo e, com `PRODUCTION`, a referência textual da decisão; quem publica não é registrado.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DM-0002 2.0.1:
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0002-17, -18, -20, -21 | `tracks/registry.json`: entrada `kart-park` 2 acrescentada por `publish` (`scripts/track-pipeline.ts:137-162`) — `file` `src/tracks/kart-park-v2.json`, `sha256` `c79f14cb…c4d20a`, `fileBytes` 36 585, `STAGING`, sem campos de promoção, `prep` com `method` `REPLICA`, `originFile` `tracks/sources/kart-park-replica.json`, `originSha256` `eba665b6…a24e`, `maxReplicaOffsetM` 0, `lapLengthM` 690,674, `originOffsetM` (0, 0), `curbWidthsM` 22 × 1, `reducedCurbs` vazio; a entrada 1 é igual à de `HEAD` campo a campo (no texto só muda a vírgula de separação), `registryVersion` 1; `prep.method` ausente na entrada 1 vale a forma de antes |
+| REQ-FEAT-0001-15, -16 | estado em memória: `TrainingSession.reading` guarda a leitura também em `FAILED` por `TRACK_VERSION_MISMATCH` (`src/trainingSession.ts:74-75`) |

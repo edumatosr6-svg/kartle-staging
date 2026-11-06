@@ -4,8 +4,8 @@ title: Preparo offline do arquivo de pista da Kart Park — implementação
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
-sources: [FLOW-0003, RULE-0002, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-12, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09]
+version: 1.2.0
+sources: [FLOW-0003, RULE-0002, RULE-0005, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-18, REQ-FEAT-0002-19, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-16, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-20, REQ-FEAT-0006-09]
 ---
 
 # DES-0010 — Preparo offline do arquivo da Kart Park — implementação
@@ -39,3 +39,21 @@ origem em `tracks/sources/`), `<trackVersion>` (1 a 6 dígitos sem zero à esque
 qualquer arquivo; recusa com `argumento inválido: <nome>` e código 1, sem reproduzir o valor. `prepare` (`:96-109`) confere o resumo
 da origem (`ORIGIN_SHA256` `:24-26`), recusa par já registrado (`:98`), escreve por temporário e renomeação; a saída lista só identificadores,
 contagens e medidas.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DES-0010 2.1.0, ADR-0008. O preparo da versão 1 (`readOriginTrack`, `smooth`, `prepareTrack` `:181-283`) fica congelado:
+reproduz `src/tracks/kart-park-v1.json` byte a byte e o programa não o executa para escrever.
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0002-01, -04, -07, -08; RULE-0002 (eixos) | `readReplicaTrack` (`scripts/trackPrep.ts:440-452`: a forma `kartle-pista` 1 por `readOriginTrack` mais `elementos`; não lê nome, cidade, comprimentos, origem geográfica, rumo, transição nem fontes); `prepareReplicaTrack` (`:527-591`) passo 1: todos os pontos e só eles, `(round3(x), round3(−y))`, sem deslocamento, suavização nem reamostragem; recusa acima de `REPLICA_MAX_OFFSET_M` ou com pontos consecutivos iguais; passo 10: anti-horário pela área com sinal |
+| REQ-FEAT-0002-05, -10, -11 | passo 2: `lapLengthM` sobre as coordenadas gravadas, recusa fora de 683,793–697,607 m (`REPLICA_LAP_LENGTH_M`, `REPLICA_LAP_TOLERANCE`, `:421-422`); medido 690,674 m |
+| REQ-FEAT-0002-09 | passo 3: recusa nomeando o índice se a largura não é `REPLICA_WIDTH_M` 7,0 (`:423`) |
+| REQ-FEAT-0005-01, -02, -03, -20; RULE-0005 | passo 4: uma zebra por zebra da réplica, `fromLapM`/`toLapM` lidos na `centerline` a partir do ponto 0, recusa fora de `0 <= from < to <= L`; `curbsWithWidths` (`:456-478`, a regra de largura de ADR-0006 sem mudança): 22 zebras, nenhuma reduzida |
+| REQ-FEAT-0004-01, -02, -03 | passo 5: `buildBarriers` (`:285-392`) com os trechos `REPLICA_NEAR_SECTIONS_M` (`:426`) e a amostragem `'EDGE'` (`:561`): `edgeSamples` (`:317-329`) amostra cada borda sozinha, cada segmento de comprimento ℓ em `max(1, ⌈ℓ / EDGE_SAMPLE_M⌉)` partes iguais mais a última ponta da borda; `gapsOf` (`:331-346`) julga cada amostra sozinha contra as duas bordas do outro trecho, nos dois sentidos; travessia, vértice no meio da grama, ordenação, corte de sequências e arredondamento sem mudança. O modo `'PAIRS'` (padrão) é a amostragem por pares da versão 1, intacta para `prepareTrack`. Guarda `barrierTooClose` (`:510-525`): cada barreira amostrada a cada 0,05 m a ao menos `BARRIER_TRACK_CLEARANCE_M` 0,2 m (`:427`) da borda da pista. Resultado: 1 poligonal de 292 vértices, 47,649 m |
+| REQ-FEAT-0002-06; REQ-FEAT-0003-01 | passo 6: `finishLine` no ponto 0, `startPosition` no meio de P0→P1 com `headingDeg` −54,728 |
+| REQ-FEAT-0003-02 a -07, -16 | passo 7: limites nos pontos 205, 355, 535 (`REPLICA_SECTOR_TARGETS_M`, `:425`), recusa fora de um elemento `STRAIGHT`; passo 8: `markerIndicesOf` (`:482-506`), 39 marcadores, espaçamento máximo 18,01 m; passo 9: `transversalLine` sem mudança |
+| REQ-FEAT-0002-14, -18, -19; REQ-FEAT-0006-09 | `serializeTrackFile` sem mudança: 36 585 bytes, sem nome, comprimento oficial nem recorde |
+| REQ-FEAT-0002-20, -21 | `TRACK_ORIGINS` (`scripts/track-pipeline.ts:24-31`) por (`trackId`, `trackVersion`): `kart-park` 1 → `tracks/sources/kart-park.json`, `SMOOTHED_ORIGIN`, `frozen`; `kart-park` 2 → `tracks/sources/kart-park-replica.json` (cópia byte a byte, SHA-256 `eba665b6…a24e`), `REPLICA`; `parseArgs` (`:45-67`) recusa `prepare`/`verify`/`publish kart-park 1` antes de ler qualquer arquivo (`:53`); `runPreparation` (`:103-110`) só executa o preparo da réplica |
+
+`npm run track -- prepare kart-park 2` → `PREPARED src/tracks/kart-park-v2.json lapLengthM=690.674 maxReplicaOffsetM=0
+reducedCurbs=nenhuma bytes=36585`. Os números do passo 5 coincidem com a medida de `feedback-20261106-1850` que DES-0010 2.1.0 cita.

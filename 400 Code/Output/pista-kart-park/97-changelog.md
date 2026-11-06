@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park (estágio de código)
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.4.0
+version: 1.5.0
 sources: []
 ---
 
@@ -258,3 +258,33 @@ verify kart-park 1` V01–V18 `PASS`, `VERIFIED`; arquivo de pista e registro in
   escreve em `tests/`. Esse commit é `f926815`; esta rodada não faz commit e não toca nenhum módulo de simulação, de modo que o traço
   gravado de `f926815` é o da simulação de antes.
 - Atualizar `CHK-TEST-0010-03` e `CHK-TEST-0010-05`: são do estágio de testes.
+
+## 2026-11-06 — revisão 3, Mode A (seed `revision: 3`; projeto `dspec-validation-20261106-1853`, commit `8b00b74`)
+
+- Primeira passagem (sem commit): `readReplicaTrack`, `prepareReplicaTrack`, constantes `REPLICA_*` e `BARRIER_TRACK_CLEARANCE_M`, guarda
+  de 0,2 m e o parâmetro dos trechos de `buildBarriers` em `scripts/trackPrep.ts`; V01 a V20 contra a réplica em `scripts/trackChecks.ts`;
+  `TRACK_ORIGINS` por par e `kart-park 1` congelado em `scripts/track-pipeline.ts`; `trackVersion` 2, "réplica não oficial", 691 m e
+  `TRACK_VERSION_MISMATCH` em `src/trainingSession.ts`; importação da versão 2 e aviso em `src/main.ts`;
+  `tracks/sources/kart-park-replica.json`. Parou em FAIL SPEC (`feedback-20261106-1850`, SPEC-ISSUE-01): `verify` dava `REJECTED V13`.
+- Esta passagem, depois do modo C do projeto (DES-0010 2.1.0, DES-0011 2.0.1): `buildBarriers` ganha a amostragem `'EDGE'` do passo 5
+  (`edgeSamples`, `gapsOf`; cada borda sozinha com a sua última ponta, cada amostra julgada sozinha contra as duas bordas do outro
+  trecho), usada só por `prepareReplicaTrack`; o modo `'PAIRS'` da versão 1 fica como estava. V13 em `scripts/trackChecks.ts` passa a
+  tomar as amostras por borda (`edgeSamples`), com a última ponta de cada borda, como a definição única de DES-0010 2.1.0 diz.
+- `prepare kart-park 2` (36 585 bytes) → `verify` V01 a V20 `PASS` → `publish`: entrada `kart-park` 2 `STAGING`, SHA-256
+  `c79f14cb…c4d20a`; a saída `PREPARED` reprovada da primeira passagem (37 255 bytes, `674f18d3…`) foi substituída e nunca registrada.
+- Barreira da versão 2 medida para DES-0008: 292 vértices, 47,649 m, 539 pilhas, 2 695 pneus, 71 148 triângulos, face a 0,0191 m e
+  0,0230 m.
+- Manifesto: `core/DES-0004` 1.2.0, `core/DES-0005` 1.3.0, `core/DES-0006` 1.3.0, `data/DM-0001` 1.2.0, `data/DM-0002` 1.3.0,
+  `web/DES-0007` 1.4.0, `web/DES-0008` 2.1.0, `pipeline/DES-0010` 1.2.0, `pipeline/DES-0011` 1.3.0, `security/DES-0012` 1.2.0 (`sources`
+  iguais aos do projeto: sem os `REQ-*` retirados, com os novos), `98-divergences.md` 2.0.0, `01-implementation.md` 1.6.0; `00-index.md`
+  e `99-traceability.md` por `lint_artifacts.py --emit`.
+
+**Itens fechados**: SPEC-ISSUE-01 de `feedback-20261106-1850` (no projeto); linhas 1 a 6 de `98-divergences.md` 2.0.0 do projeto
+`resolved`; linhas 7 e 8 `open`, do estágio de testes.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Exportar uma função de amostragem partilhada por `scripts/trackPrep.ts` e `scripts/trackChecks.ts`: não feito; o projeto deixa a escolha
+  ao código, e as duas cópias seguem a mesma definição com a mesma aritmética (`a + (b − a) · k / c`).
+- Atualizar as 22 verificações presas à versão 1 e a fixture `tests/fixtures/kartParkFiles.ts`: são do estágio de testes.
+- Promover a entrada 2: decisão humana com a referência Esri (ADR-0005); não feito.

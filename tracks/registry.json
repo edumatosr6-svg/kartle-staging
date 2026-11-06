@@ -57,6 +57,51 @@
         ],
         "reducedCurbs": []
       }
+    },
+    {
+      "trackId": "kart-park",
+      "trackVersion": 2,
+      "file": "src/tracks/kart-park-v2.json",
+      "sha256": "c79f14cbd49f3a7f19d2d1b50d14512b02525f6af7ecaaf850959c1395c4d20a",
+      "fileBytes": 36585,
+      "publicationState": "STAGING",
+      "stagedAtUtc": "2026-11-06T18:58:23.192Z",
+      "prep": {
+        "method": "REPLICA",
+        "originFile": "tracks/sources/kart-park-replica.json",
+        "originSha256": "eba665b6c700fe7a05cd89862ef74d93ce307e613393e34cf78b9c69b2caa24e",
+        "maxReplicaOffsetM": 0,
+        "lapLengthM": 690.674,
+        "originOffsetM": {
+          "xM": 0,
+          "zM": 0
+        },
+        "curbWidthsM": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          1
+        ],
+        "reducedCurbs": []
+      }
     }
   ]
 }

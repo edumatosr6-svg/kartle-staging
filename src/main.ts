@@ -10,7 +10,7 @@ import { endTraining, getLapResult, getLapState, listLapResults, offeredLapKinds
 import { advanceClock } from './frameClock';
 import { creditFor, describeLap, describeTrainingResult, formatLapTime, greenSignalVisible, message, optionLabel, resolveLanguage, type Language, type MessageKey } from './lapMessages';
 // The published Kart Park file, bundled as text (ADR-0002 of pista-kart-park): no request between the choice and the lap.
-import kartParkV1Text from './tracks/kart-park-v1.json?raw';
+import kartParkV2Text from './tracks/kart-park-v2.json?raw';
 import { getTrainingTrackOptions, initialTrainingSession, OPENING_TRACK_ID, selectTrainingTrack, startTrainingLap, trainingIdleKart, type TrainingSession, type TrainingTrackId, type TrainingTrackSources } from './trainingSession';
 import { buildTrackScene, minimapTransform } from './trackScene';
 import { CURB_PULSE_MS, decideCurbFeedback, initialCurbFeedback, type CurbFeedbackState } from './curbFeedback';
@@ -153,7 +153,7 @@ let config = { ...setup.config, driverMass: 75 };
 let setupRef: SetupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
 // Training session (DES-0005, DES-0007 of pista-kart-park): the track data of each catalogue entry comes bundled; the
 // session, its reading and its environment are replaced only by what selectTrainingTrack returns. Nothing is stored.
-const TRACK_SOURCES: TrainingTrackSources = { 'kart-park': kartParkV1Text, synthetic: SYNTHETIC_TRACK_FILE };
+const TRACK_SOURCES: TrainingTrackSources = { 'kart-park': kartParkV2Text, synthetic: SYNTHETIC_TRACK_FILE };
 let training: TrainingSession = initialTrainingSession();
 let reading: TrackReading = { trackDataStatus: 'UNREADABLE' };
 // The overview fits these bounds: the file geometry of the session's track, or the outer ribbon of the synthetic track;
@@ -227,7 +227,8 @@ function chooseTrack(trackId: string) {
   if (!r.ok && r.code === 'UNKNOWN_TRACK') return;
   training = r.session; lap = r.lap;
   reading = training.reading ?? { trackDataStatus: 'UNREADABLE' };
-  if (reading.trackDataStatus === 'UNREADABLE') console.warn('track-data', 'UNREADABLE');
+  if (!r.ok && r.code === 'TRACK_VERSION_MISMATCH' && reading.trackDataStatus !== 'UNREADABLE' && reading.trackDataStatus !== 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'TRACK_VERSION_MISMATCH', reading.trackId, reading.trackVersion);
+  else if (reading.trackDataStatus === 'UNREADABLE') console.warn('track-data', 'UNREADABLE');
   else if (reading.trackDataStatus === 'UNSUPPORTED_SCHEMA') console.warn('track-data', 'UNSUPPORTED_SCHEMA', reading.schemaVersion);
   else if (reading.trackDataStatus === 'INCOMPLETE') console.warn('track-data', 'INCOMPLETE', reading.trackId, reading.trackVersion);
   curbState = initialCurbFeedback();

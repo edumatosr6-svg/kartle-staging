@@ -284,7 +284,8 @@ function quadDistance(q: readonly XZ[], p: XZ): number {
 
 // Step 5: edge samples of each near section facing the other; the barrier vertex is the middle of the grass part of
 // the shortest segment to the other section's asphalt edge, for segments of BARRIER_GAP_MAX_M or less.
-function buildBarriers(g: TrackGeometry, originCumulative: readonly number[]): { lines: BarrierLine[] } | { error: string } {
+// 'PAIRS' is the frozen version-1 sampling; 'EDGE' is the version-2 sampling of DES-0010 2.1.0, the samples V13 takes.
+function buildBarriers(g: TrackGeometry, originCumulative: readonly number[], sections: readonly (readonly [number, number])[] = NEAR_SECTIONS_M, sampling: 'PAIRS' | 'EDGE' = 'PAIRS'): { lines: BarrierLine[] } | { error: string } {
   const n = g.centerline.length;
   const indicesIn = (section: readonly [number, number]) => { const out: number[] = []; for (let i = 0; i < n; i++) if (originCumulative[i] >= section[0] && originCumulative[i] <= section[1]) out.push(i); return out; };
   const edgePolylines = (indices: number[]) => [indices.map(i => g.leftEdge[i]), indices.map(i => g.rightEdge[i])];
@@ -311,16 +312,41 @@ function buildBarriers(g: TrackGeometry, originCumulative: readonly number[]): {
     }
     return best;
   };
-  const first = indicesIn(NEAR_SECTIONS_M[0]), second = indicesIn(NEAR_SECTIONS_M[1]);
-  if (first.length < 2 || second.length < 2) return { lines: [] };
-  const vertices: { point: XZ; orderM: number }[] = [];
-  const sweep = (from: number[], to: number[]) => {
-    const target = edgePolylines(to);
+  // Each edge alone, along its own length: every segment of length l in max(1, ceil(l / EDGE_SAMPLE_M)) equal parts,
+  // plus the edge's last endpoint.
+  const edgeSamples = (indices: number[]) => {
+    const out: XZ[] = [];
+    for (const edge of edgePolylines(indices)) {
+      for (let i = 0; i + 1 < edge.length; i++) {
+        const a = edge[i], b = edge[i + 1];
+        const c = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / EDGE_SAMPLE_M));
+        for (let k = 0; k < c; k++) out.push({ x: a.x + (b.x - a.x) * k / c, z: a.z + (b.z - a.z) * k / c });
+      }
+      if (edge.length) out.push(edge[edge.length - 1]);
+    }
+    return out;
+  };
+  // The (p, q) gaps to judge: in 'EDGE' every sample alone against both edges of the other section; in 'PAIRS' the
+  // edge of each pair nearer the other section.
+  const gapsOf = (from: number[], target: XZ[][]) => {
+    const out: { p: XZ; q: { point: XZ; distanceM: number } }[] = [];
+    if (sampling === 'EDGE') {
+      for (const p of edgeSamples(from)) { const q = nearestOnPolylines(target, p); if (q) out.push({ p, q }); }
+      return out;
+    }
     for (const [pLeft, pRight] of samplePairs(from)) {
       const qLeft = nearestOnPolylines(target, pLeft), qRight = nearestOnPolylines(target, pRight);
       if (!qLeft || !qRight) continue;
       // The facing edge is the one nearer the other part: the segment from the other edge would cross this part's asphalt.
-      const [p, q] = qLeft.distanceM <= qRight.distanceM ? [pLeft, qLeft] : [pRight, qRight];
+      out.push(qLeft.distanceM <= qRight.distanceM ? { p: pLeft, q: qLeft } : { p: pRight, q: qRight });
+    }
+    return out;
+  };
+  const first = indicesIn(sections[0]), second = indicesIn(sections[1]);
+  if (first.length < 2 || second.length < 2) return { lines: [] };
+  const vertices: { point: XZ; orderM: number }[] = [];
+  const sweep = (from: number[], to: number[]) => {
+    for (const { p, q } of gapsOf(from, edgePolylines(to))) {
       if (q.distanceM > BARRIER_GAP_MAX_M || q.distanceM === 0) continue;
       const dir = { x: (q.point.x - p.x) / q.distanceM, z: (q.point.z - p.z) / q.distanceM };
       let exit: XZ | undefined, entry: XZ | undefined;
@@ -388,4 +414,178 @@ export function serializeTrackFile(file: Schema3File): string {
     barriers: file.barriers.map(b => ({ points: b.points.map(p => ({ xM: round3(p.xM), zM: round3(p.zM) })) })),
   };
   return JSON.stringify(ordered) + '\n';
+}
+
+// ---- Version 2 from the unofficial replica (DES-0010 2.0.0, ADR-0008). The version-1 preparation above stays frozen:
+// it only backs the proof that src/tracks/kart-park-v1.json is reproducible, and the program never runs it to write. ----
+export const REPLICA_LAP_LENGTH_M = 690.7;
+export const REPLICA_LAP_TOLERANCE = 0.01;
+export const REPLICA_WIDTH_M = 7.0;
+export const REPLICA_MAX_OFFSET_M = 0.10;
+export const REPLICA_SECTOR_TARGETS_M: readonly number[] = [204.9, 354.9, 534.7];
+export const REPLICA_NEAR_SECTIONS_M: readonly (readonly [number, number])[] = [[368.5, 406.5], [594.5, 624.5]];
+export const BARRIER_TRACK_CLEARANCE_M = 2 * BARRIER_HALF_WIDTH_M;
+const BARRIER_CLEARANCE_SAMPLE_M = 0.05;
+
+export type ReplicaElement = { kind: 'STRAIGHT' | 'LEFT_ARC' | 'RIGHT_ARC'; fromM: number; lengthM: number };
+export type ReplicaTrack = { points: OriginPoint[]; curbs: OriginCurb[]; elements: ReplicaElement[] };
+export type ReplicaPrepRecord = {
+  method: 'REPLICA'; maxReplicaOffsetM: number; lapLengthM: number; originOffsetM: { xM: number; zM: number };
+  curbWidthsM: number[]; reducedCurbs: ReducedCurb[];
+};
+const ELEMENT_KIND: Record<string, ReplicaElement['kind']> = { reta: 'STRAIGHT', esquerda: 'LEFT_ARC', direita: 'RIGHT_ARC' };
+
+// The replica as the product owner delivered it: the same kartle-pista 1 form as the version-1 origin, plus `elementos`.
+// Nothing else is read (no id, name, official length, geographic origin, heading, transition or sources).
+export function readReplicaTrack(json: unknown): ReplicaTrack | { error: string } {
+  const base = readOriginTrack(json);
+  if ('error' in base) return { error: base.error.replace(/^origin/, 'replica') };
+  const raw = (json as Record<string, unknown>).elementos;
+  if (!Array.isArray(raw) || raw.length < 1) return { error: 'replica: elementos must have 1 or more entries' };
+  const elements: ReplicaElement[] = [];
+  for (let i = 0; i < raw.length; i++) {
+    const e = raw[i];
+    if (!isRecord(e) || typeof e.tipo !== 'string' || !(e.tipo in ELEMENT_KIND) || !finite(e.de_m) || !finite(e.comprimento_m) || !(e.comprimento_m > 0)) return { error: `replica: elemento ${i} out of form` };
+    elements.push({ kind: ELEMENT_KIND[e.tipo], fromM: e.de_m, lengthM: e.comprimento_m });
+  }
+  return { points: base.points, curbs: base.curbs, elements };
+}
+
+// Curb width rule of ADR-0006, unchanged: CURB_WIDTH_M reduced, per span, to leave CURB_MIN_GRASS_M of grass to the
+// asphalt or the nominal curb of another part of the lap (more than OTHER_PART_LAP_M away).
+function curbsWithWidths(centerline: TrackPoint[], spans: readonly { side: CurbSide; fromLapM: number; toLapM: number }[], L: number): { curbs: CurbSpan[]; reduced: ReducedCurb[] } {
+  const nominal = buildTrackGeometry(centerline, spans.map(s => ({ ...s, widthM: CURB_WIDTH_M })), []);
+  const asphaltLap = nominal.asphaltQuads.map((_, i) => nominal.cumulativeM[i]);
+  const curbLap = nominal.curbQuads.map(q => { const near = nearestOnCenterline(nominal, q[0]); return lapMAtIndex(nominal, near.index, near.fraction); });
+  const reduced: ReducedCurb[] = [];
+  const curbs = spans.map((span, index) => {
+    let clearance = Infinity;
+    const samples = Math.max(2, Math.ceil((span.toLapM - span.fromLapM) / EDGE_SAMPLE_M) + 1);
+    for (let s = 0; s < samples; s++) {
+      const lapM = span.fromLapM + (span.toLapM - span.fromLapM) * s / (samples - 1);
+      const at = positionAtLapM(nominal, lapM);
+      const edge = span.side === 'LEFT' ? at.leftEdge : at.rightEdge;
+      nominal.asphaltQuads.forEach((q, qi) => { if (lapDeltaM(asphaltLap[qi], lapM, L) > OTHER_PART_LAP_M) clearance = Math.min(clearance, quadDistance(q, edge)); });
+      nominal.curbQuads.forEach((q, qi) => {
+        if (nominal.curbQuadSpan[qi] !== index && lapDeltaM(curbLap[qi], lapM, L) > OTHER_PART_LAP_M) clearance = Math.min(clearance, quadDistance(q, edge));
+      });
+    }
+    const widthM = round3(Math.min(CURB_WIDTH_M, clearance - CURB_MIN_GRASS_M));
+    if (widthM < CURB_WIDTH_M) reduced.push({ curbIndex: index, widthM, grassClearanceM: round3(clearance) });
+    return { side: span.side, fromLapM: span.fromLapM, toLapM: span.toLapM, widthM };
+  });
+  return { curbs, reduced };
+}
+
+// Marker rule of the version 1 over the lap distance d: n = ceil(L / 18), s = L / n, marker k at the point nearest
+// s / 2 + k s, moved to the nearest point at MIN_LINE_SPACING_M or more from point 0 and the limit points (tie: the next).
+function markerIndicesOf(g: TrackGeometry, limitIndices: readonly number[]): number[] {
+  const n = g.centerline.length, L = g.lapLengthM;
+  const markerCount = Math.ceil(L / MARKER_TARGET_SPACING_M), spacing = L / markerCount;
+  const reserved = [0, ...limitIndices];
+  const clearOf = (i: number) => reserved.every(r => lapDeltaM(g.cumulativeM[i], g.cumulativeM[r], L) >= MIN_LINE_SPACING_M);
+  const out: number[] = [];
+  for (let k = 0; k < markerCount; k++) {
+    const target = spacing / 2 + k * spacing;
+    let best = 0;
+    for (let i = 1; i < n; i++) if (Math.abs(g.cumulativeM[i] - target) < Math.abs(g.cumulativeM[best] - target)) best = i;
+    if (!clearOf(best)) {
+      let candidate: number | undefined;
+      for (let d = 1; d < n && candidate === undefined; d++) {
+        const after = (best + d) % n, before = (best - d + n) % n;
+        const distAfter = lapDeltaM(g.cumulativeM[after], g.cumulativeM[best], L), distBefore = lapDeltaM(g.cumulativeM[before], g.cumulativeM[best], L);
+        if (distBefore < distAfter && clearOf(before)) candidate = before;
+        else if (clearOf(after)) candidate = after;
+        else if (clearOf(before)) candidate = before;
+      }
+      best = candidate ?? best;
+    }
+    out.push(best);
+  }
+  return out;
+}
+
+// Every barrier, sampled at its vertices and every BARRIER_CLEARANCE_SAMPLE_M of its segments, at least
+// BARRIER_TRACK_CLEARANCE_M beyond the track edge: the contact surface and the drawn tyres stay on the grass.
+function barrierTooClose(g: TrackGeometry, lines: readonly BarrierLine[]): string | undefined {
+  for (let b = 0; b < lines.length; b++) {
+    const pts = lines[b].points;
+    for (let v = 0; v < pts.length; v++) {
+      const a = { x: pts[v].xM, z: pts[v].zM };
+      const next = v + 1 < pts.length ? { x: pts[v + 1].xM, z: pts[v + 1].zM } : undefined;
+      const count = next ? Math.max(1, Math.ceil(Math.hypot(next.x - a.x, next.z - a.z) / BARRIER_CLEARANCE_SAMPLE_M)) : 1;
+      for (let s = 0; s < count; s++) {
+        const p = next ? { x: a.x + (next.x - a.x) * s / count, z: a.z + (next.z - a.z) * s / count } : a;
+        const beyond = beyondTrackEdgeM(g, p);
+        if (beyond < BARRIER_TRACK_CLEARANCE_M) return `barrier ${b} vertex ${v}: ${round3(beyond)} m beyond the track edge, below ${BARRIER_TRACK_CLEARANCE_M} m`;
+      }
+    }
+  }
+  return undefined;
+}
+
+export function prepareReplicaTrack(replica: ReplicaTrack, options: PrepareOptions): { file: Schema3File; prep: ReplicaPrepRecord } | { error: string } {
+  const n = replica.points.length;
+  // 1. Conversion without smoothing: every replica point and only them, in order, (x, y) -> (x, -y), rounded to 0.001 m;
+  // no origin shift, no resampling. 3. Widths copied.
+  let maxOffsetM = 0;
+  const centerline: TrackPoint[] = replica.points.map(p => {
+    const xM = round3(p.x), zM = round3(-p.y);
+    maxOffsetM = Math.max(maxOffsetM, Math.hypot(xM - p.x, zM + p.y));
+    return { xM, zM, widthM: round3(p.widthM) };
+  });
+  if (maxOffsetM > REPLICA_MAX_OFFSET_M) return { error: `replica offset ${maxOffsetM} m above ${REPLICA_MAX_OFFSET_M} m` };
+  for (let i = 0; i < n; i++) {
+    const a = centerline[i], b = centerline[(i + 1) % n];
+    if (a.xM === b.xM && a.zM === b.zM) return { error: `ponto ${i} equal to ponto ${(i + 1) % n} after rounding` };
+  }
+  // 10. Direction: positive signed area in the (x, -z) plane.
+  if (windingSumOf(centerline) >= 0) return { error: 'replica winds clockwise in the game plane; COUNTER_CLOCKWISE required' };
+  const wrongWidth = centerline.findIndex(p => p.widthM !== REPLICA_WIDTH_M);
+  if (wrongWidth >= 0) return { error: `ponto ${wrongWidth}: width ${centerline[wrongWidth].widthM} m is not ${REPLICA_WIDTH_M} m` };
+  // 2. Length measured on the recorded coordinates, within 690.7 m +/- 1 %, or nothing is written.
+  const L = buildTrackGeometry(centerline, [], []).lapLengthM;
+  const lengthTolM = REPLICA_LAP_LENGTH_M * REPLICA_LAP_TOLERANCE;
+  if (L < REPLICA_LAP_LENGTH_M - lengthTolM || L > REPLICA_LAP_LENGTH_M + lengthTolM) {
+    return { error: `lap length ${round3(L)} m outside ${round3(REPLICA_LAP_LENGTH_M - lengthTolM)}-${round3(REPLICA_LAP_LENGTH_M + lengthTolM)} m` };
+  }
+  // 4. Curbs: one per replica curb, in its order, its lap distances read directly on the centerline from point 0.
+  const spans = replica.curbs.map(c => ({ side: c.side, fromLapM: round3(c.fromM), toLapM: round3(c.toM) }));
+  const outside = spans.findIndex(s => !(s.fromLapM >= 0 && s.fromLapM < s.toLapM && s.toLapM <= round3(L)));
+  if (outside >= 0) return { error: `curb ${outside}: ${spans[outside].fromLapM}-${spans[outside].toLapM} m outside 0-${round3(L)} m` };
+  const { curbs, reduced } = curbsWithWidths(centerline, spans, L);
+  const tooNarrow = curbs.findIndex(c => c.widthM < CURB_MIN_WIDTH_M);
+  if (tooNarrow >= 0) return { error: `curb ${tooNarrow}: width ${curbs[tooNarrow].widthM} m below ${CURB_MIN_WIDTH_M} m` };
+  const withCurbs = buildTrackGeometry(centerline, curbs, []);
+  // 5. Barriers between the near sections, by the lap distance of the centerline itself; then the clearance guard.
+  const barriers = buildBarriers(withCurbs, withCurbs.cumulativeM, REPLICA_NEAR_SECTIONS_M, 'EDGE');
+  if ('error' in barriers) return barriers;
+  const tooClose = barrierTooClose(withCurbs, barriers.lines);
+  if (tooClose) return { error: tooClose };
+  const g = buildTrackGeometry(centerline, curbs, barriers.lines);
+  // 6. Finish line at point 0 and start on the segment from point 0 to point 1.
+  const p0 = g.centerline[0], p1 = g.centerline[1];
+  const startPosition: StartPosition = { xM: round3((p0.xM + p1.xM) / 2), zM: round3((p0.zM + p1.zM) / 2), headingDeg: round3(Math.atan2(p1.xM - p0.xM, p1.zM - p0.zM) * 180 / Math.PI) };
+  // 7. Sector limits: the point nearest each target (tie: the lower index), which must lie within a replica straight.
+  const limitIndices: number[] = [];
+  for (const target of REPLICA_SECTOR_TARGETS_M) {
+    let best = 0;
+    for (let i = 1; i < n; i++) if (Math.abs(g.cumulativeM[i] - target) < Math.abs(g.cumulativeM[best] - target)) best = i;
+    const d = g.cumulativeM[best];
+    if (!replica.elements.some(e => e.kind === 'STRAIGHT' && e.fromM <= d && d <= e.fromM + e.lengthM)) return { error: `sector limit ${target} m: point ${best} not within a replica straight` };
+    limitIndices.push(best);
+  }
+  // 8. Markers. 9. Transversal lines.
+  const markerIndices = markerIndicesOf(g, limitIndices);
+  const file: Schema3File = {
+    schemaVersion: 3, trackId: options.trackId, trackVersion: options.trackVersion, osmDerived: true, direction: 'COUNTER_CLOCKWISE',
+    startPosition, finishLine: transversalLine(g, 0),
+    sectorLimits: limitIndices.map(i => transversalLine(g, i)), markers: markerIndices.map(i => transversalLine(g, i)),
+    centerline, curbs, barriers: barriers.lines,
+  };
+  const prep: ReplicaPrepRecord = {
+    method: 'REPLICA', maxReplicaOffsetM: Number(maxOffsetM.toFixed(6)), lapLengthM: round3(L), originOffsetM: { xM: 0, zM: 0 },
+    curbWidthsM: curbs.map(c => c.widthM), reducedCurbs: reduced,
+  };
+  return { file, prep };
 }

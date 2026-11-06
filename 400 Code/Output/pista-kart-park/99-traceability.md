@@ -1,8 +1,8 @@
 ---
 stage: code
 feature: pista-kart-park
-generated: 2026-11-04T14:34:22Z
-rows: 292
+generated: 2026-11-06T19:13:00Z
+rows: 307
 ---
 
 # Traceability
@@ -58,7 +58,6 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | FEAT-0007 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
 | FEAT-0008 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
 | FEAT-0008 | DES-0008 | - | `web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md` |
-| FEAT-0008 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | FLOW-0001 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
 | FLOW-0001 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | FLOW-0002 | DES-0003 | - | `core/DES-0003-superficie-por-roda-zebra-e-barreira.md` |
@@ -95,6 +94,12 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0001-14 | DES-0001 | - | `core/DES-0001-leitura-do-dado-de-pista-em-esquema-3.md` |
 | REQ-FEAT-0001-14 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
 | REQ-FEAT-0001-14 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0001-15 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
+| REQ-FEAT-0001-15 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0001-15 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| REQ-FEAT-0001-16 | DES-0005 | - | `core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md` |
+| REQ-FEAT-0001-16 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
+| REQ-FEAT-0001-16 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
 | REQ-FEAT-0002-01 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0002-01 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0002-01 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
@@ -102,9 +107,6 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0002-02 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0002-02 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0002-02 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
-| REQ-FEAT-0002-03 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
-| REQ-FEAT-0002-03 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
-| REQ-FEAT-0002-03 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
 | REQ-FEAT-0002-04 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0002-04 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0002-04 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
@@ -140,9 +142,21 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0002-17 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0002-17 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
 | REQ-FEAT-0002-17 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| REQ-FEAT-0002-18 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0002-18 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0002-18 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
 | REQ-FEAT-0002-18 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| REQ-FEAT-0002-19 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
+| REQ-FEAT-0002-19 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
+| REQ-FEAT-0002-19 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
+| REQ-FEAT-0002-20 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
+| REQ-FEAT-0002-20 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
+| REQ-FEAT-0002-20 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
+| REQ-FEAT-0002-20 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| REQ-FEAT-0002-21 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
+| REQ-FEAT-0002-21 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
+| REQ-FEAT-0002-21 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
+| REQ-FEAT-0002-21 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
 | REQ-FEAT-0003-01 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0003-01 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0003-01 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
@@ -167,12 +181,12 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0003-10 | DES-0002 | - | `core/DES-0002-geometria-da-pista-declarada-no-arquivo.md` |
 | REQ-FEAT-0003-10 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
 | REQ-FEAT-0003-11 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
-| REQ-FEAT-0003-12 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
-| REQ-FEAT-0003-12 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0003-13 | DES-0001 | - | `core/DES-0001-leitura-do-dado-de-pista-em-esquema-3.md` |
 | REQ-FEAT-0003-13 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
 | REQ-FEAT-0003-14 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0003-15 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
+| REQ-FEAT-0003-16 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
+| REQ-FEAT-0003-16 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0004-01 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | REQ-FEAT-0004-01 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0004-01 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
@@ -214,6 +228,9 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0005-18 | DES-0009 | - | `web/DES-0009-retorno-da-zebra-vibracao-e-som.md` |
 | REQ-FEAT-0005-18 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
 | REQ-FEAT-0005-19 | DES-0009 | - | `web/DES-0009-retorno-da-zebra-vibracao-e-som.md` |
+| REQ-FEAT-0005-20 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
+| REQ-FEAT-0005-20 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
+| REQ-FEAT-0005-20 | DM-0001 | - | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` |
 | REQ-FEAT-0006-01 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-02 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
 | REQ-FEAT-0006-03 | DES-0007 | - | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` |
@@ -252,7 +269,6 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0007-09 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
 | REQ-FEAT-0007-10 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
 | REQ-FEAT-0007-11 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
-| REQ-FEAT-0007-12 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
 | REQ-FEAT-0007-13 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | REQ-FEAT-0007-13 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
 | REQ-FEAT-0007-13 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
@@ -284,8 +300,6 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | REQ-FEAT-0008-25 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
 | REQ-FEAT-0008-26 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
 | REQ-FEAT-0008-27 | DES-0006 | - | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` |
-| REQ-FEAT-0008-28 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
-| REQ-FEAT-0008-29 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | RULE-0001 | DES-0002 | - | `core/DES-0002-geometria-da-pista-declarada-no-arquivo.md` |
 | RULE-0001 | DES-0003 | - | `core/DES-0003-superficie-por-roda-zebra-e-barreira.md` |
 | RULE-0001 | DES-0004 | - | `core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md` |
@@ -297,6 +311,7 @@ Upstream item -> this stage's item -> the ids that make it verifiable.
 | RULE-0003 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
 | RULE-0004 | DES-0009 | - | `web/DES-0009-retorno-da-zebra-vibracao-e-som.md` |
 | RULE-0004 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |
+| RULE-0005 | DES-0010 | - | `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` |
 | RULE-0005 | DES-0011 | - | `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` |
 | RULE-0005 | DES-0012 | - | `security/DES-0012-privacidade-rede-credito-e-licenca.md` |
 | RULE-0005 | DM-0002 | - | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` |

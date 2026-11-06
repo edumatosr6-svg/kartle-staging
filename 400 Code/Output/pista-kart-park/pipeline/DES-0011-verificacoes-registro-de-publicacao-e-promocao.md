@@ -4,8 +4,8 @@ title: Verificações V01 a V18 do arquivo, registro de publicação e promoçã
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.2.0
-sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, FEAT-0008, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13, REQ-FEAT-0008-28, REQ-FEAT-0008-29]
+version: 1.3.0
+sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0002-19, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-16, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-20, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13]
 ---
 
 # DES-0011 — Verificações V01 a V18, registro de publicação e promoção — implementação
@@ -40,3 +40,16 @@ Rodada 5 (2026-11-03, DES-0011 1.1.0, seed `revision: 2`):
 | Requisito | Arquivo e símbolo |
 |---|---|
 | REQ-FEAT-0008-28, -29 | sem mudança de código: `src/tracks/kart-park-v1.json` intacto (SHA-256 `04ce5e51…`, igual ao `sha256` da única entrada `kart-park` de `tracks/registry.json`, `trackVersion` 1); nenhuma versão 2 da Kart Park; `scripts/trackChecks.ts` e `scripts/track-pipeline.ts` não tocados. A afirmação literal do resumo em `npm test` é do estágio de testes |
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DES-0011 2.0.1:
+
+| Requisito | Arquivo e símbolo |
+|---|---|
+| REQ-FEAT-0002-01, -04 a -11, -19; REQ-FEAT-0003-01 a -05, -16; REQ-FEAT-0004-01, -02; REQ-FEAT-0005-01, -02, -20 | `verifyTrackFile(text, replicaJson)` (`scripts/trackChecks.ts:125-339`): V01 a V20 de RULE-0002 2.0.0 contra a réplica (`CheckId`, `CHECK_IDS` `:12-14`; constantes da revisão 3 `:16-34`). V13 (`:280-294`) toma as amostras da definição única de DES-0010 2.1.0 passo 5: `edgeSamples` (`:272-277`), cada borda sozinha com a sua última ponta (nesta rodada; antes, as duas bordas eram uma lista só e a última ponta da borda esquerda não era amostrada); V19 (limites em retas) `:327-332`; V20 (zebras dentro de 0–L) `:333-337` |
+| REQ-FEAT-0002-17, -18 | `verify`/`publish kart-park 2` (`scripts/track-pipeline.ts:124-162`): `publish` exige V01–V20, reproduz o arquivo pelo preparo byte a byte e acrescenta a entrada `STAGING`; repetido, responde `já registrado kart-park 2 STAGING` sem escrever |
+| REQ-FEAT-0002-20, -21 | `kart-park 1` congelado (`:53`); `src/tracks/kart-park-v1.json` e a entrada 1 sem mudança |
+| REQ-FEAT-0007-13 | `promote` sem mudança (`:164-174`): exige `--esri-decision`; a entrada 2 não foi promovida |
+
+Executado nesta rodada: `verify kart-park 2` → V01 a V20 `PASS`, `VERIFIED` (V13: 292 pares próximos, todos separados; V14: 291
+segmentos, soma máxima 5,694 m; V17: 36 585 bytes); `publish kart-park 2` → `STAGING registrado kart-park 2 sha256=c79f14cb…c4d20a
+bytes=36585`; `verify kart-park 1` → `recusado: kart-park 1 é versão publicada e congelada`, código 1.

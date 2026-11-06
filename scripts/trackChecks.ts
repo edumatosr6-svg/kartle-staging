@@ -1,37 +1,37 @@
-// trackChecks — pure library of the checks V01 to V18 of RULE-0002 over a generated track file and its origin
-// (DES-0011 of pista-kart-park). Track-data role, under scripts/. Imports only the track-data modules of the client and
-// never scripts/trackPrep.ts: it reads the origin with its own code to judge the preparation instead of repeating it.
+// trackChecks — pure library of the checks V01 to V20 of RULE-0002 2.0.0 over a generated track file and the replica it
+// was prepared from (DES-0011 2.0.0 of pista-kart-park). Track-data role, under scripts/. Imports only the track-data
+// modules of the client and never scripts/trackPrep.ts: it reads the replica with its own code to judge the preparation
+// instead of repeating it. The version 1 is judged by its registered digest, not here.
 // No node:* module: the program and the tests read the files and compute the SHA-256.
 import { sideOf, type Line, type Point } from '../src/track';
 import { readTrackData, type Schema3Fields, type TrackReading } from '../src/trackData';
 import {
-  beyondTrackEdgeM, buildTrackGeometry, classifySurface, closestOnSegment, lapMAtIndex,
+  beyondTrackEdgeM, buildTrackGeometry, classifySurface, closestOnSegment,
 } from '../src/trackGeometry';
 
-export type CheckId = 'V01' | 'V02' | 'V03' | 'V04' | 'V05' | 'V06' | 'V07' | 'V08' | 'V09' | 'V10' | 'V11' | 'V12' | 'V13' | 'V14' | 'V15' | 'V16' | 'V17' | 'V18';
+export type CheckId = 'V01' | 'V02' | 'V03' | 'V04' | 'V05' | 'V06' | 'V07' | 'V08' | 'V09' | 'V10' | 'V11' | 'V12' | 'V13' | 'V14' | 'V15' | 'V16' | 'V17' | 'V18' | 'V19' | 'V20';
 export type CheckResult = { id: CheckId; pass: boolean; detail: string };
-export const CHECK_IDS: readonly CheckId[] = ['V01', 'V02', 'V03', 'V04', 'V05', 'V06', 'V07', 'V08', 'V09', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18'];
+export const CHECK_IDS: readonly CheckId[] = ['V01', 'V02', 'V03', 'V04', 'V05', 'V06', 'V07', 'V08', 'V09', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20'];
 
 export const MAX_FILE_BYTES = 200_000;
-const MAX_OFFSET_M = 0.30;
-const LAP_MIN_M = 680.625, LAP_MAX_M = 694.375;
+const MAX_OFFSET_M = 0.10;
+const LAP_MIN_M = 683.793, LAP_MAX_M = 697.607;
 const POINT_TOLERANCE_M = 0.002;
 const VALUE_TOLERANCE = 0.0005;
 const PARALLEL_SINE = 0.001;
-const SECTOR_TARGETS_M = [201.6, 350.3, 529.9];
+const SECTOR_TARGETS_M = [204.9, 354.9, 534.7];
 const MARKER_MAX_SPACING_M = 25;
 const LINE_SAMPLE_M = 0.05;
 const CUT_DISTANCE_M = 3;
 const CUT_TOLERANCE_M = 0.001;
 const END_SHORT_M = 2.95, END_LOOKAHEAD_M = 0.06;
-const NEAR_SECTIONS_M: readonly (readonly [number, number])[] = [[371, 414], [580, 615]];
+const NEAR_SECTIONS_M: readonly (readonly [number, number])[] = [[368.5, 406.5], [594.5, 624.5]];
 const BARRIER_GAP_MAX_M = 6;
 const EDGE_SAMPLE_M = 0.25;
 const TOUCH_TOLERANCE_M = 0.002;
-const EXPECTED_CURBS = 34;
-const EXPECTED_ORIGIN_POINTS = 684;
-const WIDTH_MIN_1DP = 4.4, WIDTH_MAX_1DP = 10.8;
-const EXPECTED_IDENTITY = { schemaVersion: 3, trackId: 'kart-park', trackVersion: 1, osmDerived: true };
+const EXPECTED_CURBS = 22;
+const EXPECTED_WIDTH_M = 7.0;
+const EXPECTED_IDENTITY = { schemaVersion: 3, trackId: 'kart-park', trackVersion: 2, osmDerived: true };
 const SIDE_OF: Record<string, 'LEFT' | 'RIGHT'> = { esquerda: 'LEFT', direita: 'RIGHT' };
 const ALLOWED_KEYS: Record<string, readonly string[]> = {
   '': ['schemaVersion', 'trackId', 'trackVersion', 'osmDerived', 'direction', 'startPosition', 'finishLine', 'sectorLimits', 'markers', 'centerline', 'curbs', 'barriers'],
@@ -43,27 +43,28 @@ const ALLOWED_KEYS: Record<string, readonly string[]> = {
   barrierPoint: ['xM', 'zM'],
 };
 
-type Origin = { points: Point[]; widths: number[]; curbs: { side: 'LEFT' | 'RIGHT'; fromM: number; toM: number }[]; cumulative: number[]; length: number };
+type Replica = { points: Point[]; curbs: { side: 'LEFT' | 'RIGHT'; fromM: number; toM: number }[]; straights: { fromM: number; lengthM: number }[] };
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
-const round3 = (v: number) => Math.round(v * 1000) / 1000;
+const finite = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
-// The origin in the game axes (RULE-0002): x east, z = -north, centred on the bounding box, rounded to 0.001 m.
-function readOrigin(json: unknown): Origin | undefined {
-  if (!isRecord(json) || !Array.isArray(json.pontos) || !Array.isArray(json.zebras)) return undefined;
+// The replica in the game axes (RULE-0002 2.0.0): x east, z = -north, with the replica's own origin (the start line),
+// not rounded; its curbs and its `reta` elements by the replica's lap distances.
+function readReplica(json: unknown): Replica | undefined {
+  if (!isRecord(json) || !Array.isArray(json.pontos) || !Array.isArray(json.zebras) || !Array.isArray(json.elementos)) return undefined;
   const raw = json.pontos as unknown[];
-  if (!raw.every(p => Array.isArray(p) && p.length === 3 && p.every(v => typeof v === 'number' && Number.isFinite(v)))) return undefined;
-  const pts = raw as [number, number, number][];
-  const cx = round3((Math.min(...pts.map(p => p[0])) + Math.max(...pts.map(p => p[0]))) / 2);
-  const cy = round3((Math.min(...pts.map(p => p[1])) + Math.max(...pts.map(p => p[1]))) / 2);
-  const points = pts.map(p => ({ x: p[0] - cx, z: -(p[1] - cy) }));
-  const cumulative: number[] = []; let length = 0;
-  for (let i = 0; i < points.length; i++) { cumulative.push(length); const a = points[i], b = points[(i + 1) % points.length]; length += Math.hypot(b.x - a.x, b.z - a.z); }
-  const curbs: Origin['curbs'] = [];
+  if (raw.length < 3 || !raw.every(p => Array.isArray(p) && p.length === 3 && p.every(finite))) return undefined;
+  const points = (raw as [number, number, number][]).map(p => ({ x: p[0], z: -p[1] }));
+  const curbs: Replica['curbs'] = [];
   for (const z of json.zebras as unknown[]) {
-    if (!isRecord(z) || typeof z.lado !== 'string' || !(z.lado in SIDE_OF) || typeof z.de_m !== 'number' || typeof z.ate_m !== 'number') return undefined;
+    if (!isRecord(z) || typeof z.lado !== 'string' || !(z.lado in SIDE_OF) || !finite(z.de_m) || !finite(z.ate_m)) return undefined;
     curbs.push({ side: SIDE_OF[z.lado], fromM: z.de_m, toM: z.ate_m });
   }
-  return { points, widths: pts.map(p => p[2]), curbs, cumulative, length };
+  const straights: Replica['straights'] = [];
+  for (const e of json.elementos as unknown[]) {
+    if (!isRecord(e) || typeof e.tipo !== 'string' || !finite(e.de_m) || !finite(e.comprimento_m)) return undefined;
+    if (e.tipo === 'reta') straights.push({ fromM: e.de_m, lengthM: e.comprimento_m });
+  }
+  return { points, curbs, straights };
 }
 
 const distanceToClosedPolyline = (pts: readonly Point[], p: Point) => {
@@ -85,15 +86,6 @@ const lineDirection = (l: Line) => { const dx = l.toXM - l.fromXM, dz = l.toZM -
 const lineDistanceTo = (l: Line, p: Point) => closestOnSegment({ x: l.fromXM, z: l.fromZM }, { x: l.toXM, z: l.toZM }, p).distanceM;
 // Parallel to the normal and oriented from the left end to the right end: the direction is -normal.
 const lineAlongNormal = (l: Line, normal: Point) => { const d = lineDirection(l); return Math.abs(d.x * normal.z - d.z * normal.x) <= PARALLEL_SINE && d.x * normal.x + d.z * normal.z < 0; };
-const fractionalIndex = (cumulative: readonly number[], length: number, m: number) => {
-  const v = Math.max(0, Math.min(length, m));
-  let index = 0;
-  for (let i = 0; i < cumulative.length; i++) if (cumulative[i] <= v) index = i; else break;
-  const end = index + 1 < cumulative.length ? cumulative[index + 1] : length;
-  const seg = end - cumulative[index];
-  return { index, fraction: seg > 0 ? Math.min(1, (v - cumulative[index]) / seg) : 0 };
-};
-const lapDelta = (a: number, b: number, L: number) => { const d = Math.abs(a - b) % L; return Math.min(d, L - d); };
 
 // Keys of the object and of every nested object, against DM-0001; returns the first unexpected key path, or undefined.
 function unexpectedKey(file: Record<string, unknown>): string | undefined {
@@ -128,16 +120,18 @@ function unexpectedKey(file: Record<string, unknown>): string | undefined {
   return undefined;
 }
 
-// V01 to V18, all of them, always in the same order; `detail` carries identifiers and measures only.
-export function verifyTrackFile(text: string, originJson: unknown): CheckResult[] {
+// V01 to V20, all of them, always in the same order; `detail` carries identifiers and measures only. An unreadable file
+// fails every check; an unreadable replica fails the checks that read it (V01, V07, V12, V19).
+export function verifyTrackFile(text: string, replicaJson: unknown): CheckResult[] {
   const reading = readTrackData(text);
-  const origin = readOrigin(originJson);
+  const replica = readReplica(replicaJson);
   let raw: Record<string, unknown> | undefined;
   try { const parsed: unknown = JSON.parse(text); raw = isRecord(parsed) ? parsed : undefined; } catch { raw = undefined; }
-  if (!(reading.trackDataStatus === 'COMPLETE' && reading.centerline && reading.curbs && reading.barriers) || !origin || !raw) {
-    const detail = !origin ? 'origin: out of form' : !raw ? 'file: not a JSON object' : `reading: ${reading.trackDataStatus}`;
+  if (!(reading.trackDataStatus === 'COMPLETE' && reading.centerline && reading.curbs && reading.barriers) || !raw) {
+    const detail = !raw ? 'file: not a JSON object' : `reading: ${reading.trackDataStatus}`;
     return CHECK_IDS.map(id => ({ id, pass: false, detail }));
   }
+  const replicaUnreadable = 'replica: out of form';
   const file = reading as Extract<TrackReading, { trackDataStatus: 'COMPLETE' }> & Schema3Fields;
   const g = buildTrackGeometry(file.centerline, file.curbs, file.barriers);
   const asphaltOnly = buildTrackGeometry(file.centerline, [], []);
@@ -146,14 +140,11 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
   const results: CheckResult[] = [];
   const push = (id: CheckId, pass: boolean, detail: string) => results.push({ id, pass, detail });
 
-  // V01: same count as the origin; point i generated within 0.30 m of point i of the origin.
-  {
-    let worst = 0, worstIndex = -1;
-    for (let i = 0; i < Math.min(n, origin.points.length); i++) {
-      const d = Math.hypot(g.centerline[i].xM - origin.points[i].x, g.centerline[i].zM - origin.points[i].z);
-      if (d > worst) { worst = d; worstIndex = i; }
-    }
-    push('V01', n === origin.points.length && origin.points.length === EXPECTED_ORIGIN_POINTS && worst <= MAX_OFFSET_M, `points ${n}/${origin.points.length}; max offset ${worst.toFixed(4)} m at ${worstIndex}`);
+  // V01: point 0 within 0.10 m of point 0 of the replica.
+  if (!replica) push('V01', false, replicaUnreadable);
+  else {
+    const d = Math.hypot(g.centerline[0].xM - replica.points[0].x, g.centerline[0].zM - replica.points[0].z);
+    push('V01', d <= MAX_OFFSET_M, `point 0 offset ${d.toFixed(4)} m`);
   }
   // V02
   push('V02', n >= 3 && (g.centerline[n - 1].xM !== g.centerline[0].xM || g.centerline[n - 1].zM !== g.centerline[0].zM), `points ${n}`);
@@ -174,18 +165,17 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
     for (let i = 0; i < n; i++) { const a = P(i), b = P((i + 1) % n); s += a.x * (-b.z) - b.x * (-a.z); }
     push('V05', s > 0 && file.direction === 'COUNTER_CLOCKWISE', `signed area ${s.toFixed(1)} m2; direction ${file.direction}`);
   }
-  // V06: widths equal to the origin; min 4.4 and max 10.8 at one decimal.
+  // V06: every width equal to 7.0 m.
   {
-    let equal = n === origin.widths.length, min = Infinity, max = -Infinity;
-    for (let i = 0; i < n; i++) { const w = g.centerline[i].widthM; if (Math.abs(w - (origin.widths[i] ?? NaN)) > VALUE_TOLERANCE) equal = false; min = Math.min(min, w); max = Math.max(max, w); }
-    const min1 = Math.round(min * 10) / 10, max1 = Math.round(max * 10) / 10;
-    push('V06', equal && min1 === WIDTH_MIN_1DP && max1 === WIDTH_MAX_1DP, `widths equal ${equal}; min ${min1} max ${max1}`);
+    const wrong = g.centerline.findIndex(p => Math.abs(p.widthM - EXPECTED_WIDTH_M) > VALUE_TOLERANCE);
+    push('V06', wrong < 0, wrong < 0 ? `all ${n} widths ${EXPECTED_WIDTH_M} m` : `point ${wrong} width ${g.centerline[wrong].widthM} m`);
   }
-  // V07: every generated point within 0.30 m of the original closed polyline.
-  {
+  // V07: every generated point within 0.10 m of the closed replica polyline.
+  if (!replica) push('V07', false, replicaUnreadable);
+  else {
     let worst = 0;
-    for (let i = 0; i < n; i++) worst = Math.max(worst, distanceToClosedPolyline(origin.points, P(i)));
-    push('V07', worst <= MAX_OFFSET_M, `max distance to the original polyline ${worst.toFixed(4)} m`);
+    for (let i = 0; i < n; i++) worst = Math.max(worst, distanceToClosedPolyline(replica.points, P(i)));
+    push('V07', worst <= MAX_OFFSET_M, `max distance to the replica polyline ${worst.toFixed(4)} m`);
   }
   // V08: the two edges closed, without self-intersection and without intersection between them.
   {
@@ -202,8 +192,8 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
     for (let i = 0; i < left.length && !bad; i++) for (let j = 0; j < right.length; j++) if (segmentsCross(left[i].a, left[i].b, right[j].a, right[j].b)) { bad = `left ${i} x right ${j}`; break; }
     push('V08', bad === undefined, bad ?? 'edges free of intersections');
   }
-  // V09: 3 limits, in order, each through the point nearest its target by the original lap distance, along its normal.
-  const limitIndices = SECTOR_TARGETS_M.map(t => { let best = 0; for (let i = 1; i < n; i++) if (Math.abs(origin.cumulative[i] - t) < Math.abs(origin.cumulative[best] - t)) best = i; return best; });
+  // V09: 3 limits, in order, each through the point nearest its target by the lap distance d, along its normal.
+  const limitIndices = SECTOR_TARGETS_M.map(t => { let best = 0; for (let i = 1; i < n; i++) if (Math.abs(g.cumulativeM[i] - t) < Math.abs(g.cumulativeM[best] - t)) best = i; return best; });
   {
     const limits = file.sectorLimits;
     const ok = limits.length === 3 && limits.every((l, k) => lineDistanceTo(l, P(limitIndices[k])) <= POINT_TOLERANCE_M && lineAlongNormal(l, g.normals[limitIndices[k]]));
@@ -255,21 +245,19 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
     }
     push('V11', bad === undefined, bad ?? `${lines.length} lines cross edge to edge within ${CUT_DISTANCE_M} m`);
   }
-  // V12: 34 spans matching the origin curbs by fractional index; the one crossing the start split in two.
-  {
-    const expected: { side: 'LEFT' | 'RIGHT'; fromLapM: number; toLapM: number }[] = [];
-    const corr = (m: number) => { const f = fractionalIndex(origin.cumulative, origin.length, m); return lapMAtIndex(g, f.index, f.fraction); };
-    for (const c of origin.curbs) {
-      if (c.toM > origin.length) { expected.push({ side: c.side, fromLapM: corr(c.fromM), toLapM: L }); expected.push({ side: c.side, fromLapM: 0, toLapM: corr(c.toM - origin.length) }); }
-      else expected.push({ side: c.side, fromLapM: corr(c.fromM), toLapM: corr(c.toM) });
-    }
+  // V12: 22 spans, in the order of the replica curbs: same side, fromLapM = de_m, toLapM = ate_m, width above 0.
+  if (!replica) push('V12', false, replicaUnreadable);
+  else {
     const spans = file.curbs;
-    const matched = expected.every(e => spans.some(s => s.side === e.side && Math.abs(s.fromLapM - e.fromLapM) <= VALUE_TOLERANCE && Math.abs(s.toLapM - e.toLapM) <= VALUE_TOLERANCE));
-    const wellFormed = spans.every(s => s.fromLapM < s.toLapM && s.widthM > 0);
-    push('V12', spans.length === EXPECTED_CURBS && expected.length === EXPECTED_CURBS && matched && wellFormed, `spans ${spans.length}; expected ${expected.length}; matched ${matched}`);
+    const mismatch = spans.findIndex((s, k) => {
+      const c = replica.curbs[k];
+      return !c || s.side !== c.side || Math.abs(s.fromLapM - c.fromM) > VALUE_TOLERANCE || Math.abs(s.toLapM - c.toM) > VALUE_TOLERANCE || !(s.widthM > 0);
+    });
+    const ok = spans.length === EXPECTED_CURBS && replica.curbs.length === EXPECTED_CURBS && mismatch < 0;
+    push('V12', ok, `spans ${spans.length}; replica curbs ${replica.curbs.length}${mismatch >= 0 ? `; span ${mismatch} differs` : ''}`);
   }
-  // Shared by V13 to V15: the near sections by the original lap distance.
-  const sectionIndices = NEAR_SECTIONS_M.map(([a, b]) => { const out: number[] = []; for (let i = 0; i < n; i++) if (origin.cumulative[i] >= a && origin.cumulative[i] <= b) out.push(i); return out; });
+  // Shared by V13 to V15: the near sections by the lap distance d of the centerline.
+  const sectionIndices = NEAR_SECTIONS_M.map(([a, b]) => { const out: number[] = []; for (let i = 0; i < n; i++) if (g.cumulativeM[i] >= a && g.cumulativeM[i] <= b) out.push(i); return out; });
   const edgeSegments = (indices: number[]) => {
     const segs: { a: Point; b: Point }[] = [];
     for (const edge of [g.leftEdge, g.rightEdge]) for (let k = 0; k + 1 < indices.length; k++) segs.push({ a: edge[indices[k]], b: edge[indices[k + 1]] });
@@ -281,6 +269,12 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
     if (segs.length) out.push(segs[segs.length - 1].b);
     return out;
   };
+  // DES-0010 2.1.0 step 5, the single edge-sampling definition: each edge alone, plus its own last endpoint.
+  const edgeSamples = (indices: number[]) => [g.leftEdge, g.rightEdge].flatMap(edge => {
+    const segs: { a: Point; b: Point }[] = [];
+    for (let k = 0; k + 1 < indices.length; k++) segs.push({ a: edge[indices[k]], b: edge[indices[k + 1]] });
+    return sampleSegments(segs);
+  });
   const nearestOn = (segs: { a: Point; b: Point }[], p: Point) => { let best = { point: p, distanceM: Infinity }; for (const s of segs) { const c = closestOnSegment(s.a, s.b, p); if (c.distanceM < best.distanceM) best = { point: c.point, distanceM: c.distanceM }; } return best; };
   const asphaltDistance = (indices: number[], p: Point) => { let best = Infinity; for (const i of indices) best = Math.min(best, pointToQuad(asphaltOnly.asphaltQuads[i], p)); return best; };
   // V13: every close pair of edge samples between the sections is separated by a barrier segment.
@@ -288,7 +282,7 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
     let bad: string | undefined, pairs = 0;
     for (const [from, to] of [[0, 1], [1, 0]]) {
       const target = edgeSegments(sectionIndices[to]);
-      for (const p of sampleSegments(edgeSegments(sectionIndices[from]))) {
+      for (const p of edgeSamples(sectionIndices[from])) {
         const q = nearestOn(target, p);
         if (q.distanceM > BARRIER_GAP_MAX_M) continue;
         pairs++;
@@ -329,6 +323,17 @@ export function verifyTrackFile(text: string, originJson: unknown): CheckResult[
   {
     const extra = unexpectedKey(raw);
     push('V18', extra === undefined, extra ?? 'keys as declared');
+  }
+  // V19: each sector-limit point of V09 lies within a `reta` element of the replica.
+  if (!replica) push('V19', false, replicaUnreadable);
+  else {
+    const outside = limitIndices.filter(i => !replica.straights.some(e => e.fromM <= g.cumulativeM[i] && g.cumulativeM[i] <= e.fromM + e.lengthM));
+    push('V19', outside.length === 0, outside.length ? `limit points outside a straight: ${outside.join(', ')}` : `limit points ${limitIndices.join(', ')} on straights`);
+  }
+  // V20: every curb span within 0 <= fromLapM < toLapM <= lapLengthM (upper bound with half a unit of the last place).
+  {
+    const bad = file.curbs.findIndex(c => !(c.fromLapM >= 0 && c.fromLapM < c.toLapM && c.toLapM <= L + VALUE_TOLERANCE));
+    push('V20', bad < 0, bad < 0 ? `${file.curbs.length} spans within 0-${L.toFixed(3)} m` : `span ${bad} ${file.curbs[bad].fromLapM}-${file.curbs[bad].toLapM} m`);
   }
   return results;
 }

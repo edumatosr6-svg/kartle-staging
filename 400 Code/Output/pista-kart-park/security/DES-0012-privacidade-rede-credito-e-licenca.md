@@ -4,7 +4,7 @@ title: Privacidade, rede, crédito OSM/ODbL e licença Esri — implementação
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.1.0
+version: 1.2.0
 sources: [FEAT-0001, FEAT-0006, FEAT-0007, RULE-0005, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0006-12, REQ-FEAT-0006-14, REQ-FEAT-0007-05, REQ-FEAT-0007-13]
 ---
 
@@ -37,3 +37,7 @@ com o `src/main.ts` novo); a extensão da lista aos módulos novos (`tests/pista
 
 Registro em log: só `console.warn('track-data', <status>[, trackId, trackVersion | schemaVersion])` (`src/main.ts:232-234`); o
 programa offline imprime identificadores, contagens e medidas, nunca o conteúdo do arquivo nem o valor de um argumento recusado.
+
+Revisão 3 do seed (2026-11-06, projeto de `8b00b74`: `dspec-validation-20261106-1853`) — DES-0012 1.1.0: o pacote leva só o dado da versão 2 (`src/main.ts:13`); a versão 1 e as origens em `tracks/sources/`
+ficam fora dele (nada em `src/` as importa; `npm run build` conferido). A promoção de qualquer versão exige a decisão Esri
+(`scripts/track-pipeline.ts:164-174`, sem mudança); nenhuma rede, armazenamento ou dado de jogador novo.

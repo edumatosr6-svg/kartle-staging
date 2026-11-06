@@ -3,7 +3,7 @@ title: Registro de implementação — pista Kart Park
 feature: pista-kart-park
 stage: code
 status: validated
-version: 1.5.0
+version: 1.6.0
 sources: []
 ---
 
@@ -191,3 +191,39 @@ herdadas do D-Spec (15 linhas: 13 da rodada 1 do projeto e 2 da rodada 4) estão
 Rodada 5, Mode A (2026-11-03): o acabamento visual da revisão 2 do seed, projeto DES-0008 2.1.0 (`dspec-validation-20261103-1946`,
 commit `f926815`), sobre a árvore de `f926815`: `src/trackScene.ts` (262 linhas) e uma linha de `src/main.ts` (`:239`, 671 linhas).
 Nenhum outro arquivo de código; detalhe em `web/DES-0008` 2.0.0 e `97-changelog.md`.
+
+## Revisão 3 do seed — réplica não oficial como `kart-park` `trackVersion` 2 (2026-11-06)
+
+Rodada Mode A da revisão 3 sobre a árvore de `8b00b74` (projeto `dspec-validation-20261106-1853`: DES-0005 2.0.0, DES-0007 2.0.1,
+DES-0008 3.0.1, DES-0010 2.1.0, DES-0011 2.0.1, DES-0012 1.1.0, DM-0001 2.0.1, DM-0002 2.0.1, ADR-0008). A primeira passagem parou em
+FAIL SPEC (`300 Specs/330 D-Specs/Output/pista-kart-park/reports/feedback/feedback-20261106-1850.md`, SPEC-ISSUE-01: a amostragem
+por pares do passo 5 não cobria as amostras de V13); o projeto o resolveu no modo C (DES-0010 2.1.0 passo 5, DES-0011 2.0.1) e
+esta passagem trocou só a amostragem do preparo da versão 2 e refez `prepare`, `verify` e `publish kart-park 2`. Detalhe por item em
+`core/DES-0005`, `web/DES-0007`, `web/DES-0008`, `pipeline/DES-0010`, `pipeline/DES-0011`, `data/DM-0001`, `data/DM-0002` e
+`security/DES-0012`; divergências em `98-divergences.md` 2.0.0.
+
+| Medida (versão 2) | Valor |
+|---|---|
+| Origem | `tracks/sources/kart-park-replica.json`, cópia byte a byte da réplica, SHA-256 `eba665b6c700fe7a05cd89862ef74d93ce307e613393e34cf78b9c69b2caa24e`; 691 pontos, 22 zebras, `elementos` |
+| Conversão | todos os pontos, `(x, −y)` arredondados a 0,001 m, sem deslocamento: `maxReplicaOffsetM` 0, `originOffsetM` (0, 0); área com sinal 16 716,9 m², `COUNTER_CLOCKWISE` |
+| Comprimento | `lapLengthM` **690,674 m** (faixa 683,793–697,607); o rótulo é `displayLengthM` 691 |
+| Larguras | todas 7,0 m |
+| Largada | `headingDeg` −54,728 no segmento P0→P1; `finishLine` no ponto 0 |
+| Limites de setor | pontos 205, 355, 535 (204,9 / 354,9 / 534,7 m), cada um num elemento `reta` (V19) |
+| Marcadores | 39, espaçamento máximo 18,01 m |
+| Linhas transversais | 43 (V11) |
+| Zebras | 22, largura 1,0 m, nenhuma reduzida, todas dentro de 0–690,674 m (V20) |
+| Barreira | 1 poligonal, **292 vértices**, 291 segmentos, **47,649 m**, entre d 368,5–406,5 m e 594,5–624,5 m; 292 pares de V13 a ≤ 6 m, todos separados; soma máxima asfalto a asfalto 5,694 m (V14); guarda de 0,2 m aprovada |
+| Pilhas desenhadas | 539 pilhas, 2 695 pneus, 71 148 triângulos (132 por pilha); face a 0,0191 m (contato → face) e 0,0230 m (face → contato), limite 0,05 m; nenhum ponto de pneu fora da grama |
+| Arquivo publicado | `src/tracks/kart-park-v2.json`, **36 585 bytes** (literal 42 502), SHA-256 `c79f14cbd49f3a7f19d2d1b50d14512b02525f6af7ecaaf850959c1395c4d20a` em disco, igual ao `sha256` da entrada 2; `readTrackData` → `COMPLETE` |
+| Registro | entradas `kart-park` 1 (igual à de `HEAD`) e `kart-park` 2 `STAGING` (`stagedAtUtc` 2026-11-06T18:58:23.192Z, `prep.method` `REPLICA`); nenhuma promovida; segundo `publish` → `já registrado`; `verify kart-park 1` → recusado (congelada) |
+| Versão 1 | `src/tracks/kart-park-v1.json` intacto, SHA-256 `04ce5e51…f057b1`; reproduzido byte a byte pelo preparo congelado (`CHK-TEST-0012-03` verde) |
+
+Arquivos de código da revisão 3: `scripts/trackPrep.ts` (591 linhas), `scripts/trackChecks.ts` (366), `scripts/track-pipeline.ts`
+(180), `src/trainingSession.ts` (101), `src/main.ts` (672), `tracks/sources/kart-park-replica.json` (novo), `src/tracks/kart-park-v2.json`
+(novo, gerado), `tracks/registry.json` (entrada 2). Nenhum módulo de simulação, `src/trackData.ts`, `src/trackScene.ts`, `index.html`,
+`src/style.css`, `package.json` nem `tests/` tocados.
+
+Portão desta rodada: `npx tsc --noEmit` saída 0; `npm run build` saída 0 (`dist/assets/index-DszUW7WJ.js` 690,59 kB,
+`index-q-biCwua.css` 10,85 kB); `npm run track -- verify kart-park 2` V01 a V20 `PASS`; `npx tsx --test tests/*.test.ts` 445/467,
+as 22 reprovações presas à versão 1 (`98-divergences.md`, estágio de testes); `lint_artifacts.py --stage code --emit` saída 0.
