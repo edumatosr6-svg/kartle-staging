@@ -1,11 +1,11 @@
 # Exporta a réplica não oficial no formato kartle-pista (pontos a cada 1 m, largura fixa) com zebras
 # geradas por regra de pista de kart, e desenha atual × réplica lado a lado.
-import json, numpy as np, matplotlib
+import json, sys, numpy as np, matplotlib
 matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 WID = 7.0; RAMP_SPLIT = 0.5
 d = json.load(open('../kart-park.json', encoding='utf-8'))
-e = json.load(open('f_40_1.6.json')); T = np.array(e['tipos']); v = np.array(e['x']); M = len(T); RAMP = e['ramp']
+e = json.load(open(sys.argv[1] if len(sys.argv) > 1 else 'f_40_1.6.json')); T = np.array(e['tipos']); v = np.array(e['x']); M = len(T); RAMP = e['ramp']
 lens = np.abs(v[:M]); ks = np.where(T == 0, 0, v[M:2 * M])
 T[np.abs(ks) < 1 / 1000] = 0; ks[T == 0] = 0  # arco de raio > 1 km é reta
 x0, y0, h0 = v[2 * M:]
@@ -19,7 +19,7 @@ for j in range(M):
 hd = h0 + np.cumsum(kk * h) - kk * h / 2
 c = np.vstack([[0, 0], np.cumsum(h * np.c_[np.cos(hd), np.sin(hd)], 0)])
 gap = c[-1] - c[0]; c = c[:-1] - np.outer(s / L, gap)  # distribui o resíduo de fechamento (mm)
-step = int(round(1 / h)); pts = c[::step]; npt = len(pts)
+npt = int(round(L)); pts = c[np.round(np.arange(npt) * n / npt).astype(int)]  # passo uniforme ≈ L/npt
 # zebras: interna em toda curva de raio < 30 m (do início ao fim do arco), externa na saída das de raio < 16 m
 zeb = []
 for j in range(M):

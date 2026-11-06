@@ -54,3 +54,24 @@ descartável, fora do repositório), para o acabamento de US-7:
 - Zebras no arquivo publicado: 34 trechos (a da largada dividida), 386,8 m, todos com 1 m de largura.
 - Caminho OSM `way/128739206` (API do OSM, 2026-11-03): fechado, 57 nós, 676,0 m, `width=6`,
   `name=Pista de Kart`. A diferença para os 750 m oficiais já está no OSM; não vem do preparo.
+
+## Réplica da revisão 3 (2026-11-06)
+
+Pedido do dono do produto: recriar o traçado como uma pista de kart "o mais certo possível", mantendo o
+desenho ao máximo e com liberdade de medidas. Passos e scripts em `replica/` (numpy e scipy):
+
+- `a_analise.py`: curvatura e largura do traçado da versão 1 (largura 4,4–10,8 m, nenhuma reta, a
+  curvatura troca de sinal 28 vezes em ondulações).
+- `d_elementos.py`: segmentação da curvatura por programação dinâmica e ajuste por mínimos quadrados de
+  47 elementos (retas e arcos, transição de 5 m, raio ≥ 8 m), com volta fechada e giro de 360°.
+- `f_limpeza.py 40 1,6`: arcos de raio > 40 m viram retas e arcos vizinhos parecidos se juntam; 33
+  elementos. Esta é a versão mostrada ao dono do produto.
+- `i_folga.py 1,5 6,5`: com 7 m fixos, o asfalto dos trechos quase encostados se sobrepunha (folga de
+  −0,37 m em 384 × 606 m), e surgia uma grama nova de 5,6 m entre ≈ 167 m e ≈ 655 m. Reajuste dos mesmos
+  33 elementos com folga mínima no primeiro par e mais de 6 m no segundo. Resultado: folga de 1,28 m (a
+  versão 1 tinha 0,89 m) e nenhuma outra grama de 6 m ou menos. Os raios mudaram no máximo 0,1 m, e a
+  volta foi de 686,3 m para 690,7 m.
+- `g_exporta.py i_folga.json`: exporta `kart-park-replica.json` com pontos uniformes a ≈ 1 m e desenha
+  `kart-park-replica.png`.
+- `h_medicoes.py`: todos os números da tabela do seed (comprimento, sentido, rumo, elementos, raios,
+  desvio para a versão 1, folgas, zebras, limites de setor levados da versão 1 pelo ponto mais próximo).

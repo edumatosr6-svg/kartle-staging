@@ -30,3 +30,9 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   enquanto houver roda na zebra, com o som ligado.
 - 2026-11-03 — **OPEN-01 continua aberto (Eduardo Matos):** a Kart Park **segue só em staging**; nenhuma
   liberação, nem remedição sem Esri, por enquanto. A produção espera a decisão (opção 1 dos runbooks).
+- 2026-11-06 — **Traçado da revisão 3 (Eduardo Matos):** aprovada a **réplica não oficial**
+  (`replica/kart-park-replica.json`): retas e arcos de raio constante com transições de 5 m, largura
+  fixa de **7 m**, zebras por regra (por dentro das curvas de raio < 30 m e por fora na saída das de raio
+  < 16 m). Ela substitui o traçado da versão 1 no seletor como `kart-park` **versão 2**, com o nome
+  "Kart Park — São José dos Pinhais (réplica não oficial)". A licença Esri (OPEN-01) continua valendo
+  para ela, por ser derivada da versão 1.
