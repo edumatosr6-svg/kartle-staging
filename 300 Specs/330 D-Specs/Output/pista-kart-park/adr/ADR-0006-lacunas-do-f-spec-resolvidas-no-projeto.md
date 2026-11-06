@@ -4,13 +4,19 @@ title: Lacunas deliberadas do F-Spec resolvidas no projeto
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.1
-sources: [RULE-0002, RULE-0004, FEAT-0002, FEAT-0004, FEAT-0005, FEAT-0006, REQ-FEAT-0002-05, REQ-FEAT-0002-10, REQ-FEAT-0004-08, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-12, REQ-FEAT-0005-15, REQ-FEAT-0006-03]
+version: 2.0.0
+sources: [RULE-0002, RULE-0004, FEAT-0002, FEAT-0004, FEAT-0005, FEAT-0006, REQ-FEAT-0004-08, REQ-FEAT-0005-03, REQ-FEAT-0005-04, REQ-FEAT-0005-12, REQ-FEAT-0005-15, REQ-FEAT-0006-03]
 ---
 
 # ADR-0006 — Lacunas deliberadas do F-Spec resolvidas no projeto
 
 ## Contexto
+
+**Revisão 3 do seed (2.0.0).** O F-Spec 2.0.0 fecha duas das lacunas abaixo e abre outras duas. Fecha a origem
+das coordenadas (REQ-FEAT-0002-07: a mesma origem do arquivo da réplica) e a suavização (FLOW-0003: a réplica não
+é suavizada de novo); abre como os pontos da réplica chegam à `centerline` e se o arquivo da versão 1 é entregue
+ao navegador, decididas em [ADR-0008](ADR-0008-kart-park-versao-2-a-partir-da-replica.md). As linhas da suavização
+e da origem ficam abaixo como decisão da **versão 1**, cujo arquivo não muda; as demais valem para a versão 2.
 
 O F-Spec (`01-overview.md`, "Lacunas deliberadas") deixa ao D-Spec, sem valor inventado nos requisitos: a
 largura lateral de cada zebra ("decidido no D-Spec com a evidência registrada"), o método e a janela da
@@ -22,13 +28,13 @@ zebra e da barreira. O arquivo de origem não declara largura de zebra (só `lad
 
 | Lacuna | Valor | Motivo e evidência |
 |---|---|---|
-| Largura da zebra | 1,0 m por trecho, reduzida pelo preparo até deixar 0,4 m de grama até outra parte da volta; abaixo de 0,3 m o preparo falha | menor que a bitola do kart (1,2 m, `src/physics.ts:49`): o kart tem no máximo as duas rodas de um lado na zebra, que é o caso de RULE-0001; pequena diante do asfalto de 4,4 m a 10,8 m. A evidência de cada trecho (largura gravada e, quando reduzida, a folga que a limitou) fica em `prep.curbWidthsM` e `prep.reducedCurbs` do registro de publicação ([DM-0002](../data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md)) |
-| Suavização | **janela fixa de 12 m de distância de volta** (± 6 m em torno de cada ponto, medida na linha original), com pesos de cosseno levantado `w(d) = ½ (1 + cos(π d / 6))`, **aplicada uma só vez** sobre os pontos da origem, seguida do grampo de 0,295 m em torno do ponto correspondente da origem; o comprimento é **medido de novo** sobre a linha suavizada e arredondada e tem de ficar em 687,5 m ± 1 % (680,625 m a 694,375 m), senão o preparo falha | é a decisão do dono do produto (`DOMAIN` 2026-10-22, "Fidelidade": janela de cerca de 12 m; tolerância da suavização fechada no seed: nenhum ponto a mais de 0,30 m; SEED US-2: comprimento medido de novo depois da suavização, 687,5 m ± 1 %), sem intensidade escolhida pelo dado. Mantém quantidade e ordem dos pontos (correspondência por índice); o grampo garante 0,30 m por construção (0,295 m mais o arredondamento a 0,001 m ficam abaixo de 0,30 m: V01 e V07 verificam, não presumem); os pesos de cosseno levantado deixam a janela de 12 m remover o ruído de 8 m a 13 m de comprimento de onda sem puxar as curvas fechadas para dentro — a média uniforme sobre os mesmos 12 m bate no grampo em metade dos pontos e encurta a volta para fora da faixa (evidência abaixo). O comprimento derivado da `centerline` gravada, registrado em `prep.lapLengthM`, é o medido depois da suavização (o arquivo publicado não tem chave de comprimento: API-0001, DM-0001); o rótulo continua "687 m" (`displayLengthM` 687 do catálogo, fixado pelo F-Spec em REQ-FEAT-0006-08, independente do comprimento suavizado). A janela fica em `prep.smoothingWindowM`, o maior desvio em `prep.maxSmoothingOffsetM` e o comprimento medido em `prep.lapLengthM` |
-| Origem das coordenadas | centro da caixa envolvente dos pontos da origem, arredondado a 0,001 m | a pista fica centrada na origem como a sintética, e a câmera de visão geral e a sombra servem sem caso especial; o deslocamento fica em `prep.originOffsetM` |
+| Largura da zebra (versões 1 e 2) | 1,0 m por trecho, reduzida pelo preparo até deixar 0,4 m de grama até outra parte da volta; abaixo de 0,3 m o preparo falha | menor que a bitola do kart (1,2 m, `src/physics.ts:49`): o kart tem no máximo as duas rodas de um lado na zebra, que é o caso de RULE-0001; pequena diante do asfalto (7,0 m na versão 2; 4,4 m a 10,8 m na versão 1). A evidência de cada trecho (largura gravada e, quando reduzida, a folga que a limitou) fica em `prep.curbWidthsM` e `prep.reducedCurbs` do registro de publicação ([DM-0002](../data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md)) |
+| Suavização (só versão 1) | **janela fixa de 12 m de distância de volta** (± 6 m em torno de cada ponto, medida na linha original), com pesos de cosseno levantado `w(d) = ½ (1 + cos(π d / 6))`, **aplicada uma só vez** sobre os pontos da origem, seguida do grampo de 0,295 m em torno do ponto correspondente da origem; o comprimento é **medido de novo** sobre a linha suavizada e arredondada e tem de ficar em 687,5 m ± 1 % (680,625 m a 694,375 m), senão o preparo falha | é a decisão do dono do produto (`DOMAIN` 2026-10-22, "Fidelidade": janela de cerca de 12 m; tolerância da suavização fechada no seed: nenhum ponto a mais de 0,30 m; SEED US-2: comprimento medido de novo depois da suavização, 687,5 m ± 1 %), sem intensidade escolhida pelo dado. Mantém quantidade e ordem dos pontos (correspondência por índice); o grampo garante 0,30 m por construção (0,295 m mais o arredondamento a 0,001 m ficam abaixo de 0,30 m: V01 e V07 verificam, não presumem); os pesos de cosseno levantado deixam a janela de 12 m remover o ruído de 8 m a 13 m de comprimento de onda sem puxar as curvas fechadas para dentro — a média uniforme sobre os mesmos 12 m bate no grampo em metade dos pontos e encurta a volta para fora da faixa (evidência abaixo). O comprimento derivado da `centerline` gravada, registrado em `prep.lapLengthM`, é o medido depois da suavização (o arquivo publicado não tem chave de comprimento: API-0001, DM-0001); o rótulo continua "687 m" (`displayLengthM` 687 do catálogo, fixado pelo F-Spec em REQ-FEAT-0006-08, independente do comprimento suavizado). A janela fica em `prep.smoothingWindowM`, o maior desvio em `prep.maxSmoothingOffsetM` e o comprimento medido em `prep.lapLengthM` |
+| Origem das coordenadas (só versão 1; na versão 2, a origem da réplica, fixada por REQ-FEAT-0002-07) | centro da caixa envolvente dos pontos da origem, arredondado a 0,001 m | a pista fica centrada na origem como a sintética, e a câmera de visão geral e a sombra servem sem caso especial; o deslocamento fica em `prep.originOffsetM` |
 | Intervalo do som da zebra | 12 passos de `STEP` (100 ms de tempo simulado), constante | uma repetição por faixa vermelha e branca a cerca de 10 m/s em faixas de 1 m; mais curto que o pulso de vibração (250 ms) e inteiro em passos |
 | Timbre do som da zebra | ruído branco de 60 ms, passa-baixa em 160 Hz, ataque de 5 ms e queda exponencial, ganho de pico 0,05 | "ruído curto e grave" (`DOMAIN/DEC-11`); fonte de ruído, enquanto o motor é onda triangular contínua e a recompensa são tons senoidais a partir de 659 Hz: sinal diferente de todo outro som do jogo. Com a retirada do drift (`dirigibilidade`, seed `revision: 5`) a recompensa, que era o som do prêmio do drift, deixa de tocar; o timbre não muda ([DES-0009](../web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
 | Aba do link do crédito | outra aba, com `rel="noopener noreferrer"` | o jogo não perde a sessão de treino. O link aparece na tela inicial, sem treino em andamento, e no painel do resultado de cada volta do treino, com o treino em andamento ([ADR-0007](ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)); acioná-lo durante o treino tira o foco da aba e o treino pausa pela regra de `race-lap-validation` (`FOCUS_LOST`), sem perder a volta, o tempo nem resultado algum |
-| Aparência | asfalto `#434d48`; zebra em faixas de 1 m alternadas `#c8423b` e `#f0e9d5`; barreira de 0,2 m × 0,9 m `#e6dfc9` | as cores da pista sintética para o asfalto e a linha de largada; a faixa da zebra no lado declarado e a barreira em todo o comprimento, como o F-Spec exige |
+| Aparência | asfalto `#434d48`; zebra em faixas de 1 m alternadas `#c8423b` e `#f0e9d5`; a barreira, desde a revisão 2 do seed, como pilhas de pneus pretos de [DES-0008](../web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md) (era uma caixa de 0,2 m × 0,9 m `#e6dfc9`) | as cores da pista sintética para o asfalto e a linha de largada; a faixa da zebra no lado declarado e a barreira em todo o comprimento, como o F-Spec exige; as mesmas na versão 2 |
 
 ## Alternativas consideradas
 
@@ -48,7 +54,7 @@ zebra e da barreira. O arquivo de origem não declara largura de zebra (só `lad
   `src/trackScene.ts`; mudar um valor do preparo depois de uma entrega produz um arquivo novo com
   `trackVersion` maior.
 - A largura de cada zebra e os parâmetros da suavização ficam registrados por versão publicada.
-- **`trackVersion` continua 1 nesta revisão.** O F-Spec fixa que a primeira versão publicada da Kart Park é
+- **Histórico da versão 1 (revisão 1.1.0 deste ADR).** `trackVersion` continuou 1 naquela revisão. O F-Spec fixa que a primeira versão publicada da Kart Park é
   `trackVersion` 1 (REQ-FEAT-0002-01, RULE-0005, V16) e o seed (I3/I5) que "suavizar de novo" é versão nova
   **depois** de a versão 1 entrar. A entrada `kart-park` 1 que a rodada de código 1 gravou em
   `tracks/registry.json` (`STAGING`, `smoothingIterations` 0) veio de uma rodada reprovada no gate
@@ -79,5 +85,6 @@ evidência da escolha, não a verificação.
 
 ## Status
 
-Proposta deste conjunto, a validar. Revisão 1.1.0 (2026-10-27): decisão da suavização substituída por
+Proposta deste conjunto, a validar. Revisão 2.0.0 (2026-11-06, seed `revision: 3`): suavização e origem restritas à
+versão 1; as lacunas novas da revisão 3 estão em ADR-0008. Revisão 1.1.0 (2026-10-27): decisão da suavização substituída por
 SPEC-ISSUE-01 de `reports/feedback/feedback-20261027-2125.md`; as demais linhas inalteradas.

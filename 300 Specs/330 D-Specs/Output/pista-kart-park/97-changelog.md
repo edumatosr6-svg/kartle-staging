@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.5.0
+version: 1.7.0
 sources: []
 ---
 
@@ -466,3 +466,137 @@ daquela feature, em rodada). Os requisitos e o escopo do F-Spec desta feature n�
   projeto.
 - Nenhum módulo, tabela, campo, componente ou constante novo (§16): as mudanças são de valor e de disposição
   dentro do filho `barriers` que o projeto já tinha.
+
+## 2026-11-06 — rodada de 2026-11-06, Mode A (seed `revision: 3`, réplica não oficial como `kart-park` `trackVersion` 2)
+
+**O que mudou**
+
+- Upstream: F-Spec revalidado para o seed `revision: 3` (`fspec-validation-20261106-1805`, SUCCESS, commit
+  `281b617`; rodadas 5 e 6 do changelog do F-Spec). Regenerado sobre o conjunto existente: ids mantidos onde o
+  projeto sobrevive; todo arquivo do conjunto voltou a `draft`.
+- `core/DES-0005` 2.0.0: entrada do catálogo com `trackVersion` opcional (2 na Kart Park, ausente na sintética),
+  nome "Kart Park — São José dos Pinhais (réplica não oficial)" e `displayLengthM` 691; `selectTrainingTrack`
+  confere `trackId` e `trackVersion` com a entrada e devolve o código novo `TRACK_VERSION_MISMATCH` (um `trackId`
+  diferente, que dava `TRACK_DATA_UNREADABLE`, passa a esse código, como API-0002 2.0.0 pede); provas da versão 2 e
+  da recusa do arquivo da versão 1 (REQ-FEAT-0001-15, -16).
+- `web/DES-0007` 2.0.0: `src/main.ts` importa `./tracks/kart-park-v2.json?raw` no lugar do arquivo da versão 1, que
+  sai do pacote; aviso `track-data TRACK_VERSION_MISMATCH` só com identificadores; rótulo "… (réplica não oficial) ·
+  691 m"; nenhum "traçado aproximado" nem "687 m".
+- `pipeline/DES-0010` 2.0.0: preparo da versão 2 a partir de `tracks/sources/kart-park-replica.json` (cópia byte a
+  byte da réplica, 34.373 bytes, SHA-256 `eba665b6…a24e`): os 691 pontos da réplica nos eixos do jogo com a origem
+  dela, sem suavizar nem reamostrar, `widthM` 7,0, as 22 zebras lidas na régua da réplica, setores em retas,
+  barreira entre 368,5–406,5 m e 594,5–624,5 m com a guarda nova de 0,2 m da borda da pista; `TRACK_ORIGINS` por
+  (`trackId`, `trackVersion`); a versão 1 congelada (o seu preparo fica sem mudança, só para a prova de
+  reprodução; `prepare`, `verify` e `publish` de `kart-park 1` recusados).
+- `pipeline/DES-0011` 2.0.0: verificações V01 a V20 de RULE-0002 2.0.0 contra a réplica (V01 ponto 0, V06 7,0 m,
+  V07 0,10 m, V09 204,9 / 354,9 / 534,7 m, V12 22 trechos, V13/V14 com os trechos novos, V16 `trackVersion` 2, V19
+  limites em retas, V20 zebra sem cruzar a largada); publicação da entrada `kart-park` 2; prova da versão 1 pelo
+  resumo literal, pela entrada intacta e pelas regras `-text` de `.gitattributes`.
+- `data/DM-0001` 2.0.0: os dois arquivos publicados (1 inalterado e fora do pacote, 2 novo); plano de migração,
+  reversão e janela da revisão 3, sem mudança de esquema. `data/DM-0002` 2.0.0: `prep.method` opcional
+  (`SMOOTHED_ORIGIN` ausente, `REPLICA`), `maxReplicaOffsetM`, entrada 2 acrescentada sem reescrever a 1;
+  `registryVersion` continua 1.
+- `adr/ADR-0008` 1.0.0, **novo**: a réplica como versão 2 (pontos da réplica sem suavizar; arquivo novo ao lado
+  da versão 1; conferência de versão no catálogo; versão 1 fora do pacote; preparo da versão 1 congelado), as duas
+  lacunas novas do F-Spec 2.0.0 decididas. `adr/ADR-0006` 2.0.0: suavização e origem das coordenadas restritas à
+  versão 1; linha da aparência da barreira alinhada com DES-0008. `adr/ADR-0002` 1.1.0: V01 a V20, importação da
+  versão que o catálogo declara.
+- `core/DES-0004` 2.0.0: sai o atalho da curva 4 (REQ-FEAT-0003-12 retirado); provas sobre a versão 2.
+  `core/DES-0006` 2.0.0: sai a ordem de entrega (REQ-FEAT-0007-12 retirado); NFR-0013 provado na versão 2 com e
+  sem o acabamento construído; o traço da revisão 2 continua sobre a versão 1. `core/DES-0001` 1.1.0: os dois
+  arquivos publicados são `COMPLETE`.
+- `web/DES-0008` 3.0.0: medidas do acabamento sobre a versão 2 (7,0 m no ponto 0, linha de largada a 1,3 m de cada
+  borda, virada máxima das bordas de cerca de 7,1°, 691 segmentos por borda); folga dos pneus à pista pela guarda do
+  preparo; a contagem de pilhas e as distâncias da face da versão 2 vão ao manifesto do código, com o limite de
+  0,05 m afirmado pelo teste. Nenhuma mudança de desenho.
+- `security/DES-0012` 1.1.0: dado da versão 2 no pacote, versão 1 e origens fora dele; bloqueio Esri para
+  qualquer versão.
+- `test-strategy.md` 2.0.0: fixtures da versão 2, da versão 1 e da réplica; linhas de AC-US-0001-08, -09,
+  AC-US-0003-12, AC-US-0005-13; linhas de AC-US-0002-*, AC-US-0003-02, AC-US-0005-01, -02, AC-US-0006-07, -08,
+  AC-US-0007-01, -07, -11, -12 com os números da revisão 3; REQ-FEAT-0002-19, -20, -21; NFR-0013 com e sem o
+  acabamento; E2E-01 e E2E-03 com a réplica. AC-US-0003-09 marcado como retirado.
+- `98-divergences.md` 2.0.0: base única na árvore de `281b617` (fecha o aviso ISSUE-03 de
+  `dspec-validation-20261103-1924`, deixado na rodada anterior); as 16 linhas antigas resolvidas pelas entregas
+  validadas das revisões 1 e 2; 8 linhas abertas para a revisão 3.
+- `01-architecture.md` 2.0.0: base, estado do código, linhas da camada, fluxos com `TRACK_VERSION_MISMATCH` e
+  `prepare kart-park 2`, compatibilidade do catálogo e do registro, `.gitattributes`, ADR-0008; a seção da ordem de
+  entrega vira nota de retirada.
+- Sem mudança de texto, só `draft` e versão de correção: `core/DES-0002`, `core/DES-0003`, `web/DES-0009`,
+  `adr/ADR-0001`, `adr/ADR-0003`, `adr/ADR-0004`, `adr/ADR-0005`, `adr/ADR-0007`.
+- `00-index.md` e `99-traceability.md` regenerados pelo gate (`lint_artifacts.py --emit`).
+
+**Ids**: novo `ADR-0008`. Nenhum `DES` ou `DM` novo nem retirado. `sources:` sem os `REQ-*` retirados pelo F-Spec
+(REQ-FEAT-0002-03, REQ-FEAT-0003-12, REQ-FEAT-0007-12, REQ-FEAT-0008-28, -29) e com os novos (REQ-FEAT-0001-15,
+-16, REQ-FEAT-0002-19, -20, -21, REQ-FEAT-0003-16, REQ-FEAT-0005-20).
+
+**Migração de verificações planejadas** (conventions §17)
+
+| Verificação | Antes | Agora |
+|---|---|---|
+| V01 (`scripts/trackChecks.ts`; CHK-TEST-0001-01, -06) | correspondência por índice com a origem, 0,30 m | ponto 0 a no máximo 0,10 m do ponto 0 da réplica (RULE-0002 2.0.0) |
+| V03, V06, V07, V09, V12, V13, V14, V16 | números da versão 1 (680,625–694,375 m; larguras 4,4–10,8 m; 0,30 m; 201,6 / 350,3 / 529,9 m; 34 trechos por índice fracionário; 371–414 / 580–615 m; `trackVersion` 1) | os da revisão 3, mesmo id |
+| V19, V20 | — | novas (limites em retas; zebra sem cruzar a largada) |
+| CHK-TEST-0012-07 (`tests/pista-kart-park-publication.test.ts:163`) | a única entrada `kart-park` é a 1, resumo literal | o resumo literal da versão 1 continua; "única entrada" passa a "a entrada 1 intacta e a 2 acrescentada" |
+| CHK-TEST-0012-03 (`:70`) | reprodução da versão 1 | continua, e ganha a reprodução da versão 2 |
+| determinismo com `kartParkRev1Trace.json` (`tests/pista-kart-park-determinism.test.ts:72`) | prova de NFR-0013 1.x (antes e depois da revisão 2) | continua sobre a versão 1, como prova de que a simulação não mudou; NFR-0013 2.0.0 passa à execução com e sem o acabamento na versão 2 |
+| verificações de sessão, tela, cena e volta sobre `kart-park-v1.json` | versão 1 | versão 2, mesmo id; o piloto de testes recalibrado |
+
+**Verificações retiradas, pendentes de aprovação humana** (conventions §17): a prova do atalho da curva 4
+(`tests/pista-kart-park-lap.test.ts:173-187`, AC-US-0003-09) e a afirmação "nenhuma barreira no atalho de 12–26 m
+da curva 4" (`tests/pista-kart-park-track-file.test.ts:248-263`, parte de CHK-TEST-0001-12), que seguem
+AC-US-0003-09 e REQ-FEAT-0003-12, retirados pelos requisitos e pelo F-Spec na revisão 3; as verificações
+específicas da versão 1 de V01 a V18 (correspondência por índice, suavização, 34 trechos), que deixam de julgar o
+arquivo da versão 1, agora julgado pelo resumo; e o registro da ordem de entrega no manifesto (REQ-FEAT-0007-12).
+A base é a revisão 3 do seed, escrita pelo dono do produto, e as retiradas já feitas upstream; a confirmação do
+dono do produto fica pedida no relatório desta rodada, como na rodada 5 do F-Spec.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` desta rodada (Mode A por mudança de revisão); o aviso ISSUE-03
+de `dspec-validation-20261103-1924`, deixado para uma rodada Mode A, é fechado pela base única de
+`98-divergences.md`.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Reamostrar a réplica a passo fixo: recusado (ADR-0008); os pontos da réplica já estão a cerca de 1 m e o F-Spec
+  verifica o resultado, não o método.
+- Apagar o preparo da versão 1 de `scripts/trackPrep.ts`: recusado (ADR-0008); é a mudança maior e retiraria a
+  prova de reprodução da versão 1.
+- Empacotar o arquivo da versão 1 no jogo: recusado (ADR-0008); sem uso e a uma linha de uma opção que o carregue.
+- Novo código de erro além de `TRACK_VERSION_MISMATCH` para "outro `trackId`": não criado; API-0002 2.0.0 põe os
+  dois casos no mesmo código.
+- Subir `registryVersion` para a forma nova de `prep`: não adotado; `prep.method` é opcional e a ausência vale a
+  forma de antes, de modo que o leitor antigo e o novo leem as duas entradas (DM-0002).
+- Regra nova em `.gitattributes`: desnecessária; `.gitattributes:5-7` já cobre os arquivos novos. O projeto
+  acrescenta só a prova em `npm test`.
+- Recalcular aqui a face de colisão e a contagem de pilhas da versão 2: não feito; o arquivo da versão 2 ainda
+  não existe, e calcular sobre um preparo provisório anteciparia o código. O limite de 0,05 m é afirmado pelo teste
+  e os valores vão ao manifesto.
+- Mudar `BARRIER_HALF_WIDTH_M`, `CURB_GRIP_PC`, `STEP` ou o desenho do acabamento: não aplicável; a revisão 3 não
+  os pede.
+- Leituras fora do F-Spec, declaradas: o código da raiz em `281b617` (`src/trainingSession.ts`, `src/main.ts`,
+  `scripts/track-pipeline.ts`, `scripts/trackPrep.ts`, `scripts/trackChecks.ts`, `tracks/registry.json`,
+  `.gitattributes`, `tests/fixtures/kartParkFiles.ts` e linhas de testes), para posicionamento. Da réplica, em
+  `200 Requirements/220 Input/pista-kart-park/replica/`, só com scripts descartáveis fora do repositório: o tamanho,
+  o SHA-256 e os nomes das chaves (o formato que o preparo lê) e agregados de viabilidade (comprimento da poligonal
+  convertida, conjunto das larguras, extensão das zebras, sinal da área, elemento dos pontos de setor, virada das
+  bordas); nenhum valor dela entrou como requisito, e os números do projeto são os do F-Spec.
+
+## 2026-11-06 — rodada de 2026-11-06, Mode B (`dspec-validation-20261106-1828`, FAIL)
+
+Corrige só as issues do relatório; nenhum módulo, arquivo, campo, verificação ou elemento de tela novo.
+
+| Item | Arquivo | Mudança |
+|---|---|---|
+| ISSUE-01 (error) | DM-0001 2.0.1, DM-0002 2.0.1 | a reversão da revisão 3 deixa de ser `git revert` que retira arquivos: devolve ao estado anterior só a entrada `kart-park` do catálogo do treino (`src/trainingSession.ts`) e a importação de `src/main.ts`; `src/tracks/kart-park-v2.json`, `tracks/sources/kart-park-replica.json` e a entrada `kart-park` 2 do registro ficam intactos, como API-0001 (Compatibilidade), I3 e REQ-FEAT-0002-17, -18 exigem. O teste da reversão afirma que os arquivos das versões 1 e 2 continuam presentes com o `sha256` registrado e a réplica com o `prep.originSha256` registrado na entrada 2; o registro revertido tem as entradas 1 e 2 iguais às de antes |
+| ISSUE-02 (info) | ADR-0001 1.0.2 | a consequência para `race-lap-validation` passa a dizer que a mudança já foi aplicada por aquela feature (commit `32d0adf`), com as âncoras atuais (`tests/race-lap-validation-track-data.test.ts:18-30`, `:32-40`), como em 01-architecture.md |
+| ISSUE-03 (info) | DES-0008 3.0.1 | âncoras de `src/main.ts` reconferidas na árvore de `281b617`: mensagem sem WebGL `:30-35`; `minimap` `:404-420`; câmera de visão geral `:615-622` e `applyCameraView` `:522-529`; câmera de sombra `:46-47`; `chooseTrack` `:225-251`, com `ground.visible` já existente em `:239` (a linha do Posicionamento marcada como já entregue) |
+| ISSUE-04 (info) | DES-0007 2.0.1 | a tabela de `src/main.ts` reancorada na árvore de `281b617`: `chooseTrack` `:225-251` (existente, não "nova"), `renderOffer` `:253-286`, `beginLap` `:309-320`, `renderHud` `:425-459`, `renderTrainingResult` `:462-488` com o crédito em `:485`, `renderResult` `:489-517` sem `lap-result-credit`, `idleKart` `:563`, aviso de toque `:639-642`; os trechos entregues pelas revisões 1 e 2 marcados como existentes e só a importação (`:13`), as fontes (`:156`) e o aviso de `TRACK_VERSION_MISMATCH` como mudança da revisão 3. As âncoras de `index.html` do Posicionamento (`#lap-training-result` `:26`, `#lap-result` `:27`) carregadas junto, por serem o mesmo fato (`lap-result-credit` já retirado) |
+
+**Divergências**: nenhuma registrada nesta rodada; as 8 de `98-divergences.md` 2.0.0 ficam como estão.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Marcar como já existentes `src/rawImports.d.ts` ("novo") e as regras `.track-selector`/`.track-credit` de
+  `src/style.css` ("alterado") no Posicionamento de DES-0007: não aplicado; o relatório não os aponta e a rodada
+  Mode B toca só as issues listadas (§16). Fica para a próxima rodada Mode A ou C.
+- Desfazer a revisão 3 por `git revert` dos commits de código: recusado (ISSUE-01); retiraria uma versão
+  publicada e a sua entrada do registro, contra I3 e API-0001.

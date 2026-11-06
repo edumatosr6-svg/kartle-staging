@@ -4,8 +4,8 @@ title: Sessão de treino, catálogo do treino e seleção de pista
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.3.0
-sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-14, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11]
+version: 2.0.0
+sources: [API-0002, RULE-0003, FLOW-0001, FEAT-0001, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-05, REQ-FEAT-0001-06, REQ-FEAT-0001-07, REQ-FEAT-0001-08, REQ-FEAT-0001-09, REQ-FEAT-0001-10, REQ-FEAT-0001-11, REQ-FEAT-0001-12, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11]
 ---
 
 # DES-0005 — Sessão de treino, catálogo do treino e seleção de pista
@@ -21,7 +21,11 @@ sempre `TRAINING`, sem `challengeNumber`, com o `trackId` e o `trackVersion` da 
 `race-lap-validation` (FEAT-0010, ADR-0006 daquela feature), cada `startTrainingLap` inicia um **treino de voltas
 seguidas**: uma `LapSession` `TRAINING` cujas voltas terminam a cada cruzamento da chegada no sentido da pista,
 cada uma com um item em `listLapResults`, e que só chega a `ENDED` por `endTraining`; dado ilegível ou de esquema desconhecido deixa
-a sessão `FAILED`, com as duas opções selecionáveis (REQ-FEAT-0001-14). E as entradas do catálogo que
+a sessão `FAILED`, com as duas opções selecionáveis (REQ-FEAT-0001-14). Revisão 3 do seed: a entrada `kart-park`
+declara o `trackVersion` que carrega (2), e a seleção só abre sessão `READY` com um arquivo que declara o `trackId`
+pedido e esse `trackVersion`, de modo que a sessão e toda volta dela têm `trackVersion` 2 (REQ-FEAT-0001-15);
+um arquivo legível de outra pista ou de outra versão — o da versão 1, por exemplo — termina `FAILED` com
+`TRACK_VERSION_MISMATCH`, e nenhuma opção abre sessão com a versão 1 (REQ-FEAT-0001-16). E as entradas do catálogo que
 FEAT-0006 lê (API-0002): a indicação `osmCredit`, verdadeira só na Kart Park (REQ-FEAT-0006-10), o nome e o
 comprimento exibido da Kart Park, literais iguais nos dois idiomas (REQ-FEAT-0006-07, -08, -11), e nenhum
 campo de recorde (REQ-FEAT-0006-09). Os textos do crédito, a regra "crédito só para entrada com `osmCredit`"
@@ -35,8 +39,9 @@ simulação, que a muda só por `selectTrainingTrack`; `src/lap.ts` é o modelo 
 que não muda, e `src/main.ts` não carrega em `npm test`. O catálogo fica com a sessão porque
 `getTrainingTrackOptions` o devolve e a indicação de crédito tem de valer mesmo com o arquivo ilegível (vem do
 catálogo, não do arquivo). O módulo guarda só a sessão e as entradas do catálogo de API-0002 (`trackId`,
-`displayName`, `displayLengthM`, `osmCredit`): nenhum texto de crédito, nenhuma regra de exibição e nenhuma
-formatação de rótulo. Não importa `three`, o DOM, `src/audio.ts` nem `src/main.ts`; o texto do arquivo da Kart
+`trackVersion`, `displayName`, `displayLengthM`, `osmCredit`): nenhum texto de crédito, nenhuma regra de exibição e nenhuma
+formatação de rótulo. A conferência do arquivo com a entrada também fica aqui, porque é a transição
+`LOADING` → `READY` de RULE-0003, que a simulação decide. Não importa `three`, o DOM, `src/audio.ts` nem `src/main.ts`; o texto do arquivo da Kart
 Park chega como argumento (`sources`), empacotado pela aplicação ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)).
 
 ## Interface
@@ -44,12 +49,12 @@ Park chega como argumento (`sources`), empacotado pela aplicação ([DES-0007](.
 | Símbolo | Assinatura | Descrição |
 |---|---|---|
 | `TrainingTrackId` | `'kart-park' \| 'synthetic'` | |
-| `TrainingTrackOption` | `{trackId: TrainingTrackId; displayName: string; displayLengthM?: number; osmCredit: boolean}` | entrada do catálogo, campo a campo de API-0002 (`displayLengthM` em metros) |
-| `TRAINING_TRACKS` | `readonly TrainingTrackOption[]`, congelado | `{trackId: 'kart-park', displayName: 'Kart Park — São José dos Pinhais (traçado aproximado)', displayLengthM: 687, osmCredit: true}` e `{trackId: 'synthetic', displayName: 'Pista sintética', osmCredit: false}`; sem campo de recorde |
+| `TrainingTrackOption` | `{trackId: TrainingTrackId; trackVersion?: number; displayName: string; displayLengthM?: number; osmCredit: boolean}` | entrada do catálogo, campo a campo de API-0002 (`displayLengthM` em metros); `trackVersion` opcional, inteiro, ausente por padrão (neutro: a seleção não confere versão) |
+| `TRAINING_TRACKS` | `readonly TrainingTrackOption[]`, congelado | `{trackId: 'kart-park', trackVersion: 2, displayName: 'Kart Park — São José dos Pinhais (réplica não oficial)', displayLengthM: 691, osmCredit: true}` e `{trackId: 'synthetic', displayName: 'Pista sintética', osmCredit: false}` (sem `trackVersion`: lê o único arquivo da pista sintética, como antes); sem campo de recorde; nenhuma entrada declara o `trackVersion` 1 da Kart Park (`src/trainingSession.ts:12-15` hoje: sem `trackVersion`, nome "traçado aproximado", 687) |
 | `OPENING_TRACK_ID` | `'kart-park'` | a pista da abertura, sempre |
 | `SessionState` | `'NO_SESSION' \| 'LOADING' \| 'READY' \| 'FAILED'` | |
 | `TrainingSession` | `{sessionState; selectedTrackId; reading?: TrackReading; environment?: Environment; startKart?: State}` | estado de [DM-0002](../data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md), imutável |
-| `TrainingTrackSources` | `Readonly<Record<TrainingTrackId, TrackDataSource>>` | o dado de cada pista: texto do arquivo da Kart Park e `SYNTHETIC_TRACK_FILE` |
+| `TrainingTrackSources` | `Readonly<Record<TrainingTrackId, TrackDataSource>>` | o dado de cada pista: texto do arquivo publicado da Kart Park versão 2 (`src/tracks/kart-park-v2.json`) e `SYNTHETIC_TRACK_FILE`; a aplicação empacota só esses dois ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)) |
 | `initialTrainingSession()` | `() => TrainingSession` | `{sessionState: 'NO_SESSION', selectedTrackId: OPENING_TRACK_ID}` |
 | `getTrainingTrackOptions(session)` | `(TrainingSession) => {options; selectedTrackId; sessionState; trackDataStatus?}` | `options` são sempre as duas entradas; `trackDataStatus` só com `READY` ou `FAILED` (API-0002) |
 | `selectTrainingTrack(session, lap, trackId, sources)` | `(TrainingSession, LapSession \| undefined, string, TrainingTrackSources) => SelectTrainingTrackResult` | abaixo |
@@ -62,9 +67,17 @@ Park chega como argumento (`sources`), empacotado pela aplicação ([DES-0007](.
 |---|---|
 | `trackId` fora do catálogo | `{ok: false, code: 'UNKNOWN_TRACK', session, lap}` com a sessão e a volta recebidas, inalteradas |
 | sessão `READY` com o mesmo `trackId` | `{ok: true, session, lap, response: {sessionState: 'READY', trackId, trackVersion, trackDataStatus}}` com a sessão e a volta recebidas, inalteradas (idempotência) |
-| outra pista, ou sem sessão `READY`, dado `COMPLETE` ou `INCOMPLETE` com `trackId` igual ao pedido | `{ok: true, session: nova READY, lap: undefined, response: {sessionState: 'READY', trackId, trackVersion, trackDataStatus}}` |
-| dado `UNREADABLE`, ou legível com `trackId` diferente do pedido | `{ok: false, code: 'TRACK_DATA_UNREADABLE', session: nova FAILED, lap: undefined, response: {sessionState: 'FAILED', trackId, trackDataStatus: 'UNREADABLE'}}` |
+| outra pista, ou sem sessão `READY`, dado `COMPLETE` ou `INCOMPLETE` com `trackId` igual ao pedido e, se a entrada declara `trackVersion`, `trackVersion` igual ao dela (`===`) | `{ok: true, session: nova READY, lap: undefined, response: {sessionState: 'READY', trackId, trackVersion, trackDataStatus}}` |
+| dado `UNREADABLE` | `{ok: false, code: 'TRACK_DATA_UNREADABLE', session: nova FAILED, lap: undefined, response: {sessionState: 'FAILED', trackId, trackDataStatus: 'UNREADABLE'}}` |
 | dado `UNSUPPORTED_SCHEMA` | `{ok: false, code: 'TRACK_SCHEMA_UNSUPPORTED', session: nova FAILED, lap: undefined, response: {sessionState: 'FAILED', trackId, trackDataStatus: 'UNSUPPORTED_SCHEMA'}}` |
+| dado `COMPLETE` ou `INCOMPLETE` com `trackId` diferente do pedido, ou com `trackVersion` diferente do declarado pela entrada | `{ok: false, code: 'TRACK_VERSION_MISMATCH', session: nova FAILED (com a leitura), lap: undefined, response: {sessionState: 'FAILED', trackId: <o pedido>, trackDataStatus: <o do arquivo lido>}}`; hoje (`src/trainingSession.ts:67-69`) o `trackId` diferente dá `TRACK_DATA_UNREADABLE` e o `trackVersion` não é conferido |
+
+A ordem da classificação é a da tabela: `UNKNOWN_TRACK`, mesma pista `READY`, `UNSUPPORTED_SCHEMA`,
+`UNREADABLE`, conferência de `trackId` e `trackVersion`, `READY`. Um arquivo de esquema desconhecido continua
+`TRACK_SCHEMA_UNSUPPORTED` mesmo que declare outra versão: o leitor nem chega a julgar os seus campos. O tipo
+`SelectTrainingTrackResult` ganha o código `TRACK_VERSION_MISMATCH` no ramo de falha com `response`, e
+`SelectTrainingTrackResponse` com `FAILED` passa a aceitar `trackDataStatus` `COMPLETE` e `INCOMPLETE`
+(acréscimos; nenhum código ou campo existente muda).
 
 A sessão nova `READY` guarda `reading`, `environment` (`trackEnvironment(buildTrackGeometry(...))` numa leitura
 de versão 3, `CIRCUIT` numa de versão 2) e `startKart = kartAtStart(reading.startPosition)`. Em todo caso que
@@ -81,8 +94,8 @@ dura a chamada: como o dado vem empacotado, a leitura é síncrona e um pedido n
 stateDiagram-v2
     [*] --> NO_SESSION: initialTrainingSession
     NO_SESSION --> LOADING: selectTrainingTrack kart-park na carga do modulo
-    LOADING --> READY: COMPLETE ou INCOMPLETE com o trackId pedido
-    LOADING --> FAILED: UNREADABLE, UNSUPPORTED_SCHEMA ou trackId diferente
+    LOADING --> READY: COMPLETE ou INCOMPLETE com o trackId pedido e o trackVersion da entrada
+    LOADING --> FAILED: UNREADABLE, UNSUPPORTED_SCHEMA, ou trackId ou trackVersion diferente da entrada
     READY --> LOADING: selectTrainingTrack de outra pista
     FAILED --> LOADING: selectTrainingTrack de qualquer pista do catalogo
     READY --> READY: selectTrainingTrack da mesma pista, sem efeito
@@ -109,8 +122,10 @@ sessão tem os contadores de `race-lap-validation` (`stepCount`, que não recome
 
 ## Comportamento em falha
 
-Dado ilegível ou de esquema desconhecido: sessão `FAILED`, nenhuma volta pode começar
-(`startTrainingLap` devolve a rejeição de `startLap`), o arquivo fica intacto (só é lido). `trackId` fora do
+Dado ilegível, de esquema desconhecido ou de outra pista ou versão: sessão `FAILED`, nenhuma volta pode começar
+(`startTrainingLap` só inicia com sessão `READY` e devolve `TRACK_DATA_UNREADABLE` sem ela, como hoje), o arquivo
+fica intacto (só é lido). A aplicação registra só os identificadores (`console.warn('track-data',
+'TRACK_VERSION_MISMATCH', trackId, trackVersion)` com os valores do arquivo lido; [DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)). `trackId` fora do
 catálogo: nada muda. A perda do sensor em `web-mobile` não passa por aqui: não muda `sessionState` nem
 `selectedTrackId` (RULE-0003). Sem rede, sem tempo-limite, sem escrita.
 
@@ -130,17 +145,27 @@ corte (cujo resultado sai no cruzamento seguinte da chegada) e de volta inválid
 `lapKind` `TRAINING`, nenhum `challengeNumber` e `official` falso, enquanto `endTraining` leva a `ENDED` sem
 acrescentar item; com `setup` dado, a volta carrega `setupId` e `setupVersion` iguais aos do
 argumento (e o `LapResult` os devolve), e sem `setup` os dois ficam ausentes do pedido; com o texto da Kart Park corrompido, a seleção dá `FAILED`, `startTrainingLap`
-rejeita e uma nova seleção da pista sintética dá `READY`; a entrada `kart-park` tem `displayName`
-`Kart Park — São José dos Pinhais (traçado aproximado)`, `displayLengthM` 687 e `osmCredit` verdadeiro, e a
-entrada `synthetic` tem `displayName` `Pista sintética`, nenhum `displayLengthM` e `osmCredit` falso; o
-`osmCredit` de cada entrada é igual ao `osmDerived` do arquivo da pista (ausente vale `false`). O crédito e o
+rejeita e uma nova seleção da pista sintética dá `READY`; a abertura, a seleção da Kart Park pelo seletor e a
+volta iniciada nela têm `trackVersion` 2 na resposta, na leitura da sessão e em `getLapState` (REQ-FEAT-0001-15);
+com as fontes da sessão apontando a entrada `kart-park` para o texto do arquivo publicado da versão 1
+(`src/tracks/kart-park-v1.json`), a seleção dá `FAILED` com `TRACK_VERSION_MISMATCH`, `trackDataStatus`
+`COMPLETE`, `startTrainingLap` rejeita e `getLapState` dá `NO_ACTIVE_LAP`; com a entrada `kart-park` apontando
+para o texto da pista sintética, o mesmo código; nenhuma entrada de `TRAINING_TRACKS` tem `trackVersion` 1
+(REQ-FEAT-0001-16); a entrada `kart-park` tem `trackVersion` 2, `displayName`
+`Kart Park — São José dos Pinhais (réplica não oficial)`, `displayLengthM` 691 e `osmCredit` verdadeiro, e a
+entrada `synthetic` tem `displayName` `Pista sintética`, nenhum `trackVersion`, nenhum `displayLengthM` e
+`osmCredit` falso; o `osmCredit` de cada entrada é igual ao `osmDerived` do arquivo da pista (ausente vale
+`false`), e o `trackVersion` da entrada `kart-park` é o maior `trackVersion` da Kart Park no registro de
+publicação ([DES-0011](../pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)). O crédito e o
 rótulo construídos dessas entradas são provados com `src/lapMessages.ts`
 ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)).
 
 ## Feature flag
 
-Nenhuma: a pista da abertura e as duas opções são fixas no catálogo, e nenhuma configuração existe para
-escolher outra pista de abertura, forçar uma volta oficial ou injetar uma sessão (FEAT-0001, Configuração;
+Nenhuma: a pista da abertura, as duas opções e a versão 2 da Kart Park são fixas no catálogo, e nenhuma
+configuração existe para escolher outra pista de abertura, escolher a versão 1, forçar uma volta oficial ou
+injetar uma sessão (FEAT-0001, Configuração; o campo `trackVersion` da entrada é dado fixo do catálogo, não
+chave; sem ele, a seleção se comporta como antes desta revisão;
 [ADR-0005](../adr/ADR-0005-kart-park-sem-chave-e-producao-bloqueada.md)).
 
 ## Pontos em aberto

@@ -4,7 +4,7 @@ title: Leitura do dado de pista em esquema 3
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [API-0001, FEAT-0002, FEAT-0003, REQ-FEAT-0002-02, REQ-FEAT-0002-12, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0001-14, REQ-FEAT-0003-08, REQ-FEAT-0003-13]
 ---
 
@@ -75,10 +75,11 @@ tempo-limite ou nova tentativa: o arquivo vem empacotado.
 
 Função pura: sem relógio, sem sorteio, sem DOM; o resultado depende só do arquivo. A geometria usada na
 consistência é construída por aritmética de ponto flutuante em ordem fixa. Prova em
-`tests/pista-kart-park-track-data.test.ts`: o arquivo publicado da Kart Park é `COMPLETE` e
-`checkConsistencyV3` dá lista vazia; `centerline` lido é igual, ponto a ponto e campo a campo (`===`), ao do
+`tests/pista-kart-park-track-data.test.ts`: os dois arquivos publicados da Kart Park são `COMPLETE`, com
+`checkConsistencyV3` vazia — `src/tracks/kart-park-v2.json` com `trackVersion` 2 e `src/tracks/kart-park-v1.json`
+com `trackVersion` 1 (o leitor não confere versão; quem confere é a sessão, [DES-0005](DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)); `centerline` lido é igual, ponto a ponto e campo a campo (`===`), ao do
 arquivo (REQ-FEAT-0002-12); a leitura repetida é igual (`deepEqual`); `SYNTHETIC_TRACK_FILE` continua
-`COMPLETE` com o mesmo resultado de antes; cópias da Kart Park sem `centerline`, com 2 pontos, com um `widthM`
+`COMPLETE` com o mesmo resultado de antes; cópias da versão 2 da Kart Park sem `centerline`, com 2 pontos, com um `widthM`
 0, com `curbs` de `side` inválido, com barreira de 1 ponto e com `osmDerived` texto são `UNREADABLE` e ficam
 idênticas ao objeto de entrada (congelado antes, comparado depois); `schemaVersion` 4 é `UNSUPPORTED_SCHEMA`.
 

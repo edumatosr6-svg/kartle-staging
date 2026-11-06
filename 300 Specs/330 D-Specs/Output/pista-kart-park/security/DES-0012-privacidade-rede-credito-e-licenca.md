@@ -4,7 +4,7 @@ title: Privacidade, rede, crédito OSM/ODbL e licença Esri
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.2
+version: 1.1.0
 sources: [FEAT-0001, FEAT-0006, FEAT-0007, RULE-0005, REQ-FEAT-0001-03, REQ-FEAT-0001-12, REQ-FEAT-0006-12, REQ-FEAT-0006-14, REQ-FEAT-0007-05, REQ-FEAT-0007-13]
 ---
 
@@ -43,7 +43,8 @@ Não há caminho autenticado. O produto não tem sessão de usuário, conta nem 
 
 | Dado | Onde vive | Para que serve | Persistido ou transmitido |
 |---|---|---|---|
-| arquivo de pista da Kart Park | `src/tracks/kart-park-v1.json`, no pacote do jogo | desenhar e simular a pista | publicado com o jogo; nunca enviado pelo cliente |
+| arquivo de pista da Kart Park versão 2 | `src/tracks/kart-park-v2.json`, no pacote do jogo | desenhar e simular a pista | publicado com o jogo; nunca enviado pelo cliente |
+| arquivo de pista da Kart Park versão 1 e as duas origens | `src/tracks/kart-park-v1.json`, `tracks/sources/kart-park.json`, `tracks/sources/kart-park-replica.json`, no repositório | histórico verificável (versão 1) e preparo offline | não entram no pacote do jogo; nenhum dado pessoal (a réplica traz latitude e longitude da pista e uma descrição de fonte, que o preparo não lê nem copia, [DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)) |
 | `sessionState`, `selectedTrackId`, leitura e ambiente da sessão | memória da página | sessão de treino | não |
 | `simStepCount`, `curbWheelCount` e o estado do retorno | memória da página | decidir vibração e som | não |
 | registro de publicação | `tracks/registry.json`, no repositório | resumo, versão, estado de publicação, decisão Esri | no repositório, sem dado pessoal ([DM-0002](../data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md)) |
@@ -78,11 +79,12 @@ selecionada e o resultado de uma volta nela, que no treino de voltas seguidas é
 volta do treino, [ADR-0007](../adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)), o crédito "© colaboradores do OpenStreetMap", a menção "licença
 ODbL" e o link para `https://openstreetmap.org/copyright` ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md));
 o arquivo declara `osmDerived` `true`. A licença Esri, que ainda não tem decisão do dono do produto, bloqueia
-só a produção:
+só a produção, e vale para as duas versões: a réplica foi ajustada sobre o traçado da versão 1, medido na Esri
+World Imagery (RULE-0005 2.0.0, REQ-FEAT-0007-13 "em qualquer versão"):
 
 | Ponto de aplicação | Regra |
 |---|---|
-| `scripts/track-pipeline.ts promote` | recusa promover a `PRODUCTION` sem a referência da decisão registrada em `DOMAIN.md` ou com uma referência fora da regra de `--esri-decision` ([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)); grava a referência na entrada |
+| `scripts/track-pipeline.ts promote` | para qualquer `trackVersion` registrado, recusa promover a `PRODUCTION` sem a referência da decisão registrada em `DOMAIN.md` ou com uma referência fora da regra de `--esri-decision` ([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)); grava a referência na entrada |
 | etapa de deploy, promoção humana a produção | nenhuma promoção de artefato que contenha `kart-park` antes da decisão registrada; a lista de verificação da release confere a entrada `PRODUCTION` do registro e a referência |
 | entrega que promover, se a decisão liberar a licença | acrescenta o crédito da Esri no texto da decisão às duas telas, ao lado do crédito OSM ([DES-0011](../pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)) |
 

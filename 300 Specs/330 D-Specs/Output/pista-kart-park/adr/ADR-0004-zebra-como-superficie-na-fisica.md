@@ -4,7 +4,7 @@ title: Zebra como terceira superfície da física, com o caminho da pista sinté
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [RULE-0001, FEAT-0005, FEAT-0007, REQ-FEAT-0005-05, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10]
 ---
 

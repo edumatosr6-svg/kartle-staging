@@ -4,7 +4,7 @@ title: Colisão com a barreira — superfície de contato de meia espessura, res
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [RULE-0001, FEAT-0004, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0004-07]
 ---
 

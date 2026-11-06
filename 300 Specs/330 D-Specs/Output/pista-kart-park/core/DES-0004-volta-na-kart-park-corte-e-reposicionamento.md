@@ -4,8 +4,8 @@ title: Volta na Kart Park — corte pela borda da pista, reposicionamento e larg
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
-sources: [FEAT-0003, FEAT-0005, FLOW-0002, RULE-0001, REQ-FEAT-0001-08, REQ-FEAT-0002-12, REQ-FEAT-0003-08, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-12, REQ-FEAT-0003-13, REQ-FEAT-0003-15, REQ-FEAT-0005-07]
+version: 2.0.0
+sources: [FEAT-0003, FEAT-0005, FLOW-0002, RULE-0001, REQ-FEAT-0001-08, REQ-FEAT-0002-12, REQ-FEAT-0003-08, REQ-FEAT-0003-10, REQ-FEAT-0003-11, REQ-FEAT-0003-13, REQ-FEAT-0003-15, REQ-FEAT-0005-07]
 ---
 
 # DES-0004 — Volta na Kart Park: corte pela borda da pista, reposicionamento e largada
@@ -14,8 +14,7 @@ sources: [FEAT-0003, FEAT-0005, FLOW-0002, RULE-0001, REQ-FEAT-0001-08, REQ-FEAT
 
 Os `REQ-*` em `sources`: na Kart Park a volta é validada pelas regras de `race-lap-validation`, sem mudança de
 regra: marcador pulado dá `INVALID` com `MISSED_MARKER` (REQ-FEAT-0003-08), a volta completa pelos marcadores
-em ordem dá `VALID` (REQ-FEAT-0003-13), o atalho pela grama da curva 4 dá `INVALID` (REQ-FEAT-0003-12),
-chegada cruzada de novo, contramão, pausa, perda de foco e recarga seguem as mesmas regras
+em ordem dá `VALID` (REQ-FEAT-0003-13), chegada cruzada de novo, contramão, pausa, perda de foco e recarga seguem as mesmas regras
 (REQ-FEAT-0003-15); o corte compara com `cutDistanceM` a distância medida da **borda da pista** da Kart Park,
 que inclui a zebra (REQ-FEAT-0003-10, -11; REQ-FEAT-0005-07); o kart começa na `startPosition` declarada
 (REQ-FEAT-0001-08); a linha central usada no estado da simulação é a do arquivo (REQ-FEAT-0002-12), também no
@@ -47,8 +46,10 @@ módulo novo.
 As linhas da volta (chegada, limites, marcadores) continuam vindo da leitura (`:106-108`) e os cruzamentos de
 `evaluateDisplacement` (`:223-242`) continuam os mesmos: a Kart Park só entrega linhas transversais que
 atravessam a pista e se estendem até `cutDistanceM` além da borda da pista
-([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)). Por isso o atalho da curva 4,
-feito a mais de 3 m da borda da pista na grama de 12 a 26 m, não cruza ao menos um marcador: se volta à pista
+([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)). Por isso um atalho pela grama
+entre partes da pista com mais de 6 m de grama, sem barreira, feito a mais de 3 m da borda da pista, não cruza
+ao menos um marcador (REQ-FEAT-0003-08 com REQ-FEAT-0003-05 e -06, que cobrem o caso desde a retirada de
+REQ-FEAT-0003-12 na revisão 3 do seed): se volta à pista
 antes de passar 1000 ms além dos 3 m, a volta recebe `INVALID` com `MISSED_MARKER` no cruzamento da chegada que a
 encerra; se passa 1000 ms a mais de 3 m da borda, fica `INVALID` com `CUT` no passo em que a duração é
 ultrapassada, e o resultado dela, no cruzamento seguinte da chegada, mantém `CUT` como único motivo
@@ -105,12 +106,12 @@ Passo fixo, tempo inteiro em ms (`lapTiming`), sem relógio nem sorteio. Provas 
 setores, a fase em `RUNNING` e a volta seguinte começando com `lapStartMs` igual ao fim da anterior; marcador
 pulado por uma excursão lateral curta a 3,5 m da borda da pista dá resultado `MISSED_MARKER` e não `CUT`; kart
 mantido a mais de 3 m da borda da pista por 121 passos dá `INVALID` com `CUT` no passo 121, com a fase em
-`RUNNING` e nenhum item novo em `listLapResults`, e por 120 passos não dá; o atalho de cerca de 147 m a cerca de
-200 m dá resultado `INVALID` no cruzamento da chegada; kart rodando sobre a zebra por mais de 1000 ms, sem roda
+`RUNNING` e nenhum item novo em `listLapResults`, e por 120 passos não dá; kart rodando sobre a zebra por mais de 1000 ms, sem roda
 além dela, não dá `CUT`; a chegada cruzada de novo depois de uma volta concluída dá o resultado da segunda volta
 (`lapSequenceCount` 2) e deixa o primeiro igual; a chegada na contramão não dá resultado; pausa e retomada no
 meio da volta dão o resultado `VALID` no cruzamento seguinte; reposicionamento na Kart Park põe o kart sobre a
-linha central do arquivo; a mesma sequência de `Input` dá `lapMs` e `sectorMs` iguais em duas execuções. Nenhuma
+linha central do arquivo; todas sobre a Kart Park versão 2 (`src/tracks/kart-park-v2.json`), com o piloto de
+testes recalibrado pela etapa de testes; a mesma sequência de `Input` dá `lapMs` e `sectorMs` iguais em duas execuções. Nenhuma
 prova desta feature espera que uma volta `TRAINING` chegue a `ENDED` na chegada ou no corte. Os testes de
 `race-lap-validation` sobre a pista sintética (corte, reposicionamento, tipos de volta) passam sem alteração,
 porque o caminho sem `track` é o de hoje.

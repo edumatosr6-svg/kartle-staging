@@ -4,7 +4,7 @@ title: Superfície por roda, aderência na zebra, colisão com a barreira e cont
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [API-0003, RULE-0001, FLOW-0002, FEAT-0002, FEAT-0004, FEAT-0005, REQ-FEAT-0002-12, REQ-FEAT-0004-04, REQ-FEAT-0004-05, REQ-FEAT-0004-06, REQ-FEAT-0004-07, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-08, REQ-FEAT-0005-09, REQ-FEAT-0007-09]
 ---
 

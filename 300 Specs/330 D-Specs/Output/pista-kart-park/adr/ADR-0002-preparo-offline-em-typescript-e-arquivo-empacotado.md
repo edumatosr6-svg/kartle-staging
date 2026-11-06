@@ -4,7 +4,7 @@ title: Preparo offline em TypeScript sob scripts/ e arquivo publicado empacotado
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.1.0
 sources: [FLOW-0003, RULE-0002, FEAT-0002, FEAT-0007, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0007-05, REQ-FEAT-0007-07, REQ-FEAT-0007-11]
 ---
 
@@ -26,9 +26,11 @@ são usadas pela simulação no cliente e pelas verificações do arquivo.
    (construção) e `scripts/trackChecks.ts` (verificações), e o programa `scripts/track-pipeline.ts`.
 2. As duas bibliotecas importam as definições geométricas de `src/trackGeometry.ts`, as mesmas que a
    simulação usa; as verificações não importam a construção.
-3. As verificações V01 a V18 são as mesmas no programa (`verify`) e em `npm test`.
+3. As verificações de RULE-0002 (V01 a V20 desde a revisão 3 do seed) são as mesmas no programa (`verify`) e em
+   `npm test`.
 4. O arquivo publicado fica em `src/tracks/<trackId>-v<trackVersion>.json` e o cliente o importa como texto
-   (`import texto from './tracks/kart-park-v1.json?raw'`), lido por `readTrackData(texto)`; o texto embutido no
+   (`import texto from './tracks/kart-park-v2.json?raw'` desde a revisão 3 do seed; só a versão que o catálogo
+   declara é importada, [ADR-0008](ADR-0008-kart-park-versao-2-a-partir-da-replica.md)), lido por `readTrackData(texto)`; o texto embutido no
    pacote é o conteúdo exato do arquivo.
 
 ## Alternativas consideradas
@@ -46,7 +48,8 @@ são usadas pela simulação no cliente e pelas verificações do arquivo.
   programa; o arquivo publicado é reproduzível pelo preparo (teste de reprodução).
 - `src/rawImports.d.ts` declara o tipo das importações `*.json?raw` para `tsc --noEmit`.
 - O tamanho entregue é o do texto como literal no pacote, medido por V17, e o resumo é o do arquivo.
-- Uma versão nova da pista é um arquivo novo; o anterior fica no repositório.
+- Uma versão nova da pista é um arquivo novo; o anterior fica no repositório, fora do pacote se nenhuma entrada
+  do catálogo o declara.
 
 ## Status
 

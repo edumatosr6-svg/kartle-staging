@@ -4,7 +4,7 @@ title: Esquema 3 do arquivo de pista — geometria no arquivo e leitor das vers�
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.0.2
 sources: [API-0001, FEAT-0002, REQ-FEAT-0002-02, REQ-FEAT-0002-12, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0004-04]
 ---
 
@@ -47,10 +47,11 @@ do arquivo de pista é caro de reverter (D-DS-05).
 ## Consequências
 
 - Uma pista nova com geometria própria é só um arquivo novo em esquema 3, preparado offline.
-- Dois testes de `race-lap-validation` que afirmam o literal 2 e usam 3 como "versão posterior"
-  (`tests/race-lap-validation-track-data.test.ts:20-21`, `:24-30`) passam a reprovar; a mudança deles é da
-  etapa de testes daquela feature, por feedback ([01-architecture](../01-architecture.md), "Consequências para
-  outras features").
+- As duas verificações de `race-lap-validation` que afirmavam o literal 2 e usavam 3 como "versão posterior"
+  já foram mudadas por aquela feature (commit `32d0adf`): CHK-TEST-0009-02
+  (`tests/race-lap-validation-track-data.test.ts:18-30`) e CHK-TEST-0009-03 (`:32-40`) seguem só o requisito
+  delas e passam com o leitor em 3 e a pista sintética em 2 ([01-architecture](../01-architecture.md),
+  "Consequências para outras features"); nenhum arquivo daquela feature é editado por este conjunto.
 - Um cliente antigo diante de um arquivo da versão 3 o rejeita de forma visível (`UNSUPPORTED_SCHEMA`).
 
 ## Status

@@ -4,7 +4,7 @@ title: Crédito OSM no painel do resultado de cada volta do treino, em vez da te
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [SCR-0002, FEAT-0003, FEAT-0006, REQ-FEAT-0003-14, REQ-FEAT-0003-15, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
 ---
 

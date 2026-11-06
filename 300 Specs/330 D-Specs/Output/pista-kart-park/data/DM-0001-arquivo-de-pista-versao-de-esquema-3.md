@@ -4,8 +4,8 @@ title: Arquivo de pista, versão de esquema 3
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
-sources: [API-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, RULE-0002, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-03, REQ-FEAT-0002-04, REQ-FEAT-0002-07, REQ-FEAT-0002-09, REQ-FEAT-0002-12, REQ-FEAT-0002-14, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0005-01, REQ-FEAT-0005-03, REQ-FEAT-0006-09]
+version: 2.0.1
+sources: [API-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, RULE-0002, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-04, REQ-FEAT-0002-07, REQ-FEAT-0002-09, REQ-FEAT-0002-12, REQ-FEAT-0002-14, REQ-FEAT-0002-15, REQ-FEAT-0002-16, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0002-19, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0003-01, REQ-FEAT-0003-04, REQ-FEAT-0003-07, REQ-FEAT-0004-01, REQ-FEAT-0005-01, REQ-FEAT-0005-03, REQ-FEAT-0005-20, REQ-FEAT-0006-09]
 ---
 
 # DM-0001 — Arquivo de pista, versão de esquema 3
@@ -13,10 +13,11 @@ sources: [API-0001, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, RULE-0002, REQ-F
 ## Realiza
 
 O contrato API-0001: a versão de esquema 3 do arquivo de pista, com a linha central e a largura de cada
-ponto, as zebras, as barreiras e a indicação de dado OSM (REQ-FEAT-0002-02, -03, -04, -07, -09; REQ-FEAT-0003-01,
--04, -07; REQ-FEAT-0004-01; REQ-FEAT-0005-01, -03); a leitura da versão 2 como antes (REQ-FEAT-0002-15); o
+ponto, as zebras, as barreiras e a indicação de dado OSM (REQ-FEAT-0002-02, -04, -07, -09, -19; REQ-FEAT-0003-01,
+-04, -07; REQ-FEAT-0004-01; REQ-FEAT-0005-01, -03, -20); a leitura da versão 2 como antes (REQ-FEAT-0002-15); o
 arquivo de esquema 3 sem linha central utilizável como `UNREADABLE` (REQ-FEAT-0002-16); o arquivo publicado
-imutável, abaixo de 200.000 bytes e sem recorde (REQ-FEAT-0002-14, -17, -18; REQ-FEAT-0006-09). Camada: dado
+imutável, abaixo de 200.000 bytes e sem recorde (REQ-FEAT-0002-14, -17, -18; REQ-FEAT-0006-09); as duas versões
+publicadas da Kart Park, a 2 nova ao lado da 1 inalterada (REQ-FEAT-0002-20, -21). Camada: dado
 de pista (`src/trackData.ts`, `src/trackGeometry.ts`, `src/tracks/`). Decisão: [ADR-0001](../adr/ADR-0001-esquema-3-do-arquivo-de-pista.md).
 Leitor: [DES-0001](../core/DES-0001-leitura-do-dado-de-pista-em-esquema-3.md). Produção do arquivo:
 [DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md).
@@ -37,7 +38,7 @@ em metros (RULE-0002). Os campos de `race-lap-validation` mantêm nome, tipo, un
 |---|---|---|---|---|---|
 | `schemaVersion` | inteiro | — | não | — | `3` |
 | `trackId` | texto | — | não | — | não vazio; `kart-park` na Kart Park |
-| `trackVersion` | inteiro ≥ 1 ou texto não vazio | — | não | — | `1` na primeira versão da Kart Park; nunca alterado depois de publicado |
+| `trackVersion` | inteiro ≥ 1 ou texto não vazio | — | não | — | `1` na primeira versão da Kart Park e `2` na réplica; nunca alterado depois de publicado |
 | `osmDerived` | booleano | — | sim (ausente) | `false` | `true` na Kart Park; neutro: ausente, o arquivo não declara dado OSM |
 | `direction` | `CLOCKWISE` ou `COUNTER_CLOCKWISE` | — | sim | ausente | igual ao enrolamento de `centerline` (C1 v3) |
 | `startPosition` | `{xM, zM, headingDeg}` | m, m, graus | sim | ausente | `headingDeg` na convenção do `heading` da física: 0 aponta para `+z`, positivo gira para `+x` |
@@ -50,8 +51,10 @@ em metros (RULE-0002). Os campos de `race-lap-validation` mantêm nome, tipo, un
 | `barriers` | lista de `{points}`, `points` lista de 2 ou mais `{xM, zM}` | m | sim | lista vazia | pontos finitos; cada barreira é a poligonal aberta dos seus pontos; neutro: sem obstáculo |
 
 `lapLengthM` é a soma dos comprimentos dos segmentos de `centerline`, inclusive do último ponto ao ponto 0,
-calculada das coordenadas gravadas; a tolerância de 0,001 m absorve o arredondamento a 3 casas do fim do
-último trecho de zebra, que termina no comprimento da volta (RULE-0002, V12).
+calculada das coordenadas gravadas; a tolerância de 0,001 m do leitor absorve o arredondamento a 3 casas do fim
+de um trecho de zebra que termine no comprimento da volta (o caso do arquivo da versão 1, cuja zebra da largada
+foi dividida). No arquivo da versão 2 nenhum trecho cruza a largada, e a verificação V20 exige
+`toLapM <= lapLengthM` só com a meia unidade da última casa gravada (0,0005 m) ([DES-0011](../pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)).
 
 A versão 3 não tem campo de nome, de comprimento exibido, de comprimento oficial nem de recorde: nome e
 comprimento exibidos ficam no catálogo do treino ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)),
@@ -97,48 +100,54 @@ Qualquer falha torna o dado `INCOMPLETE`; nenhuma lança. As de mesmo número t�
 | C6 v3 | as duas pontas de cada linha estão na grama (`classifySurface` igual a `grass`): a linha atravessa a pista de borda a borda no seu cruzamento, de modo que um kart sobre a pista não passa sem cruzá-la. Substitui o alcance fixo `WIDTH / 2 + 9` de C6, que pressupõe o muro da pista sintética, inexistente na versão 3 (REQ-FEAT-0004-04) |
 | C7 v3 | duas linhas consecutivas na ordem de arco distam pelo menos 2 m; a largada dista pelo menos 2 m de cada marcador e de cada limite; a largada fica do lado de depois da chegada (`sideOf(finishLine, start) > 0`). A distância mínima da largada à chegada de C7 não se aplica: REQ-FEAT-0002-06 põe a largada no segmento do ponto 0 ao ponto 1 (cerca de 1 m), e a primeira passagem pela chegada no sentido da pista continua só ao completar o percurso, porque a largada está depois dela |
 
-## Arquivo publicado da Kart Park (`src/tracks/kart-park-v1.json`)
+## Arquivos publicados da Kart Park
 
-Gerado pelo preparo offline ([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)),
-verificado por V01 a V18 e registrado ([DES-0011](../pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)).
-Serialização determinística: JSON compacto numa linha, terminado por uma quebra de linha, chaves na ordem
-`schemaVersion`, `trackId`, `trackVersion`, `osmDerived`, `direction`, `startPosition`, `finishLine`,
-`sectorLimits`, `markers`, `centerline`, `curbs`, `barriers`; coordenadas, larguras e distâncias arredondadas a
-0,001 m e `headingDeg` a 0,001 grau. Valores declarados: `schemaVersion` 3, `trackId` `kart-park`,
-`trackVersion` 1, `osmDerived` `true`, `direction` `COUNTER_CLOCKWISE`; `cutDistanceM` e `cutDurationMs`
-ausentes; 684 pontos em `centerline`; 34 trechos em `curbs`; uma barreira por trecho contínuo de grama de 6 m
-ou menos entre os trechos quase encostados. O tamanho esperado é da ordem de dezenas de kB, abaixo de
-200.000 bytes (V17). O cliente o importa como texto (`?raw`) e o lê com `readTrackData(texto)`
-([ADR-0002](../adr/ADR-0002-preparo-offline-em-typescript-e-arquivo-empacotado.md)).
+Os dois arquivos estão em `schemaVersion` 3, com a serialização determinística de sempre: JSON compacto numa
+linha, terminado por uma quebra de linha, chaves na ordem `schemaVersion`, `trackId`, `trackVersion`,
+`osmDerived`, `direction`, `startPosition`, `finishLine`, `sectorLimits`, `markers`, `centerline`, `curbs`,
+`barriers`; coordenadas, larguras e distâncias arredondadas a 0,001 m e `headingDeg` a 0,001 grau. Os dois são
+cobertos pela regra `src/tracks/*.json -text` de `.gitattributes` (`.gitattributes:6`): o Git nunca converte o fim
+de linha de um arquivo cujo SHA-256 é registrado.
+
+| Arquivo | `trackVersion` | Conteúdo | Situação |
+|---|---|---|---|
+| `src/tracks/kart-park-v1.json` | 1 | traçado da versão 1: 684 pontos suavizados, larguras de 4,4 m a 10,8 m, 34 trechos de zebra, origem no centro da caixa envolvente da origem; 43.013 bytes, SHA-256 `04ce5e51…f057b1` | publicado em 2026-10-27; **inalterado**, byte a byte (REQ-FEAT-0002-20, -21); não é importado pelo cliente, de modo que não entra no pacote do jogo ([ADR-0008](../adr/ADR-0008-kart-park-versao-2-a-partir-da-replica.md)) |
+| `src/tracks/kart-park-v2.json` | 2 | a réplica não oficial: os 691 pontos da réplica nos eixos do jogo com a origem dela (`xM` = *x*, `zM` = −*y*; ponto 0 em (0, 0), a linha de largada), sem suavizar nem reamostrar; `widthM` 7,0 em todo ponto; os 22 trechos de zebra da réplica, na ordem dela, nenhum cruzando a largada; uma barreira por trecho contínuo de grama de 6 m ou menos entre os trechos ≈ 369–406 m e ≈ 595–624 m; `osmDerived` `true`, `direction` `COUNTER_CLOCKWISE`; `cutDistanceM` e `cutDurationMs` ausentes. Tamanho esperado da ordem de 45 kB (a `centerline` sozinha tem cerca de 15,5 mil caracteres), abaixo de 200.000 bytes (V17) | **novo**, gerado pelo preparo ([DES-0010](../pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md)), verificado por V01 a V20 e registrado ([DES-0011](../pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)); importado pelo cliente como texto (`?raw`) e lido com `readTrackData(texto)` ([ADR-0002](../adr/ADR-0002-preparo-offline-em-typescript-e-arquivo-empacotado.md)) |
+
+A versão 2 não muda o esquema: os campos, a classificação e as verificações C1 a C7 v3 acima valem para os dois
+arquivos, e o leitor não sabe qual versão lê; quem confere a versão é a sessão de treino, contra a entrada do
+catálogo ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)).
 
 Uma versão publicada nunca é editada: qualquer mudança da linha central, de uma largura, de uma zebra, da
 barreira, dos setores ou dos marcadores gera `src/tracks/kart-park-v<n+1>.json` com `trackVersion` maior, o
-catálogo do treino passa a apontar para ele e o arquivo anterior fica no repositório, intacto
-(REQ-FEAT-0002-18; I3). A imutabilidade é verificada em `npm test` pelo resumo SHA-256 registrado
-(REQ-FEAT-0002-17).
+catálogo do treino passa a declarar esse `trackVersion` e a aplicação passa a importar esse arquivo; o arquivo
+anterior fica no repositório, intacto (REQ-FEAT-0002-18; I3). A réplica é publicada assim, como versão 2, e não
+como edição da versão 1. A imutabilidade é verificada em `npm test` pelo resumo SHA-256 registrado de cada versão
+(REQ-FEAT-0002-17, -21).
 
 ## Plano de migração
 
 | Item | Conteúdo |
 |---|---|
-| Revisão | arquivo de pista `schemaVersion` 2 para `schemaVersion` 3, com o leitor das versões 1, 2 e 3 |
-| O que faz | `TRACK_SCHEMA_VERSION` passa de 2 a 3; a versão 3 é classificada pelas ordens 6 a 9; o arquivo da Kart Park é acrescentado; o arquivo da pista sintética (`SYNTHETIC_TRACK_FILE`, versão 2, `trackVersion` 2) não muda; nenhum arquivo existente é reescrito |
-| Reversão (passos executáveis) | 1. `git revert` dos commits de código desta feature, na ordem inversa. 2. `npm test` e `npm run build` na árvore revertida. 3. Republicar o artefato estático anterior em staging. Nada fica gravado em navegador, então não há dado de jogador a desfazer; `src/tracks/kart-park-v1.json` e `tracks/registry.json` saem com o revert e voltam no próximo avanço sem mudança de conteúdo |
-| Teste da reversão | a árvore revertida passa no `npm test` de `race-lap-validation` e de `dirigibilidade` como antes desta feature; `readTrackData` volta a classificar `schemaVersion` 3 como `UNSUPPORTED_SCHEMA` |
+| Revisão | revisão 3 do seed: acréscimo do arquivo de pista `kart-park` `trackVersion` 2 no mesmo `schemaVersion` 3; nenhuma mudança de esquema (o leitor das versões 1, 2 e 3 de esquema fica como está) |
+| O que faz | `src/tracks/kart-park-v2.json` e `tracks/sources/kart-park-replica.json` são acrescentados; a entrada `kart-park` do catálogo passa a declarar `trackVersion` 2 e a aplicação passa a empacotar o arquivo da versão 2 no lugar do da versão 1; `src/tracks/kart-park-v1.json`, `tracks/sources/kart-park.json` e o arquivo da pista sintética não mudam; nenhum arquivo existente é reescrito |
+| Reversão (passos executáveis) | 1. Uma mudança de código, não um `git revert` dos commits da revisão 3, que devolve ao estado anterior só duas coisas: a entrada `kart-park` do catálogo do treino em `src/trainingSession.ts` (volta a não declarar `trackVersion`) e a importação do arquivo de pista em `src/main.ts` (volta a importar `src/tracks/kart-park-v1.json`). 2. `src/tracks/kart-park-v2.json`, `tracks/sources/kart-park-replica.json` e a entrada `kart-park` 2 do registro ficam no repositório, intactos: uma versão publicada nunca é retirada nem editada (I3; API-0001, Compatibilidade: reverter a revisão 3 não edita nenhum arquivo de pista). 3. `npm test` e `npm run build` na árvore revertida. 4. Republicar em staging o artefato estático construído dela. Nada fica gravado em navegador, então não há dado de jogador a desfazer; o arquivo da versão 1 nunca saiu do repositório, então a reversão não o recria nem o altera |
+| Teste da reversão | a árvore revertida passa no `npm test`: o catálogo e a sessão do treino como na revisão 2 (entrada `kart-park` sem `trackVersion`, a aplicação abre a Kart Park na versão 1), e a verificação de imutabilidade afirma que `src/tracks/kart-park-v1.json` e `src/tracks/kart-park-v2.json` continuam presentes com o resumo SHA-256 registrado nas entradas `kart-park` 1 (`04ce5e51…`) e 2 do registro, e que `tracks/sources/kart-park-replica.json` continua presente com o `prep.originSha256` registrado na entrada 2 (`eba665b6…`); o pacote construído dela abre a Kart Park na versão 1 |
 
 ## Preenchimento retroativo
 
-Nenhum: não há arquivo de pista armazenado fora do repositório nem dado de jogador a converter. O único
-arquivo da versão 2 (pista sintética) continua como está.
+Nenhum: não há arquivo de pista armazenado fora do repositório nem dado de jogador a converter. Nenhum resultado
+de volta é gravado, de modo que nenhum resultado antigo fica chaveado na versão 1.
 
 ## Janela de compatibilidade
 
-O arquivo é empacotado no mesmo artefato do leitor: um cliente com o leitor da versão 2 nunca recebe o arquivo
-da Kart Park, e um cliente com o leitor da versão 3 recebe os dois arquivos que conhece. A troca é num único
-passo de implantação, sem indisponibilidade. Um artefato antigo em cache do navegador continua coerente
-consigo mesmo (pista sintética só). Quando a pista passar a ser servida por CDN (pós-MVP, D-DS-03), um cliente
-que só conheça a versão 2 classifica o arquivo da Kart Park como `UNSUPPORTED_SCHEMA`: mantém o arquivo
-intacto, exibe o erro e não inicia volta (I4), em vez de usar a geometria errada.
+O arquivo é empacotado no mesmo artefato do leitor e do catálogo: um cliente com o catálogo da versão 2 recebe o
+arquivo da versão 2, e um artefato antigo em cache do navegador continua coerente consigo mesmo (catálogo sem
+`trackVersion` e arquivo da versão 1). A troca é num único passo de implantação, sem indisponibilidade. Um
+artefato que, por erro de empacotamento, combinasse o catálogo novo com o arquivo da versão 1 não abre sessão na
+Kart Park (`TRACK_VERSION_MISMATCH`), exibe o erro e não inicia volta (I4), em vez de usar a pista errada. Quando a
+pista passar a ser servida por CDN (pós-MVP, D-DS-03), um cliente que só conheça o esquema 2 classifica qualquer
+arquivo da Kart Park como `UNSUPPORTED_SCHEMA` e o mantém intacto.
 
 ## Retenção e privacidade
 

@@ -4,7 +4,7 @@ title: Geometria da pista declarada no arquivo — bordas, zebras, borda da pist
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.1.0
+version: 1.1.1
 sources: [RULE-0001, RULE-0002, FEAT-0002, FEAT-0003, FEAT-0005, REQ-FEAT-0002-12, REQ-FEAT-0003-06, REQ-FEAT-0003-10, REQ-FEAT-0005-03, REQ-FEAT-0005-05, REQ-FEAT-0005-06, REQ-FEAT-0005-07]
 ---
 

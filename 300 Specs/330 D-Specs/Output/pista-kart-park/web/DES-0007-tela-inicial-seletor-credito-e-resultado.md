@@ -4,8 +4,8 @@ title: Tela inicial com seletor e crédito, crédito na tela de resultado e nome
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.3.0
-sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
+version: 2.0.1
+sources: [SCR-0001, SCR-0002, FLOW-0001, FEAT-0001, FEAT-0003, FEAT-0006, REQ-FEAT-0001-01, REQ-FEAT-0001-02, REQ-FEAT-0001-03, REQ-FEAT-0001-04, REQ-FEAT-0001-11, REQ-FEAT-0001-13, REQ-FEAT-0001-14, REQ-FEAT-0001-15, REQ-FEAT-0001-16, REQ-FEAT-0003-09, REQ-FEAT-0003-14, REQ-FEAT-0006-01, REQ-FEAT-0006-02, REQ-FEAT-0006-03, REQ-FEAT-0006-04, REQ-FEAT-0006-05, REQ-FEAT-0006-06, REQ-FEAT-0006-07, REQ-FEAT-0006-08, REQ-FEAT-0006-09, REQ-FEAT-0006-10, REQ-FEAT-0006-11, REQ-FEAT-0006-12, REQ-FEAT-0006-13]
 ---
 
 # DES-0007 — Tela inicial com seletor e crédito, crédito na tela de resultado e nome da pista da sessão
@@ -16,7 +16,9 @@ As telas SCR-0001 e SCR-0002 e os passos de aplicação de FLOW-0001: o seletor 
 inicial (REQ-FEAT-0001-01), a Kart Park selecionada e carregada a cada abertura, sem ler nem gravar a escolha
 (REQ-FEAT-0001-02, -03, -04); só volta de treino oferecida (REQ-FEAT-0001-11); o seletor e a pista inalterados
 sem sensor em `web-mobile`, com o aviso de toque existente (REQ-FEAT-0001-13); o erro do dado na tela inicial,
-com as duas opções selecionáveis (REQ-FEAT-0001-14); a linha de crédito OSM — texto, menção e link — no
+com as duas opções selecionáveis (REQ-FEAT-0001-14), também quando o arquivo lido não é o da versão que a
+entrada do catálogo declara (`TRACK_VERSION_MISMATCH`, REQ-FEAT-0001-16); o arquivo publicado da versão 2 da Kart
+Park como o único da Kart Park empacotado no jogo (REQ-FEAT-0001-15); a linha de crédito OSM — texto, menção e link — no
 seletor com a Kart Park selecionada e na tela de resultado de uma volta na Kart Park, só para pista com
 `osmCredit`, sem rede, nos dois canais e nas duas telas (REQ-FEAT-0006-01 a -06, -10, -12, -13); o nome e o
 comprimento da Kart Park em toda tela que exibe o nome, iguais nos dois idiomas (REQ-FEAT-0006-07, -08, -11);
@@ -38,10 +40,13 @@ o resultado de cada volta concluída na Kart Park, válida ou inválida
 
 Camada **aplicação**:
 
-- `src/main.ts`, alterado: estado da sessão, seletor, crédito, nome da pista, início da volta.
-- `index.html`, alterado: dois contêineres em `#welcome` (`index.html:19`), um dentro de `#lap-training-result`
-  (o painel que `race-lap-validation` acrescenta à coluna direita da tela de corrida), que substitui o de
-  `#lap-result` (`:25`), e o identificador `#track-name` no rótulo da pista (`:17`).
+- `src/main.ts`, alterado: estado da sessão, seletor, crédito, nome da pista, início da volta, já entregues pelas
+  revisões 1 e 2; na revisão 3, só a importação do arquivo da Kart Park, as fontes do treino e o aviso de
+  `TRACK_VERSION_MISMATCH`.
+- `index.html`, já existente na árvore de `281b617`: dois contêineres em `#welcome` (`index.html:19`), um dentro de
+  `#lap-training-result` (`:26`, o painel que `race-lap-validation` acrescenta à coluna direita da tela de
+  corrida), que substituiu o de `#lap-result` (`:27`, sem `lap-result-credit`), e o identificador `#track-name` no
+  rótulo da pista (`:17`). A revisão 3 não muda `index.html`.
 - `src/style.css`, alterado: regras `.track-selector` e `.track-credit`.
 - `src/lapMessages.ts`, alterado (aplicação pura, de `race-lap-validation`): recebe os textos do crédito
   (`OSM_CREDIT`), a regra de tela do crédito (`creditFor`) e a formatação do rótulo da opção (`optionLabel`).
@@ -85,19 +90,19 @@ texto e o `a` a partir de `OSM_CREDIT` com `textContent` e `setAttribute` (nunca
 oculta o contêiner quando `credit` é `undefined`. As duas telas usam a mesma função, de modo que o texto, a
 menção e o link são idênticos (REQ-FEAT-0006-13).
 
-`src/main.ts`, por trecho atual:
+`src/main.ts`, por trecho da árvore de `281b617` (os trechos já entregues pelas revisões 1 e 2 marcados como existentes; a revisão 3 muda só a importação, as fontes e o aviso de `TRACK_VERSION_MISMATCH`):
 
 | Trecho atual | Mudança |
 |---|---|
-| `:5-9` importações | passa a importar `kartParkV1Text from './tracks/kart-park-v1.json?raw'` e, de `./trainingSession`, `initialTrainingSession`, `selectTrainingTrack`, `getTrainingTrackOptions`, `startTrainingLap`, `trainingIdleKart`, `OPENING_TRACK_ID`, `TRAINING_TRACKS`; a importação de `./lapMessages` (`:9`) acrescenta `creditFor` e `optionLabel`; `readTrackData` sai da importação |
-| `:152` `idleKart` | `trainingIdleKart(training)`; sem sessão pronta, o kart não é exibido |
-| `:155-158` leitura da pista sintética | `TRACK_SOURCES = {'kart-park': kartParkV1Text, synthetic: SYNTHETIC_TRACK_FILE}`; `training = initialTrainingSession()`; `chooseTrack(OPENING_TRACK_ID)` na carga do módulo, sem ler escolha anterior; os avisos `console.warn('track-data', ...)` passam a ser emitidos por `chooseTrack` com os mesmos identificadores |
-| `chooseTrack(trackId)` | nova função local: `r = selectTrainingTrack(training, lap, trackId, TRACK_SOURCES)`; guarda `r.session` e `r.lap`; zera o estado do retorno da zebra ([DES-0009](DES-0009-retorno-da-zebra-vibracao-e-som.md)); troca a cena ([DES-0008](DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)); ligada ao `onclick` de cada botão de `#track-selector` |
-| `:187-207` `renderOffer` | a guarda de redesenho passa de `offerLang === lang` a uma chave com `lang`, `sessionState`, `selectedTrackId` e `trackDataStatus`; desenha o seletor e o crédito a partir de `getTrainingTrackOptions(training)`; `#track-status` mostra `loadingTrack` com `NO_SESSION`/`LOADING`, `trackDataError` com `FAILED` (textos de `race-lap-validation`) e o `trackId` com `READY`, como hoje; a oferta de volta é `offeredLapKinds(reading, [])`, que numa sessão de treino é só `TRAINING`, e não aparece sem sessão `READY` |
-| `:208-218` `beginLap` | `startTrainingLap(training, lap, config, {setupId: setup.setupId, setupVersion: setup.setupVersion})` no lugar de `startLap(...)`; o tipo de volta deixa de ser argumento e a referência do acerto, que `beginLap` já copiava ao pedido (FB-01 de `dirigibilidade`), passa pelo quarto argumento ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md) 1.2.0) |
-| `renderResult` (`:439-469`; a chamada ao crédito em `:465`) | a chamada `renderCredit($('lap-result-credit'), ...)` sai com o elemento; o resto é de `race-lap-validation` |
-| desenho do painel do resultado da volta do treino (`renderHud`, `:408-438`, acrescido por DES-0007 e DES-0008 1.1.0 de `race-lap-validation`) | no mesmo ramo em que o painel é redesenhado — resultado novo (muda o `lapSequenceCount` do último resultado) ou idioma novo —, logo depois do desenho do painel: `renderCredit($('lap-training-result-credit'), creditFor(<entrada do trackId de getLapResult(lap)>))`; o redesenho do painel atualiza os seus próprios elementos por identificador e `textContent`, como `renderResult` faz hoje (`:446-464`), e não remove `#lap-training-result-credit`. Com o painel oculto (sem resultado, treino encerrado ou sem volta), o crédito fica oculto com ele |
-| rótulo `.track-label` | `#track-name` recebe `optionLabel` da opção selecionada a cada mudança de sessão |
+| `:13` importação do arquivo da Kart Park | revisão 3: `kartParkV1Text from './tracks/kart-park-v1.json?raw'` passa a `kartParkV2Text from './tracks/kart-park-v2.json?raw'`; o arquivo da versão 1 deixa de ser importado e, por isso, não entra no pacote do jogo (a lacuna "se o arquivo da versão 1 é entregue ao navegador" do F-Spec, decidida em [ADR-0008](../adr/ADR-0008-kart-park-versao-2-a-partir-da-replica.md)); continua em `src/tracks/`, byte a byte igual. As demais importações ficam como estão: de `./trainingSession`, `initialTrainingSession`, `selectTrainingTrack`, `getTrainingTrackOptions`, `startTrainingLap`, `trainingIdleKart`, `OPENING_TRACK_ID`, `TRAINING_TRACKS`, e de `./lapMessages` `creditFor` e `optionLabel` |
+| `:563` `idleKart`, em `frame` | existente, sem mudança na revisão 3: `const idleKart = trainingIdleKart(training)`; sem sessão pronta, o kart não é exibido |
+| `:156` `TRACK_SOURCES` | revisão 3: `{'kart-park': kartParkV1Text, ...}` passa a `{'kart-park': kartParkV2Text, synthetic: SYNTHETIC_TRACK_FILE}`. Existente e sem mudança: `training = initialTrainingSession()` (`:157`) e `chooseTrack(OPENING_TRACK_ID)` na carga do módulo (`:670`), sem ler escolha anterior |
+| `:225-251` `chooseTrack(trackId)` | existente (entregue na revisão 1): `r = selectTrainingTrack(training, lap, trackId, TRACK_SOURCES)`; guarda `r.session` e `r.lap`; zera o estado do retorno da zebra ([DES-0009](DES-0009-retorno-da-zebra-vibracao-e-som.md)); troca a cena ([DES-0008](DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)); ligada ao `onclick` de cada botão de `#track-selector` (`:265`); os avisos `console.warn('track-data', ...)` de `UNREADABLE`, `UNSUPPORTED_SCHEMA` e `INCOMPLETE` em `:230-232`. Revisão 3, única mudança: com `TRACK_VERSION_MISMATCH`, um aviso a mais ao lado desses, `console.warn('track-data', 'TRACK_VERSION_MISMATCH', reading.trackId, reading.trackVersion)` (identificadores do arquivo lido, nunca o conteúdo), e o caminho de `FAILED` que já existe (sem cena, sem kart, `#track-status` com `trackDataError`) |
+| `:253-286` `renderOffer` | existente, sem mudança na revisão 3: a guarda de redesenho é a chave com `lang`, `sessionState`, `selectedTrackId` e `trackDataStatus` (`:255-257`); desenha o seletor e o crédito a partir de `getTrainingTrackOptions(training)` (`:258-268`); `#track-status` mostra `loadingTrack` com `NO_SESSION`/`LOADING` (`:272`), `trackDataError` com `FAILED` (`:273-276`), o que cobre `TRACK_VERSION_MISMATCH` porque a sessão fica `FAILED` (textos de `race-lap-validation`, sem chave nova), e o `trackId` com `READY` (`:277`); a oferta de volta é `offeredLapKinds(reading, [])` (`:279-285`), que numa sessão de treino é só `TRAINING`, e não aparece sem sessão `READY` |
+| `:309-320` `beginLap` | existente, sem mudança na revisão 3: `startTrainingLap(training, lap, config, {setupId: setup.setupId, setupVersion: setup.setupVersion})` (`:310`); o tipo de volta não é argumento e a referência do acerto (FB-01 de `dirigibilidade`) passa pelo quarto argumento ([DES-0005](../core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md) 1.2.0) |
+| `:489-517` `renderResult` | existente, sem mudança na revisão 3: não chama `renderCredit` e `lap-result-credit` já não existe em `src/main.ts` nem em `index.html`; o resto é de `race-lap-validation` |
+| desenho do painel do resultado da volta do treino (`renderTrainingResult`, `:462-488`, chamado por `renderHud`, `:425-459`, em `:458`) | existente, sem mudança na revisão 3: no ramo em que o painel é redesenhado — resultado novo (muda o `lapSequenceCount` do último resultado) ou idioma novo (`:466-467`) —, logo depois do desenho do painel, `renderCredit($('lap-training-result-credit'), creditFor(selectedOption(result.trackId)))` (`:485`); o redesenho troca os seus próprios elementos e mantém `#lap-training-result-credit`, o último filho do painel (`:481-484`). Com o painel oculto (sem resultado, treino encerrado ou sem volta, `:465`), o crédito fica oculto com ele |
+| rótulo `.track-label` | existente, sem mudança na revisão 3: `#track-name` recebe `optionLabel` da opção selecionada a cada mudança de sessão, em `chooseTrack` (`:248-249`) |
 
 Os textos do crédito vêm de `OSM_CREDIT` e o nome e "Pista sintética" do `displayName` das entradas do
 catálogo, formatados por `optionLabel`; nenhum passa por `message()`/`resolveLanguage` (REQ-FEAT-0006-11). Os
@@ -134,11 +139,12 @@ andamento. O crédito do painel é redesenhado só quando o painel é: o mesmo r
 
 ## Comportamento em falha
 
-Dado da pista escolhida ilegível ou de esquema desconhecido: `#track-status` com `trackDataError`, nenhuma
+Dado da pista escolhida ilegível, de esquema desconhecido ou de outra pista ou versão que a da entrada do
+catálogo (`TRACK_VERSION_MISMATCH`): `#track-status` com `trackDataError`, nenhuma
 oferta de volta, as duas opções habilitadas, o crédito visível se a opção selecionada tem `osmCredit` (vem do
 catálogo). Sem rede: idêntico ao online, porque o arquivo vem no pacote do jogo e o crédito é texto local; o
 destino do link pode não abrir. Sensor ausente ou negado em `web-mobile`: o aviso
-`controlFallbackTouch` existente (`:454-457`); seletor, sessão e largada não mudam. Registro: só os
+`controlFallbackTouch` existente (`src/main.ts:639-642`); seletor, sessão e largada não mudam. Registro: só os
 identificadores de `console.warn('track-data', ...)`.
 
 ## Observabilidade
@@ -147,12 +153,14 @@ identificadores de `console.warn('track-data', ...)`.
 `src/trainingSession.ts` e afirma: `creditFor` da entrada `kart-park` é `OSM_CREDIT`, com `text`
 `© colaboradores do OpenStreetMap`, `license` `licença ODbL` e `url` `https://openstreetmap.org/copyright`;
 `creditFor` da entrada `synthetic` e de entrada ausente é `undefined`; `optionLabel` da entrada `kart-park` é
-exatamente `Kart Park — São José dos Pinhais (traçado aproximado) · 687 m` e o da entrada `synthetic` é
+exatamente `Kart Park — São José dos Pinhais (réplica não oficial) · 691 m` e o da entrada `synthetic` é
 `Pista sintética`; nenhuma das duas funções recebe idioma, e nenhum desses textos é valor de `MESSAGES`. O mesmo
 teste lê `index.html` e `src/main.ts` como texto e afirma: `#track-selector` e `#track-credit` em `#welcome`,
 `#lap-training-result-credit` dentro de `#lap-training-result`, `#track-name`, e nenhum `lap-result-credit`;
 `renderCredit` chamado com `creditFor(...)` nos dois pontos (`#track-credit` e `#lap-training-result-credit`); nenhum uso de `innerHTML` para o crédito; nenhum texto "41,45",
-"41.45" nem "Circuito Aurora"; `startLap(` não é chamado diretamente (só `startTrainingLap`). A apresentação
+"41.45", "Circuito Aurora", "traçado aproximado" nem "687 m" (em `index.html`, `src/main.ts`,
+`src/lapMessages.ts` e `src/trainingSession.ts`); `src/main.ts` importa `./tracks/kart-park-v2.json?raw` e não
+cita `kart-park-v1`; `startLap(` não é chamado diretamente (só `startTrainingLap`). A apresentação
 real é provada no roteiro E2E-01 a E2E-03, E2E-05, E2E-07
 e E2E-08 ([test-strategy](../test-strategy.md)).
 

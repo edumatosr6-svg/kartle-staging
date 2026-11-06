@@ -3,28 +3,29 @@ title: Arquitetura — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.1
+version: 2.0.0
 sources: []
 ---
 
 # Arquitetura
 
 Este conjunto projeta como cada `REQ-*` do F-Spec validado de `pista-kart-park` (FEAT-0001 a FEAT-0008,
-API-0001 a API-0003, FLOW-0001 a FLOW-0003, SCR-0001 a SCR-0003, RULE-0001 a RULE-0006; seed `revision: 2`,
-validação `fspec-validation-20261103-1937`, SUCCESS; commit `73feae8`) é realizado sobre o código em execução. Os caminhos são relativos à raiz do repositório (diretriz do estágio: o código vive em
+API-0001 a API-0003, FLOW-0001 a FLOW-0003, SCR-0001 a SCR-0003, RULE-0001 a RULE-0006; seed `revision: 3`,
+validação `fspec-validation-20261106-1805`, SUCCESS; commit `281b617`) é realizado sobre o código em execução. A
+revisão 3 troca o traçado da Kart Park pela réplica não oficial, publicada como `kart-park` `trackVersion` 2 ao
+lado do arquivo da versão 1, que fica igual e sai do seletor ([ADR-0008](adr/ADR-0008-kart-park-versao-2-a-partir-da-replica.md)). Os caminhos são relativos à raiz do repositório (diretriz do estágio: o código vive em
 `src/`, `tests/`, `scripts/` e `index.html`; `400 Code/Source/` está vazio). O produto é um cliente de
 navegador sem servidor, sem conta e sem banco: não existem as pastas `backend/` e `mobile/` deste estágio
 (`web-mobile` roda o mesmo cliente). Os itens do dado de pista e da simulação ficam em `core/`, os da
 aplicação em `web/`, o preparo offline e a publicação em `pipeline/`, as garantias de privacidade e de
 licença em `security/`, os formatos em `data/` e as decisões em `adr/`.
 
-**Estado do código lido como as-built.** A árvore do commit `ac84352` mais a rodada de código 1 de
-`dirigibilidade`, ainda não commitada (`src/physics.ts` alterado, `src/setupRecords.ts` e
-`scripts/handlingBench.ts` novos). As linhas citadas neste conjunto são as dessa árvore. As mudanças que o
-projeto de `dirigibilidade` ainda deve a `src/main.ts`, `index.html` e `src/physics.ts` entram **antes** do
-código desta feature (seção "Ordem de entrega"); por isso os itens de aplicação deste conjunto nomeiam as
-funções e os elementos que mudam (`renderOffer`, `beginLap`, `renderResult`, `#welcome`, `#lap-result`), e
-não só números de linha, que a entrega de `dirigibilidade` vai deslocar.
+**Estado do código lido como as-built.** A árvore do commit `281b617`, que carrega o código e os testes da
+revisão 2 desta feature, validados (`code-validation-20261103-2004` e `test-validation-20261104-1432`, SUCCESS) e
+em staging. As linhas citadas neste conjunto são as dessa árvore. O que a revisão 3 muda nela é pequeno no
+cliente (o catálogo, a conferência de versão e o arquivo empacotado) e concentrado no preparo offline (a
+réplica como origem, as verificações V01 a V20) e no dado publicado (o arquivo da versão 2 e a entrada dele no
+registro); a física, a volta, a geometria, o leitor, o desenho e o retorno da zebra não mudam.
 
 ## Contexto primário (I1)
 
@@ -45,22 +46,24 @@ relógio do aparelho ou no nome da pista, e nada é gravado no navegador
 | Dado de pista | `src/track.ts` | inalterado | a pista sintética (`track`, `WIDTH`, `nearest`), as primitivas de linha (`Line`, `sideOf`, `crossLine`) e `SYNTHETIC_TRACK_FILE` (esquema 2) não mudam |
 | Dado de pista | `src/trackData.ts` | alterado | leitor das versões de esquema 1, 2 e 3; campos `centerline`, `curbs`, `barriers`, `osmDerived`; verificações de consistência da versão 3 sobre a geometria do próprio arquivo ([DES-0001](core/DES-0001-leitura-do-dado-de-pista-em-esquema-3.md), [DM-0001](data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md)) |
 | Dado de pista | `src/trackGeometry.ts` | **novo** | geometria de um arquivo em esquema 3: normais, bordas, asfalto, zebras, borda da pista, distância de volta, barreiras, grade espacial ([DES-0002](core/DES-0002-geometria-da-pista-declarada-no-arquivo.md)) |
-| Dado de pista (lugar na árvore: `src/tracks/`) | `src/tracks/kart-park-v1.json` | **novo** | o arquivo de pista publicado da Kart Park, `trackVersion` 1, gerado offline e empacotado no cliente |
+| Dado de pista (lugar na árvore: `src/tracks/`) | `src/tracks/kart-park-v1.json` | inalterado | o arquivo publicado da Kart Park `trackVersion` 1, byte a byte igual; deixa de ser importado e sai do pacote do jogo |
+| Dado de pista (lugar na árvore: `src/tracks/`) | `src/tracks/kart-park-v2.json` | **novo** | o arquivo publicado da Kart Park `trackVersion` 2, a réplica, gerado offline e empacotado no cliente ([DM-0001](data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md)) |
 | Simulação | `src/physics.ts` | alterado | superfície `curb` com 85 % da aderência por pneu; zebra como pista nas demais regras; colisão com barreira; `trackEnvironment`; `trackEdgeDistanceM`; `getTrackContact` ([DES-0003](core/DES-0003-superficie-por-roda-zebra-e-barreira.md)) |
 | Simulação | `src/lap.ts` | alterado | corte medido da borda da pista do ambiente da volta; reposicionamento na linha central do ambiente; `kartAtStart` ([DES-0004](core/DES-0004-volta-na-kart-park-corte-e-reposicionamento.md)) |
-| Simulação | `src/trainingSession.ts` | **novo** | catálogo do treino (entradas de API-0002: `trackId`, `displayName`, `displayLengthM`, `osmCredit`), estado `sessionState`, `getTrainingTrackOptions`, `selectTrainingTrack`, `startTrainingLap` (API-0002, RULE-0003) ([DES-0005](core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)); nenhum texto de crédito nem regra de tela |
+| Simulação | `src/trainingSession.ts` | alterado | catálogo do treino (entradas de API-0002: `trackId`, `trackVersion` opcional, `displayName`, `displayLengthM`, `osmCredit`), estado `sessionState`, `getTrainingTrackOptions`, `selectTrainingTrack` com a conferência de `trackId` e `trackVersion` e o código `TRACK_VERSION_MISMATCH`, `startTrainingLap` (API-0002, RULE-0003) ([DES-0005](core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)); nenhum texto de crédito nem regra de tela |
 | Simulação | `src/lapTiming.ts` | inalterado | tempo inteiro em ms não muda |
 | Simulação | `src/maneuvers.ts` | não usado por esta feature | o drift e o turbo saem do jogo (`dirigibilidade`, seed `revision: 5`, ADR-0006 daquela feature): o passo deixa de avançar a manobra e o módulo tem retirada projetada lá; nada desta feature depende dele (zebra, barreira e retorno da zebra não têm efeito de drift ou de turbo) |
 | Adaptadores de controle | em `src/main.ts` | inalterados | teclado, inclinação e toque continuam entregando o `Input` normalizado; nenhum campo novo (NFR-0008) |
-| Aplicação | `src/main.ts` | alterado | seletor, crédito, nome da pista, sessões, troca de cena, retorno da zebra ([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md), [DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md), [DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
+| Aplicação | `src/main.ts` | alterado | seletor, crédito, nome da pista, sessões, troca de cena, retorno da zebra; na revisão 3, só a importação do arquivo da versão 2 e o aviso de `TRACK_VERSION_MISMATCH` ([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md), [DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md), [DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
 | Aplicação | `src/trackScene.ts` | **novo**; alterado na revisão 2 | constrói o grupo Three.js de uma pista em esquema 3 (grama em 2 tons, asfalto, faixa de borda, zebras com relevo, barreira de pneus, linha de largada) e a transformação do minimapa; o acabamento de FEAT-0008 é só desenho e não entra na simulação ([DES-0008](web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)) |
 | Aplicação | `src/curbFeedback.ts` | **novo** | decisão pura, por passo, de pulso de vibração e de repetição do som da zebra (RULE-0004) ([DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
 | Aplicação | `src/lapMessages.ts` | alterado | textos do crédito OSM (`OSM_CREDIT`), regra de tela do crédito (`creditFor`) e rótulo da opção (`optionLabel`), fora de `message()` e sem tradução; aplicação pura, testável em `npm test` ([DES-0007](web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)) |
 | Aplicação | `src/audio.ts` | alterado | som próprio da zebra e descritores de sinal dos três sons do jogo, dos quais cada som constrói o seu sinal ([DES-0009](web/DES-0009-retorno-da-zebra-vibracao-e-som.md)) |
 | Aplicação | `index.html`, `src/style.css`, `src/rawImports.d.ts` (**novo**, só declaração de tipo) | alterados | seletor, linhas de crédito, nome da pista; importação do arquivo de pista como texto |
-| Aplicação (programa offline em Node; lugar na árvore: `scripts/`) | `scripts/track-pipeline.ts` | **novo** | comandos `prepare`, `verify`, `publish`, `promote` do preparo offline ([DES-0010](pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md), [DES-0011](pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)) |
-| Dado de pista (biblioteca pura do preparo; lugar na árvore: `scripts/`) | `scripts/trackPrep.ts`, `scripts/trackChecks.ts` | **novos** | construção do arquivo e verificações V01 a V18 de RULE-0002, usadas pelo programa e por `npm test` |
-| Dado do preparo offline (fora do cliente, I2) | `tracks/sources/kart-park.json`, `tracks/registry.json` | **novos** | arquivo de origem copiado byte a byte; registro de publicação ([DM-0002](data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md)) |
+| Aplicação (programa offline em Node; lugar na árvore: `scripts/`) | `scripts/track-pipeline.ts` | alterado | comandos `prepare`, `verify`, `publish`, `promote` do preparo offline, com a origem escolhida por (`trackId`, `trackVersion`) e a versão 1 congelada ([DES-0010](pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md), [DES-0011](pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)) |
+| Dado de pista (biblioteca pura do preparo; lugar na árvore: `scripts/`) | `scripts/trackPrep.ts`, `scripts/trackChecks.ts` | alterados | construção do arquivo da versão 2 a partir da réplica (o preparo da versão 1 fica, congelado) e verificações V01 a V20 de RULE-0002 2.0.0, usadas pelo programa e por `npm test` |
+| Dado do preparo offline (fora do cliente, I2) | `tracks/sources/kart-park.json` (inalterado), `tracks/sources/kart-park-replica.json` (**novo**), `tracks/registry.json` (alterado) | | origem da versão 1 e réplica, copiadas byte a byte; registro de publicação com a entrada 2 acrescentada ([DM-0002](data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md)) |
+| Configuração do repositório | `.gitattributes` | inalterado | as regras `tracks/sources/*.json -text`, `src/tracks/*.json -text` e `tracks/registry.json -text` (`.gitattributes:5-7`) já cobrem os arquivos novos da revisão 3: todo arquivo de pista cujo SHA-256 é registrado fica fora da conversão de fim de linha, o que o teste de publicação afirma ([DES-0011](pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)) |
 
 Por que módulos novos (I10):
 
@@ -83,8 +86,13 @@ Por que módulos novos (I10):
   `scripts/handlingBench.ts` e `scripts/keyboard-lap.ts` de `dirigibilidade`; as verificações ficam
   separadas da construção para que uma verificação não repita o código que ela julga
   ([ADR-0002](adr/ADR-0002-preparo-offline-em-typescript-e-arquivo-empacotado.md)).
-- `tracks/`: dado do preparo offline que não é fonte do cliente nem documentação. O arquivo publicado fica
-  em `src/tracks/` porque é empacotado no cliente.
+- `tracks/`: dado do preparo offline que não é fonte do cliente nem documentação. Os arquivos publicados ficam
+  em `src/tracks/` porque o empacotado no cliente mora ali; só o que o catálogo declara é importado.
+
+A revisão 3 não acrescenta módulo: o catálogo e a conferência de versão cabem em `src/trainingSession.ts`, que
+já é dono da transição `LOADING` → `READY`; o preparo da réplica cabe em `scripts/trackPrep.ts`, que já lê o
+formato `kartle-pista` e já constrói barreira, linhas e largada; as verificações novas cabem em
+`scripts/trackChecks.ts`.
 
 Sentido das dependências (permitido): `trackGeometry.ts` importa só `src/track.ts` (tipos `Point`, `Line` e
 `crossLine`); `trackData.ts` importa `track.ts` e `trackGeometry.ts`; `physics.ts` importa `track.ts` e
@@ -111,9 +119,15 @@ sequenceDiagram
     participant D as trackData.ts e trackGeometry.ts
     participant L as lap.ts
     M->>T: selectTrainingTrack(sessao, volta, kart-park, fontes) na carga do modulo
-    T->>D: readTrackData(texto empacotado), buildTrackGeometry
-    T-->>M: READY, COMPLETE, sessao com ambiente e kart na largada, volta ausente
-    M-->>J: seletor, Kart Park marcada, nome, 687 m, credito OSM, cena da Kart Park
+    T->>D: readTrackData(texto empacotado da versao 2), buildTrackGeometry
+    T->>T: confere trackId kart-park e trackVersion 2 da entrada do catalogo
+    alt arquivo de outra pista ou versao
+        T-->>M: FAILED, TRACK_VERSION_MISMATCH, nenhuma sessao, volta ausente
+        M-->>J: seletor com as duas opcoes e o erro do dado da pista
+    else arquivo da versao 2
+        T-->>M: READY, COMPLETE, trackVersion 2, sessao com ambiente e kart na largada, volta ausente
+        M-->>J: seletor, Kart Park marcada, nome, 691 m, credito OSM, cena da Kart Park
+    end
     J->>M: escolhe a pista sintetica
     M->>T: selectTrainingTrack(sessao, volta, synthetic, fontes)
     T-->>M: READY, sessao nova com CIRCUIT, volta descartada
@@ -172,27 +186,27 @@ sequenceDiagram
     participant R as trackPrep.ts
     participant V as trackChecks.ts
     participant G as tracks/registry.json
-    C->>X: prepare kart-park 1
-    X->>R: tracks/sources/kart-park.json
-    R-->>X: arquivo gerado, PREPARED
-    X-->>C: src/tracks/kart-park-v1.json escrito
-    C->>X: verify kart-park 1
-    X->>V: arquivo gerado e arquivo de origem
-    V-->>X: V01 a V18, VERIFIED ou REJECTED
-    C->>X: publish kart-park 1
-    X->>G: trackId, trackVersion, sha256, STAGING
+    C->>X: prepare kart-park 2
+    X->>R: tracks/sources/kart-park-replica.json, resumo conferido
+    R-->>X: arquivo gerado sem suavizar, PREPARED
+    X-->>C: src/tracks/kart-park-v2.json escrito, o da versao 1 intocado
+    C->>X: verify kart-park 2
+    X->>V: arquivo gerado e arquivo da replica
+    V-->>X: V01 a V20, VERIFIED ou REJECTED
+    C->>X: publish kart-park 2
+    X->>G: trackId, trackVersion 2, sha256, STAGING, ao fim da lista
     G-->>X: registrado, ou ja registrado com o mesmo resumo
-    C->>X: promote kart-park 1 com a referencia da decisao Esri
+    C->>X: promote kart-park 2 com a referencia da decisao Esri
     X->>G: PRODUCTION so com a referencia
 ```
 
 ## Dependências externas
 
-Nenhuma dependência nova de execução nem de desenvolvimento (REQ-FEAT-0007-11). O preparo offline usa só
+Nenhuma dependência nova de execução nem de desenvolvimento (REQ-FEAT-0007-11), também na revisão 3. O preparo offline usa só
 módulos embutidos do Node (`node:fs`, `node:path`, `node:crypto`) e o `tsx` que o projeto já tem. O arquivo
 de pista é empacotado no cliente pelo Vite (importação `?raw`), de modo que nenhuma requisição é feita entre
-a escolha da pista e o fim da volta (REQ-FEAT-0007-05). O dado do OpenStreetMap entra só pelo arquivo de
-origem, offline: sem rede, sem tempo-limite e sem nova tentativa; a chave de idempotência da publicação é
+a escolha da pista e o fim da volta (REQ-FEAT-0007-05). O dado do OpenStreetMap e a réplica entram só pelos arquivos de
+origem copiados para `tracks/sources/`, offline: sem rede, sem tempo-limite e sem nova tentativa; a chave de idempotência da publicação é
 `trackId` + `trackVersion` + `sha256` ([DES-0011](pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md),
 D-DS-03). O link do crédito é navegação iniciada pelo Jogador, que o jogo nunca espera.
 
@@ -200,7 +214,7 @@ D-DS-03). O link do crédito é navegação iniciada pelo Jogador, que o jogo nu
 
 | Contrato | Tratamento |
 |---|---|
-| Arquivo de pista | versão de esquema 3 acrescentada; o leitor lê 1, 2 e 3; o arquivo da pista sintética continua em 2, sem mudança; versão maior que 3 é `UNSUPPORTED_SCHEMA`, intacta ([DM-0001](data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md), [ADR-0001](adr/ADR-0001-esquema-3-do-arquivo-de-pista.md)) |
+| Arquivo de pista | revisão 3: nenhuma mudança de esquema; a Kart Park ganha o arquivo `trackVersion` 2 e o da versão 1 fica igual, fora do pacote ([ADR-0008](adr/ADR-0008-kart-park-versao-2-a-partir-da-replica.md)). Desde a revisão 1: versão de esquema 3 acrescentada; o leitor lê 1, 2 e 3; o arquivo da pista sintética continua em 2, sem mudança; versão maior que 3 é `UNSUPPORTED_SCHEMA`, intacta ([DM-0001](data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md), [ADR-0001](adr/ADR-0001-esquema-3-do-arquivo-de-pista.md)) |
 | `readTrackData`, `TrackReading` | mesma função e mesma forma plana; em esquema 3 a leitura traz também `centerline`, `curbs`, `barriers` e `osmDerived` |
 | `checkConsistency` | inalterada (pista sintética, C1 a C7); a versão 3 usa `checkConsistencyV3` sobre a geometria do arquivo |
 | `STEP`, `step(state, input, dt, config, environment)`, `Input` | inalterados; `Environment` ganha o campo opcional `track`; objetos `{surfaceAt, walls}` existentes continuam válidos |
@@ -208,31 +222,20 @@ D-DS-03). O link do crédito é navegação iniciada pelo Jogador, que o jogo nu
 | `getHandlingTelemetry` (`dirigibilidade`) | inalterado: `surface` continua `ASPHALT` ou `GRASS` (o centro do kart sobre a zebra é pista, `ASPHALT`); `wallContact` não é usado pela barreira |
 | `LapSession`, `LapResult`, `getLapState`, `listLapResults`, `endTraining` | de `race-lap-validation`, não alterados por esta feature; o ambiente da volta já é parâmetro de `startLap`. Pelo projeto revalidado daquela feature (ADR-0006, DM-0002 1.2.0), uma sessão `TRAINING` é um treino de voltas seguidas, com um resultado por volta concluída e `ENDED` só por `endTraining`; os itens e as provas desta feature leem o fim de cada volta pelo crescimento de `listLapResults` |
 | `edgeDistanceM` (`src/lap.ts:218`) | inalterado e ainda exportado; o corte passa a usar `trackEdgeDistanceM`, que na pista sintética é a mesma expressão |
+| Catálogo do treino (API-0002) | revisão 3: campo opcional `trackVersion` na entrada (ausente: a seleção não confere versão, como antes; 2 na Kart Park) e código novo `TRACK_VERSION_MISMATCH`, que só ocorre quando o arquivo lido não é o que a entrada declara; `displayName` e `displayLengthM` mantêm nome, unidade e significado, com os valores da réplica; nenhum código existente muda de significado ([DES-0005](core/DES-0005-sessao-de-treino-catalogo-e-selecao-de-pista.md)) |
+| Registro de publicação | revisão 3: `registryVersion` continua 1; a entrada nova traz `prep.method` `REPLICA`, e ausente vale a forma da entrada da versão 1, que não é reescrita ([DM-0002](data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md)) |
 | Dado persistido do jogador | nenhum campo novo, nenhuma leitura ou gravação |
 | Telas de `race-lap-validation` | acrescidas do seletor, das linhas de crédito e do nome da pista da sessão; textos existentes inalterados. A linha de crédito do resultado fica dentro do painel do resultado da volta do treino (`#lap-training-result-credit`), e `#lap-result-credit` sai de `#lap-result`, que só exibe volta oficial e de reconhecimento ([ADR-0007](adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md)) |
 
-## Ordem de entrega — dependência de `dirigibilidade` (REQ-FEAT-0007-12)
+## Ordem de entrega
 
-O código desta feature começa só depois do commit em que `dirigibilidade` for entregue com `npm test`
-passando; o manifesto da etapa de código desta feature registra o hash desse commit, e o primeiro commit de
-código desta feature descende dele ([DES-0006](core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md)).
-
-| Arquivo | `dirigibilidade` | Esta feature |
-|---|---|---|
-| `src/physics.ts` | altera (acerto v5, assistências, pista de teste, classificador, telemetria) | altera (superfície `curb`, barreira, `trackEnvironment`, `getTrackContact`) |
-| `src/main.ts` | altera (acerto publicado, HUD por `getHandlingTelemetry`, registro e compartilhamento) | altera (sessão, seletor, crédito, cena, retorno da zebra) |
-| `index.html` | altera (`#lap-result-setup`, `#lap-share`) | altera (seletor, crédito, `#track-name`) |
-| `src/lap.ts` | congela (NFR-0008 de `dirigibilidade`) | altera (borda do corte, reposicionamento, `kartAtStart`) |
-| `src/trackData.ts` | congela (NFR-0008 de `dirigibilidade`: dado de pista inalterado) | altera (esquema 3) |
-| `src/track.ts` | congela (NFR-0008 de `dirigibilidade`) | não altera |
-| `src/audio.ts`, `src/style.css`, `src/lapMessages.ts`, `package.json` | não altera | altera |
-| `src/setupRecords.ts`, `src/handlingMessages.ts`, `scripts/handlingBench.ts`, `scripts/keyboard-lap.ts`, `scripts/physics-bench.ts`, `docs/physics.md` | escreve | não altera |
-
-Arquivos novos desta feature: `src/trackGeometry.ts`, `src/trainingSession.ts`, `src/trackScene.ts`,
-`src/curbFeedback.ts`, `src/rawImports.d.ts`, `src/tracks/kart-park-v1.json`, `scripts/trackPrep.ts`,
-`scripts/trackChecks.ts`, `scripts/track-pipeline.ts`, `tracks/sources/kart-park.json`, `tracks/registry.json`;
-na etapa de testes, `tests/pista-kart-park-*.test.ts`, `tests/helpers/kartParkPilot.ts`,
-`tests/fixtures/kartParkFiles.ts` e `docs/kart-park-device-log.md`.
+A dependência de entrega depois de `dirigibilidade` (REQ-FEAT-0007-12, NFR-0011) foi retirada na revisão 3 do
+seed: ela já se cumpriu nas entregas da revisão 1 e da revisão 2, e a revisão 3 não toca nos arquivos que
+`dirigibilidade` escreve. Os arquivos que a revisão 3 altera: `src/trainingSession.ts`, `src/main.ts` (a
+importação e um aviso), `scripts/trackPrep.ts`, `scripts/trackChecks.ts`, `scripts/track-pipeline.ts`,
+`tracks/registry.json`; os novos: `src/tracks/kart-park-v2.json`, `tracks/sources/kart-park-replica.json`; e, na
+etapa de testes, os `tests/pista-kart-park-*.test.ts`, `tests/fixtures/kartParkFiles.ts`,
+`tests/helpers/kartParkPilot.ts` e `docs/kart-park-device-log.md`. Nenhum arquivo de outra feature.
 
 ## Consequências para outras features
 
@@ -253,15 +256,12 @@ na etapa de testes, `tests/pista-kart-park-*.test.ts`, `tests/helpers/kartParkPi
   para o drift) e o cancelamento da manobra na barreira saem com a manobra, pela rodada de código de
   `dirigibilidade`; esta feature não tem mudança de código própria por isso, e o seu teste de camada deixa de
   nomear `src/maneuvers.ts` ([DES-0006](core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md)).
-- `race-lap-validation`, treino de voltas seguidas (FB-01 daquela feature, rodada de 2026-10-30): a mudança do
-  crédito do resultado para o painel `#lap-training-result` depende do painel, que a rodada de código de
-  `race-lap-validation` cria em `index.html` e `src/main.ts`; a rodada de código desta feature que move o crédito
-  entra junto com ela ou depois dela, e até lá `#lap-result-credit` continua onde está. As provas desta feature que
-  esperam `ENDED` na chegada ou no corte de uma volta `TRAINING` e o piloto de testes que para em `ENDED`
-  (`tests/pista-kart-park-lap.test.ts`, `tests/pista-kart-park-session.test.ts`, `tests/helpers/kartParkPilot.ts`)
-  passam a ler o fim de cada volta pelo crescimento de `listLapResults` ([test-strategy](test-strategy.md)); a
-  mudança é da etapa de testes desta feature e entra com a mesma rodada de `race-lap-validation`, porque
-  `npm test` roda as suítes juntas.
+- `race-lap-validation`, treino de voltas seguidas (FB-01 daquela feature, rodada de 2026-10-30): já entregue; o
+  crédito do resultado está no painel `#lap-training-result` e as provas desta feature leem o fim de cada volta
+  pelo crescimento de `listLapResults`. A revisão 3 não muda nada disso.
+- Revisão 3: nenhuma consequência para outra feature. O catálogo, a conferência de versão e o arquivo da versão 2
+  são desta feature; nenhum teste ou bench de outra feature cita `kart-park` (DES-0006), e a pista sintética, a
+  dos ensaios delas, não muda.
 
 ## Rastros de decisão
 
@@ -272,5 +272,6 @@ na etapa de testes, `tests/pista-kart-park-*.test.ts`, `tests/helpers/kartParkPi
 | [ADR-0003](adr/ADR-0003-colisao-com-a-barreira.md) | barreira como poligonal com meia espessura de contato; mesma resposta do muro; contato também no trajeto do subpasso |
 | [ADR-0004](adr/ADR-0004-zebra-como-superficie-na-fisica.md) | zebra como terceira superfície da física, 85 % da aderência por pneu, pista nas demais regras; caminho da pista sintética bit a bit inalterado |
 | [ADR-0005](adr/ADR-0005-kart-park-sem-chave-e-producao-bloqueada.md) | nenhuma chave de configuração; produção com a Kart Park bloqueada na promoção até a decisão Esri |
-| [ADR-0006](adr/ADR-0006-lacunas-do-f-spec-resolvidas-no-projeto.md) | largura da zebra, suavização, origem das coordenadas, intervalo e timbre do som, aba do link e aparência |
+| [ADR-0006](adr/ADR-0006-lacunas-do-f-spec-resolvidas-no-projeto.md) | largura da zebra, suavização e origem das coordenadas (estas duas só da versão 1), intervalo e timbre do som, aba do link e aparência |
 | [ADR-0007](adr/ADR-0007-credito-no-painel-do-resultado-da-volta-do-treino.md) | crédito OSM do resultado no painel do resultado de cada volta do treino de `race-lap-validation`; `#lap-result-credit` retirado |
+| [ADR-0008](adr/ADR-0008-kart-park-versao-2-a-partir-da-replica.md) | revisão 3: a réplica como `trackVersion` 2, com os pontos dela sem suavizar; arquivo novo ao lado da versão 1; conferência de versão no catálogo; versão 1 fora do pacote e o seu preparo congelado |

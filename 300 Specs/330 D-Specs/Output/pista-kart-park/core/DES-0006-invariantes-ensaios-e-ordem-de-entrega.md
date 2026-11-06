@@ -1,14 +1,14 @@
 ---
 id: DES-0006
-title: Invariantes da simulação, contrato de passo, pista dos ensaios, dependências e ordem de entrega
+title: Invariantes da simulação, contrato de passo, pista dos ensaios e dependências
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.0
-sources: [FEAT-0007, FEAT-0008, FLOW-0002, REQ-FEAT-0007-03, REQ-FEAT-0007-04, REQ-FEAT-0007-06, REQ-FEAT-0007-07, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10, REQ-FEAT-0007-11, REQ-FEAT-0007-12, REQ-FEAT-0008-08, REQ-FEAT-0008-25, REQ-FEAT-0008-26, REQ-FEAT-0008-27]
+version: 2.0.0
+sources: [FEAT-0007, FEAT-0008, FLOW-0002, REQ-FEAT-0007-03, REQ-FEAT-0007-04, REQ-FEAT-0007-06, REQ-FEAT-0007-07, REQ-FEAT-0007-08, REQ-FEAT-0007-09, REQ-FEAT-0007-10, REQ-FEAT-0007-11, REQ-FEAT-0008-08, REQ-FEAT-0008-25, REQ-FEAT-0008-26, REQ-FEAT-0008-27]
 ---
 
-# DES-0006 — Invariantes da simulação, contrato de passo, pista dos ensaios, dependências e ordem de entrega
+# DES-0006 — Invariantes da simulação, contrato de passo, pista dos ensaios e dependências
 
 ## Realiza
 
@@ -20,11 +20,12 @@ na simulação ou no arquivo tem uma verificação determinística em `npm test`
 (REQ-FEAT-0007-07); `STEP`, `step(state, input, dt)` e os campos de `Input` não mudam, e o efeito da zebra não
 é campo de `Input` (REQ-FEAT-0007-08, -09); a pista sintética continua a pista de todos os ensaios
 automáticos de `dirigibilidade` e de `race-lap-validation` (REQ-FEAT-0007-10); nenhuma dependência de
-execução nova (REQ-FEAT-0007-11); o código desta feature começa só depois da entrega de `dirigibilidade` com
-os testes passando (REQ-FEAT-0007-12). O acabamento visual da revisão 2 do seed (FEAT-0008) não muda a simulação: a
-mesma sequência de `Input` a partir do mesmo estado na Kart Park dá, antes e depois da revisão 2, o mesmo
-`lapMs`, os mesmos 4 `sectorMs` e a mesma posição, rumo e velocidade do kart em todo passo, inclusive sobre a
-faixa de borda, sobre a zebra e contra a barreira (REQ-FEAT-0008-08, -25, -26, -27).
+execução nova (REQ-FEAT-0007-11). O acabamento visual (FEAT-0008) não muda a simulação: a mesma sequência de
+`Input` a partir do mesmo estado na Kart Park versão 2 dá, com e sem o acabamento desenhado, o mesmo `lapMs`, os
+mesmos 4 `sectorMs` e a mesma posição, rumo e velocidade do kart em todo passo, inclusive sobre a faixa de
+borda, sobre a zebra e contra a barreira (REQ-FEAT-0008-08, -25, -26, -27). A ordem de entrega depois de
+`dirigibilidade` (REQ-FEAT-0007-12) foi retirada na revisão 3 do seed e sai deste item; ela já se cumpriu nas
+entregas anteriores e não restringe mais nada.
 
 ## Posicionamento
 
@@ -44,15 +45,13 @@ Nenhuma função nova. As garantias, cada uma com o ponto que a impõe:
 | Aplicação pura testável | `src/curbFeedback.ts` entra na lista de aplicação pura: as mesmas proibições de relógio, DOM e sorteio; `src/lapMessages.ts`, que recebe `OSM_CREDIT`, `creditFor` e `optionLabel` ([DES-0007](../web/DES-0007-tela-inicial-seletor-credito-e-resultado.md)), já está na lista de aplicação pura de `race-lap-validation` (`tests/race-lap-validation-layering.test.ts:10`) e continua importando só tipos de `./lap` (`:27-28`) |
 | Regra de tela fora da simulação | o teste de camada desta feature afirma que o texto de `src/trainingSession.ts` não contém `openstreetmap`, `ODbL` nem o separador de rótulo `' · '`: os textos do crédito, a regra de exibição do crédito e a formatação do rótulo ficam em `src/lapMessages.ts` (aplicação), e a sessão só entrega as entradas do catálogo |
 | Contrato de passo | `export const STEP = 1 / 120;`, o tipo `Input` e a assinatura de `step` ficam literalmente como `tests/race-lap-validation-frozen.test.ts:31-41` afirma; a linha 3 de `src/physics.ts` também |
-| Pista dos ensaios | nenhum teste ou bench de `race-lap-validation` e de `dirigibilidade` passa a importar `src/tracks/kart-park-v1.json`, `src/trainingSession.ts` ou `trackEnvironment`; os ensaios desta feature são os únicos a usar a Kart Park |
+| Pista dos ensaios | nenhum teste ou bench de `race-lap-validation` e de `dirigibilidade` passa a importar um arquivo `src/tracks/kart-park-v*.json`, `src/trainingSession.ts` ou `trackEnvironment`; os ensaios desta feature são os únicos a usar a Kart Park, e usam a versão 2 (a versão 1 só nas provas de que ela não mudou) |
 | Dependências | `package.json` `dependencies` continua só `three`; `devDependencies` não muda; o preparo usa só módulos embutidos do Node |
-| Simulação inalterada pelo acabamento (FEAT-0008) | a rodada de código da revisão 2 altera só `src/trackScene.ts` e `src/main.ts` (aplicação, [DES-0008](../web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)); nenhum módulo da lista de simulação nem `src/trackData.ts` importa `./trackScene`, e nenhuma constante do acabamento (`EDGE_LINE_WIDTH_M`, `CURB_RELIEF_M`, `TYRE_*`, `GRASS_*`) aparece neles; `BARRIER_HALF_WIDTH_M`, `CURB_GRIP_PC` e `STEP` não mudam. A prova é a comparação com o traço registrado antes da revisão 2 (Determinismo, abaixo) |
-| Ordem de entrega | o manifesto da etapa de código desta feature registra o hash do commit de entrega de `dirigibilidade` com `npm test` passando e o hash do primeiro commit de código desta feature; `git merge-base --is-ancestor <entrega de dirigibilidade> <primeiro commit desta feature>` sai com 0. A lista exata dos arquivos que as duas features tocam está em [01-architecture](../01-architecture.md), seção "Ordem de entrega" |
+| Simulação inalterada pelo acabamento (FEAT-0008) | o acabamento vive só em `src/trackScene.ts` e `src/main.ts` (aplicação, [DES-0008](../web/DES-0008-desenho-da-kart-park-na-tela-de-corrida.md)); nenhum módulo da lista de simulação nem `src/trackData.ts` importa `./trackScene`, e nenhuma constante do acabamento (`EDGE_LINE_WIDTH_M`, `CURB_RELIEF_M`, `TYRE_*`, `GRASS_*`) aparece neles; `BARRIER_HALF_WIDTH_M`, `CURB_GRIP_PC` e `STEP` não mudam. A prova é a comparação com e sem o desenho na versão 2 (Determinismo, abaixo) |
 
 ## Colaboradores
 
-Os módulos listados acima; os testes de camada, de contrato de passo e de determinismo; a etapa de código
-(manifesto) para a ordem de entrega.
+Os módulos listados acima; os testes de camada, de contrato de passo e de determinismo.
 
 ## Estado e concorrência
 
@@ -62,9 +61,8 @@ cruzamentos e o mesmo tempo (I8).
 
 ## Comportamento em falha
 
-Uma violação aparece como reprovação em `npm test` (camada, contrato de passo, dependências, determinismo) ou
-na verificação de ordem do manifesto da etapa de código, que então não começa ou não avança. Nada em tempo
-de execução.
+Uma violação aparece como reprovação em `npm test` (camada, contrato de passo, dependências, determinismo). Nada
+em tempo de execução.
 
 ## Determinismo (D-DS-07)
 
@@ -78,16 +76,25 @@ semeada (`tests/helpers/seeded.ts`) de 2.000 passos na Kart Park dá estados `de
 arquivo `tests/race-lap-validation-*.test.ts`, `tests/dirigibilidade-*.test.ts`, `scripts/keyboard-lap.ts`,
 `scripts/physics-bench.ts` ou `scripts/handlingBench.ts` cita `kart-park`.
 
-Revisão 2 (REQ-FEAT-0008-08, -25, -26, -27): `tests/fixtures/kartParkRev1Trace.json` é o traço registrado uma
-vez pela etapa de testes com a simulação do commit anterior ao código da revisão 2 (hash no próprio arquivo),
-nunca regenerado a partir do código novo. Para cada sequência ele guarda, a cada passo de `STEP`, `x`, `z`,
-rumo e velocidade do kart com a precisão inteira do `number` (o JSON dá ida e volta exata), e ao fim `lapMs` e
-os 4 `sectorMs` de cada volta concluída. As sequências: a volta `VALID` do piloto; uma volta do piloto com
-deslocamento lateral que põe as rodas de um lado sobre a faixa de borda, depois sobre uma zebra, e termina
-saindo por fora contra a barreira; e a sequência semeada de 2.000 passos. O teste avança as mesmas sequências
-com o código atual e as acha iguais passo a passo e volta a volta, e afirma, na própria sequência com
-deslocamento, que houve passo com roda a até `EDGE_LINE_WIDTH_M` da borda do asfalto e dentro dele, passo
-com roda em `CURB` e passo com `barrierContact`.
+Acabamento com e sem desenho na versão 2 (REQ-FEAT-0008-08, -25, -26, -27; NFR-0013 2.0.0). As sequências: a
+volta `VALID` do piloto na versão 2; uma volta do piloto com deslocamento lateral que põe as rodas de um lado
+sobre a faixa de borda, depois sobre uma zebra, e termina saindo por fora contra a barreira; e a sequência
+semeada de 2.000 passos. Cada uma é avançada duas vezes no mesmo processo, sobre o mesmo arquivo: "sem o
+acabamento", sem construir cena alguma; "com o acabamento", depois de `buildTrackScene(geometria)` construir o
+grupo inteiro (grama, faixa de borda, zebras com relevo, pilhas de pneus) da mesma geometria, e com
+`buildTrackScene` chamado de novo a cada 120 passos durante o avanço. O teste guarda, a cada passo de `STEP`,
+`x`, `z`, rumo e velocidade do kart com a precisão inteira do `number`, e ao fim `lapMs` e os 4 `sectorMs` de cada
+volta concluída, e os acha iguais passo a passo e volta a volta (`===`); afirma, na sequência com deslocamento,
+que houve passo com roda a até `EDGE_LINE_WIDTH_M` da borda do asfalto e dentro dele, passo com roda em `CURB` e
+passo com `barrierContact`. A prova estrutural acompanha: `tests/pista-kart-park-layering.test.ts` afirma que
+nenhum módulo de simulação nem `src/trackData.ts` importa `./trackScene` e que nenhuma constante do acabamento
+aparece neles, de modo que construir o desenho não tem caminho até o estado da simulação.
+
+A comparação com `tests/fixtures/kartParkRev1Trace.json` (o traço registrado antes do código da revisão 2, sobre
+a versão 1) continua, sem mudança, sobre `src/tracks/kart-park-v1.json`, que não muda: é a prova de que a
+simulação não mudou de comportamento desde então, agora também pela revisão 3, que não altera `src/physics.ts`,
+`src/lap.ts`, `src/trackGeometry.ts` nem `src/trackData.ts` (a mudança de simulação dela é só a conferência de
+versão em `src/trainingSession.ts`, antes de qualquer passo). Ela deixa de ser a prova de REQ-FEAT-0008-25 a -27, que a revisão 3 passou a pedir na versão 2.
 
 ## Feature flag
 

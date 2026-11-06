@@ -3,51 +3,54 @@ title: Divergências — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.2.0
+version: 2.0.0
 sources: []
 ---
 
 # Divergências
 
 Registro durável dos requisitos deste conjunto que o sistema em execução não satisfaz (conventions §6). O
-F-Spec é normativo: nenhuma linha abaixo enfraquece um requisito. Cada linha cita o que existe hoje em
-`arquivo:linha` — a árvore do commit `ac84352` com a rodada de código 1 de `dirigibilidade` —, a etapa que
-deve a mudança e o item de projeto que a fecha. Caminhos relativos à raiz do repositório. A feature é nova:
-quase todo requisito diverge porque a Kart Park, o seletor, a zebra e a barreira ainda não existem.
+F-Spec é normativo: nenhuma linha abaixo enfraquece um requisito. **Base única desde a versão 2.0.0 deste
+registro: a árvore do commit `281b617`** (código e testes da revisão 2 validados, `code-validation-20261103-2004`
+e `test-validation-20261104-1432`, SUCCESS). Cada linha cita o que existe nessa árvore em `arquivo:linha`, a etapa
+que deve a mudança e o item de projeto que a fecha. Caminhos relativos à raiz do repositório.
+
+## Abertas — revisão 3 do seed
 
 | Requisito | O que exige | O que o sistema faz hoje | Etapa devedora | Item de projeto | Estado |
 |---|---|---|---|---|---|
-| REQ-FEAT-0002-02, -16; API-0001 | leitor da versão de esquema 3; versão 3 sem linha central utilizável é `UNREADABLE` | `src/trackData.ts:5` declara `TRACK_SCHEMA_VERSION` 2 e `:89` classifica toda versão maior que 2 como `UNSUPPORTED_SCHEMA`; nenhum campo `centerline`, `curbs`, `barriers`, `osmDerived` é lido | código | DES-0001, DM-0001, ADR-0001 | open |
-| REQ-FEAT-0002-01, -03 a -11, -14, -17, -18; REQ-FEAT-0003-01 a -07; REQ-FEAT-0004-01 a -03; REQ-FEAT-0005-01 a -03; REQ-FEAT-0006-09 | arquivo de pista da Kart Park em esquema 3, preparado offline, verificado, registrado e imutável | não existe arquivo da Kart Park, preparo offline nem registro: `src/` não tem pasta `tracks/`, a raiz não tem `tracks/`, `scripts/` tem só `handlingBench.ts`, `keyboard-lap.ts` e `physics-bench.ts`, e `package.json:6-13` não tem script de preparo | código | DES-0010, DES-0011, DM-0001, DM-0002, ADR-0002, ADR-0006 | open |
-| REQ-FEAT-0001-01 a -12, -14; API-0002 | seletor com as duas pistas, Kart Park na abertura, sessão de treino, troca com descarte da volta, só treino | `index.html:19` não tem seletor; `src/main.ts:155` lê só `SYNTHETIC_TRACK_FILE`; `:152` põe o kart parado em `initialState()` da pista sintética; `:208-218` inicia a volta com a leitura sintética e o tipo vindo da oferta; não existe catálogo nem `sessionState` | código | DES-0005, DES-0007 | open |
-| REQ-FEAT-0002-12, REQ-FEAT-0005-05, -08, -09; API-0003 | superfície por roda com `CURB`, 85 % da aderência na zebra, zebra como pista nas demais regras, `getTrackContact` | `src/physics.ts:9` só tem `asphalt` e `grass`; `:143` e `:215` escolhem o coeficiente entre `friction` e `grassFriction`; `:229-230` e `:252` usam a fração de rodas no asfalto; `:300-302` e `:318` tratam como fora da pista toda roda que não é asfalto; `:162` (`CIRCUIT`) é a única pista; não existe `getTrackContact` (`:321-336` tem só `getHandlingTelemetry`) | código | DES-0002, DES-0003, ADR-0004 | open |
-| REQ-FEAT-0004-04 a -07 | na Kart Park, só as barreiras do arquivo como obstáculo, colisão no trajeto igual à do muro, `barrierContact` | `src/physics.ts:276-290` só tem o muro derivado da linha central sintética (`nearest`, `WIDTH / 2 + 8`), verificado na posição final; não há barreira nem `barrierContact` | código | DES-0003, ADR-0003 | open |
-| REQ-FEAT-0003-10, -11, REQ-FEAT-0005-06, -07 | corte medido da borda da pista da Kart Park, que inclui a zebra | `src/lap.ts:218-220` mede `nearest(point).distance - WIDTH / 2` da linha central sintética e `:245-252` usa essa medida em toda volta | código | DES-0004, DES-0002 | open |
-| REQ-FEAT-0002-12 (reposicionamento), REQ-FEAT-0001-08 | linha central e largada do arquivo no estado da simulação | `src/lap.ts:154-161` reposiciona o kart na linha central sintética; a largada declarada já é usada por `startLap` (`:109-112`) | código | DES-0004 | open |
-| REQ-FEAT-0003-08, -12, -13, -14, -15 | volta na Kart Park validada pelas regras de `race-lap-validation` | as regras existem (`src/lap.ts:223-252`), mas nenhuma volta roda na Kart Park, que não existe | código | DES-0004, DES-0005, DES-0010 | open |
-| REQ-FEAT-0002-13, REQ-FEAT-0004-08, REQ-FEAT-0005-04; REQ-FEAT-0007-01, -02 | desenho do asfalto, das zebras e da barreira da Kart Park, com a taxa de quadros dos aparelhos de referência | `src/main.ts:44-110` desenha só a pista sintética (faixas de largura `WIDTH`, zebras decorativas a cada 2 pontos, caixas do muro, árvores) e `:289-297` o minimapa sintético | código | DES-0008 | open |
-| REQ-FEAT-0005-10 a -19 | vibração de 20 ms a cada 250 ms em `web-mobile`, som próprio repetido em `web-desktop`, sem retorno na suspensão | `src/audio.ts:1-43` tem só o motor e a recompensa; nenhum módulo chama `navigator.vibrate`; não existe leitura do contato com a zebra | código | DES-0009 | open |
-| REQ-FEAT-0006-01 a -08, -10 a -13 | crédito OSM/ODbL no seletor e no resultado, nome e "687 m" da Kart Park | `index.html:19` e `:25` não têm crédito; `index.html:17` exibe o texto fixo "Circuito Aurora" no rótulo da pista | código | DES-0005, DES-0007, DES-0012 | open |
-| REQ-FEAT-0007-03, -04, -06, -07 | verificações de `npm test` na Kart Park: determinismo, camadas, critérios de US-0002 a US-0005 | não existe `tests/pista-kart-park-*.test.ts`; `tests/race-lap-validation-layering.test.ts:9-10` não lista os módulos novos | testes | DES-0006 e a estratégia de testes | open |
-| REQ-FEAT-0007-13, REQ-FEAT-0006-14 | promoção a produção com a Kart Park só com a decisão Esri registrada | `package.json:6-13` não tem script de publicação nem de promoção de pista e a raiz não tem `tracks/registry.json`, de modo que não há registro de publicação nem passo de promoção que o consulte; `index.html:19` (tela inicial) e `:25` (`#lap-result`) não têm crédito algum, nem o da Esri | código, deploy | DES-0011, DES-0012, ADR-0005 | open |
-| REQ-FEAT-0006-04, -05, -06; REQ-FEAT-0003-14 (rodada de 2026-10-30) | crédito OSM no resultado de cada volta na Kart Park, que no treino de voltas seguidas de `race-lap-validation` é o painel do resultado da volta do treino | `index.html:25` põe o crédito do resultado em `#lap-result` (`#lap-result-credit`); `src/main.ts:465` o desenha só em `renderResult`, chamado em `:592` quando a fase é `ENDED`; não existe `#lap-training-result` em `index.html` nem em `src/main.ts` (o painel é da rodada de código de `race-lap-validation`, ainda não entregue) | código | DES-0007, ADR-0007 | open |
-| REQ-FEAT-0003-08, -10, -12, -13, -15; REQ-FEAT-0001-05 (rodada de 2026-10-30) | volta na Kart Park pelas regras de `race-lap-validation`, cujo treino é uma sequência de voltas que só chega a `ENDED` por `endTraining` | as verificações esperam `ENDED` numa volta `TRAINING` na chegada (`tests/pista-kart-park-lap.test.ts:47`, `:100`, `:152`, `:227`) e no corte (`:120`; `tests/pista-kart-park-session.test.ts:103`); `tests/helpers/kartParkPilot.ts:114` interrompe o laço de `drive` só em `ENDED`, que a volta `TRAINING` iniciada em `:100` deixa de alcançar na chegada | testes | DES-0004, DES-0005 e a estratégia de testes | open |
-| REQ-FEAT-0008-01, -02, -06, -07, -12 a -18, -22 (rodada de 2026-11-03, seed `revision: 2`) | faixa branca de 0,10 m por dentro de cada borda do asfalto, relevo desenhado da zebra, barreira como pilha de pneus pretos de 0,9 m com a face a até 0,05 m da face de colisão, grama em ao menos 2 tons por posição | `src/trackScene.ts:121-126` monta o grupo com quatro filhos (`asphalt`, `curbs`, `barriers`, `start-line`), sem faixa de borda; `:39-75` desenha as zebras planas a `y` 0,035; `:77-95` desenha a barreira como caixas `#e6dfc9` de 0,2 m por segmento (`:10`); a grama é só o `ground` de uma cor, `#68865b` (`src/main.ts:53`) | código | DES-0008 | open |
+| REQ-FEAT-0001-15, -16; API-0002 (`trackVersion`, `TRACK_VERSION_MISMATCH`) | a Kart Park do seletor e da abertura na versão 2, conferida contra a entrada do catálogo; nenhuma sessão com a versão 1; arquivo de outra pista ou versão termina `FAILED` com `TRACK_VERSION_MISMATCH` | `src/trainingSession.ts:10` não tem `trackVersion` na entrada; `:67-69` dá `TRACK_DATA_UNREADABLE` para outro `trackId` e não confere versão; `src/main.ts:13` importa `./tracks/kart-park-v1.json?raw` e `:156` o entrega à sessão, que abre `READY` com `trackVersion` 1 | código | DES-0005, DES-0007, ADR-0008 | open |
+| REQ-FEAT-0006-07, -08 | nome "Kart Park — São José dos Pinhais (réplica não oficial)" e "691 m" | `src/trainingSession.ts:13` declara "(traçado aproximado)" e `displayLengthM` 687 | código | DES-0005, DES-0007 | open |
+| REQ-FEAT-0002-01, -04 a -11, -14, -19; REQ-FEAT-0003-01 a -07, -16; REQ-FEAT-0004-01 a -03; REQ-FEAT-0005-01 a -03, -20; REQ-FEAT-0006-09 | arquivo de pista da Kart Park `trackVersion` 2 gerado da réplica, sem suavização, 7,0 m, setores perto de 204,9 / 354,9 / 534,7 m em retas, barreira entre ≈ 369–406 m e ≈ 595–624 m, 22 zebras sem cruzar a largada | não existe `src/tracks/kart-park-v2.json` nem `tracks/sources/kart-park-replica.json`; `scripts/trackPrep.ts:12-21` só tem as constantes da versão 1 (suavização de 12 m, 687,5 m, setores 201,6 / 350,3 / 529,9 m, trechos 371–414 e 580–615 m) e lê só a origem `kartle-pista` sem `elementos` | código | DES-0010, DM-0001, ADR-0008 | open |
+| REQ-FEAT-0002-01, -04 a -11, -19; REQ-FEAT-0003-01 a -05, -16; REQ-FEAT-0004-01, -02; REQ-FEAT-0005-01, -02, -20 (verificações) | V01 a V20 de RULE-0002 2.0.0 contra a réplica | `scripts/trackChecks.ts:11-13` tem só V01 a V18; `:16-17`, `:21`, `:27`, `:31-34` fixam 0,30 m, 680,625–694,375 m, os setores e os trechos da versão 1, 34 zebras, 684 pontos de origem, larguras de 4,4 a 10,8 m e `trackVersion` 1 | código | DES-0011 | open |
+| REQ-FEAT-0002-17, -18 | a versão 2 publicada como arquivo novo, com o resumo registrado | `tracks/registry.json:3-61` tem só a entrada `kart-park` 1; `scripts/track-pipeline.ts:24-26` conhece só a origem da versão 1, e `:44`, `:61` montam a origem por `trackId`, sem a versão | código | DES-0010, DES-0011, DM-0002 | open |
+| REQ-FEAT-0002-12, -13; REQ-FEAT-0004-08; REQ-FEAT-0005-04; REQ-FEAT-0003-08, -10, -11, -13, -15; REQ-FEAT-0008-01 a -24 (na versão 2) | simulação, volta e desenho com o acabamento sobre o traçado da versão 2 | o código é independente do traçado (`src/trackGeometry.ts`, `src/physics.ts`, `src/lap.ts`, `src/trackScene.ts` não citam versão), mas a pista carregada é a versão 1 (`src/main.ts:13`); nenhuma mudança própria além da linha de REQ-FEAT-0001-15 | código | DES-0007 (importação) | open |
+| REQ-FEAT-0008-25, -26, -27 (NFR-0013 2.0.0) | a mesma sequência na versão 2 dá a mesma volta com e sem o acabamento desenhado | `tests/pista-kart-park-determinism.test.ts:72` compara só com `kartParkRev1Trace.json`, sobre a versão 1; não há execução com e sem o acabamento | testes | DES-0006 e a estratégia de testes | open |
+| REQ-FEAT-0001-15, -16; REQ-FEAT-0002-*, REQ-FEAT-0003-*, REQ-FEAT-0005-01, -02, -20; REQ-FEAT-0006-07, -08; REQ-FEAT-0008-01 (verificações em `npm test`) | as provas desta feature sobre a versão 2 | `tests/fixtures/kartParkFiles.ts:29-30` lê `kart-park-v1.json` e a origem da versão 1; `tests/pista-kart-park-session.test.ts:69` espera `trackVersion` 1 e `:210` `TRACK_DATA_UNREADABLE` para outro `trackId`; `:225-230` e `tests/pista-kart-park-screens.test.ts:66-79` esperam "traçado aproximado" e 687; `tests/pista-kart-park-track-file.test.ts:72`, `:248-263`, `:287`, `:326` afirmam 687,5 m, a curva 4, 34 zebras e `trackVersion` 1; `tests/pista-kart-park-scene.test.ts:202` espera 684 segmentos; `tests/pista-kart-park-layering.test.ts:64-66` e `tests/pista-kart-park-screens.test.ts:107` esperam a importação da versão 1; `tests/pista-kart-park-lap.test.ts:173-187` prova o atalho da curva 4, critério retirado | testes | estratégia de testes | open |
 
-Satisfeitos hoje, sem divergência, e protegidos pelo projeto: leitura da versão 2 como hoje
-(REQ-FEAT-0002-15: `src/trackData.ts:81-101`, caminho mantido por DES-0001); contrato de passo
-(REQ-FEAT-0007-08, -09: `src/physics.ts:5`, `:8`, `:296`, verificados por
-`tests/race-lap-validation-frozen.test.ts:31-41`, preservados por DES-0003 e DES-0006); nenhuma dependência de
-execução além de `three` (REQ-FEAT-0007-11: `package.json:14`); nenhuma rede nem armazenamento no cliente
-(REQ-FEAT-0001-03, REQ-FEAT-0007-05: `tests/race-lap-validation-layering.test.ts:43-49`, estendido por DES-0012);
-pista sintética como pista dos ensaios (REQ-FEAT-0007-10: os testes e benches existentes usam `CIRCUIT` e
-`SYNTHETIC_TRACK_FILE`); ordem de entrega (REQ-FEAT-0007-12: nenhum código desta feature existe, e a
-dependência está registrada em `01-architecture.md`). Da revisão 2 do seed, satisfeitos hoje e mantidos: a faixa
-de borda cairia dentro do asfalto, que a simulação já trata como `ASPHALT` (REQ-FEAT-0008-03 a -05:
-`classifySurface`, `src/trackGeometry.ts:219`); a zebra não ergue o kart e mantém 0,85 de aderência e o seu
-retorno (REQ-FEAT-0008-08 a -11: `src/physics.ts:13`, `src/curbFeedback.ts`); a grama tem uma superfície só
-(REQ-FEAT-0008-19, -20); a pista sintética não usa `src/trackScene.ts` (REQ-FEAT-0008-21: `src/main.ts:238`);
-nenhuma textura nem rede no desenho (REQ-FEAT-0008-23); nenhuma configuração de desenho (REQ-FEAT-0008-24);
-`lapMs`, setores e estado do kart não dependem do desenho (REQ-FEAT-0008-25 a -27); o arquivo publicado e o
-registro (`tracks/registry.json`, `sha256` `04ce5e51…`, `trackVersion` 1) intactos (REQ-FEAT-0008-28, -29). A
-rodada de código da revisão 2 tem de mantê-los, o que DES-0006, DES-0008 e DES-0011 verificam.
+## Satisfeitas hoje e mantidas pelo projeto
+
+- REQ-FEAT-0002-20, -21 (NFR-0014 2.0.0): `src/tracks/kart-park-v1.json` existe, com `trackVersion` 1, e o seu
+  SHA-256 é o registrado (`tracks/registry.json:8`, `04ce5e51…f057b1`), afirmado literalmente por
+  `tests/pista-kart-park-publication.test.ts:167-172`. A revisão 3 o mantém (DES-0010, DES-0011, ADR-0008).
+- REQ-FEAT-0002-02, -15, -16 (esquema 3, leitura da versão 2, versão 3 sem linha central `UNREADABLE`):
+  `src/trackData.ts`, sem mudança na revisão 3 (DES-0001).
+- REQ-FEAT-0004-04 a -07, REQ-FEAT-0005-05 a -19, REQ-FEAT-0007-01 a -11, -13 (com a entrada `PRODUCTION`
+  exigindo `esriDecisionRef` para qualquer versão, `scripts/track-pipeline.ts:151-161`): independentes do
+  traçado e entregues na revisão 2; a revisão 3 não os altera (DES-0003, DES-0004, DES-0006, DES-0009, DES-0012).
+- Regras `-text` de `.gitattributes` para os arquivos de pista com resumo registrado: `.gitattributes:5-7`
+  já cobrem `tracks/sources/*.json`, `src/tracks/*.json` e `tracks/registry.json`, inclusive os arquivos novos da
+  revisão 3; o projeto só acrescenta a prova em `npm test` (DES-0011).
+
+## Resolvidas
+
+As 16 linhas abertas até a versão 1.2.0 deste registro, presas à árvore do commit `ac84352`, foram fechadas
+pelas entregas de código e de testes das revisões 1 e 2 do seed, validadas em `code-validation-20261103-2004` e
+`test-validation-20261104-1432` (SUCCESS) e presentes no commit `281b617`: leitor da versão de esquema 3
+(DES-0001); arquivo da Kart Park versão 1, preparo, verificações e registro (DES-0010, DES-0011); catálogo,
+seletor e sessão de treino (DES-0005, DES-0007); superfície `curb`, aderência, `getTrackContact` e barreira
+(DES-0003); corte pela borda da pista e reposicionamento (DES-0004); desenho, taxa de quadros e acabamento
+(DES-0008); retorno da zebra (DES-0009); crédito OSM nas duas telas e no painel do resultado da volta do treino
+(DES-0007, ADR-0007); provas em `npm test` e leitura do fim de cada volta pelo crescimento de `listLapResults`
+(DES-0006, estratégia de testes); bloqueio de produção na promoção (DES-0011, DES-0012, ADR-0005). A linha da
+ordem de entrega (REQ-FEAT-0007-12) sai com a retirada do requisito na revisão 3.

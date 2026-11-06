@@ -4,7 +4,7 @@ title: Kart Park sem chave de configuração; produção com a Kart Park bloquea
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.0.0
+version: 1.0.1
 sources: [RULE-0005, FEAT-0001, FEAT-0006, FEAT-0007, REQ-FEAT-0001-02, REQ-FEAT-0001-04, REQ-FEAT-0006-14, REQ-FEAT-0007-13]
 ---
 
