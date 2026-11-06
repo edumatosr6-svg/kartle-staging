@@ -3,7 +3,7 @@ title: Registro de mudanças — pista Kart Park
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 1.7.0
+version: 1.8.0
 sources: []
 ---
 
@@ -600,3 +600,30 @@ Corrige só as issues do relatório; nenhum módulo, arquivo, campo, verificaç�
   Mode B toca só as issues listadas (§16). Fica para a próxima rodada Mode A ou C.
 - Desfazer a revisão 3 por `git revert` dos commits de código: recusado (ISSUE-01); retiraria uma versão
   publicada e a sua entrada do registro, contra I3 e API-0001.
+
+## 2026-11-06 — rodada de 2026-11-06, Mode C (`feedback-20261106-1850`, FAIL SPEC da etapa de código)
+
+Resolve só SPEC-ISSUE-01; nenhum módulo, arquivo, campo, comando, constante ou verificação novos.
+
+| Item | Arquivo | Mudança |
+|---|---|---|
+| SPEC-ISSUE-01 | DES-0010 2.0.0 → 2.1.0 | passo 5 do preparo da versão 2: a amostragem por pares no mesmo parâmetro das duas bordas, espaçados pela borda mais longa, dá lugar a cada borda amostrada sozinha a cada `EDGE_SAMPLE_M` do seu próprio comprimento (cada segmento de borda de comprimento ℓ em `max(1, ⌈ℓ / 0,25⌉)` partes iguais, mais a última ponta), cada amostra julgada sozinha contra as duas bordas do outro trecho, nos dois sentidos; a escolha da borda voltada para o outro trecho sai (a borda de fora fica a mais de 6 m e o limite a descarta). Travessia, vértice no meio da grama, ordenação, corte de sequências, arredondamento e a guarda de 0,2 m sem mudança. As amostras de V13 passam a ser as do preparo, e todo par de V13 com `|pq| <= 6` tem o seu vértice no próprio `pq`. O preparo da versão 1 (`prepareTrack`) fica com a amostragem por pares, congelado, e a prova de reprodução de `kart-park-v1.json` segue valendo. Os agregados medidos pela etapa de código (292 pares cobertos, 292 vértices, 47,65 m, V01 a V20 aprovadas, 36.585 bytes) entram nas medições de viabilidade |
+| SPEC-ISSUE-01 (o mesmo fato no outro lugar) | DES-0011 2.0.0 → 2.0.1 | V13 passa a citar a definição única da amostragem de borda de DES-0010, passo 5 (a que `scripts/trackChecks.ts` já usa); o que V13 exige não muda |
+
+**Sem mudança**: `test-strategy.md` (AC-US-0004-01 e AC-US-0007-12 já julgam o arquivo publicado por V13 e pela
+guarda; a prova de reprodução da versão 2 cobre o passo novo), ADR-0008 (não trata do algoritmo da barreira),
+ADR-0006, RULE-0002 do F-Spec (V13 continua a mesma regra), `98-divergences.md` (a linha do arquivo da versão 2
+segue `open` até a rodada de código).
+
+**Itens fechados**: SPEC-ISSUE-01 de `reports/feedback/feedback-20261106-1850.md`.
+
+**Itens recusados ou não aplicados, com motivo**
+
+- Julgar V13 com as amostras do preparo (a alternativa do feedback): recusado; enfraquece a verificação, e o
+  preparo é que tem de cobrir a amostragem de V13.
+- Estender as pontas da barreira ou dar folga ao limite de 6 m: recusado; muda a barreira sem que a regra peça e
+  não garante a cobertura das amostras de V13 por construção.
+- Trocar a amostragem também no preparo da versão 1: recusado; a versão 1 está publicada e congelada, e a mudança
+  quebraria a prova de reprodução de `kart-park-v1.json` (REQ-FEAT-0002-20, -21).
+- Partilhar entre `scripts/trackPrep.ts` e `scripts/trackChecks.ts` uma função de amostragem exportada: não
+  exigido; o projeto fixa a definição única em DES-0010 e o código escolhe se a partilha.

@@ -2,7 +2,7 @@
 stage: dspec
 feature: pista-kart-park
 status: validated
-generated: 2026-11-06T18:39:17Z
+generated: 2026-11-06T18:56:31Z
 files: 26
 ---
 
@@ -13,7 +13,7 @@ files: 26
 | File | Id | Title | Status | Version |
 |---|---|---|---|---|
 | `01-architecture.md` | - | Arquitetura — pista Kart Park | validated | 2.0.0 |
-| `97-changelog.md` | - | Registro de mudanças — pista Kart Park | validated | 1.7.0 |
+| `97-changelog.md` | - | Registro de mudanças — pista Kart Park | validated | 1.8.0 |
 | `98-divergences.md` | - | Divergências — pista Kart Park | validated | 2.0.0 |
 | `adr/ADR-0001-esquema-3-do-arquivo-de-pista.md` | ADR-0001 | Esquema 3 do arquivo de pista — geometria no arquivo e leitor das versões 1, 2 e 3 | validated | 1.0.2 |
 | `adr/ADR-0002-preparo-offline-em-typescript-e-arquivo-empacotado.md` | ADR-0002 | Preparo offline em TypeScript sob scripts/ e arquivo publicado empacotado no cliente como texto | validated | 1.1.0 |
@@ -31,8 +31,8 @@ files: 26
 | `core/DES-0006-invariantes-ensaios-e-ordem-de-entrega.md` | DES-0006 | Invariantes da simulação, contrato de passo, pista dos ensaios e dependências | validated | 2.0.0 |
 | `data/DM-0001-arquivo-de-pista-versao-de-esquema-3.md` | DM-0001 | Arquivo de pista, versão de esquema 3 | validated | 2.0.1 |
 | `data/DM-0002-registro-de-publicacao-e-estado-em-memoria.md` | DM-0002 | Registro de publicação das pistas e estado em memória da sessão de treino e do retorno da zebra | validated | 2.0.1 |
-| `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` | DES-0010 | Preparo offline do arquivo de pista da Kart Park versão 2 a partir da réplica | validated | 2.0.0 |
-| `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` | DES-0011 | Verificações V01 a V20 do arquivo, registro de publicação e promoção | validated | 2.0.0 |
+| `pipeline/DES-0010-preparo-offline-do-arquivo-da-kart-park.md` | DES-0010 | Preparo offline do arquivo de pista da Kart Park versão 2 a partir da réplica | validated | 2.1.0 |
+| `pipeline/DES-0011-verificacoes-registro-de-publicacao-e-promocao.md` | DES-0011 | Verificações V01 a V20 do arquivo, registro de publicação e promoção | validated | 2.0.1 |
 | `security/DES-0012-privacidade-rede-credito-e-licenca.md` | DES-0012 | Privacidade, rede, crédito OSM/ODbL e licença Esri | validated | 1.1.0 |
 | `test-strategy.md` | - | Estratégia de testes — pista Kart Park | validated | 2.0.0 |
 | `web/DES-0007-tela-inicial-seletor-credito-e-resultado.md` | DES-0007 | Tela inicial com seletor e crédito, crédito na tela de resultado e nome da pista da sessão | validated | 2.0.1 |

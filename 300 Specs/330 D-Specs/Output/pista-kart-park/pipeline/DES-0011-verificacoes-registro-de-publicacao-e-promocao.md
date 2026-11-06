@@ -4,7 +4,7 @@ title: Verificações V01 a V20 do arquivo, registro de publicação e promoçã
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 2.0.0
+version: 2.0.1
 sources: [RULE-0002, RULE-0005, FLOW-0003, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, FEAT-0006, FEAT-0007, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-17, REQ-FEAT-0002-18, REQ-FEAT-0002-19, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-16, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-20, REQ-FEAT-0006-09, REQ-FEAT-0006-14, REQ-FEAT-0007-07, REQ-FEAT-0007-13]
 ---
 
@@ -67,7 +67,7 @@ da réplica, em volta fechada; *T*₁ = `d` de 368,5 m a 406,5 m e *T*₂ = `d` 
 | V10 | sem mudança: cada marcador passa a até 0,002 m de um `P_i`, paralelo a `n_i`; os `i` crescem com `d(i)`; nenhum é o ponto 0 nem um ponto de V09; diferenças de `d` consecutivas, inclusive a do último ao primeiro passando pelo ponto 0, no máximo 25 m |
 | V11 | sem mudança: para a chegada, cada limite e cada marcador, amostrando a linha a cada 0,05 m: a linha cruza a pista de borda a borda; cada ponta a no máximo `cutDistanceM` (3 m, mais 0,001) além da borda da pista; uma ponta a menos de 2,95 m além da borda tem, nos 0,06 m seguintes da reta, pista ou um cruzamento de barreira, ou está sobre a barreira; as amostras além da borda da pista de origem da linha estão na grama |
 | V12 | 22 trechos, na ordem das `zebras` da réplica: o `k`-ésimo trecho tem o lado da `k`-ésima zebra (`esquerda` → `LEFT`, `direita` → `RIGHT`), `fromLapM` igual a `de_m` e `toLapM` igual a `ate_m`, e `widthM > 0` |
-| V13 | para cada amostra `p` a cada 0,25 m nas bordas do asfalto dos pontos de *T*₁, com `q` o ponto mais próximo nas bordas do asfalto dos pontos de *T*₂: se `|p − q| <= 6`, o segmento `pq` cruza (ou toca) um segmento de barreira; e o mesmo trocando os trechos |
+| V13 | para cada amostra `p` das bordas do asfalto dos pontos de *T*₁, cada borda amostrada sozinha a cada 0,25 m do seu próprio comprimento (a definição única de [DES-0010](DES-0010-preparo-offline-do-arquivo-da-kart-park.md), passo 5: cada segmento de borda de comprimento ℓ em `max(1, ⌈ℓ / 0,25⌉)` partes iguais, mais a última ponta), com `q` o ponto mais próximo nas bordas do asfalto dos pontos de *T*₂: se `|p − q| <= 6`, o segmento `pq` cruza (ou toca) um segmento de barreira; e o mesmo trocando os trechos |
 | V14 | em cada vértice e a cada 0,25 m de cada segmento de barreira: a distância ao asfalto dos pontos de *T*₁ mais a distância ao asfalto dos pontos de *T*₂ no máximo 6 m |
 | V15 | sem mudança: nenhum vértice de barreira dentro do asfalto e nenhum segmento de barreira cruza uma borda do asfalto |
 | V16 | `schemaVersion` 3, `trackId` `kart-park`, `trackVersion` 2, `osmDerived` `true`; `cutDistanceM` e `cutDurationMs` ausentes |

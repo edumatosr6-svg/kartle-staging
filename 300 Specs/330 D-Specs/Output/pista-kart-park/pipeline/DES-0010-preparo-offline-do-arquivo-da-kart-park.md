@@ -4,7 +4,7 @@ title: Preparo offline do arquivo de pista da Kart Park versão 2 a partir da r�
 feature: pista-kart-park
 stage: dspec
 status: validated
-version: 2.0.0
+version: 2.1.0
 sources: [FLOW-0003, RULE-0002, RULE-0005, FEAT-0002, FEAT-0003, FEAT-0004, FEAT-0005, REQ-FEAT-0002-01, REQ-FEAT-0002-02, REQ-FEAT-0002-04, REQ-FEAT-0002-05, REQ-FEAT-0002-06, REQ-FEAT-0002-07, REQ-FEAT-0002-08, REQ-FEAT-0002-09, REQ-FEAT-0002-10, REQ-FEAT-0002-11, REQ-FEAT-0002-14, REQ-FEAT-0002-18, REQ-FEAT-0002-19, REQ-FEAT-0002-20, REQ-FEAT-0002-21, REQ-FEAT-0003-01, REQ-FEAT-0003-02, REQ-FEAT-0003-03, REQ-FEAT-0003-04, REQ-FEAT-0003-05, REQ-FEAT-0003-06, REQ-FEAT-0003-07, REQ-FEAT-0003-16, REQ-FEAT-0004-01, REQ-FEAT-0004-02, REQ-FEAT-0004-03, REQ-FEAT-0005-01, REQ-FEAT-0005-02, REQ-FEAT-0005-03, REQ-FEAT-0005-20, REQ-FEAT-0006-09]
 ---
 
@@ -99,13 +99,31 @@ Passos de `prepareReplicaTrack`, em ordem; cada recusa nomeia o índice ou o tre
    (largura nominal) de outra parte da volta (a mais de `OTHER_PART_LAP_M` de distância de volta); abaixo de
    `CURB_MIN_WIDTH_M` o preparo falha nomeando o trecho. Cada redução entra em `prep.reducedCurbs`. É a regra
    de largura da versão 1 (ADR-0006), sem mudança.
-5. **Barreira**: o algoritmo da versão 1 (pares de amostras das duas bordas a cada `EDGE_SAMPLE_M`, borda
-   voltada para o outro trecho pela amostra mais próxima, par descartado acima de `BARRIER_GAP_MAX_M`,
-   travessia de `pq` em passos de `GAP_MARCH_STEP_M` com a superfície de `classifySurface`, vértice no meio da
-   parte de grama, ordenação pela distância de volta do ponto mais próximo da linha central no primeiro
-   trecho, sequências cortadas em saltos maiores que `BARRIER_SEQUENCE_GAP_M`), aplicado aos pontos da
-   `centerline` com `d` dentro de cada trecho de `REPLICA_NEAR_SECTIONS_M`. A distância de volta é `d` da
-   própria `centerline`; não há mais `d_o` de uma linha original. Uma guarda nova, depois de montadas as
+5. **Barreira**: aplicada aos pontos da `centerline` com `d` dentro de cada trecho de
+   `REPLICA_NEAR_SECTIONS_M` (*T*₁ e *T*₂). A distância de volta é `d` da própria `centerline`; não há mais `d_o`
+   de uma linha original.
+   - **Amostras de borda, as mesmas de V13** ([DES-0011](DES-0011-verificacoes-registro-de-publicacao-e-promocao.md)):
+     para cada trecho *T*ₐ, cada uma das duas bordas do asfalto dos seus pontos é amostrada **sozinha**, ao longo
+     do seu próprio comprimento: cada segmento de borda entre dois pontos consecutivos do trecho, de comprimento
+     ℓ, é dividido em `c = max(1, ⌈ℓ / EDGE_SAMPLE_M⌉)` partes iguais, com as amostras nos parâmetros `k / c`,
+     `k` de 0 a `c − 1`, mais a última ponta da borda. Esta é a definição única da amostragem de borda dos
+     trechos; V13 toma exatamente estas amostras, de modo que cada amostra de V13 é uma amostra do preparo.
+   - **Cada amostra julgada sozinha**: para cada amostra `p` de *T*ₐ, `q` é o ponto mais próximo nas duas bordas
+     do asfalto dos pontos do outro trecho *T*ᵦ; `p` é descartada se `|p − q|` passa de `BARRIER_GAP_MAX_M` ou é 0.
+     Não há mais escolha da borda voltada para o outro trecho por par: com 7,0 m de largura, a amostra da borda
+     de fora fica a mais de 6 m de *T*ᵦ e o próprio limite a descarta. Feito de *T*₁ para *T*₂ e de *T*₂ para *T*₁.
+   - **Sem mudança da versão 1** no resto: travessia de `pq` em passos de `GAP_MARCH_STEP_M` com a superfície de
+     `classifySurface`, vértice no meio da parte de grama (falha nomeando a amostra se não há grama ou se ela tem
+     menos de `2 * BARRIER_HALF_WIDTH_M`), ordenação pela distância de volta do ponto mais próximo da linha
+     central em *T*₁, sequências cortadas em saltos maiores que `BARRIER_SEQUENCE_GAP_M`, vértices arredondados a
+     0,001 m.
+
+   Com isso, todo par `(p, q)` de V13 com `|pq| <= 6` tem o seu vértice no próprio `pq`, antes do arredondamento.
+   A amostragem por pares no mesmo parâmetro das duas bordas, espaçados pela borda mais longa (a da versão 1),
+   não cobria as amostras de V13: perto do limite de 6 m, uma amostra de V13 entre duas do preparo podia ficar
+   sem barreira (FAIL SPEC `feedback-20261106-1850`, SPEC-ISSUE-01). O preparo da versão 1 (`prepareTrack`)
+   continua com a amostragem por pares, congelado, para que a prova de reprodução de `kart-park-v1.json` siga
+   valendo; a amostragem por borda é só do preparo da versão 2. Uma guarda nova, depois de montadas as
    poligonais: cada barreira, amostrada a cada 0,05 m nos vértices e nos segmentos, tem `beyondTrackEdgeM`
    de ao menos `BARRIER_TRACK_CLEARANCE_M`; senão o preparo falha nomeando o vértice. Com ela, a superfície de
    contato (0,1 m de cada lado, [ADR-0003](../adr/ADR-0003-colisao-com-a-barreira.md)) e os pneus desenhados de
@@ -134,7 +152,10 @@ Medições de viabilidade sobre a cópia da réplica, feitas para este projeto c
 repositório (só agregados): 691 pontos com segmentos de 0,949 m a 1,012 m; ponto 0 em (0, 0); comprimento da
 poligonal convertida 690,674 m (dentro da faixa); todas as larguras 7; zebras de 37,3 m a 645 m, nenhuma com
 `ate_m <= de_m`; área com sinal positiva no plano (x, −z); os pontos de `D_k` são os índices 205, 355 e 535,
-com `d` 204,898 m, 354,853 m e 534,717 m, cada um dentro de um elemento `reta`. Os valores que valem são os que o
+com `d` 204,898 m, 354,853 m e 534,717 m, cada um dentro de um elemento `reta`. Medido pela etapa de código
+(`feedback-20261106-1850`, só agregados) com a amostragem por borda do passo 5: 292 pares de V13 com `|pq| <= 6`
+(152 de *T*₁ para *T*₂ e 140 de *T*₂ para *T*₁), todos cobertos, barreira de 292 vértices e 47,65 m, guarda de
+0,2 m aprovada, V01 a V20 aprovadas, arquivo de 36.585 bytes. Os valores que valem são os que o
 preparo grava e as verificações de [DES-0011](DES-0011-verificacoes-registro-de-publicacao-e-promocao.md) julgam.
 
 `scripts/track-pipeline.ts`:
