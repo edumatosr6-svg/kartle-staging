@@ -4,8 +4,8 @@ title: Escolha da pista no treino
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
-sources: [SEED/US-1, SEED/RD-09, SEED/IM-I1, SEED/RE-01, DOMAIN/DEC-01, DOMAIN/DEC-06]
+version: 1.1.0
+sources: [SEED/US-1, SEED/RD-07, SEED/RD-09, SEED/IM-I1, SEED/IM-I3I5, SEED/RE-01, SEED/RE-07, SEED/FE-09, DOMAIN/DEC-01, DOMAIN/DEC-06, DOMAIN/DEC-13]
 ---
 
 # US-0001 — Escolha da pista no treino
@@ -46,6 +46,10 @@ Como Jogador, quero escolher a pista do treino, para pilotar numa pista real.
 - AC-US-0001-06: Depois de trocar de pista no seletor, o estado da simulação tem o kart na posição de
   largada da pista escolhida.
 - AC-US-0001-07: Depois de trocar de pista no seletor, o estado da simulação não tem volta em andamento.
+- AC-US-0001-08: Com a Kart Park escolhida no seletor, o estado da simulação do treino iniciado tem o
+  `trackVersion` 2 da Kart Park, a réplica não oficial (`SEED/US-1`, `DOMAIN/DEC-13`).
+- AC-US-0001-09: Nenhuma opção do seletor de pista inicia um treino com o `trackVersion` 1 da Kart Park
+  (`SEED/US-1`, `SEED/FE-09`).
 
 ## Casos anormais
 
@@ -60,20 +64,26 @@ Como Jogador, quero escolher a pista do treino, para pilotar numa pista real.
 - **Desafio diário ainda inexistente**: o seletor é só de treino até ele existir (`DOMAIN/DEC-06`); a
   pista de cada desafio diário é decidida pela feature do desafio, não por este seletor (I1,
   `SEED/IM-I1`).
+- **Versão 1 da Kart Park ainda presente no repositório**: o arquivo dela continua publicado e inalterado
+  (NFR-0014), mas não é oferecido no seletor nem carregado pelo treino (critérios 08 e 09).
 - **Sensor de inclinação ausente ou permissão negada (`web-mobile`)**: o controle recai para toque com
   estado visível (I4); o seletor, a pista escolhida e a posição de largada não mudam.
 
 ## Fontes
 
-- `SEED/US-1` — história e seus quatro critérios.
+- `SEED/US-1` — história e seus cinco critérios, entre eles o da versão 2 no seletor (revisão 3).
 - `SEED/RD-09` — seletor só de treino (I1, RF14).
 - `SEED/IM-I1` — a pista de cada desafio diário é da feature do desafio.
+- `SEED/RD-07`, `SEED/IM-I3I5`, `SEED/RE-07` — a revisão 3 publica `kart-park` versão 2; a versão 1
+  não muda.
+- `SEED/FE-09` — escolher a versão 1 da Kart Park no jogo está fora do escopo.
 - `SEED/RE-01` — a pista sintética continua existindo como pista dos ensaios, por isso continua
   selecionável.
 - `DOMAIN/DEC-01` — a Kart Park entra ao lado da pista sintética, com seletor.
 - `DOMAIN/DEC-06` — só treino; o jogo abre na Kart Park; a sintética fica selecionável.
+- `DOMAIN/DEC-13` — a réplica não oficial substitui o traçado da versão 1 no seletor, como versão 2.
 
 ## Pontos em aberto
 
-Nenhum — `DOMAIN/DEC-01` e `DOMAIN/DEC-06` fixam as opções do seletor, a pista da abertura e o modo
-treino.
+Nenhum — `DOMAIN/DEC-01`, `DOMAIN/DEC-06` e `DOMAIN/DEC-13` fixam as opções do seletor, a versão
+oferecida, a pista da abertura e o modo treino.

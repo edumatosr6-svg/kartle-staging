@@ -4,8 +4,8 @@ title: Acabamento visual da Kart Park
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.1.0
-sources: [SEED/US-7, SEED/RD-04, SEED/RD-13, SEED/IM-I2, SEED/IM-I3I5, SEED/RE-05, SEED/RE-06, SEED/FE-06, SEED/FE-07, DOMAIN/DEC-03, DOMAIN/DEC-05]
+version: 1.2.0
+sources: [SEED/US-7, SEED/RD-04, SEED/RD-13, SEED/IM-I2, SEED/RE-06, SEED/RE-08, SEED/FE-06, SEED/FE-07, DOMAIN/DEC-03, DOMAIN/DEC-05]
 ---
 
 # US-0007 — Acabamento visual da Kart Park
@@ -29,8 +29,9 @@ pista enquanto piloto.
 
 ## Pré-condições
 
-- O arquivo de pista da Kart Park publicado na versão 1 é o mesmo de antes da revisão 2 do seed
-  (NFR-0014).
+- A Kart Park carregada é a versão 2, a réplica não oficial (US-0001, NFR-0006). O acabamento é o
+  aprovado na revisão 2 do seed e acompanha o traçado da versão 2: "em toda a volta" e "em toda a
+  extensão" se leem sobre ela (`SEED/RE-08`).
 - Para os critérios observados na tela ou na simulação da Kart Park: a Kart Park está escolhida no
   seletor e o treino foi iniciado.
 - Para o critério 16: a pista sintética está escolhida no seletor e o treino foi iniciado.
@@ -49,9 +50,10 @@ pista enquanto piloto.
   lado do asfalto.
 - AC-US-0007-06: Na cena desenhada da Kart Park, a altura de cada trecho de zebra na sua borda de fora
   é maior que 0 m e no máximo 0,05 m.
-- AC-US-0007-07: No estado da simulação, a posição, o rumo e a velocidade de um kart que roda sobre a
-  zebra, a cada passo de `STEP`, são os mesmos que com a mesma sequência de entradas no jogo de antes da
-  revisão 2: o kart não sobe, não pula e não é desviado pela zebra (`SEED/RD-13`).
+- AC-US-0007-07: No estado da simulação da Kart Park versão 2, a posição, o rumo e a velocidade de um
+  kart que roda sobre a zebra, a cada passo de `STEP`, são os mesmos com o relevo da zebra desenhado e
+  sem ele, para a mesma sequência de entradas: o kart não sobe, não pula e não é desviado pela zebra
+  (`SEED/RD-13`).
 - AC-US-0007-08: Com o relevo da zebra desenhado, no estado da simulação, a aderência de cada pneu sobre
   a zebra satisfaz o critério 06 de US-0005, observada como lá.
 - AC-US-0007-09: Na tela, com a Kart Park, a barreira de US-0004 aparece como uma fileira de pneus
@@ -102,12 +104,12 @@ pista enquanto piloto.
 
 ## Fontes
 
-- `SEED/US-7` — história e seus onze critérios.
+- `SEED/US-7` — história e seus onze critérios, inalterados na revisão 3.
 - `SEED/RD-04` — asfalto, zebras, grama e barreiras (RF07).
 - `SEED/RD-13` — faixa de borda, relevo da zebra, pneus e tons da grama são só desenho (I2, decisão de
   2026-11-03).
 - `SEED/IM-I2` — o acabamento fica todo do lado do desenho.
-- `SEED/IM-I3I5`, `SEED/RE-05` — o acabamento não é versão nova; o arquivo publicado não muda.
+- `SEED/RE-08` — o acabamento continua o mesmo e passa a acompanhar o traçado novo.
 - `SEED/RE-06` — a aparência da pista sintética não muda.
 - `SEED/FE-06`, `SEED/FE-07` — relevo da zebra fora da física; nada de foto de satélite nem textura
   baixada.
@@ -116,4 +118,5 @@ pista enquanto piloto.
 
 ## Pontos em aberto
 
-Nenhum — a revisão 2 do seed não abre ponto novo, e os números do acabamento vêm do seed.
+Nenhum — nem a revisão 2 nem a revisão 3 do seed abrem ponto novo, e os números do acabamento vêm do
+seed.

@@ -4,8 +4,8 @@ title: Crédito e nome da pista
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
-sources: [SEED/US-6, SEED/RD-08, SEED/RD-10, SEED/IM-I6, SEED/FE-04, DOMAIN/DEC-02, DOMAIN/DEC-04, DOMAIN/DEC-07]
+version: 2.0.0
+sources: [SEED/US-6, SEED/RD-08, SEED/RD-10, SEED/IM-I6, SEED/FE-04, DOMAIN/DEC-02, DOMAIN/DEC-04, DOMAIN/DEC-07, DOMAIN/DEC-13]
 ---
 
 # US-0006 — Crédito e nome da pista
@@ -41,9 +41,9 @@ Como Jogador, quero saber de onde vem a pista, para que os dados sejam creditado
 - AC-US-0006-06: Na tela de resultado de uma volta na Kart Park, é exibido um link cujo destino é
   `openstreetmap.org/copyright`.
 - AC-US-0006-07: Toda tela que exibe o nome da Kart Park o exibe como "Kart Park — São José dos Pinhais
-  (traçado aproximado)" (`DOMAIN/DEC-04`).
-- AC-US-0006-08: Toda tela que exibe o nome da Kart Park exibe, junto a ele, o comprimento de 687 m
-  (`DOMAIN/DEC-04`).
+  (réplica não oficial)" (`SEED/US-6`, `DOMAIN/DEC-13`).
+- AC-US-0006-08: Toda tela que exibe o nome da Kart Park exibe, junto a ele, o comprimento de 691 m
+  (`SEED/US-6`).
 - AC-US-0006-09: Nenhuma tela do jogo exibe o recorde de 41,45 s da pista real (`DOMAIN/DEC-04`,
   `SEED/FE-04`).
 
@@ -53,24 +53,31 @@ Como Jogador, quero saber de onde vem a pista, para que os dados sejam creditado
   (RNF09, `SEED/RD-08`), e este conjunto não exige o crédito nela.
 - **Sem rede**: o link pode não abrir o destino; o texto do crédito, a menção à ODbL e o link continuam
   exibidos nas duas telas (critérios 01 a 06), porque não dependem de rede.
-- **Comprimento depois da suavização diferente de 687,5 m** (dentro de ± 1 %, US-0002): o comprimento
-  exibido continua 687 m, o comprimento medido decidido pelo dono do produto (`DOMAIN/DEC-04`).
-- **Crédito da Esri**: entra junto ao crédito OSM só se a licença for liberada (`DOMAIN/DEC-07`); até a
-  decisão, a Kart Park fica só em staging (NFR-0012).
+- **Comprimento do arquivo gerado diferente de 690,7 m** (dentro de ± 1 %, US-0002): o comprimento
+  exibido continua 691 m, o fixado pelo seed (`SEED/US-6`).
+- **Diferença para o traçado oficial de 750 m**: o nome diz "réplica não oficial" (critério 07), e
+  nenhuma tela compara a réplica com tempos ou medidas do traçado oficial (critério 09, `SEED/FE-04`).
+- **Crédito da Esri**: entra junto ao crédito OSM só se a licença for liberada (`DOMAIN/DEC-07`); a
+  dúvida vale também para a réplica, derivada do traçado da versão 1 (`DOMAIN/DEC-13`, `SEED/IM-I6`);
+  até a decisão, a Kart Park fica só em staging (NFR-0012).
 - **Sensor de inclinação ausente ou permissão negada (`web-mobile`)**: o controle recai para toque com
   estado visível (I4); o crédito e o nome não mudam.
 
 ## Fontes
 
-- `SEED/US-6` — história e seus três critérios.
+- `SEED/US-6` — história e seus três critérios (nome e comprimento da revisão 3).
 - `SEED/RD-08` — crédito OSM e menção à ODbL quando houver dado OSM (RNF09, D-DP-04 ratificado).
-- `SEED/RD-10` — apresentar como traçado aproximado.
-- `SEED/IM-I6` — crédito e licença dos dados derivados.
+- `SEED/RD-10` — apresentar o traçado como réplica não oficial.
+- `SEED/IM-I6` — crédito e licença dos dados derivados; a réplica é derivada do traçado da versão 1.
 - `SEED/FE-04` — recorde da pista real fora do escopo.
 - `DOMAIN/DEC-02` — usar os dados agora e mostrar o crédito OSM/ODbL.
-- `DOMAIN/DEC-04` — nome, comprimento de 687 m e recorde que não aparece.
+- `DOMAIN/DEC-04` — o recorde real de 41,45 s não aparece; o nome e o comprimento desta decisão foram
+  substituídos pelos de `SEED/US-6` e `DOMAIN/DEC-13`.
 - `DOMAIN/DEC-07` — texto, menção, link e as duas telas do crédito.
+- `DOMAIN/DEC-13` — nome "Kart Park — São José dos Pinhais (réplica não oficial)"; a licença Esri vale
+  para a réplica.
 
 ## Pontos em aberto
 
-Nenhum — `DOMAIN/DEC-04` e `DOMAIN/DEC-07` fixam o nome, o comprimento, o crédito e onde ele aparece.
+Nenhum — `SEED/US-6`, `DOMAIN/DEC-07` e `DOMAIN/DEC-13` fixam o nome, o comprimento, o crédito e onde
+ele aparece.

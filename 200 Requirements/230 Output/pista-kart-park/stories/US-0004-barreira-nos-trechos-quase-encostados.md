@@ -4,7 +4,7 @@ title: Barreira nos trechos quase encostados
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.1
+version: 1.1.0
 sources: [SEED/US-4, SEED/MED, SEED/RD-04, SEED/RD-11, SEED/IM-I2, SEED/RI-03, DOMAIN/DEC-03, DOMAIN/DEC-10]
 ---
 
@@ -25,18 +25,17 @@ da volta.
 
 ## Pré-condições
 
-- O arquivo de pista da Kart Park foi gerado offline com a barreira.
+- O arquivo de pista da Kart Park versão 2 foi gerado offline com a barreira.
 - Para os critérios observados na simulação ou na tela: a Kart Park está escolhida no seletor e o treino
   foi iniciado.
 
 ## Critérios de aceite
 
-- AC-US-0004-01: No arquivo de pista gerado, existe uma barreira entre o trecho de ≈ 371–414 m e o
-  trecho de ≈ 580–615 m de volta em todo ponto em que a grama entre as bordas do asfalto dos dois trechos
-  mede 6 m ou menos (`DOMAIN/DEC-03`).
+- AC-US-0004-01: No arquivo de pista gerado, existe uma barreira entre o trecho de ≈ 369–406 m e o
+  trecho de ≈ 595–624 m de volta em todo ponto em que a grama entre as bordas do asfalto dos dois trechos
+  mede 6 m ou menos (`SEED/US-4`, `DOMAIN/DEC-03`).
 - AC-US-0004-02: No arquivo de pista gerado, nenhuma barreira desta feature fica entre partes da pista
-  com mais de 6 m de grama entre as bordas do asfalto; os atalhos pela grama de 12 a 26 m não recebem
-  barreira (`DOMAIN/DEC-10`).
+  com mais de 6 m de grama entre as bordas do asfalto (`DOMAIN/DEC-10`).
 - AC-US-0004-03: No arquivo de pista gerado, nenhum ponto da barreira fica sobre o asfalto de nenhum dos
   dois trechos.
 - AC-US-0004-04: No estado da simulação, um kart conduzido contra a barreira, de qualquer dos dois lados
@@ -53,18 +52,21 @@ da volta.
   de bater no muro existente (critério 05).
 - **Kart raspando ao longo da barreira ou parado encostado nela**: mesmo efeito que no muro existente
   (critério 05).
-- **Tentativa de atravessar no sentido contrário** (do trecho de ≈ 580–615 m para o de ≈ 371–414 m): a
+- **Tentativa de atravessar no sentido contrário** (do trecho de ≈ 595–624 m para o de ≈ 369–406 m): a
   barreira bloqueia dos dois lados (critério 04).
-- **Atalhos pela grama de 12 a 26 m**: sem barreira (critério 02); invalidados pelos marcadores de
-  percurso (US-0003, `DOMAIN/DEC-10`).
+- **Atalhos pela grama com mais de 6 m de grama entre as bordas**: sem barreira (critério 02);
+  invalidados pelos marcadores de percurso (US-0003, `DOMAIN/DEC-10`).
+- **Grama de 1,28 m entre as bordas, a menor dos dois trechos** (`SEED/MED`): a barreira fica nessa grama,
+  sem invadir o asfalto de nenhum dos dois trechos (critério 03).
 - **Mudança da barreira depois de publicada**: é publicada como versão nova da pista (NFR-0006).
 - **Sensor de inclinação ausente ou permissão negada (`web-mobile`)**: o controle recai para toque com
   estado visível (I4); a barreira não muda.
 
 ## Fontes
 
-- `SEED/US-4` — história e seus três critérios.
-- `SEED/MED` — trechos quase encostados medidos, com 0,9 m a 6 m de grama entre as bordas.
+- `SEED/US-4` — história e seus três critérios (trechos medidos na réplica, revisão 3).
+- `SEED/MED` — trechos quase encostados medidos na réplica, com no mínimo 1,28 m de grama entre as
+  bordas.
 - `SEED/RD-04` — a pista tem asfalto, zebras, grama e barreiras (RF07).
 - `SEED/RD-11` — barreira física nos trechos quase encostados.
 - `SEED/IM-I2` — a barreira entra na simulação como dado; a tela só desenha.

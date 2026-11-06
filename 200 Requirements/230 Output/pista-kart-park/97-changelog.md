@@ -3,7 +3,7 @@ title: Changelog — pista Kart Park
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.2.0
+version: 1.3.0
 sources: [SEED, DOMAIN]
 ---
 
@@ -150,3 +150,90 @@ ISSUE-09, ISSUE-10, ISSUE-12.
   diz qual luminância nem se a diferença é relativa; escolher outra leitura é decisão do autor, a fixar em
   `DOMAIN.md`. O validador marcou o item como info e o critério é decidível como escrito.
 - Nenhum critério, história ou NFR novo além das divisões pedidas; nenhuma linha de divergência.
+
+## 2026-11-06 — rodada 4, Mode A (regeneração a partir do seed revision 3)
+
+**O que mudou**
+
+- O seed passou de `revision: 2` para `revision: 3` (2026-11-06). A revisão 3 troca o traçado pela
+  réplica não oficial `replica/kart-park-replica.json`, publicada como `kart-park` versão 2; a versão 1
+  sai do seletor e o seu arquivo fica byte a byte igual. `DOMAIN.md` ganhou a decisão de 2026-11-06,
+  rotulada `DOMAIN/DEC-13`. Ids mantidos onde o requisito sobrevive; todo arquivo do conjunto voltou a
+  `draft`, porque nenhum foi validado contra a revisão 3.
+- US-0001 (1.1.0): novos AC-US-0001-08 (o treino com a Kart Park carrega o `trackVersion` 2) e
+  AC-US-0001-09 (nenhuma opção do seletor inicia o `trackVersion` 1); caso anormal da versão 1 que
+  continua no repositório.
+- US-0002 (2.0.0): história reescrita como no seed. AC-02 passa a 690,7 m ± 1 % (683,793–697,607 m);
+  AC-05 passa a largura fixa de 7,0 m em todo ponto; AC-06 passa a linha central no estado da simulação a
+  até 0,10 m da linha do arquivo da réplica, nos eixos do jogo (antes: 0,30 m da linha original); AC-07
+  passa à curva de raio 8,8 m perto de 216 m (antes: grampo de ≈ 6 m perto de 218 m). AC-01, 03, 04 e 08
+  mantidos, sem a palavra "suavizada". `DOMAIN/DEC-09` continua citada nas fontes, como substituída pela regra
+  de 0,10 m (`SEED/RI-02`).
+- US-0003 (2.0.0): AC-02 com os limites perto de 204,9 / 354,9 / 534,7 m, medidos na linha central do
+  arquivo gerado; novo AC-US-0003-12 (cada limite interno fica numa reta do arquivo da réplica);
+  AC-US-0003-09 retirado (ver recusas); casos anormais com os trechos novos.
+- US-0004 (1.1.0): AC-01 com os trechos ≈ 369–406 m e ≈ 595–624 m; AC-02 sem a menção aos atalhos de
+  12 a 26 m; casos anormais atualizados, com a grama mínima de 1,28 m.
+- US-0005 (2.0.0): AC-01 passa a 22 trechos, os do arquivo da réplica (antes: 34, com a zebra da
+  largada dividida); AC-02 e AC-03 leem o arquivo da réplica, sem a exceção da zebra dividida; novo
+  AC-US-0005-13 (nenhum trecho de zebra cruza a linha de largada); fontes com `SEED/RD-14` e
+  `DOMAIN/DEC-13`.
+- US-0006 (2.0.0): AC-07 com o nome "Kart Park — São José dos Pinhais (réplica não oficial)"; AC-08 com
+  691 m; AC-09 (recorde de 41,45 s) mantido; casos anormais e fontes com `DOMAIN/DEC-13`.
+- US-0007 (1.2.0): critérios do acabamento inalterados, salvo AC-07, que compara a trajetória sobre a
+  zebra com e sem o relevo desenhado na versão 2 (antes: com o jogo de antes da revisão 2); pré-condição
+  e fontes passam de `SEED/RE-05` e `SEED/IM-I3I5` para `SEED/RE-08`. AC-16 (pista sintética igual à de
+  antes da revisão 2) mantido: a referência continua válida.
+- NFR-0001 (1.1.0): arquivo gerado da versão 2; o arquivo da réplica mede 34.373 bytes.
+- NFR-0006 (2.0.0): a primeira linha passa a exigir `trackVersion` 2 com o mesmo `trackId`; a terceira
+  deixa de citar "suavizar de novo".
+- NFR-0012 (1.1.0): a dúvida da licença Esri vale para qualquer versão, também para a réplica
+  (`DOMAIN/DEC-13`).
+- NFR-0013 (2.0.0): reescrito como `SEED/NF-06` da revisão 3 — mesmas entradas, mesmo tempo, setores e
+  trajetória na versão 2 com e sem o acabamento de US-0007 desenhado.
+- NFR-0014 (2.0.0): reescrito como `SEED/RE-07` — o arquivo da versão 1 continua no repositório, byte a
+  byte igual; renomeado para `NFR-0014-arquivo-da-versao-1-inalterado.md`. A exigência de `trackVersion` 1
+  saiu: a versão publicada agora é a 2 (NFR-0006).
+- NFR-0011 retirado e o arquivo removido: a restrição "o código desta feature só começa depois que
+  `dirigibilidade` passar nos testes" saiu do seed na revisão 3. O id não é reaproveitado.
+- `01-context.md` (2.0.0): carimbo do seed em `revision: 3`; regra de rótulos estáveis (item novo recebe o
+  próximo número livre); rótulos novos `SEED/RD-14`, `SEED/RE-07`, `SEED/RE-08`, `SEED/FE-09`,
+  `DOMAIN/DEC-13`; textos de `SEED/MED`, `SEED/RD-03`, `SEED/RD-10`, `SEED/NF-06`, `SEED/IM-I3I5`,
+  `SEED/IM-I6` atualizados; `SEED/RE-02` e `SEED/RE-05` retirados; `DOMAIN/DEC-04` e `DOMAIN/DEC-09`
+  marcadas como substituídas onde a revisão 3 as substitui; tabela de medições da réplica; restrições da
+  revisão 3 citadas.
+- `02-glossary.md` (2.0.0): réplica não oficial, traçado da versão 1, arquivo da réplica, elemento,
+  linha central da réplica, curva mais fechada, zebras por regra; saem traçado aproximado, arquivo de
+  origem, linha central original e suavizada e suavização; largura, grampo, trechos quase encostados,
+  atalho, trecho de zebra, setor, limite de setor, Esri, versão e acabamento atualizados.
+- `98-divergences.md`: só o status; nenhuma divergência relatada.
+
+**Itens fechados**: nenhum `ISSUE-<nn>` ou `FB-<nn>` (rodada de Mode A por mudança de revisão).
+
+**Itens recusados ou lidos, com motivo**
+
+- AC-US-0003-09 (atalho pela grama por dentro da curva 4, de ≈ 147 m a ≈ 200 m) foi retirado, sem
+  renumerar os demais: a localização vinha das medições do traçado da versão 1, e a revisão 3 não mede
+  nem cita esse atalho na réplica. A regra de `DOMAIN/DEC-10` continua coberta por AC-US-0003-04 e 05
+  (marcadores a no máximo 25 m; volta que pula marcador é inválida) e por AC-US-0004-02 (sem barreira
+  acima de 6 m de grama). Um local novo exigiria uma medição que o seed não traz.
+- A regra das zebras (`SEED/RD-14`) não virou critério próprio sobre os arcos: o seed exige "as 22
+  zebras do arquivo" (`SEED/US-5`), e a regra é a que gerou esse arquivo; um critério por arco pediria
+  extensões (onde a zebra começa e termina em cada arco e transição) que o seed não dá.
+- "A pista não é suavizada de novo" (`SEED/US-2`) não virou critério à parte: o observável é a distância
+  de no máximo 0,10 m ao arquivo da réplica (AC-US-0002-06) e a carga sem nova suavização (AC-08); o
+  preparo que suaviza de novo aparece como caso anormal.
+- "Limites em retas" (`SEED/US-3`) virou AC-US-0003-12, lido nos elementos do tipo reta do arquivo da
+  réplica; as três distâncias citadas caem em retas desse arquivo (198,5–207,8 m, 314,3–369,2 m e
+  522,1–547,0 m), conferidas por script de leitura, sem número novo no conjunto.
+- A distância média e máxima da réplica à linha da versão 1 (0,89 m e 3,47 m, `SEED/MED`) ficou no
+  contexto, não como critério: o seed não a exige do jogo.
+- As transições de 5 m entre elementos (`DOMAIN/DEC-13`) não viraram critério: descrevem como a réplica
+  foi feita, e o critério de 0,10 m sobre o arquivo dela as carrega.
+- AC-US-0007-16 continua comparando a pista sintética com o jogo de antes da revisão 2: a restrição
+  "a aparência da pista sintética não muda" segue igual, e essa referência continua a anterior a todo o
+  acabamento.
+- NFR-0002, NFR-0003, NFR-0004, NFR-0005, NFR-0007, NFR-0008, NFR-0009 e NFR-0010 não mudaram de texto:
+  os itens do seed que eles cobrem não mudaram na revisão 3; só voltaram a `draft`.
+- `NOTES.md` foi lido nesta rodada por instrução do chamador; nenhum número dele entrou no conjunto além
+  dos que o seed já traz.

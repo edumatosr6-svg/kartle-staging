@@ -4,8 +4,8 @@ title: Setores e validação da volta
 feature: pista-kart-park
 stage: req
 status: validated
-version: 1.0.0
-sources: [SEED/US-3, SEED/RD-05, SEED/RD-06, SEED/RI-03, DOMAIN/DEC-10]
+version: 2.0.0
+sources: [SEED/US-3, SEED/MED, SEED/RD-05, SEED/RD-06, SEED/RD-10, SEED/RI-03, DOMAIN/DEC-10, DOMAIN/DEC-13]
 ---
 
 # US-0003 — Setores e validação da volta
@@ -24,17 +24,17 @@ para que meu tempo de treino seja comparável entre voltas.
 
 ## Pré-condições
 
-- O arquivo de pista da Kart Park foi gerado offline com chegada, limites de setor e marcadores de
-  percurso (o arquivo de origem não os traz, `SEED.md` Contexto).
+- O arquivo de pista da Kart Park versão 2 foi gerado offline com chegada, limites de setor e marcadores
+  de percurso (o arquivo da réplica não os traz, `SEED.md` Contexto).
 - Para os critérios observados na simulação ou na tela: a Kart Park está escolhida no seletor e uma
   volta de treino está em andamento.
 
 ## Critérios de aceite
 
 - AC-US-0003-01: No arquivo de pista gerado, a volta da Kart Park tem 4 setores (RF09).
-- AC-US-0003-02: No arquivo de pista gerado, os três limites internos de setor ficam, nos trechos de
-  ligação entre curvas, nos pontos da linha central cuja distância de volta, medida na linha central
-  original a partir do ponto 0, é a mais próxima de 201,6 m, de 350,3 m e de 529,9 m.
+- AC-US-0003-02: No arquivo de pista gerado, os três limites internos de setor ficam nos pontos da linha
+  central cuja distância de volta, medida a partir do ponto 0, é a mais próxima de 204,9 m, de 354,9 m e
+  de 534,7 m (`SEED/US-3`).
 - AC-US-0003-03: No arquivo de pista gerado, a linha de chegada é a linha de largada, no ponto 0.
 - AC-US-0003-04: No arquivo de pista gerado, a distância de volta entre dois marcadores de percurso
   consecutivos é de no máximo 25 m, inclusive entre o último marcador da volta e o primeiro.
@@ -47,19 +47,18 @@ para que meu tempo de treino seja comparável entre voltas.
   citados por `SEED/US-3`).
 - AC-US-0003-08: Na Kart Park, ficar mais de 3 m além da borda da pista por 1000 ms ou menos não
   invalida a volta por corte no estado da simulação.
-- AC-US-0003-09: Na Kart Park, uma volta que atravessa a grama por dentro da curva 4, de ≈ 147 m a
-  ≈ 200 m de volta, é inválida no estado da simulação (`DOMAIN/DEC-10`: os marcadores a cada 25 m
-  bastam para os atalhos de 12 a 26 m de grama).
 - AC-US-0003-10: Na Kart Park, uma volta que passa por todos os marcadores de percurso em ordem e cruza
   a chegada sem corte termina válida no estado da simulação.
 - AC-US-0003-11: Na Kart Park, ao fim de uma volta válida, a tela de resultado exibe o tempo total e os
   4 tempos de setor, como ao fim de uma volta válida na pista sintética.
+- AC-US-0003-12: No arquivo de pista gerado, cada um dos três limites internos de setor fica dentro de
+  um elemento do tipo reta do arquivo da réplica (`SEED/US-3`: limites em retas).
 
 ## Casos anormais
 
-- **Atalho pela grama de 12 a 26 m** (por exemplo, por dentro da curva 4): não tem barreira (US-0004,
-  `DOMAIN/DEC-10`); a volta que o usa pula ao menos um marcador e é inválida (critérios 05 e 09).
-- **Atalho pelos trechos quase encostados** (≈ 371–414 m contra ≈ 580–615 m): impedido pela barreira
+- **Atalho pela grama com mais de 6 m de grama entre as bordas**: não tem barreira (US-0004,
+  `DOMAIN/DEC-10`); a volta que o usa pula ao menos um marcador e é inválida (critérios 04 e 05).
+- **Atalho pelos trechos quase encostados** (≈ 369–406 m contra ≈ 595–624 m): impedido pela barreira
   (US-0004).
 - **Rodas sobre a zebra**: contam como pista e não acumulam tempo para o corte (US-0005).
 - **Cruzar a chegada de novo depois de concluir a volta, cruzar na contramão, pausar, perder o foco da
@@ -73,10 +72,12 @@ para que meu tempo de treino seja comparável entre voltas.
 
 ## Fontes
 
-- `SEED/US-3` — história e seus quatro critérios.
+- `SEED/US-3` — história e seus quatro critérios (limites de setor da revisão 3).
+- `SEED/MED` — a réplica, com seus elementos (retas e arcos), de onde se leem as retas dos limites.
 - `SEED/RD-05` — largada, 4 setores e chegada (RF09).
 - `SEED/RD-06` — volta que pula marcador é inválida (RF10, `race-lap-validation`).
-- `SEED/RI-03`, `DOMAIN/DEC-10` — os marcadores a cada 25 m bastam para os atalhos de 12 a 26 m.
+- `SEED/RD-10`, `DOMAIN/DEC-13` — traçado da réplica não oficial, de retas e arcos.
+- `SEED/RI-03`, `DOMAIN/DEC-10` — os marcadores a cada 25 m bastam para os atalhos pela grama.
 
 ## Pontos em aberto
 
