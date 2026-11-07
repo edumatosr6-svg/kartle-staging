@@ -3,7 +3,7 @@ id: TEST-0006
 title: Determinismo na Kart Park — mesma sequência, mesmo tempo, mesmos setores e mesmo estado; na versão 2 com e sem o acabamento; na versão 1 igual ao traço da revisão 1
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 2.0.0
 sources: [NFR-0003, NFR-0013, AC-US-0007-07]
 ---

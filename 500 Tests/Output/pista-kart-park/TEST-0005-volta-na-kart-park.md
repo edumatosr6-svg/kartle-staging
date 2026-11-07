@@ -3,7 +3,7 @@ id: TEST-0005
 title: Volta na Kart Park versão 2 — válida com o piloto da Kart Park, marcador pulado, corte pela borda do arquivo, zebra e faixa de borda como pista, chegada de novo, contramão, pausa e reposicionamento
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 2.0.0
 sources: [AC-US-0003-05, AC-US-0003-06, AC-US-0003-07, AC-US-0003-08, AC-US-0003-10, AC-US-0003-11, AC-US-0005-05, AC-US-0001-06, AC-US-0007-17]
 ---

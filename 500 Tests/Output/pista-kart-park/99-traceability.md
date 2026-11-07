@@ -1,7 +1,7 @@
 ---
 stage: test
 feature: pista-kart-park
-generated: 2026-11-06T19:43:55Z
+generated: 2026-11-07T00:53:19Z
 rows: 115
 ---
 

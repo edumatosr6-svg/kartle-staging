@@ -3,7 +3,7 @@ id: TEST-0012
 title: Publicação — versão 2 da réplica ao lado da versão 1 congelada, resumos e tamanhos no registro, reprodução byte a byte dos dois arquivos, imutabilidade que a reversão exige, recusas do programa numa cópia temporária
 feature: pista-kart-park
 stage: test
-status: draft
+status: validated
 version: 2.0.0
 sources: [NFR-0006, NFR-0012, NFR-0001, AC-US-0002-06, NFR-0014]
 ---
