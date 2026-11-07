@@ -487,7 +487,7 @@ volta). Todas continuam objetos novos; nenhum arquivo publicado é alterado (I3)
 
 | Id | Critério | Base | Aprovação |
 |---|---|---|---|
-| CHK-TEST-0005-06 (a volta pelo atalho da curva 4) | AC-US-0003-09 | retirado nos requisitos da revisão 3 (com REQ-FEAT-0003-12 no F-Spec); a estratégia 2.0.0 marca a linha como retirada e diz que a prova sai; o atalho pela grama sem barreira segue decidido pela excursão de AC-US-0003-05 (CHK-TEST-0005-04, `MISSED_MARKER`) e pelas linhas de V10 e V11 (CHK-TEST-0001-10, -18) | revisão 3 do seed escrita pelo dono do produto (Eduardo Matos, 2026-11-06); retirada instruída pelo chamador desta rodada (test-loop, "retire checks only for retired requirements"); a confirmação explícita do dono do produto continua pedida, como no changelog do D-Spec. Nenhum critério vigente fica sem verificação: não há linha de divergência |
+| CHK-TEST-0005-06 (a volta pelo atalho da curva 4) | AC-US-0003-09 | retirado nos requisitos da revisão 3 (com REQ-FEAT-0003-12 no F-Spec); a estratégia 2.0.0 marca a linha como retirada e diz que a prova sai; o atalho pela grama sem barreira segue decidido pela excursão de AC-US-0003-05 (CHK-TEST-0005-04, `MISSED_MARKER`) e pelas linhas de V10 e V11 (CHK-TEST-0001-10, -18) | revisão 3 do seed escrita pelo dono do produto (Eduardo Matos, 2026-11-06); retirada instruída pelo chamador desta rodada (test-loop, "retire checks only for retired requirements"); **aprovada explicitamente pelo dono do produto (Eduardo Matos, 2026-11-06, na sessão: "Aprovo a retirada do CHK-TEST-0005-06 (atalho da curva 4 da versão 1)")**, o que fecha a confirmação pedida nos changelogs do F-Spec e do D-Spec. Nenhum critério vigente fica sem verificação: não há linha de divergência |
 
 ### Adicionadas
 

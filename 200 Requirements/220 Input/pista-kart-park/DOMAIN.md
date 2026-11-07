@@ -36,3 +36,5 @@ Decisões fechadas pelo dono do produto. Prevalecem sobre os pontos em aberto co
   < 16 m). Ela substitui o traçado da versão 1 no seletor como `kart-park` **versão 2**, com o nome
   "Kart Park — São José dos Pinhais (réplica não oficial)". A licença Esri (OPEN-01) continua valendo
   para ela, por ser derivada da versão 1.
+- 2026-11-06 — O dono do produto aprovou a retirada de CHK-TEST-0005-06 (a volta pelo atalho da curva 4
+  da versão 1), junto com AC-US-0003-09 e REQ-FEAT-0003-12: o atalho não existe na réplica.
