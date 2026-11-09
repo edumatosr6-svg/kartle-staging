@@ -3,7 +3,7 @@ id: REL-0002
 title: Migração — o arquivo de pista ganha o esquema 3 com o leitor do 2 mantido; nada persistido muda; a versão publicada é imutável
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 2.0.0
 sources: [DM-0001, DM-0002, DES-0001, DES-0005, DES-0010, DES-0011, ADR-0001, ADR-0002, ADR-0005, ADR-0008, NFR-0001, NFR-0006, NFR-0008, NFR-0012, NFR-0014, TEST-0001, TEST-0002, TEST-0007, TEST-0012]
 ---

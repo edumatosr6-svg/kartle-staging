@@ -3,7 +3,7 @@ id: REL-0004
 title: Canal web-mobile — a mesma página; vibração da zebra, inclinação negada e navegador sem vibração
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 2.0.0
 sources: [ADR-0007, ADR-0008, DES-0005, DES-0007, DES-0008, DES-0009, DES-0012, DM-0002, NFR-0002, NFR-0004, NFR-0005, US-0007, TEST-0008, TEST-0009, TEST-0010, TEST-0011]
 ---

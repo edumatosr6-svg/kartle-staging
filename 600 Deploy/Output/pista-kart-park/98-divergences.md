@@ -2,7 +2,7 @@
 title: Registro de divergências e lacunas devidas ao humano (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 2.0.0
 sources: []
 ---

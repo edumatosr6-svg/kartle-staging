@@ -2,7 +2,7 @@
 title: Verificações de fumaça — por canal, cada uma observando um limiar; executadas em staging (produção só depois da decisão Esri)
 feature: pista-kart-park
 stage: deploy
-status: draft
+status: validated
 version: 2.0.0
 sources: [ADR-0007, ADR-0008, DES-0003, DES-0004, DES-0005, DES-0007, DES-0008, DES-0009, DES-0011, DES-0012, DM-0001, DM-0002, NFR-0001, NFR-0002, NFR-0004, NFR-0005, NFR-0006, NFR-0008, NFR-0010, NFR-0012, NFR-0013, NFR-0014, US-0007, TEST-0001, TEST-0007, TEST-0008, TEST-0009, TEST-0010, TEST-0012]
 ---
