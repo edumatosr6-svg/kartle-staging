@@ -2,7 +2,7 @@
 
 Uso (só leitura; três GET em HTTPS, nenhum outro efeito):
     python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/
-    python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-BwruE9Pq.js
+    python -I "600 Deploy/Output/pista-kart-park/tools/check_served.py" https://edumatosr6-svg.github.io/kartle-staging/ index-DszUW7WJ.js
 
 Imprime uma linha por verificação (`ok`/`FAIL`/`warn`) e um resumo
 `status=... js=index-<hash>.js js_bytes=... css_bytes=... cache_control=... last_modified=... track_sha256=... checks=... failed=...`
@@ -18,10 +18,13 @@ Imprime uma linha por verificação (`ok`/`FAIL`/`warn`) e um resumo
      dentro de `#lap-training-result` no HTML e nomeado no JS (o alvo de `renderCredit`), e nenhum `lap-result-credit`
      no HTML nem no JS (retirado de `#lap-result`, que não exibe volta de treino);
   5. o JS servido responde 200 e carrega o arquivo da Kart Park **uma vez** (`{"schemaVersion":3,"trackId":"kart-park"`),
-     JSON legível cujo SHA-256 (com o `\n` final do arquivo) é o da entrada `kart-park` 1 do registro na árvore desta
-     release (`KART_PARK_V1_SHA256`, `tracks/registry.json` em `6b314b2`, mesmo blob desde `d9139a2`) — a página serve a versão publicada, byte a
-     byte (NFR-0006); o literal mede menos de 200 000 bytes (NFR-0001); 38 marcadores, 34 zebras, 684 pontos, 1 barreira;
-  6. os textos do seletor e do crédito, o retorno da zebra (`vibrate(20)`, `lowpassHz:160`), a barreira
+     JSON legível com `trackVersion` 2 cujo SHA-256 (com o `\n` final do arquivo) é o da entrada `kart-park` 2 do
+     registro na árvore desta release (`KART_PARK_V2_SHA256`, `tracks/registry.json` desde `06582f8`; seed revisão 3,
+     ADR-0008) — a página serve a versão publicada, byte a byte (NFR-0006); o literal mede menos de 200 000 bytes
+     (NFR-0001); 39 marcadores, 22 zebras, 691 pontos, 3 limites, 1 barreira;
+  6. os textos do seletor ("… (réplica não oficial)", `displayLengthM:691`, `TRACK_VERSION_MISMATCH`) e do crédito, e
+     **ausentes** os da versão 1 (`traçado aproximado`, `displayLengthM:687`, um literal com `"trackVersion":1` —
+     ADR-0008: a versão 1 fora do pacote), o retorno da zebra (`vibrate(20)`, `lowpassHz:160`), a barreira
      (`barrierContact`), as malhas da cena, nenhum texto proibido (`esri`, `41.45`, `41,45`, `41450`, `KARTPLAN`,
      `recorde`, `Circuito Aurora`, `helmet`, `boxGeo`) e os identificadores das releases contidas (`arcade-assistido-v6`
      desde o acerto de 2026-10-29 de `dirigibilidade`);
@@ -41,8 +44,10 @@ expected_js = sys.argv[2] if len(sys.argv) > 2 else None
 LIMIT = 3 * 1024 * 1024
 TRACK_LITERAL_LIMIT = 200_000
 TRACK_HEAD = '{"schemaVersion":3,"trackId":"kart-park"'
-# tracks/registry.json, entrada kart-park 1 (STAGING), árvore de 6b314b2 (blob igual ao de d9139a2 e 5ed7a5b) — 43 013 bytes com o LF final.
-KART_PARK_V1_SHA256 = "04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1"
+# tracks/registry.json, entrada kart-park 2 (STAGING, prep.method REPLICA), desde 06582f8 — 36 585 bytes com o LF final.
+KART_PARK_V2_SHA256 = "c79f14cbd49f3a7f19d2d1b50d14512b02525f6af7ecaaf850959c1395c4d20a"
+TRACK_VERSION = 2
+TRACK_COUNTS = {"centerline": 691, "markers": 39, "curbs": 22, "sectorLimits": 3, "barriers": 1}
 failed = 0
 checks = 0
 
@@ -123,17 +128,21 @@ if len(starts) == 1:
         track_bytes = js_text[starts[0]:end].encode("utf-8")
         track_sha = hashlib.sha256(track_bytes + b"\n").hexdigest()
         report("arquivo da Kart Park é JSON legível no JS servido", True)
-        report("SHA-256 do literal + LF igual ao registrado em tracks/registry.json (NFR-0006)", track_sha == KART_PARK_V1_SHA256,
-               f"servido {track_sha[:16]}…, esperado {KART_PARK_V1_SHA256[:16]}…")
+        report(f"`trackVersion` {TRACK_VERSION} no arquivo servido (ADR-0008)", track_obj.get("trackVersion") == TRACK_VERSION,
+               str(track_obj.get("trackVersion")))
+        report("SHA-256 do literal + LF igual ao registrado em tracks/registry.json (NFR-0006)", track_sha == KART_PARK_V2_SHA256,
+               f"servido {track_sha[:16]}…, esperado {KART_PARK_V2_SHA256[:16]}…")
         report("literal da pista abaixo de 200 000 bytes (NFR-0001)", len(track_bytes) < TRACK_LITERAL_LIMIT, f"{len(track_bytes)} bytes")
-        for key, expected in {"centerline": 684, "markers": 38, "curbs": 34, "sectorLimits": 3, "barriers": 1}.items():
+        for key, expected in TRACK_COUNTS.items():
             report(f"`{key}` com {expected} elementos", len(track_obj.get(key, [])) == expected, str(len(track_obj.get(key, []))))
 
-for marker in ("Kart Park — São José dos Pinhais (traçado aproximado)", "displayLengthM:687", "Pista sintética",
-               "© colaboradores do OpenStreetMap", "licença ODbL", "https://openstreetmap.org/copyright",
+for marker in ("Kart Park — São José dos Pinhais (réplica não oficial)", "displayLengthM:691", "TRACK_VERSION_MISMATCH",
+               "Pista sintética", "© colaboradores do OpenStreetMap", "licença ODbL", "https://openstreetmap.org/copyright",
                "noopener noreferrer", "_blank", "selectedTrackId", "TRAINING", "curbWheelCount", "barrierContact",
                "barrierTouching", "lowpassHz:160"):
     report(f"texto `{marker}` no JS servido", marker in js_text)
+for ghost in ("traçado aproximado", "displayLengthM:687", '"trackVersion":1'):
+    report(f"texto da versão 1 `{ghost}` ausente do JS servido (ADR-0008)", ghost not in js_text)
 report("ADR-0007: o JS servido desenha o crédito em `lap-training-result-credit`", "lap-training-result-credit" in js_text)
 report("ADR-0007: nenhum `lap-result-credit` no JS servido", "lap-result-credit" not in js_text)
 report("`trackId:`kart-park`` no catálogo do JS servido", bool(re.search(r"trackId:[`'\"]kart-park[`'\"]", js_text)))

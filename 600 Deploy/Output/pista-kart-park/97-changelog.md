@@ -2,8 +2,8 @@
 title: Registro de mudanças — pista Kart Park (estágio de deploy)
 feature: pista-kart-park
 stage: deploy
-status: validated
-version: 1.4.0
+status: draft
+version: 2.0.0
 sources: []
 ---
 
@@ -343,3 +343,81 @@ registro nomeia a execução 41832829595 (`1966c4a`), marca as precondições 1 
 - Nenhum redeploy, nenhum comando contra produção, nada aprovado; `gh`, `git ls-remote` e GET só de leitura; nenhum valor de
   segredo escrito; `docs/`, `DOMAIN.md`, os relatórios de validação (inclusive o de testes com o carimbo errado) e os registros
   das outras features não editados por esta entrada.
+
+## 2026-11-09 — rodada 6, revisão 3 do seed (candidato `3d5dfdd`: a réplica como `kart-park` versão 2; deploy-loop iteração 1)
+
+Entrada: seed revisão 3 (`seed: {revision: 3, digest: 1fe5243f7e36}`); D-Spec `dspec-validation-20261106-1853.md` (ADR-0008;
+DM-0001/DM-0002 2.0.1 com o plano de reversão da revisão 3); `code-validation-20261106-1912.md` (`06582f8`) e
+`test-validation-20261107-0052.md` (477/477, 136 da feature), ambos `SUCCESS`. Última validação deste estágio:
+`deploy-validation-20261104-1340.md` (`SUCCESS`, candidato `2aa013e`). Fatos refeitos no repositório e por leitura em 2026-11-09:
+SHA-256 e bytes dos arquivos de pista, as duas entradas do registro, `git ls-files --eol` nos cinco arquivos, `git diff` contra
+`2aa013e`, `verify kart-park 2` (V01–V20 `PASS`) e `verify kart-park 1` (recusado, saída 1), `git ls-remote` dos dois remotos,
+`gh run view 42320960893` (log reduzido por `grep`), GET às duas URLs, build limpo local numa pasta temporária e `cmp` contra o
+servido (3/3 iguais).
+
+**Correção a um fato dado na tarefa**: o arquivo da versão 1 é `src/tracks/kart-park-v1.json` (43 013 bytes, `04ce5e51…`), não
+`src/tracks/kart-park.json`; `tracks/sources/kart-park.json` é a origem da versão 1. Os dois estão intactos contra `2aa013e`.
+
+**O que mudou**
+
+- `01-release.md` (2.0.0): o candidato passa a `3d5dfdd`; o que muda contra `2aa013e` (código `06582f8`, testes `671d125`,
+  registros `596e964`/`3d5dfdd`); a versão 2 (36 585 bytes, `c79f14cb…`, 691/39/22/3/1, 292 vértices, 7 m, `REPLICA`) e a versão 1
+  fora do pacote; *Proveniência* com o D-Spec, a execução 42320960893 (Node v24.22.2, 477/477, `index-DszUW7WJ.js`, *Measure dist*
+  708 040 / 186 379), o build limpo = servido, `check_bundle` 94/94, `check_served` 84/84, a regra byte-exata nos cinco arquivos,
+  produção 404 e `origin/master` = `05c3570`; alvo B = 41832829595; precondições refeitas (validação de staging por fazer; H1–H12
+  sobre a versão 2; a decisão Esri vale para a réplica; feedback às releases contidas); reprodução e medida do artefato.
+- `REL-0001` (1.2.0): o catálogo (`TRAINING_TRACKS` com `trackVersion` 2, "(réplica não oficial)", 691), o arquivo empacotado
+  (`kart-park-v2.json`), o registro com as duas entradas, a regra `-text` cobrindo os arquivos novos, o log de aparelho que existe.
+- `REL-0002` (2.0.0): linhas de esquema para a versão 2 empacotada, a versão 1 fora do pacote e a conferência de versão; revisão 3
+  na tabela de revisões, com a reversão operacional (B) e a reversão em código de DM-0001 2.0.1 (C1, não um `git revert`, não
+  ensaiada); preenchimento retroativo e janela de compatibilidade com a versão 1 em cache.
+- `REL-0003` (2.0.0): ordem de operações com o envio de `3d5dfdd` (42320960893) e o alvo 41832829595; estado de 2026-11-09; o
+  passo 5 promoveria `kart-park 2`; etapas do pipeline com os números da execução; riscos novos (a versão errada empacotada; um
+  arquivo publicado reescrito; as releases contidas atrás do servido de novo).
+- `REL-0004` (2.0.0): o rótulo novo, o traçado da réplica, o custo de desenho sobre a versão 2, o tamanho servido; linhas de
+  `src/main.ts` refeitas para `3d5dfdd` (`:213`, `:254`, `:463`, `:558`).
+- `REL-0005` (2.0.0): o aviso novo `track-data TRACK_VERSION_MISMATCH` (`src/main.ts:230`) como modo de falha novo; linhas de
+  medida para AC-US-0001-08/-09 e para as duas entradas do registro; histórico do Actions com 42320960893; alerta com as 136
+  verificações; linhas de código refeitas (`:240`, `:671`).
+- `smoke.md` (2.0.0): `check_served` 84/84 e `check_bundle` 94/94; rótulo "(réplica não oficial) · 691 m" e a ausência dos textos
+  da versão 1 em D4/D16/M4; D5/M5 sem `track-data`; D9/M12 com o asfalto de largura constante; D17 com a entrada 2; o alvo B
+  reprova por projeto nas ferramentas novas; nota de AC-US-0001-09 sem roteiro de tela. Correção: M8 é **H6** (o navegador sem
+  `navigator.vibrate`), não H5.
+- `runbook.md` (2.0.0): `<sha>`, `<hash>` (`DszUW7WJ`), `<sha-anterior>` (41832829595, `BMmvlQeM`); *ferramentas do alvo
+  anterior* (as de `1966c4a`, para conferir o caminho B); conferência byte-exata com cinco arquivos; caminho B com o registro
+  intocado; **caminho C refeito**: C1 = a reversão em código de DM-0001 2.0.1 (o C1 da revisão 2, `git revert 2aa013e fbfb073`,
+  já não serve à ponta e foi retirado), C2 já não é um `git revert` da cadeia (DM-0002 2.0.1 proíbe retirar entradas entregues);
+  precondições, *Promote* 3/4/6/7/8, *Não fazer* (inclui `git revert` da revisão 3 e a 39827702391 em *Waiting*), *Verify*,
+  gatilhos (a Kart Park sem abrir por `TRACK_VERSION_MISMATCH`), H1/H3/H8/H11/H12 sobre a versão 2, R1–R3.
+- `98-divergences.md` (2.0.0): DIV-DP-01, -02, -03, -04, -05, -06, -07, -11, -12, -14, -15, -16 atualizadas; **DIV-DP-17 nova**
+  (C1 da revisão 3 sem árvore pronta nem ensaio; `info`).
+- `tools/check_bundle.py` e `tools/check_served.py`: passam a conferir a **versão 2** (`trackVersion` 2; contagens 691/39/22/3/1;
+  barreira de 292 vértices; SHA-256 `c79f14cb…` da entrada 2; nome "(réplica não oficial)", `displayLengthM:691`,
+  `TRACK_VERSION_MISMATCH`; ausência de "traçado aproximado", `displayLengthM:687` e de um literal `"trackVersion":1`); a de
+  bundle confere também a entrada 1 intacta e `prep.method` `REPLICA` na 2. Resultados: `check_bundle` 94/94 sobre o build limpo
+  de `3d5dfdd`; `check_served` 84/84 sobre staging. Sobre `index-BMmvlQeM.js` reprovam por projeto; as versões de `1966c4a`
+  continuam a conferi-lo (runbook, R2).
+- Feedback FB-01 enviado a `race-lap-validation`, `dirigibilidade` e `modelo-kart-01`
+  (`600 Deploy/Output/<feature>/reports/feedbacks/pista-kart-park/feedback-20261109-1348.md`): os registros deles nomeiam
+  `2aa013e`, que o envio de `3d5dfdd` deixou atrás do servido. Proposta só; nada deles foi editado.
+
+**Itens fechados**: **ISSUE-07** (relatório `deploy-validation-20261104-1340.md`) — o carimbo de seed do relatório de testes em
+vigor (`test-validation-20261107-0052.md`) é o de `--seed-line` (`1fe5243f7e36`). **ISSUE-01, ISSUE-03, ISSUE-04** do mesmo
+relatório **continuam abertos** e mudam de objeto: H1–H12 sobre `index-DszUW7WJ.js` (DIV-DP-01, -07); o caminho B não repetido
+para 41832829595 ↔ 42320960893 e C1 não ensaiado (DIV-DP-03, -17); a decisão Esri, que vale também para a réplica (DIV-DP-14).
+
+**Itens recusados**
+
+- Repetir o ensaio do caminho B nesta rodada: recusado — republicaria staging (efeito externo) e é ato do validador ou do dono
+  do produto (`runbook.md` R1/R2), não do gerador.
+- Ensaiar C1 (a reversão em código de DM-0001): recusado nesta rodada — exige editar código e testes, fora da cerca deste estágio;
+  registrado como DIV-DP-17.
+- Acrescentar ao `runbook.md` uma linha humana nova para a versão 2: recusado — o D-Spec não acrescenta roteiro (E2E-01..E2E-09
+  continuam os mesmos, executados sobre o pacote da versão 2); H1, H3, H8, H9 e H11 passam a nomear a réplica.
+- Editar `docs/kart-park-device-log.md`, o veredito de testes (a ISSUE-05 dele pede corrigir a frase "o log não existe") ou os
+  registros de release das três features contidas: recusado — fora da cerca de escrita (§14); o que cabe a eles foi para o
+  feedback ou fica com o dono do produto.
+
+- Nenhum redeploy, nenhum comando contra produção, nada aprovado, nenhum push; `gh`, `git ls-remote` e GET só de leitura; o
+  build local foi feito numa pasta temporária fora do repositório; nenhum valor de segredo escrito; código, testes,
+  `.claude/skills/`, `.github/`, `docs/` e `DOMAIN.md` não editados.

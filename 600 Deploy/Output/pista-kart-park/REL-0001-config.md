@@ -3,9 +3,9 @@ id: REL-0001
 title: Configuração de ambiente — nomes e significados, nunca valores; nenhuma chave para a Kart Park
 feature: pista-kart-park
 stage: deploy
-status: validated
-version: 1.1.0
-sources: [DES-0010, DES-0011, DES-0012, DM-0002, ADR-0005, NFR-0004, NFR-0010, NFR-0012, TEST-0011, TEST-0012]
+status: draft
+version: 1.2.0
+sources: [DES-0005, DES-0010, DES-0011, DES-0012, DM-0001, DM-0002, ADR-0005, ADR-0008, NFR-0004, NFR-0010, NFR-0012, TEST-0011, TEST-0012]
 ---
 
 # REL-0001 — Configuração de ambiente
@@ -47,12 +47,12 @@ lida por `node-version-file`.
 
 | Dado | Onde | O que é |
 |---|---|---|
-| Catálogo do treino (`TRAINING_CATALOG`: `kart-park` "Kart Park — São José dos Pinhais (traçado aproximado)", `displayLengthM` 687, `osmCredit` true; `synthetic` "Pista sintética") e `OPENING_TRACK_ID` = `kart-park` | `src/trainingSession.ts:11-16` | literais congelados (REQ-FEAT-0001-01; ADR-0005); iguais em dev, staging e produção; sobrevivem à minificação como `trackId:` seguido de `kart-park`, `displayLengthM:687` e os nomes — é o que `check_bundle.py` e `check_served.py` procuram |
+| Catálogo do treino (`TRAINING_TRACKS`: `kart-park` `trackVersion` 2, "Kart Park — São José dos Pinhais (réplica não oficial)", `displayLengthM` 691, `osmCredit` true; `synthetic` "Pista sintética") e `OPENING_TRACK_ID` = `kart-park` | `src/trainingSession.ts:13-17` | literais congelados (REQ-FEAT-0001-01; ADR-0005; ADR-0008: a entrada declara a versão que carrega e a seleção a confere, `TRACK_VERSION_MISMATCH`); iguais em dev, staging e produção; sobrevivem à minificação como `trackId:` seguido de `kart-park`, `trackVersion:2`, `displayLengthM:691` e os nomes — é o que `check_bundle.py` e `check_served.py` procuram. A versão jogável é escolhida aqui, em código, não por chave |
 | Crédito (`OSM_CREDIT`: texto, "licença ODbL", `https://openstreetmap.org/copyright`) | `src/lapMessages.ts:105-109` | literal (DES-0007, DES-0012); o crédito da Esri **não existe** no código até a decisão (NFR-0012) |
 | Retorno da zebra (`CURB_PULSE_MS` 20, `CURB_PULSE_INTERVAL_STEPS` 30, `CURB_SOUND_REPEAT_STEPS` 12; `CURB_SOUND` ruído com passa-baixas a 160 Hz, 60 ms) | `src/curbFeedback.ts:5-9`, `src/audio.ts:8` | constantes do projeto (DES-0009); no bundle, `vibrate(20)` e `lowpassHz:160` |
 | Aderência da zebra (`CURB_GRIP_PC` 0,85) e resposta da barreira | `src/physics.ts` | constantes da simulação (DES-0003, ADR-0003, ADR-0004); provadas por CHK-TEST-0003-* e CHK-TEST-0004-* |
-| Arquivo de pista (`src/tracks/kart-park-v1.json`, esquema 3, 43 013 bytes, SHA-256 `04ce5e51…`) | no JS, como literal | dado publicado e imutável (DM-0001; NFR-0006); nunca servido à parte, nunca buscado |
-| Registro de publicação (`tracks/registry.json`: `kart-park` 1 `STAGING`, `stagedAtUtc` 2026-10-27T21:58:06.132Z, `prep`) | repositório | dado do preparo (DM-0002), lido por `npm test` (CHK-TEST-0012-*) e por `check_bundle.py`; **não entra no bundle**; a passagem a `PRODUCTION` é um ato humano com `--esri-decision "<referência>"` (DES-0011), não uma configuração |
+| Arquivo de pista (`src/tracks/kart-park-v2.json`, esquema 3, `trackVersion` 2, 36 585 bytes, SHA-256 `c79f14cb…`) | no JS, como literal (`import … './tracks/kart-park-v2.json?raw'`, `src/main.ts:13`) | dado publicado e imutável (DM-0001; NFR-0006); nunca servido à parte, nunca buscado. A versão 1 (`src/tracks/kart-park-v1.json`, `04ce5e51…`) fica no repositório, publicada e intacta, **fora do pacote** (ADR-0008) |
+| Registro de publicação (`tracks/registry.json`: `kart-park` 1 `STAGING`, `stagedAtUtc` 2026-10-27T21:58:06.132Z; `kart-park` 2 `STAGING`, `stagedAtUtc` 2026-11-06T18:58:23.192Z, `prep.method` `REPLICA`) | repositório | dado do preparo (DM-0002 2.0.1), lido por `npm test` (CHK-TEST-0012-*) e por `check_bundle.py`; **não entra no bundle**; a passagem a `PRODUCTION` é um ato humano com `--esri-decision "<referência>"` (DES-0011), não uma configuração |
 | Argumento `--esri-decision <referência>` de `npm run track -- promote` | linha de comando, só no ato de promover | a referência (identificador e data) da decisão registrada em `DOMAIN.md`; 1 a 200 caracteres sem caractere de controle (DES-0010); gravada em `esriDecisionRef`; **não é segredo e não é variável de ambiente** — é a prova, no repositório, de que a promoção foi decidida (ADR-0005). Hoje não existe: a entrada está em `STAGING` |
-| Regra byte-exata dos arquivos de pista | `.gitattributes` (`5ed7a5b`): `tracks/sources/*.json -text`, `src/tracks/*.json -text`, `tracks/registry.json -text` | atributo de git, não variável nem segredo: impede a normalização do fim de linha, para que o resumo registrado seja o dos bytes do blob; conferido por `git ls-files --eol` (`runbook.md`, *Promote* 1) |
-| Registro em tela | `docs/kart-park-device-log.md` (a criar pelo dono do produto) | prosa com tabelas, lida por pessoas; não é lida pela página |
+| Regra byte-exata dos arquivos de pista | `.gitattributes` (`5ed7a5b`, inalterado): `tracks/sources/*.json -text`, `src/tracks/*.json -text`, `tracks/registry.json -text` — cobre por padrão os dois arquivos novos da revisão 3 | atributo de git, não variável nem segredo: impede a normalização do fim de linha, para que o resumo registrado seja o dos bytes do blob; conferido por `git ls-files --eol` nos cinco arquivos (`runbook.md`, *Promote* 1) |
+| Registro em tela | `docs/kart-park-device-log.md` (do dono do produto; existe desde `1bb63aa`) | prosa com tabelas, lida por pessoas; não é lida pela página |

@@ -8,16 +8,21 @@ Imprime uma linha por verificação (`ok`/`FAIL`/`warn`) e um resumo
 `checks=... failed=... js=index-<hash>.js js_bytes=... total_bytes=... track_bytes=... track_sha256=...`.
 Verifica, sem executar nada (copiado e adaptado de `600 Deploy/Output/modelo-kart-01/tools/check_bundle.py`):
   1. `dist/assets/` tem exatamente um JS e um CSS e nenhum outro arquivo — o arquivo da Kart Park entra no JS como
-     literal (`import ... from './tracks/kart-park-v1.json?raw'`, ADR-0002), não como recurso servido (NFR-0010);
-  2. o arquivo de pista está no JS **uma vez**, começa em `{"schemaVersion":3,"trackId":"kart-park"`, é JSON legível e,
-     acrescido do `\n` final que o arquivo de origem tem, dá o **mesmo SHA-256 e os mesmos bytes** que a entrada
-     `kart-park` 1 de `tracks/registry.json` (NFR-0006, DM-0002: o bundle serve a versão publicada, byte a byte);
-     a entrada está em `STAGING` (ADR-0005: `PRODUCTION` exige `esriDecisionRef`); o literal mede menos de
-     200 000 bytes (NFR-0001); as chaves são exatamente as de DM-0001 (nenhum campo de recorde — V18); as contagens são
-     as da release (684 pontos, 38 marcadores, 34 zebras, 3 limites, 1 barreira de 382 vértices, `COUNTER_CLOCKWISE`);
-  3. os textos do seletor e do crédito que a minificação preserva: o nome da Kart Park, `displayLengthM:687`,
-     `Pista sintética`, `© colaboradores do OpenStreetMap`, `licença ODbL`, `https://openstreetmap.org/copyright`,
-     `noopener noreferrer`, `_blank`, `trackId:` seguido de `kart-park` (DES-0005, DES-0007, DES-0012; AC-US-0006-01..08);
+     literal (`import ... from './tracks/kart-park-v2.json?raw'`, ADR-0002, ADR-0008), não como recurso servido (NFR-0010);
+  2. o arquivo de pista está no JS **uma vez** (só a versão 2: a versão 1 fica fora do pacote — ADR-0008), começa em
+     `{"schemaVersion":3,"trackId":"kart-park"`, é JSON legível e, acrescido do `\n` final que o arquivo de origem tem,
+     dá o **mesmo SHA-256 e os mesmos bytes** que a entrada `kart-park` 2 de `tracks/registry.json` (NFR-0006, DM-0002:
+     o bundle serve a versão publicada, byte a byte); a entrada 2 está em `STAGING` com `prep.method` `REPLICA`
+     (ADR-0005: `PRODUCTION` exige `esriDecisionRef`) e a entrada 1 continua no registro com o resumo de sempre
+     (`04ce5e51…`, I3); o literal mede menos de 200 000 bytes (NFR-0001); as chaves são exatamente as de DM-0001
+     (nenhum campo de recorde — V18); as contagens são as da versão 2 (691 pontos, 39 marcadores, 22 zebras, 3 limites,
+     1 barreira de 292 vértices, `COUNTER_CLOCKWISE`);
+  3. os textos do seletor e do crédito que a minificação preserva: o nome "… (réplica não oficial)", `displayLengthM:691`,
+     `TRACK_VERSION_MISMATCH` (ADR-0008, a conferência de versão do catálogo), `Pista sintética`,
+     `© colaboradores do OpenStreetMap`, `licença ODbL`, `https://openstreetmap.org/copyright`, `noopener noreferrer`,
+     `_blank`, `trackId:` seguido de `kart-park`; e **ausentes** os textos da versão 1 (`traçado aproximado`,
+     `displayLengthM:687`, um literal com `"trackVersion":1`) (DES-0005, DES-0007, DES-0012; AC-US-0001-08, -09;
+     AC-US-0006-01..08);
   4. o retorno da zebra e a barreira: `vibrate(20)` (20 ms, DES-0009), `lowpassHz:160` e a fonte `noise` do som da
      zebra, `curbWheelCount`, `barrierContact`/`barrierTouching` (DES-0003, DES-0009);
   5. as malhas da cena da Kart Park por nome: `asphalt`, `curbs`, `barriers`, `start-line` (DES-0008);
@@ -54,6 +59,11 @@ device_log = Path(sys.argv[3]) if len(sys.argv) > 3 else None
 LIMIT = 3 * 1024 * 1024
 TRACK_LITERAL_LIMIT = 200_000
 TRACK_HEAD = '{"schemaVersion":3,"trackId":"kart-park"'
+TRACK_VERSION = 2  # kart-park versão 2, a réplica não oficial (seed revisão 3; ADR-0008)
+TRACK_COUNTS = {"centerline": 691, "markers": 39, "curbs": 22, "sectorLimits": 3, "barriers": 1}
+BARRIER_POINTS = 292
+# tracks/registry.json, entrada kart-park 1 — imutável, fora do pacote desde a revisão 3 (ADR-0008); só conferida no registro.
+KART_PARK_V1_SHA256 = "04ce5e510410e297764c047739422b07d46290c70eade1c1fb5bb7d120f057b1"
 DM_0001_KEYS = {"schemaVersion", "trackId", "trackVersion", "osmDerived", "direction", "startPosition", "finishLine",
                 "sectorLimits", "markers", "centerline", "curbs", "barriers"}
 failed = 0
@@ -99,24 +109,29 @@ if len(starts) == 1:
         report("literal da pista abaixo de 200 000 bytes (NFR-0001)", len(track_bytes) < TRACK_LITERAL_LIMIT, f"{len(track_bytes)} bytes")
         report("chaves do arquivo exatamente as de DM-0001 (nenhum campo de recorde)", set(track_obj.keys()) == DM_0001_KEYS,
                ", ".join(sorted(set(track_obj.keys()) ^ DM_0001_KEYS)) or "iguais")
-        report("`schemaVersion` 3, `trackId` kart-park, `trackVersion` 1, `osmDerived` true",
+        report(f"`schemaVersion` 3, `trackId` kart-park, `trackVersion` {TRACK_VERSION}, `osmDerived` true",
                track_obj.get("schemaVersion") == 3 and track_obj.get("trackId") == "kart-park"
-               and track_obj.get("trackVersion") == 1 and track_obj.get("osmDerived") is True)
+               and track_obj.get("trackVersion") == TRACK_VERSION and track_obj.get("osmDerived") is True,
+               f"trackVersion {track_obj.get('trackVersion')}")
         report("`direction` COUNTER_CLOCKWISE", track_obj.get("direction") == "COUNTER_CLOCKWISE")
-        counts = {"centerline": 684, "markers": 38, "curbs": 34, "sectorLimits": 3, "barriers": 1}
-        for key, expected in counts.items():
+        for key, expected in TRACK_COUNTS.items():
             got = len(track_obj.get(key, []))
             report(f"`{key}` com {expected} elementos", got == expected, str(got))
         barriers = track_obj.get("barriers") or [{}]
-        report("barreira com 382 vértices", len(barriers[0].get("points", [])) == 382, str(len(barriers[0].get("points", []))))
+        report(f"barreira com {BARRIER_POINTS} vértices", len(barriers[0].get("points", [])) == BARRIER_POINTS,
+               str(len(barriers[0].get("points", []))))
         if registry_path is not None:
             try:
                 registry = json.loads(registry_path.read_text(encoding="utf-8"))
             except (OSError, ValueError) as exc:
                 registry = {}
                 report("tracks/registry.json legível", False, f"{type(exc).__name__}: {exc}")
-            entries = [e for e in registry.get("entries", []) if e.get("trackId") == "kart-park" and e.get("trackVersion") == 1]
-            report("entrada `kart-park` 1 no registro", len(entries) == 1, str(len(entries)))
+            entries = [e for e in registry.get("entries", []) if e.get("trackId") == "kart-park" and e.get("trackVersion") == TRACK_VERSION]
+            report(f"entrada `kart-park` {TRACK_VERSION} no registro", len(entries) == 1, str(len(entries)))
+            v1 = [e for e in registry.get("entries", []) if e.get("trackId") == "kart-park" and e.get("trackVersion") == 1]
+            report("entrada `kart-park` 1 continua no registro com o resumo de sempre (I3; ADR-0008)",
+                   len(v1) == 1 and v1[0].get("sha256") == KART_PARK_V1_SHA256 and v1[0].get("publicationState") == "STAGING",
+                   f"{len(v1)} entrada(s)")
             if len(entries) == 1:
                 e = entries[0]
                 report("SHA-256 do literal + LF igual ao registrado (NFR-0006; o bundle serve a versão publicada)",
@@ -127,12 +142,16 @@ if len(starts) == 1:
                 report("estado de publicação STAGING ou PRODUCTION com `esriDecisionRef` (ADR-0005)",
                        state == "STAGING" or (state == "PRODUCTION" and bool(e.get("esriDecisionRef"))), str(state))
                 report("registro em STAGING — a Kart Park não está promovida (NFR-0012)", state == "STAGING", str(state), level="warn")
+                report("entrada da versão 2 preparada da réplica (`prep.method` REPLICA; ADR-0008)",
+                       (e.get("prep") or {}).get("method") == "REPLICA", str((e.get("prep") or {}).get("method")))
 
 # 3. selector and credit texts
-for marker in ("Kart Park — São José dos Pinhais (traçado aproximado)", "displayLengthM:687", "Pista sintética",
-               "© colaboradores do OpenStreetMap", "licença ODbL", "https://openstreetmap.org/copyright",
+for marker in ("Kart Park — São José dos Pinhais (réplica não oficial)", "displayLengthM:691", "TRACK_VERSION_MISMATCH",
+               "Pista sintética", "© colaboradores do OpenStreetMap", "licença ODbL", "https://openstreetmap.org/copyright",
                "noopener noreferrer", "_blank", "selectedTrackId", "NO_SESSION", "TRAINING"):
     report(f"texto `{marker}` no JS", marker in js_text)
+for ghost in ("traçado aproximado", "displayLengthM:687", '"trackVersion":1'):
+    report(f"texto da versão 1 `{ghost}` ausente do JS (ADR-0008: a versão 1 fora do pacote)", ghost not in js_text)
 report("`trackId:`kart-park`` no catálogo do JS", bool(re.search(r"trackId:[`'\"]kart-park[`'\"]", js_text)))
 
 # 4. curb feedback, sound and barrier
