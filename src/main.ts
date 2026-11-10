@@ -3,6 +3,11 @@ import { initialState, nearest, track, WIDTH, PUBLISHED_SETUPS, getHandlingTelem
 import { buildLapRecord, compareLapRecords, type LapRecord } from './setupRecords';
 import { formatSharedText, shareLabel } from './handlingMessages';
 import { RaceAudio } from './audio';
+import type { SoundReading } from './soundOutput';
+// The two recordings, bundled inside this script as base 64 text (ADR-0001 of apresentacao-e-som): they have no address
+// of their own and are never requested.
+import engineLoopDataUrl from './assets/engine-loop.mp3?inline';
+import tireScreechDataUrl from './assets/tire-screech.mp3?inline';
 import { SYNTHETIC_TRACK_FILE } from './track';
 import type { TrackReading } from './trackData';
 import type { TrackGeometry } from './trackGeometry';
@@ -145,6 +150,12 @@ const skidTransform = new THREE.Object3D();
 let skidIndex = 0, lastSkidStepCount = 0;
 let previousSkids: THREE.Vector3[] = [];
 const audio = new RaceAudio();
+void audio.loadRecordings({ engineLoopDataUrl, tireScreechDataUrl });
+// What the sound reads from the frame (DES-0003 of apresentacao-e-som), never read by the simulation: the throttle of the
+// Input given to the last advanced step, whether the frame drew a new tyre-mark segment, and the instant of the last
+// accepted reposition, on the clock of the frame.
+let stepThrottleNorm = 0, laidSegment = false;
+let repositionAcceptedAtMs: number | undefined;
 
 // Lap state: the simulation (src/lap.ts) is the single source; this layer only forwards commands and reads views.
 let lap: LapSession | undefined;
@@ -188,15 +199,37 @@ function emitPause(cause: PauseCause) {
   const r = pauseLap(lap, cause);
   if (!r.ok) return;
   lap = r.lap; keys.clear(); touch.clear(); accumulatorS = 0;
+  refreshSound(performance.now());
 }
 function emitResume() {
   const r = resumeLap(lap);
   if (!r.ok) return;
   lap = r.lap; accumulatorS = 0; lastOrientationAtMs = performance.now();
+  refreshSound(performance.now());
 }
 function emitReposition() {
   const r = repositionKart(lap);
-  if (r.ok) lap = r.lap;
+  if (!r.ok) return;
+  lap = r.lap;
+  // No tyre-mark block ran for this reading: the kart was moved, not stepped.
+  repositionAcceptedAtMs = performance.now(); laidSegment = false;
+  refreshSound(repositionAcceptedAtMs);
+}
+// The reading of the frame for the sound, from public readings only; nothing goes back to stepLap.
+function refreshSound(nowMs: number) {
+  const lapState = getLapState(lap);
+  const telemetry = getHandlingTelemetry(lap?.kart, setupRef);
+  const rearContact = lap ? getTrackContact(lap.kart, lap.environment, lap.config) : undefined;
+  // Wheels 2 and 3 are the rear ones, in the order of wheelPositions of src/physics.ts.
+  const rearOnAsphalt = rearContact !== undefined && !('code' in rearContact)
+    && (rearContact.wheelSurfaces[2] === 'ASPHALT' || rearContact.wheelSurfaces[3] === 'ASPHALT');
+  const reading: SoundReading = {
+    nowMs, lapPhase: 'code' in lapState ? undefined : lapState.lapPhase, repositionAcceptedAtMs,
+    simStepCount: 'code' in telemetry ? undefined : telemetry.simStepCount,
+    speedMps: 'code' in telemetry ? 0 : telemetry.speedMps,
+    throttleNorm: stepThrottleNorm, tireMarkingAsphalt: laidSegment && rearOnAsphalt,
+  };
+  audio.refresh(reading);
 }
 // Ends the training and goes back to the offer, without the result screen; the simulation gives no result to the lap in
 // progress (DES-0007, DES-0009). A rejection (NOT_TRAINING, LAP_ENDED) does nothing.
@@ -313,6 +346,7 @@ function beginLap() {
   setupRef = { setupId: setup.setupId, setupVersion: setup.setupVersion };
   curbState = initialCurbFeedback();
   lap = r.lap; started = true; accumulatorS = 0; keys.clear(); touch.clear();
+  stepThrottleNorm = 0;
   touchFallback = coarsePointer.matches && !tilt;
   skidMarks.count = 0; skidIndex = 0; previousSkids = [];
   resultLang = undefined; handledResults = 0; shownTrainingResultKey = '';
@@ -344,12 +378,11 @@ $('handling-preset').onchange = e => {
     : 'Sem assistências de direção ou estabilidade. Frenagem traseira e maior exigência nas curvas.';
   notify(`${preset === 'arcade' ? 'Arcade' : 'Realista'} selecionado. Vale na próxima volta.`);
 };
-$('sound').onclick = async () => {
-  try {
-    const enabled = await audio.toggle();
-    $('sound').textContent = enabled ? 'Som ligado' : 'Som desligado';
-    $('sound').setAttribute('aria-pressed', String(enabled));
-  } catch { notify('Áudio indisponível neste navegador.'); }
+// The only place that turns the sound on or off: the request carries the final state (API-0002 of apresentacao-e-som).
+$('sound').onclick = () => {
+  const output = audio.setSoundOn(!audio.getSoundOutput().soundOn);
+  $('sound').textContent = output.soundOn ? 'Som ligado' : 'Som desligado';
+  $('sound').setAttribute('aria-pressed', String(output.soundOn));
 };
 $('reset').onclick = emitReposition;
 // Resumes a paused lap; in a training in COUNTDOWN or RUNNING it is the pause button (REQ-FEAT-0010-15).
@@ -547,6 +580,7 @@ function frame(now: number) {
     accumulatorS = clock.accumulatorS;
     for (let i = 0; i < clock.steps && lap.phase !== 'ENDED'; i++) {
       lap = stepLap(lap, input);
+      stepThrottleNorm = input.throttle;
       // Curb feedback (RULE-0004, DES-0009): decided per advanced step from the contact reading, never from wall time.
       const contact = getTrackContact(lap.kart, lap.environment, lap.config);
       if (!('code' in contact)) {
@@ -563,7 +597,6 @@ function frame(now: number) {
   // Without a ready session there is no kart to display (DES-0007); the HUD readouts fall back to a kart at rest.
   const idleKart = trainingIdleKart(training);
   const state = lap?.kart ?? idleKart ?? initialState();
-  const running = lap?.phase === 'RUNNING';
   // Every new result is handled once, in order: each training lap closed on the finish line, or the end of an official or
   // recon lap (DES-0007); a result never changes once produced.
   const lapResults = listLapResults(lap).lapResults;
@@ -581,7 +614,7 @@ function frame(now: number) {
     sun.position.set(pose.xM + 45, 100, pose.zM + 60);
     sun.target.position.set(pose.xM, 0, pose.zM);
   }
-  audio.update(state.speed, state.throttle, running);
+  const skidIndexBeforeMarks = skidIndex;
   // Tyre-mark situation (DES-0005, RULE-0003), read once per frame from the last completed step: a new step, RUNNING,
   // speedMps > 6 and sideslipRad > 0.055. A counter that went backwards (new lap, reposition) restarts the chain
   // without moving the marks already drawn; a frame without a new step draws nothing.
@@ -613,6 +646,10 @@ function frame(now: number) {
       previousSkids = rear;
     }
   }
+  // The block above advances skidIndex only when it draws a new segment: the tyre-mark situation as the screen shows it
+  // (ADR-0003 of apresentacao-e-som), read from outside the block.
+  laidSegment = skidIndex !== skidIndexBeforeMarks;
+  refreshSound(now);
   // The camera is a pure function of the frame (ADR-0002): lap state, pose and play-area shape read this frame.
   const viewWidthPx = host.clientWidth, viewHeightPx = host.clientHeight;
   if (viewWidthPx > 0 && viewHeightPx > 0) {

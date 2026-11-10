@@ -3,3 +3,8 @@ declare module '*.json?raw' {
   const text: string;
   export default text;
 }
+// A recording bundled inside the script (ADR-0001 of apresentacao-e-som): the bytes of the file as a base 64 `data:` text.
+declare module '*.mp3?inline' {
+  const dataUrl: string;
+  export default dataUrl;
+}

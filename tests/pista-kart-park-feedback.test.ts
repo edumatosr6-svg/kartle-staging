@@ -136,7 +136,7 @@ test('CHK-TEST-0008-06 over the contact sequence of a real curb run, every pulse
   }
 });
 
-test('CHK-TEST-0008-07 the curb sound is a filtered noise burst unlike the engine (triangle) and the reward (sine), built only with the sound on', async () => {
+test('CHK-TEST-0008-07 the curb sound is a filtered noise burst unlike the engine (a recording) and the reward (sine), built only with the sound on', async () => {
   // AC-US-0005-12
   class Param { value = 0; setTargetAtTime() {} setValueAtTime() {} linearRampToValueAtTime() {} exponentialRampToValueAtTime() {} }
   type Node = { kind: string; type: string; frequency: Param; gain: Param; buffer?: unknown; onended?: unknown; connect: (n: unknown) => unknown; disconnect: () => void; start: () => void; stop: () => void };
@@ -162,11 +162,11 @@ test('CHK-TEST-0008-07 the curb sound is a filtered noise burst unlike the engin
     const audio = new RaceAudio();
     audio.curb();
     assert.equal(created.length, 0, 'AC-US-0005-12: no node before the context exists');
-    await audio.toggle();
-    assert.ok(audio.soundOn(), 'AC-US-0005-12: sound on after the first toggle');
-    const engine = created.filter(n => n.kind === 'oscillator');
-    assert.equal(engine.length, 1, 'AC-US-0005-12: the engine is one oscillator');
-    assert.equal(engine[0].type, ENGINE_SOUND.source, 'AC-US-0005-12: of the engine descriptor type');
+    audio.setSoundOn(true);
+    assert.ok(audio.soundOn(), 'AC-US-0005-12: sound on after setSoundOn(true)');
+    assert.equal(created.filter(n => n.kind === 'oscillator').length, 0, 'AC-US-0005-12: no oscillator is created for the engine');
+    assert.equal(created.filter(n => n.kind === 'filter').length, 0, 'AC-US-0005-12: no filter is created for the engine');
+    assert.equal(ENGINE_SOUND.source, 'recording', 'AC-US-0005-12: the engine is a recording');
     created.length = 0;
     audio.curb();
     assert.deepEqual(created.map(n => n.kind), ['buffer-source', 'filter', 'gain'], 'AC-US-0005-12: one curb repeat is a buffer source through a filter and a gain');
@@ -179,8 +179,8 @@ test('CHK-TEST-0008-07 the curb sound is a filtered noise burst unlike the engin
     assert.ok(created.filter(n => n.kind === 'oscillator').every(n => n.type === REWARD_SOUND.source), 'AC-US-0005-12: of the reward descriptor type');
     assert.ok(created.every(n => n.kind !== 'buffer-source' && n.kind !== 'filter'), 'AC-US-0005-12: no other sound uses a buffer source or a filter');
     created.length = 0;
-    await audio.toggle();
-    assert.equal(audio.soundOn(), false, 'AC-US-0005-11: sound off after the second toggle');
+    audio.setSoundOn(false);
+    assert.equal(audio.soundOn(), false, 'AC-US-0005-11: sound off after setSoundOn(false)');
     audio.curb();
     assert.equal(created.length, 0, 'AC-US-0005-11: no curb node with the sound off');
   } finally {

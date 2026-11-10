@@ -1,0 +1,25 @@
+# Mutation trials — apresentacao-e-som, test stage, 2026-11-10
+# Each mutation was applied to a COPY of the tree in a scratch directory (src/, scripts/, tests/, index.html); the repository source was never edited.
+# Command per trial: npx tsx --test <the suites named in the changelog>. Columns: id | file | mutation | checks that failed.
+M01 | src/soundOutput.ts | ENGINE_GAIN_IDLE_NORM = 0.35 -> ENGINE_GAIN_IDLE_NORM = 0 | failed: CHK-TEST-0001-01 CHK-TEST-0001-03 CHK-TEST-0001-19 CHK-TEST-0002-07 
+M02 | src/soundOutput.ts | const repositioning = input.repositionAcceptedAtMs !== undefined -> const repositioning = false | failed: CHK-TEST-0001-06 CHK-TEST-0003-04 
+M03 | src/soundOutput.ts | && input.lapPhase !== undefined && input.lapPhase !== 'PAUSED' && inpu -> ; | failed: CHK-TEST-0001-11 
+M04 | src/soundOutput.ts | Math.min(stepReading.speedMps / ENGINE_PITCH_TOP_SPEED_MPS, 1) -> stepReading.throttleNorm | failed: CHK-TEST-0001-02 CHK-TEST-0002-08 
+M05 | src/soundOutput.ts | input.lapPhase === 'RUNNING' && stepReading !== undefined -> input.lapPhase !== 'ENDED' && stepReading !== undefined | failed: CHK-TEST-0001-04 CHK-TEST-0001-08 CHK-TEST-0003-02 CHK-TEST-0003-03 
+M06 | src/audio.ts | source.loop = true; -> source.loop = false; | failed: CHK-TEST-0002-04 CHK-TEST-0002-06 
+M07 | src/audio.ts | if (target === 0 && !this.enabled) { -> if (false) { | failed: CHK-TEST-0002-11 CHK-TEST-0003-05 
+M08 | src/audio.ts |         this.buildVoice('engine'); ->         this.context?.createOscillator(); this.buildVoice('eng | failed: CHK-TEST-0002-05 CHK-TEST-0004-09 CHK-TEST-0008-07 
+M09 | src/audio.ts | if (typeof soundOn !== 'boolean') return this.decision.output; -> soundOn = Boolean(soundOn); | failed: CHK-TEST-0002-12 
+M10 | src/audio.ts | voice.rampEndS = time + (target > 0 ? SOUND_FADE_IN_MS : SOUND_FADE_OU -> voice.rampEndS = time + (target > 0 ? SOUND_FADE_IN_MS : 250) / 1000; | failed: CHK-TEST-0002-09 CHK-TEST-0002-10 CHK-TEST-0003-02 CHK-TEST-0003-03 CHK-TEST-0003-04 CHK-TEST-0003-08 
+M11 | src/audio.ts | } catch { console.warn('sound-recording', RECORDING_ROLE[key], 'decode -> } catch (e) { throw e; } | failed: CHK-TEST-0002-16 
+M12 | src/audio.ts |     this.enabled = soundOn; ->     this.enabled = soundOn; const probe = fetch; | failed: CHK-TEST-0004-12 
+M13 | index.html | content="Kartle" /> -> content="Kartle — o jogo" /> | failed: CHK-TEST-0004-04 
+M14 | index.html | <link rel="preload" as="image" href="/src/assets/cover.jpg" /> ->  | failed: CHK-TEST-0004-06 CHK-TEST-0004-13 
+M15 | src/main.ts | tireMarkingAsphalt: laidSegment && rearOnAsphalt, -> tireMarkingAsphalt: laidSegment, | failed: CHK-TEST-0004-11 
+M16 | src/main.ts |   refreshSound(performance.now()); } function emitResume ->   audio.setSoundOn(true); } function emitResume | failed: CHK-TEST-0004-08 CHK-TEST-0004-10 
+M17 | src/lap.ts | import  -> import './soundOutput';; import | failed: CHK-TEST-0004-14 
+M18 | scripts/assetBudget.ts | ['stylesheet', 'modulepreload', 'icon', 'preload'] -> ['stylesheet', 'modulepreload', 'icon', 'preload', 'apple-touch-icon'] | failed: CHK-TEST-0005-12 CHK-TEST-0005-13 
+M19 | scripts/assetBudget.ts | initialDownloadBytes >= INITIAL_DOWNLOAD_LIMIT_BYTES -> initialDownloadBytes > 2 * INITIAL_DOWNLOAD_LIMIT_BYTES | failed: CHK-TEST-0005-09 CHK-TEST-0005-18 
+M20 | src/assets/feature-assets.json | "runtimeDependenciesBaseline": ["three"] -> "runtimeDependenciesBaseline": ["three", "howler"] | failed: CHK-TEST-0005-16 
+M21 | src/assets/tire-screech.mp3 | one byte appended | failed: CHK-TEST-0005-04 CHK-TEST-0005-05 CHK-TEST-0005-06 CHK-TEST-0005-08 CHK-TEST-0005-09 CHK-TEST-0005-10 CHK-TEST-0005-11 CHK-TEST-0005-12 CHK-TEST-0005-15 CHK-TEST-0005-16 CHK-TEST-0005-18 
+M22 | src/physics.ts | next.stepCount = state.stepCount + 1; -> next.stepCount = state.stepCount + 1; next.x += 1e-7; | failed: CHK-TEST-0003-11 CHK-TEST-0003-12 CHK-TEST-0003-13 

@@ -44,6 +44,7 @@ become `OPEN-<nn>` in the seed that carries them, and only then is the set moved
 | dirigibilidade | `220 Input/dirigibilidade/` | web-desktop, web-mobile | eduardo.matos | 3 | Sensação de pilotagem do Arcade: resposta do volante, aderência, aceleração |
 | modelo-kart-01 | `220 Input/modelo-kart-01/` | web-desktop, web-mobile | eduardo.matos | 1 | Kart 01 low-poly em escala real e câmera de jogo atrás do piloto |
 | pista-kart-park | `220 Input/pista-kart-park/` | web-desktop, web-mobile | eduardo.matos | 1 | Kart Park, primeira pista real, ao lado da sintética no treino |
+| apresentacao-e-som | `220 Input/apresentacao-e-som/` | web-desktop, web-mobile | eduardo.matos | 2 | Ícone, capa na prévia do link, motor gravado e pneu cantando |
 
 ## Conventions
 

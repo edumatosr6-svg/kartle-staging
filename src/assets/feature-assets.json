@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "assetRole": "ICON_IMAGE",
+      "sourcePath": "docs/art/icon.png",
+      "sourceSha256": "386b0ef4c55f53eeb7613150aab4b836bc24a6c677cf4ef4339e18271dc33050",
+      "deliveredPath": "src/assets/icon.png",
+      "deliveredSha256": "c41595441bbcf490af8958a9e612cdfbd54944303fac94961d1aaa32301ca28c",
+      "deliveredBytes": 36674,
+      "transform": "RESIZE_REENCODE",
+      "widthPx": 192,
+      "heightPx": 192
+    },
+    {
+      "assetRole": "COVER_IMAGE",
+      "sourcePath": "docs/art/cover.png",
+      "sourceSha256": "08a6c68faa7688b7e616ad9577976de279978113e48d2e434b4e6d624a4c0ffc",
+      "deliveredPath": "src/assets/cover.jpg",
+      "deliveredSha256": "28ed9c012cf24fc77c7fe40278aa9d6cc12475bc5bba9ed8b922bd01e1ee9e40",
+      "deliveredBytes": 72701,
+      "transform": "RESIZE_REENCODE",
+      "widthPx": 1200,
+      "heightPx": 670
+    },
+    {
+      "assetRole": "ENGINE_LOOP",
+      "sourcePath": "docs/sfx/engine-loop.mp3",
+      "sourceSha256": "9a3e52fd2543cc32469be78b566cbec7564385d4efc2878b3b80efb0666d77ee",
+      "deliveredPath": "src/assets/engine-loop.mp3",
+      "deliveredSha256": "9a3e52fd2543cc32469be78b566cbec7564385d4efc2878b3b80efb0666d77ee",
+      "deliveredBytes": 70998,
+      "transform": "COPY"
+    },
+    {
+      "assetRole": "TIRE_SCREECH",
+      "sourcePath": "docs/sfx/tire-screech.mp3",
+      "sourceSha256": "4d897baed8e92f329ca1837f90b4a5b3d9e1dcf7b7b7a688d3ac21b520b5faff",
+      "deliveredPath": "src/assets/tire-screech.mp3",
+      "deliveredSha256": "4d897baed8e92f329ca1837f90b4a5b3d9e1dcf7b7b7a688d3ac21b520b5faff",
+      "deliveredBytes": 44389,
+      "transform": "COPY"
+    }
+  ],
+  "runtimeDependenciesBaseline": ["three"]
+}
